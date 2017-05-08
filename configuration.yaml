@@ -1,0 +1,178 @@
+homeassistant:
+  # Name of the location where Home Assistant is running
+  name: Home
+  # Location required to calculate the time the sun rises and sets
+  latitude: 45.4
+  longitude: -71.9
+  # Impacts weather/sunrise data (altitude above sea level in meters)
+  elevation: 183
+  # metric for Metric, imperial for Imperial
+  unit_system: metric
+  # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  time_zone: America/Toronto
+  customize:
+    switch.living_room:
+      friendly_name: Floor Lamp
+    switch.dinning_room:
+      friendly_name: Floor Lamp
+    switch.kitchen:
+      friendly_name: Under Cabinet Lights
+    switch.desktop:
+      friendly_name: Desktop
+    sensor.disk_free_home:
+      friendly_name: Disk Free
+    sensor.disk_use_home:
+      friendly_name: Disk Use
+      # icon: mdi:kettle
+
+# Show links to resources in log and frontend
+# introduction:
+
+# Enables the frontend
+frontend:
+
+# Enables configuration UI
+config:
+
+http:
+  # Uncomment this to add a password (recommended!)
+  # api_password:
+  # Uncomment this if you are using SSL or running in Docker etc
+  # base_url: example.duckdns.org:8123
+
+# Text to speech
+tts:
+  platform: google
+
+# Embedded Broker Server
+mqtt:
+
+# Checks for available updates
+updater:
+
+# Discover some devices automatically
+discovery:
+
+# Allows you to issue voice commands from the frontend in enabled browsers
+conversation:
+
+# Enables support for tracking state changes over time.
+history:
+
+# View all events in a logbook
+logbook:
+
+# Track the sun
+sun:
+
+## If This Then That, see https://ifttt.com/discover
+# ifttt:
+#   key:
+
+## Allow you to monitor your personal servers
+# digital_ocean:
+#   access_token:
+# binary_sensor:
+#   - platform: digital_ocean
+#     droplets:
+#       - 'ubuntu-vps'
+
+## Control you spotify playback
+# media_player:
+#   - platform: spotify
+#     client_id:
+#     client_secret:
+
+## See the motion folder for a example configuration file
+## Also see https://home-assistant.io/blog/2016/06/23/usb-webcams-and-home-assistant/
+# camera:
+#  - platform: mjpeg
+#    mjpeg_url: http://localhost:8081
+#    name: Live Cam
+
+sensor:
+  # Weather Prediction
+  - platform: moon
+  - platform: yweather
+    monitored_conditions:
+      - weather
+      - weather_current
+      - temp_min
+      - temp_max
+      - wind_speed
+      - visibility
+      - humidity
+      - temperature
+  # Raspberry Pi Monitor
+  - platform: systemmonitor
+    resources:
+      - type: memory_free
+      - type: processor_use
+      - type: last_boot
+      - type: since_last_boot
+      - type: disk_use_percent
+        arg: /home
+      - type: disk_free
+        arg: /home
+  # Custom sensors - Digital Ocean Server
+  # - platform: template
+  #   sensors:
+  #     ubuntu_server_ip:
+  #       value_template: '{{ states.binary_sensor.ubuntuvps.attributes.ipv4_address }}'
+  #       friendly_name: 'IP Address'
+  #       entity_id: binary_sensor.ubuntuvps
+  #     ubuntu_server_ram:
+  #       value_template: '{{ states.binary_sensor.ubuntuvps.attributes.memory }}'
+  #       friendly_name: 'Memory'
+  #       unit_of_measurement: 'MB'
+  #       entity_id: binary_sensor.ubuntuvps
+
+## Control lights with RF transmitter
+switch:
+  platform: rpi_rf
+  gpio: 17
+  switches:
+    desktop:
+      protocol: 1
+      pulselength: 184
+      code_on: 5584134
+      code_off: 5584140
+    kitchen:
+      protocol: 1
+      pulselength: 184
+      code_on: 5574451,5545798
+      code_off: 5556460,5577456
+      signal_repetitions: 20
+
+## See the rpi-mqtt-leds folder
+light:
+  - platform: mqtt_template
+    name: "Bedroom Led Strip"
+    effect_list:
+      - White
+      - Halogen
+      - Color
+      - Rainbow
+    command_topic: "home-assistant/led-strip/set"
+    state_topic: "home-assistant/led-strip/status"
+    command_on_template: >
+      {"state": "on"
+      {%- if brightness is defined -%}
+      , "brightness": {{ brightness }}
+      {%- endif -%}
+      {%- if red is defined and green is defined and blue is defined -%}
+      , "color": [{{ red }}, {{ green }}, {{ blue }}]
+      {%- endif -%}
+      {%- if effect is defined -%}
+      , "effect": "{{ effect }}"
+      {%- endif -%}
+      }
+    command_off_template: '{"state": "off"}'
+    state_template: '{{ value_json.state }}'
+    brightness_template: '{{ value_json.brightness }}'
+    red_template: '{{ value_json.color[0] }}'
+    green_template: '{{ value_json.color[1] }}'
+    blue_template: '{{ value_json.color[2] }}'
+    effect_template: '{{ value_json.effect }}'
+
+group: !include groups.yaml
