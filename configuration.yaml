@@ -2,10 +2,10 @@ homeassistant:
   # Name of the location where Home Assistant is running
   name: Home
   # Location required to calculate the time the sun rises and sets
-  latitude: 45.4
-  longitude: -71.9
+  latitude: !secret latitude
+  longitude: !secret longitude
   # Impacts weather/sunrise data (altitude above sea level in meters)
-  elevation: 183
+  elevation: !secret elevation
   # metric for Metric, imperial for Imperial
   unit_system: metric
   # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
@@ -36,9 +36,12 @@ config:
 
 http:
   # Uncomment this to add a password (recommended!)
-  # api_password:
+  api_password: !secret http_password
   # Uncomment this if you are using SSL or running in Docker etc
   # base_url: example.duckdns.org:8123
+
+ifttt:
+  key: !secret ifttt_key
 
 # Text to speech
 tts:
@@ -65,30 +68,18 @@ logbook:
 # Track the sun
 sun:
 
-## If This Then That, see https://ifttt.com/discover
-# ifttt:
-#   key:
+digital_ocean:
+  access_token: !secret digital_ocean_access_token
 
-## Allow you to monitor your personal servers
-# digital_ocean:
-#   access_token:
-# binary_sensor:
-#   - platform: digital_ocean
-#     droplets:
-#       - 'ubuntu-vps'
+binary_sensor:
+  - platform: digital_ocean
+    droplets:
+      - 'ubuntu-vps'
 
-## Control you spotify playback
 # media_player:
 #   - platform: spotify
-#     client_id:
-#     client_secret:
-
-## See the motion folder for a example configuration file
-## Also see https://home-assistant.io/blog/2016/06/23/usb-webcams-and-home-assistant/
-# camera:
-#  - platform: mjpeg
-#    mjpeg_url: http://localhost:8081
-#    name: Live Cam
+#     client_id: !secret spotify_client_id
+#     client_secret: !secret spotify_client_secret
 
 sensor:
   # Weather Prediction
@@ -114,37 +105,38 @@ sensor:
         arg: /home
       - type: disk_free
         arg: /home
-  # Custom sensors - Digital Ocean Server
-  # - platform: template
-  #   sensors:
-  #     ubuntu_server_ip:
-  #       value_template: '{{ states.binary_sensor.ubuntuvps.attributes.ipv4_address }}'
-  #       friendly_name: 'IP Address'
-  #       entity_id: binary_sensor.ubuntuvps
-  #     ubuntu_server_ram:
-  #       value_template: '{{ states.binary_sensor.ubuntuvps.attributes.memory }}'
-  #       friendly_name: 'Memory'
-  #       unit_of_measurement: 'MB'
-  #       entity_id: binary_sensor.ubuntuvps
 
-## Control lights with RF transmitter
+# camera:
+#  - platform: mjpeg
+#    mjpeg_url: http://localhost:8081
+#    name: Live Cam
+
 switch:
   platform: rpi_rf
   gpio: 17
   switches:
     desktop:
-      protocol: 1
-      pulselength: 184
-      code_on: 5584134
-      code_off: 5584140
+      protocol: !secret zap_protocol
+      pulselength: !secret zap_pulselength
+      code_on: !secret zap_switch5_on
+      code_off: !secret zap_switch5_off
+    living_room:
+      protocol: !secret zap_protocol
+      pulselength: !secret zap_pulselength
+      code_on: !secret zap_switch1_on
+      code_off: !secret zap_switch1_off
+    dinning_room:
+      protocol: !secret zap_protocol
+      pulselength: !secret zap_pulselength
+      code_on: !secret zap_switch2_on
+      code_off: !secret zap_switch2_off
     kitchen:
-      protocol: 1
-      pulselength: 184
-      code_on: 5574451,5545798
-      code_off: 5556460,5577456
+      protocol: !secret zap_protocol
+      pulselength: !secret zap_pulselength
+      code_on: !secret zap_kitchen_switches_on
+      code_off: !secret zap_kitchen_switches_off
       signal_repetitions: 20
 
-## See the rpi-mqtt-leds folder
 light:
   - platform: mqtt_template
     name: "Bedroom Led Strip"
@@ -174,5 +166,7 @@ light:
     green_template: '{{ value_json.color[1] }}'
     blue_template: '{{ value_json.color[2] }}'
     effect_template: '{{ value_json.effect }}'
+
+automation: !include automation.yaml
 
 group: !include groups.yaml
