@@ -1,0 +1,26 @@
+switch.eric_desktop:
+  friendly_name: Eric's desktop
+switch.caro_desktop:
+  friendly_name: Caro's desktop
+switch.fan:
+  friendly_name: Fan
+  icon: mdi:air-conditioner
+switch.rainbow_lights:
+  friendly_name: Rainbow Lights
+switch.cell_charger:
+  friendly_name: Cell Charger
+  icon: mdi:cellphone
+  
+sensor.internet_download:
+  icon: mdi:download
+sensor.usage_end_date:
+  icon: mdi:update
+
+sensor.disk_free_home:
+  friendly_name: Disk Free
+sensor.disk_use_home:
+  friendly_name: Disk Use
+  
+group.all_automations:
+  friendly_name: All Automations
+  hidden: false

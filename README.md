@@ -11,6 +11,18 @@ Follow this tutorial to be able to install Home Assistant on a fresh new copy of
 
 *Please take note that the installation takes a couple of hours.*
 
+## Useful commands
+
+Restart server
+```
+$ sudo systemctl restart home-assistant
+```
+
+Updating HA
+```
+$ sudo /srv/homeassistant/homeassistant_venv/bin/pip3 install --upgrade homeassistant
+```
+
 ## The Power of Home Assistant
 
 To see what you can do with Home Assistant on your Raspberry Pi, navigate to their list of components:
