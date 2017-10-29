@@ -1,0 +1,16 @@
+toggle_kitchen_lights:
+  sequence:
+  - service_template: script.toggle_kitchen_lights_{% if is_state('light.kitchen_rgb_lights', 'off') %}on{% else %}off{% endif %}
+
+toggle_kitchen_lights_on:
+  sequence:
+      - service: light.turn_on
+        entity_id: light.kitchen_rgb_lights
+        data:
+          brightness: 255
+          rgb_color: [255, 255, 255]
+
+toggle_kitchen_lights_off:
+  sequence:
+      - service: light.turn_off
+        entity_id: light.kitchen_rgb_lights

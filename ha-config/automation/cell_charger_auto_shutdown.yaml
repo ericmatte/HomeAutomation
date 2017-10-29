@@ -1,0 +1,13 @@
+- id: chell_charging_auto
+  alias: Charge Cellphone
+  trigger:
+    platform: state 
+    entity_id: switch.cell_charger
+    from: 'off'
+    to: 'on'
+    for:
+      hours: 1
+      minutes: 30
+  action:
+    service: switch.turn_off
+    entity_id: switch.cell_charger

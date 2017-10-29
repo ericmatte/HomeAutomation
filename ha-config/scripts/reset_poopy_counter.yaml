@@ -1,0 +1,8 @@
+reset_poopy_counter:
+  alias: Reset poopy counter
+  sequence:
+    - service: persistent_notification.dismiss
+      data:
+        notification_id: cat_notif
+    - service: counter.reset
+      entity_id: counter.poopy_counter

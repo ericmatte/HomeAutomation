@@ -1,0 +1,21 @@
+- id: cat_litter_days_counter
+  alias: Cat Litter Days Counter
+  trigger:
+    platform: time
+    at: '00:00:00'
+  action:
+    service: counter.increment
+    entity_id: counter.poopy_counter
+
+- id: cat_litter_warning
+  alias: Cat Litter Poopy Warning
+  trigger:
+    platform: numeric_state 
+    entity_id: counter.poopy_counter
+    above: 2
+  action:
+    service: persistent_notification.create
+    data:
+      notification_id: "cat_notif"
+      message: "The litter box must be changed"
+      title: "Cat Warning Alert"

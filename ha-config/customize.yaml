@@ -24,3 +24,22 @@ sensor.disk_use_home:
 group.all_automations:
   friendly_name: All Automations
   hidden: false
+group.all_scripts:
+  friendly_name: All Scripts
+  hidden: false
+group.all_devices:
+  friendly_name: All Of The People ♪
+  hidden: false
+  order: 1
+
+sensor.google_input_text:
+  icon: mdi:text-to-speech
+switch.google_assistant:
+  icon: mdi:google-assistant
+switch.live_cam:
+  icon: mdi:camera
+
+sensor.cat_litter:
+  icon: mdi:cat
+script.reset_poopy_counter:
+  icon: mdi:emoticon-poop

@@ -1,0 +1,20 @@
+- id: turn_off_fan
+  alias: Turn Off Fan at Night When Cold
+  trigger:
+    platform: state 
+    entity_id: switch.fan
+    from: 'off'
+    to: 'on'
+    for:
+      hours: 3
+  action:
+    - condition: and
+      conditions:
+        - condition: state
+          entity_id: sun.sun
+          state: 'below_horizon'
+        - condition: numeric_state
+          entity_id: sensor.yr_temperature
+          below: 18
+    - service: switch.turn_off
+      entity_id: switch.fan

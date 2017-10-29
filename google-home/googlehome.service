@@ -1,0 +1,13 @@
+[Unit]
+Description=Google Home Service
+After=home-assistant.service
+
+[Service]
+Type=simple
+User=pi
+
+WorkingDirectory=/home/pi/google_home/
+ExecStart=/home/pi/google_home/google_env/bin/python3 main.py
+
+[Install]
+WantedBy=multi-user.target

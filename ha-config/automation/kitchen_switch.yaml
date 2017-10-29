@@ -1,0 +1,9 @@
+- id: toggle_kitchen_lights
+  alias: Kitchen Lights Toggle
+  trigger:
+    platform: state 
+    entity_id: binary_sensor.kitchen_switch
+    from: 'on'
+    to: 'off'
+  action:
+    service_template: script.toggle_kitchen_lights

@@ -10,7 +10,7 @@ homeassistant:
   unit_system: metric
   # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   time_zone: America/Toronto
-  customize: !include customized.yaml
+  customize: !include customize.yaml
 
 # Enables the frontend
 frontend:
@@ -20,8 +20,11 @@ frontend:
 logger:
   default: warning
   logs:
+    homeassistant.components.switch.command_line: critical
     requests.packages.urllib3.connectionpool: critical
     homeassistant.components.camera: critical
+    aiohttp.server: critical
+    hbmqtt.broker: critical
 
 # Enables configuration UI
 config:
@@ -34,10 +37,17 @@ http:
   ssl_key: !secret ssl_privkey
   ip_ban_enabled: True
   login_attempts_threshold: 5
-  # trusted_networks:
-  #   - 127.0.0.1
-  #   - ::1
-  #   - 192.168.0.0/24
+  trusted_networks:
+    - 127.0.0.1
+    - ::1
+    - 192.168.0.0/24
+
+# device_tracker:
+#   - platform: nmap_tracker
+#     interval_seconds: 30
+#     consider_home: 480
+#     track_new_devices: yes
+#     hosts: 192.168.1.200-201
 
 ifttt:
   key: !secret ifttt_key
@@ -67,26 +77,30 @@ logbook:
 # Track the sun
 sun:
 
-# digital_ocean:
-#   access_token: !secret digital_ocean_access_token
+recorder:
+  # Delete events and states older than 2 weeks
+  purge_days: 14
+
+digital_ocean:
+  access_token: !secret digital_ocean_access_token
 
 binary_sensor:
   - platform: rpi_gpio
     bouncetime: 10
     ports:
       21: Kitchen Switch
-  # - platform: digital_ocean
-  #   droplets:
-  #     - 'ubuntu-vps'
+  - platform: digital_ocean
+    droplets:
+      - 'ubuntu-vps'
 
 sensor:
   # Https certificates validation
   - platform: cert_expiry
-    host: rasp.ericmatte.me
-    name: rasp.ericmatte.me
+    host: !secret pi_domain
+    name: !secret pi_domain
   - platform: cert_expiry
-    host: ericmatte.me
-    name: ericmatte.me
+    host: !secret personal_domain
+    name: !secret personal_domain
   # Weather Prediction
   - platform: yr
     monitored_conditions:
@@ -119,6 +133,25 @@ sensor:
       TekSavvy-APIKey: !secret teksavvy_api_key
     name: Usage End Date
     value_template: '{{ value_json["value"][0]["EndDate"].split("T")[0] }}'
+  # Google Home Text Display
+  - platform: mqtt
+    state_topic: "home-assistant/google-home"
+    name: "Google Input Text:"
+  # Cat Litter Checker
+  - platform: template
+    sensors:
+      cat_litter:
+        friendly_name: "State"
+        value_template: >-
+          {% if states.counter.poopy_counter.state == '0' %}
+            Clean
+          {% elif states.counter.poopy_counter.state == '1' %}
+            A little dirty
+          {% elif states.counter.poopy_counter.state == '2' %}
+            Could be changed
+          {% else %}
+            Need to be changed
+          {% endif %}
 
 camera:
  - platform: mjpeg
@@ -159,6 +192,20 @@ switch:
         code_on: !secret zap_switch5_on
         code_off: !secret zap_switch5_off
         signal_repetitions: 20
+  - platform: command_line
+    switches:
+      google_assistant:
+        friendly_name: Google Assitant
+        command_on: sudo systemctl start googlehome.service
+        command_off: sudo systemctl stop googlehome.service
+        command_state: sudo systemctl status googlehome.service
+        value_template: '{{ not is_state(value, NULL) and "Active: active (running)" in value }}'
+      live_cam:
+        friendly_name: Live Camera
+        command_on: sudo systemctl start motion.service
+        command_off: sudo systemctl stop motion.service
+        command_state: sudo systemctl status motion.service
+        value_template: '{{ not is_state(value, NULL) and "Active: active (running)" in value }}'
 
 light:
   - platform: mqtt_json
@@ -173,23 +220,13 @@ light:
     optimistic: false
     qos: 0
 
-script:
-  good_night:
-    sequence:
-      - service: light.turn_off
-        entity_id: group.all_lights
-      - service: switch.turn_off
-        entity_id:
-          - switch.eric_desktop
-          - switch.caro_desktop
-          - switch.rainbow_lights
-      - service: media_player.turn_off
-        entity_id:
-          - media_player.chromecast_hd
-      - service: switch.turn_on
-        entity_id:
-          - switch.cell_charger
+counter:
+  poopy_counter:
+    name: "Number of days since last change"
+    initial: 0
+    step: 1
+    icon: mdi:paw
 
-automation: !include automation.yaml
-
+automation: !include_dir_merge_list automation/
+script: !include_dir_merge_named scripts/
 group: !include groups.yaml

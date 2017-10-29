@@ -1,0 +1,29 @@
+- id: media_player_turn_off_rgb
+  alias: "Media player paused/stopped"
+  trigger:
+    - platform: state
+      entity_id: media_player.chromecast_hd
+      from: 'playing'
+  condition:
+    - condition: state
+      entity_id: sun.sun
+      state: 'below_horizon'
+  action:
+      service: light.turn_off
+      entity_id: light.kitchen_rgb_lights
+
+- id: media_player_turn_on_rgb
+  alias: "Media player playing"
+  trigger:
+    - platform: state
+      entity_id: media_player.chromecast_hd
+      to: 'playing'
+  condition:
+    - condition: state
+      entity_id: sun.sun
+      state: 'below_horizon'
+  action:
+      service: light.turn_on
+      entity_id: light.kitchen_rgb_lights
+      data:
+        effect: "ColorFade Slow"
