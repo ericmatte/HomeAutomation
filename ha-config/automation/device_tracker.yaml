@@ -1,5 +1,6 @@
 - id: coming_home
   alias: Turn On Lights When Home
+  initial_state: 'off'
   trigger:
   - platform: state
     entity_id: device_tracker.eric
@@ -38,6 +39,7 @@
 
 - id: coming_home2
   alias: Turn Off Live Cam When Home
+  initial_state: 'off'
   trigger:
   - platform: state
     entity_id: device_tracker.eric
@@ -50,6 +52,7 @@
 
 - id: away_from_home
   alias: Turn Off Everything When Away
+  initial_state: 'off'
   trigger:
   - platform: state
     entity_id: device_tracker.eric

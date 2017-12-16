@@ -1,5 +1,6 @@
 - id: turn_off_fan
   alias: Turn Off Fan at Night When Cold
+  initial_state: 'off'
   trigger:
     platform: state 
     entity_id: switch.fan

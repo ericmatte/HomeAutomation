@@ -52,6 +52,12 @@ http:
 ifttt:
   key: !secret ifttt_key
 
+notify:
+  - name: html5
+    platform: html5
+    gcm_api_key: !secret gcm_server_key
+    gcm_sender_id: !secret gcm_sender_id
+
 # Text to speech
 tts:
   platform: google
@@ -174,23 +180,23 @@ switch:
         code_on: !secret zap_switch2_on
         code_off: !secret zap_switch2_off
         signal_repetitions: 20
-      fan:
-        protocol: !secret zap_protocol
-        pulselength: !secret zap_pulselength
-        code_on: !secret zap_switch3_on
-        code_off: !secret zap_switch3_off
-        signal_repetitions: 20
       rainbow_lights:
         protocol: !secret zap_protocol
         pulselength: !secret zap_pulselength
         code_on: !secret zap_switch4_on
         code_off: !secret zap_switch4_off
         signal_repetitions: 20
-      cell_charger:
+      cell_charger_eric:
         protocol: !secret zap_protocol
         pulselength: !secret zap_pulselength
         code_on: !secret zap_switch5_on
         code_off: !secret zap_switch5_off
+        signal_repetitions: 20
+      cell_charger_caro:
+        protocol: !secret zap_protocol
+        pulselength: !secret zap_pulselength
+        code_on: !secret zap_switch3_on
+        code_off: !secret zap_switch3_off
         signal_repetitions: 20
   - platform: command_line
     switches:
@@ -226,6 +232,15 @@ counter:
     initial: 0
     step: 1
     icon: mdi:paw
+
+input_select:
+  who_clean:
+    name: Who will clean it
+    options:
+     - Eric
+     - Carolanne
+    initial: Eric
+    icon: mdi:panda
 
 automation: !include_dir_merge_list automation/
 script: !include_dir_merge_named scripts/

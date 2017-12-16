@@ -60,8 +60,8 @@ office:
 bedroom:
   name: Bedroom
   entities:
-    - switch.fan
-    - switch.cell_charger
+    - switch.cell_charger_eric
+    - switch.cell_charger_caro
 
 google_speech:
   name: Last Recognized Speech
@@ -71,6 +71,7 @@ google_speech:
 cat_litter:
   name: Cat Litter
   entities:
+    - input_select.who_clean
     - sensor.cat_litter
     - counter.poopy_counter
     - script.reset_poopy_counter

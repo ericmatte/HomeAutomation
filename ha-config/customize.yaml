@@ -7,8 +7,11 @@ switch.fan:
   icon: mdi:air-conditioner
 switch.rainbow_lights:
   friendly_name: Rainbow Lights
-switch.cell_charger:
-  friendly_name: Cell Charger
+switch.cell_charger_eric:
+  friendly_name: Eric's Cell Charger
+  icon: mdi:cellphone
+switch.cell_charger_caro:
+  friendly_name: Caro's Cell Charger
   icon: mdi:cellphone
   
 sensor.internet_download:
@@ -42,4 +45,6 @@ switch.live_cam:
 sensor.cat_litter:
   icon: mdi:cat
 script.reset_poopy_counter:
+  icon: mdi:emoticon-poop
+script.increment_poopy_counter:
   icon: mdi:emoticon-poop

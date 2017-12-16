@@ -6,3 +6,10 @@ reset_poopy_counter:
         notification_id: cat_notif
     - service: counter.reset
       entity_id: counter.poopy_counter
+    - service: input_select.select_next
+
+increment_poopy_counter:
+  alias: Increment poopy counter
+  sequence:
+    - service: counter.increment
+      entity_id: counter.poopy_counter

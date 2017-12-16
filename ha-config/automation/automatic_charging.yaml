@@ -1,0 +1,39 @@
+- id: automatic_charger_toggler
+  alias: Automatic Cellphones Charger Toggler
+  trigger:
+    platform: time
+    at: '02:00:00'
+  action:
+    service: switch.turn_on
+    entity_id:
+     - switch.cell_charger_eric
+     - switch.cell_charger_caro
+
+
+- id: eric_chell_charging_auto
+  alias: Charge Eric's Cellphone for 1h30
+  trigger:
+    platform: state 
+    entity_id: switch.cell_charger_eric
+    from: 'off'
+    to: 'on'
+    for:
+      hours: 1
+      minutes: 30
+  action:
+    service: switch.turn_off
+    entity_id: switch.cell_charger_eric
+
+- id: caro_chell_charging_auto
+  alias: Charge Caro's Cellphone for 1h30
+  trigger:
+    platform: state 
+    entity_id: switch.cell_charger_caro
+    from: 'off'
+    to: 'on'
+    for:
+      hours: 1
+      minutes: 30
+  action:
+    service: switch.turn_off
+    entity_id: switch.cell_charger_caro

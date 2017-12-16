@@ -1,0 +1,16 @@
+
+google-home/credents\.json
+
+google-home/secrets\.py
+
+ha-config/html5_push_registrations\.conf
+
+ha-config/known_devices\.yaml
+
+ha-config/secrets\.yaml
+
+ha-config/www/
+
+*.pyc
+
+toggle-lights-with-windows-connection/secrets\.py
