@@ -88,9 +88,9 @@ system_info:
   name: System Info
   entities:
     - sensor.disk_free_home
-    - sensor.disk_use_home
-    - sensor.ram_free
-    - sensor.cpu_use
+    - sensor.disk_use_percent_home
+    - sensor.memory_free
+    - sensor.processor_use
     - sensor.last_boot
     - sensor.since_last_boot
   
@@ -104,5 +104,7 @@ servers_certificate:
 internet_usage:
   name: Internet Usage
   entities:
-    - sensor.internet_download
-    - sensor.usage_end_date
+    - sensor.teksavvy_usage
+    - sensor.teksavvy_usage_2
+    - sensor.onpeak_remaining
+    - sensor.teksavvy_off_peak_total

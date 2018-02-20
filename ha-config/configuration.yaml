@@ -16,12 +16,18 @@ homeassistant:
 frontend:
   themes: !include themes.yaml
 
+# Database cleaning
+recorder:
+  purge_keep_days: 7
+  purge_interval: 7
+
 # Disable safe warnings
 logger:
   default: warning
   logs:
     homeassistant.components.switch.command_line: critical
     requests.packages.urllib3.connectionpool: critical
+    requests.exceptions.ConnectionError: critical
     homeassistant.components.camera: critical
     aiohttp.server: critical
     hbmqtt.broker: critical
@@ -36,7 +42,7 @@ http:
   ssl_certificate: !secret ssl_fullchain
   ssl_key: !secret ssl_privkey
   ip_ban_enabled: True
-  login_attempts_threshold: 5
+  login_attempts_threshold: 3
   trusted_networks:
     - 127.0.0.1
     - ::1
@@ -83,25 +89,22 @@ logbook:
 # Track the sun
 sun:
 
-recorder:
-  # Delete events and states older than 2 weeks
-  purge_days: 14
-
-digital_ocean:
-  access_token: !secret digital_ocean_access_token
+# digital_ocean:
+#   access_token: !secret digital_ocean_access_token
 
 binary_sensor:
   - platform: rpi_gpio
     bouncetime: 10
     ports:
       21: Kitchen Switch
-  - platform: digital_ocean
-    droplets:
-      - 'ubuntu-vps'
+  # - platform: digital_ocean
+  #   droplets:
+  #     - 'ubuntu-vps'
 
 sensor:
   # Https certificates validation
   - platform: cert_expiry
+    scan_interval: 86400 # 1 time/day
     host: !secret pi_domain
     name: !secret pi_domain
   - platform: cert_expiry
@@ -109,6 +112,7 @@ sensor:
     name: !secret personal_domain
   # Weather Prediction
   - platform: yr
+    scan_interval: 3600 # 1 time/hour
     monitored_conditions:
       - temperature
   - platform: moon
@@ -124,21 +128,15 @@ sensor:
       - type: disk_free
         arg: /home
   # Teksavvy
-  - platform: rest
-    scan_interval: 43200
-    resource: !secret teksavvy_api
-    headers:
-      TekSavvy-APIKey: !secret teksavvy_api_key
-    name: Internet Download
-    value_template: '{{ value_json["value"][0]["OnPeakDownload"] }}'
-    unit_of_measurement: Go
-  - platform: rest
-    scan_interval: 43200
-    resource: !secret teksavvy_api
-    headers:
-      TekSavvy-APIKey: !secret teksavvy_api_key
-    name: Usage End Date
-    value_template: '{{ value_json["value"][0]["EndDate"].split("T")[0] }}'
+  - platform: teksavvy
+    scan_interval: 21600 # 4 times/day
+    api_key: !secret teksavvy_api_key
+    total_bandwidth: 200
+    monitored_variables:
+      - usage
+      - usage_gb
+      - onpeak_remaining
+      - offpeak_total
   # Google Home Text Display
   - platform: mqtt
     state_topic: "home-assistant/google-home"
@@ -204,14 +202,14 @@ switch:
         friendly_name: Google Assitant
         command_on: sudo systemctl start googlehome.service
         command_off: sudo systemctl stop googlehome.service
-        command_state: sudo systemctl status googlehome.service
-        value_template: '{{ not is_state(value, NULL) and "Active: active (running)" in value }}'
+        command_state: systemctl is-active googlehome.service
+        value_template: '{{ value == "active" }}'
       live_cam:
         friendly_name: Live Camera
         command_on: sudo systemctl start motion.service
         command_off: sudo systemctl stop motion.service
-        command_state: sudo systemctl status motion.service
-        value_template: '{{ not is_state(value, NULL) and "Active: active (running)" in value }}'
+        command_state: systemctl is-active motion.service
+        value_template: '{{ value == "active" }}'
 
 light:
   - platform: mqtt_json

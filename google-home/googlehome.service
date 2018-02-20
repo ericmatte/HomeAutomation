@@ -1,6 +1,7 @@
+# /etc/systemd/system/googlehome.service
 [Unit]
 Description=Google Home Service
-After=home-assistant.service
+After=home-assistant.service network.target
 
 [Service]
 Type=simple
