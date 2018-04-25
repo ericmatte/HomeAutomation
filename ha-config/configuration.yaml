@@ -14,6 +14,7 @@ homeassistant:
 
 # Enables the frontend
 frontend:
+  #javascript_version: latest
   themes: !include themes.yaml
 
 # Database cleaning
@@ -34,6 +35,17 @@ logger:
 
 # Enables configuration UI
 config:
+
+# Google Assistant Integration
+google_assistant:
+  project_id: !secret google_assistant_project_id
+  client_id: !secret google_assistant_client_id
+  access_token: !secret google_assistant_access_token
+  agent_user_id: !secret email
+  api_key: !secret google_assistant_api_key
+  exposed_domains:
+    - switch
+    - light
 
 # Server security config
 http:
@@ -171,31 +183,31 @@ switch:
         pulselength: !secret zap_pulselength
         code_on: !secret zap_switch1_on
         code_off: !secret zap_switch1_off
-        signal_repetitions: 20
+        signal_repetitions: 30
       caro_desktop:
         protocol: !secret zap_protocol
         pulselength: !secret zap_pulselength
         code_on: !secret zap_switch2_on
         code_off: !secret zap_switch2_off
-        signal_repetitions: 20
+        signal_repetitions: 30
       rainbow_lights:
         protocol: !secret zap_protocol
         pulselength: !secret zap_pulselength
         code_on: !secret zap_switch4_on
         code_off: !secret zap_switch4_off
-        signal_repetitions: 20
+        signal_repetitions: 30
       cell_charger_eric:
         protocol: !secret zap_protocol
         pulselength: !secret zap_pulselength
         code_on: !secret zap_switch5_on
         code_off: !secret zap_switch5_off
-        signal_repetitions: 20
+        signal_repetitions: 30
       cell_charger_caro:
         protocol: !secret zap_protocol
         pulselength: !secret zap_pulselength
         code_on: !secret zap_switch3_on
         code_off: !secret zap_switch3_off
-        signal_repetitions: 20
+        signal_repetitions: 30
   - platform: command_line
     switches:
       google_assistant:

@@ -14,60 +14,84 @@ from google.assistant.library import Assistant
 from google.assistant.library.event import EventType
 from google.assistant.library.file_helpers import existing_file
 
-# We are binding Google Home to the kitchen rgb lights
-light_id = 'light.kitchen_rgb_lights'
-light_url = secrets.domain+'/api/services/{domain}/{service}?api_password='+secrets.api_password
-light_state_url = secrets.domain+'/api/states/{entity_id}?api_password='+secrets.api_password
+USE_GPIO = False
+API_URL = secrets.domain+'/api/{command}?api_password='+secrets.api_password
 
-class GlobalVariables():
-    user_request_kitchen_ligths = False
-    previous_state = None
+class BindingLight:
 
-    def reset(self):
-        self.user_request_kitchen_ligths = False
+    def __init__(self, light_id, listen_color):
+        self.light_id = light_id
+        self.listen_color = listen_color
         self.previous_state = None
 
+    def __post(self, state, data):
+        data["entity_id"] = self.light_id
+        u = API_URL.format(command='services/light/turn_'+state)
+        print(u)
+        print(data)
+        r = requests.post(u, json=data)
+        print(r)
 
-global_vars = GlobalVariables()
+    def get_current_state(self):
+        return requests.get(API_URL.format(command='states/'+self.light_id)).json()
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(25, GPIO.OUT)
+    def restore_state(self):
+        current_state = self.get_current_state()
+        if current_state["attributes"].get("rgb_color", [255, 255, 255]) != self.listen_color:
+            print("no change to state")
+            return # Exit if light was changed not by the software
+
+        if self.previous_state is None or self.previous_state.get('state') != "on":
+            self.__post('off', {"transition": 1})
+            print("turned off")
+        else:
+            self.__post('on', {
+                "rgb_color": self.previous_state["attributes"].get("rgb_color", [255, 255, 255]),
+                # "transition": 0  # Not working as of HA v0.66.0
+            })
+            print("turned on")
+
+    def toggle(self, state, transition=0):
+        print('self.listen_color')
+        print(self.listen_color)
+        self.__post(state, {"rgb_color": self.listen_color, "transition": transition})
+
+    def flash(self):
+        self.__post('on', {"rgb_color": [255,0,0], "effect": "Flash"})
+
+    def colorfade(self):
+        self.__post('on', {"effect": "ColorFade Fast"})
+
+
+light = BindingLight(secrets.light_id, [36,255,255])
+
+if USE_GPIO:
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(25, GPIO.OUT)
 
 def on_conversation_started():
-    GPIO.output(25,True)
+    if USE_GPIO:
+        GPIO.output(25,True)
 
-    if global_vars.previous_state is None:
-        global_vars.previous_state = requests.get(light_state_url.format(entity_id=light_id)).json()
-
-    requests.post(light_url.format(domain='light', service='turn_on'), json={"entity_id": light_id, "rgb_color": [0,255,255], "transition": 0})
+    light.previous_state = light.get_current_state()
+    light.toggle('on')
 
 def on_recognizing_speech(text):
-    if 'kitchen' in text:
-        global_vars.user_request_kitchen_ligths = True
-
-    requests.post(secrets.domain+'/api/services/mqtt/publish?api_password='+secrets.api_password,
-        json={"retain": "True", "topic": "home-assistant/google-home", "payload": text})
+    light.colorfade()
+    requests.post(API_URL.format(command='services/mqtt/publish'),
+        json={"retain": "True", "topic": secrets.google_assistant_notification_id, "payload": text})
 
 def on_misunderstanding():
-    requests.post(light_url.format(domain='light', service='turn_on'), json={"entity_id": light_id, "rgb_color": [255,0,0], "effect": "Flash"})
+    light.flash()
 
 def on_responding_started():
-    requests.post(light_url.format(domain='light', service='turn_on'), json={"entity_id": light_id, "effect": "ColorFade Fast"})
+    pass
 
 def on_conversation_finished():
-    GPIO.output(25, False)
+    if USE_GPIO:
+        GPIO.output(25, False)
 
-    if not global_vars.user_request_kitchen_ligths:
-        json_data = {"entity_id": light_id, "transition": 1}
-        if global_vars.previous_state is None or global_vars.previous_state.get('state') != "on":
-            service = 'turn_off'
-        else:
-            service = 'turn_on'
-            json_data["brightness"] = global_vars.previous_state["attributes"].get("brightness", 255)
-            json_data["rgb_color"] = global_vars.previous_state["attributes"].get("rgb_color", [255, 255, 255])
-
-        requests.post(light_url.format(domain='light', service=service), json=json_data)
-    global_vars.reset()
+    light.restore_state()
 
 def process_event(event):
     """Pretty prints events.
@@ -112,7 +136,7 @@ def main():
         credentials = google.oauth2.credentials.Credentials(token=None,
                                                             **json.load(f))
 
-    with Assistant(credentials) as assistant:
+    with Assistant(credentials, "Pi-Assistant") as assistant:
         for event in assistant.start():
             process_event(event)
 

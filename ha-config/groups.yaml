@@ -105,6 +105,6 @@ internet_usage:
   name: Internet Usage
   entities:
     - sensor.teksavvy_usage
-    - sensor.teksavvy_usage_2
-    - sensor.onpeak_remaining
+    - sensor.teksavvy_usage_ratio
+    - sensor.teksavvy_remaining
     - sensor.teksavvy_off_peak_total
