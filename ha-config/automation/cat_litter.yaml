@@ -17,35 +17,24 @@
     entity_id: counter.poopy_counter
     above: 1
   action:
-    service: persistent_notification.create
-    data:
-      notification_id: "cat_notif"
-      message: "{{ states.input_select.who_clean.state }}, it is your turn!"
-      title: "The litter box must be changed"
-
-- id: cat_litter_warning
-  alias: Cat Litter Poopy Warning
-  trigger:
-    platform: state 
-    entity_id: counter.poopy_counter
-  condition:
-    condition: numeric_state 
-    entity_id: counter.poopy_counter
-    above: 1
-  action:
-    service_template: >
-      notify.html5_{{ states.input_select.who_clean.state | lower }}phone
-    data_template:
-      message: It is your turn to change the litter box
-    data:
+    - service: persistent_notification.create
       data:
-        tag: 'notification-about-litter-box'
-        vibrate: false
-        actions:
-        - title: Done
-          action: 'reset_poopy_counter'
-        - title: Dismiss
-          action: ''
+        notification_id: "cat_notif"
+        message: "{{ states.input_select.who_clean.state }}, it is your turn!"
+        title: "The litter box must be changed"
+    - service_template: >
+        notify.html5_{{ states.input_select.who_clean.state | lower }}phone
+      data_template:
+        message: It is your turn to change the litter box
+      data:
+        data:
+          tag: 'notification-about-litter-box'
+          vibrate: false
+          actions:
+          - title: Done
+            action: 'reset_poopy_counter'
+          - title: Dismiss
+            action: ''
 
 - alias: HTML5 push notification litter box cleaned clicked
   trigger:

@@ -1,0 +1,9 @@
+- alias: "Save Google Speech Time"
+  trigger:
+    - platform: mqtt
+      topic: "home-assistant/google-home"
+  action:
+    - service: mqtt.publish
+      data:
+        topic: "home-assistant/google-home-datetime"
+        payload_template: "{{ states('sensor.time') + ' - ' + states('sensor.date') }}"

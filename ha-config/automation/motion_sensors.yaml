@@ -1,0 +1,77 @@
+# Kitchen motion sensor
+- id: kitchen_motion_sensors_on
+  alias: Turn on kitchen light when there is movement
+  trigger:
+    platform: state
+    entity_id: binary_sensor.kitchen_motion_sensor
+    to: 'on'
+    for:
+      seconds: 2
+  condition:
+    condition: and
+    conditions:
+      - condition: time
+        after: '07:00:00'
+      - condition: state
+        entity_id: input_boolean.kitchen_motion_sensor
+        state: 'on'
+      - condition: template
+        value_template: "{{ states.media_player.chromecast.state != 'playing' }}"
+  action:
+    service: light.turn_on
+    entity_id: light.dining_room
+
+- id: kitchen_motion_sensors_off
+  alias: Turn off kitchen light 5 minutes after last movement
+  trigger:
+    platform: state
+    entity_id: binary_sensor.kitchen_motion_sensor
+    to: 'off'
+    for:
+      minutes: 2
+      seconds: 30
+  condition:
+    condition: and
+    conditions:
+      - condition: state
+        entity_id: input_boolean.kitchen_motion_sensor
+        state: 'on'
+      - condition: template
+        value_template: "{{ states.media_player.chromecast.state != 'playing' }}"
+  action:
+    service: light.turn_off
+    entity_id: light.dining_room
+
+
+# Bathroom door sensor
+- id: bathroom_motion_sensors_on
+  alias: Turn on bathroom light when opening the door
+  trigger:
+    platform: state
+    entity_id: binary_sensor.walkin_door_sensor
+    to: 'on'
+  condition:
+    condition: state
+    entity_id: input_boolean.walkin_door_sensor
+    state: 'on'
+  action:
+    service: light.turn_on
+    entity_id: light.walkin
+    # data:
+    #   entity_id: light.walk_in
+    #   brightness: 200
+    #   kelvin: 2700
+
+- id: bathroom_motion_sensors_off
+  alias: Turn off bathroom light 2 minute after on
+  trigger:
+    platform: state
+    entity_id: binary_sensor.walkin_door_sensor
+    to: 'off'
+  condition:
+    condition: state
+    entity_id: input_boolean.walkin_door_sensor
+    state: 'on'
+  action:
+    service: light.turn_off
+    entity_id: light.walkin

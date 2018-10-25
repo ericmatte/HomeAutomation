@@ -1,23 +1,22 @@
+binary_sensor.kitchen_motion_sensor:
+  device_class: motion
+
+switch.ge_12722_onoff_relay_switch_switch:
+  friendly_name: Office light
 switch.eric_desktop:
-  friendly_name: Eric's desktop
+  friendly_name: Black desktop
+  icon: mdi:desk-lamp
 switch.caro_desktop:
-  friendly_name: Caro's desktop
-switch.fan:
-  friendly_name: Fan
+  friendly_name: White desktop
+  icon: mdi:desk-lamp
+switch.ac:
+  friendly_name: AC
   icon: mdi:air-conditioner
 switch.rainbow_lights:
   friendly_name: Rainbow Lights
 switch.cell_charger_eric:
-  friendly_name: Eric's Cell Charger
+  friendly_name: Cell charger
   icon: mdi:cellphone
-switch.cell_charger_caro:
-  friendly_name: Caro's Cell Charger
-  icon: mdi:cellphone
-  
-sensor.internet_download:
-  icon: mdi:download
-sensor.usage_end_date:
-  icon: mdi:update
 
 sensor.disk_free_home:
   friendly_name: Disk Free
@@ -34,9 +33,35 @@ group.all_devices:
   friendly_name: All Of The People ♪
   hidden: false
   order: 1
+group.all_lights:
+  friendly_name: All Lights
+  hidden: false
+group.all_switches:
+  friendly_name: All Switches
+  hidden: false
+
+automation.cat_litter_days_counter:
+  hidden: true
+automation.cat_litter_poopy_warning:
+  hidden: true
+automation.dark_theme_during_night:
+  hidden: true
+automation.default_theme_during_day:
+  hidden: true
+automation.html5_push_notification_litter_box_cleaned_clicked:
+  hidden: true
+automation.kitchen_lights_toggle:
+  hidden: true
+automation.save_google_speech_time:
+  hidden: true
+automation.set_theme_at_startup:
+  hidden: true
+
 
 sensor.google_input_text:
   icon: mdi:text-to-speech
+sensor.recognized_at:
+  icon: mdi:clock
 switch.google_assistant:
   icon: mdi:google-assistant
 switch.live_cam:

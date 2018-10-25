@@ -1,0 +1,27 @@
+- id: brew_coffee
+  alias: "Brew Coffee"
+  trigger:
+    - platform: template
+      value_template: "{{ states('sensor.time') == (states.input_datetime.coffee_time_selector.attributes.timestamp | int | timestamp_custom('%H:%M', False)) }}"
+  condition:
+    - condition: state
+      entity_id: input_boolean.coffee_activator
+      state: 'on'
+  action:
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.coffee_activator
+      - service: switch.turn_on
+        entity_id: switch.coffee
+
+- id: turn_off_brew_coffee
+  alias: Turn off Coffee Machine After 30 Minutes
+  trigger:
+    platform: state 
+    entity_id: switch.coffee
+    from: 'off'
+    to: 'on'
+    for:
+      minutes: 30
+  action:
+    service: switch.turn_off
+    entity_id: switch.coffee

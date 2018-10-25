@@ -39,13 +39,18 @@ config:
 # Google Assistant Integration
 google_assistant:
   project_id: !secret google_assistant_project_id
-  client_id: !secret google_assistant_client_id
-  access_token: !secret google_assistant_access_token
-  agent_user_id: !secret email
+  # client_id: !secret google_assistant_client_id
+  # access_token: !secret google_assistant_access_token
+  # agent_user_id: !secret email
   api_key: !secret google_assistant_api_key
   exposed_domains:
     - switch
     - light
+  entity_config:
+    switch.live_cam:
+      expose: false
+    switch.google_assistant:
+      expose: false
 
 # Server security config
 http:
@@ -54,13 +59,15 @@ http:
   ssl_certificate: !secret ssl_fullchain
   ssl_key: !secret ssl_privkey
   ip_ban_enabled: True
-  login_attempts_threshold: 3
+  login_attempts_threshold: 5
   trusted_networks:
     - 127.0.0.1
     - ::1
     - 192.168.0.0/24
 
 # device_tracker:
+#     - platform: gpslogger
+#       password: logThatP0s1t10n
 #   - platform: nmap_tracker
 #     interval_seconds: 30
 #     consider_home: 480
@@ -82,6 +89,12 @@ tts:
 
 # Embedded Broker Server
 mqtt:
+  discovery: true
+  password: !secret http_password
+
+# Z-Wave USB stick
+zwave:
+  usb_path: /dev/ttyACM0
 
 # Checks for available updates
 updater:
@@ -104,16 +117,11 @@ sun:
 # digital_ocean:
 #   access_token: !secret digital_ocean_access_token
 
-binary_sensor:
-  - platform: rpi_gpio
-    bouncetime: 10
-    ports:
-      21: Kitchen Switch
-  # - platform: digital_ocean
-  #   droplets:
-  #     - 'ubuntu-vps'
-
 sensor:
+  - platform: time_date
+    display_options:
+      - 'time'
+      - 'date'
   # Https certificates validation
   - platform: cert_expiry
     scan_interval: 86400 # 1 time/day
@@ -139,20 +147,23 @@ sensor:
         arg: /home
       - type: disk_free
         arg: /home
-  # Teksavvy
-  - platform: teksavvy
-    scan_interval: 21600 # 4 times/day
-    api_key: !secret teksavvy_api_key
-    total_bandwidth: 200
-    monitored_variables:
-      - usage
-      - usage_gb
-      - onpeak_remaining
-      - offpeak_total
+  # # Teksavvy
+  # - platform: teksavvy
+  #   scan_interval: 21600 # 4 times/day
+  #   api_key: !secret teksavvy_api_key
+  #   total_bandwidth: 200
+  #   monitored_variables:
+  #     - usage
+  #     - usage_gb
+  #     - onpeak_remaining
+  #     - offpeak_total
   # Google Home Text Display
   - platform: mqtt
     state_topic: "home-assistant/google-home"
     name: "Google Input Text:"
+  - platform: mqtt
+    state_topic: "home-assistant/google-home-datetime"
+    name: "Recognized at"
   # Cat Litter Checker
   - platform: template
     sensors:
@@ -175,6 +186,12 @@ camera:
    name: Live Cam
 
 switch:
+  - platform: flux
+    mode: mired
+    disable_brightness_adjust: True
+    lights:
+      - light.dining_room
+      - light.hue_light_1
   - platform: rpi_rf
     gpio: 17
     switches:
@@ -183,31 +200,31 @@ switch:
         pulselength: !secret zap_pulselength
         code_on: !secret zap_switch1_on
         code_off: !secret zap_switch1_off
-        signal_repetitions: 30
+        signal_repetitions: !secret zap_signal_repetition
       caro_desktop:
         protocol: !secret zap_protocol
         pulselength: !secret zap_pulselength
         code_on: !secret zap_switch2_on
         code_off: !secret zap_switch2_off
-        signal_repetitions: 30
+        signal_repetitions: !secret zap_signal_repetition
       rainbow_lights:
         protocol: !secret zap_protocol
         pulselength: !secret zap_pulselength
         code_on: !secret zap_switch4_on
         code_off: !secret zap_switch4_off
-        signal_repetitions: 30
+        signal_repetitions: !secret zap_signal_repetition
       cell_charger_eric:
         protocol: !secret zap_protocol
         pulselength: !secret zap_pulselength
         code_on: !secret zap_switch5_on
         code_off: !secret zap_switch5_off
-        signal_repetitions: 30
-      cell_charger_caro:
+        signal_repetitions: !secret zap_signal_repetition
+      ac:
         protocol: !secret zap_protocol
         pulselength: !secret zap_pulselength
         code_on: !secret zap_switch3_on
         code_off: !secret zap_switch3_off
-        signal_repetitions: 30
+        signal_repetitions: !secret zap_signal_repetition
   - platform: command_line
     switches:
       google_assistant:
@@ -236,6 +253,7 @@ light:
     optimistic: false
     qos: 0
 
+# Poopy counter
 counter:
   poopy_counter:
     name: "Number of days since last change"
@@ -245,13 +263,45 @@ counter:
 
 input_select:
   who_clean:
-    name: Who will clean it
+    name: "Who will clean it"
     options:
      - Eric
      - Carolanne
     initial: Eric
     icon: mdi:panda
 
+binary_sensor:
+  - platform: rpi_gpio
+    bouncetime: 50
+    ports:
+      21: Kitchen Switch
+      20: Kitchen motion sensor
+  # - platform: digital_ocean
+  #   droplets:
+  #     - 'ubuntu-vps'
+
+# Coffee machine
+# input_datetime:
+#   coffee_time_selector:
+#     name: "Time to brew coffee"
+#     has_date: false
+#     has_time: true
+
+input_boolean:
+  kitchen_motion_sensor:
+    name: Kitchen motion sensor
+    initial: on
+    icon: mdi:flash-circle
+  walkin_door_sensor:
+    name: Walk-in door sensor
+    initial: on
+    icon: mdi:flash-circle
+#   coffee_activator:
+#     name: "Brew coffee on selected time"
+#     initial: off
+#     icon: mdi:coffee
+
+# Imports
 automation: !include_dir_merge_list automation/
 script: !include_dir_merge_named scripts/
 group: !include groups.yaml
