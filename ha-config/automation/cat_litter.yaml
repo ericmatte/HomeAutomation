@@ -36,6 +36,15 @@
           - title: Dismiss
             action: ''
 
+- alias: IFTTT litter box webhook
+  trigger:
+    platform: event
+    event_type: ifttt_webhook_received
+    event_data:
+      action: reset_poopy_counter
+  action:
+    service: script.reset_poopy_counter
+
 - alias: HTML5 push notification litter box cleaned clicked
   trigger:
     platform: event

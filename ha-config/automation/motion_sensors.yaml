@@ -1,77 +1,105 @@
+# Flux
+- id: flux_on
+  alias: Flux on when no color in dining light.
+  trigger:
+      platform: template
+      value_template: "{{ not state_attr('light.dining_room', 'hs_color') }}"
+  action:
+      service: switch.turn_on
+      entity_id: switch.flux
+
+- id: flux_off
+  alias: Flux off when color in dining light.
+  trigger:
+      platform: template
+      value_template: "{{ not not state_attr('light.dining_room', 'hs_color') }}"
+  action:
+      service: switch.turn_off
+      entity_id: switch.flux
+
 # Kitchen motion sensor
 - id: kitchen_motion_sensors_on
-  alias: Turn on kitchen light when there is movement
+  alias: Kitchen light on when movement
   trigger:
-    platform: state
-    entity_id: binary_sensor.kitchen_motion_sensor
-    to: 'on'
-    for:
-      seconds: 2
+      platform: state
+      entity_id: binary_sensor.kitchen_motion_sensor
+      to: "on"
+      for:
+          seconds: 1
   condition:
-    condition: and
-    conditions:
-      - condition: time
-        after: '07:00:00'
-      - condition: state
-        entity_id: input_boolean.kitchen_motion_sensor
-        state: 'on'
-      - condition: template
-        value_template: "{{ states.media_player.chromecast.state != 'playing' }}"
+      condition: and
+      conditions:
+          - condition: time
+            after: "07:00:00"
+          - condition: time
+            before: "23:00:00"
+          - condition: state
+            entity_id: input_boolean.kitchen_motion_sensor
+            state: "on"
+          - condition: template
+            value_template: "{{ not is_state('media_player.tv', 'playing') }}"
+          # - condition: or
+          #   conditions:
+          #     - condition: state
+          #       entity_id: device_tracker.eric
+          #       state: 'home'
+          #     - condition: state
+          #       entity_id: device_tracker.caro
+          #       state: 'home'
   action:
-    service: light.turn_on
-    entity_id: light.dining_room
+      service: light.turn_on
+      entity_id: light.dining_room
 
 - id: kitchen_motion_sensors_off
-  alias: Turn off kitchen light 5 minutes after last movement
+  alias: Kitchen light off when no movement
   trigger:
-    platform: state
-    entity_id: binary_sensor.kitchen_motion_sensor
-    to: 'off'
-    for:
-      minutes: 2
-      seconds: 30
+      platform: state
+      entity_id: binary_sensor.kitchen_motion_sensor
+      to: "off"
+      for:
+          minutes: 2
+          seconds: 30
   condition:
-    condition: and
-    conditions:
-      - condition: state
-        entity_id: input_boolean.kitchen_motion_sensor
-        state: 'on'
-      - condition: template
-        value_template: "{{ states.media_player.chromecast.state != 'playing' }}"
+      condition: and
+      conditions:
+          - condition: state
+            entity_id: input_boolean.kitchen_motion_sensor
+            state: "on"
+          - condition: template
+            value_template: "{{ not state_attr('light.dining_room', 'hs_color') }}"
+          - condition: template
+            value_template: "{{ not is_state('light.kitchen_rgb_lights', 'on') }}"
+          - condition: template
+            value_template: "{{ not is_state('media_player.tv', 'playing') }}"
   action:
-    service: light.turn_off
-    entity_id: light.dining_room
-
+      service: light.turn_off
+      entity_id: light.dining_room
 
 # Bathroom door sensor
-- id: bathroom_motion_sensors_on
-  alias: Turn on bathroom light when opening the door
+- id: walk_in_motion_sensors_on
+  alias: Turn on walkin light when opening the door
   trigger:
-    platform: state
-    entity_id: binary_sensor.walkin_door_sensor
-    to: 'on'
+      platform: state
+      entity_id: binary_sensor.walk_in_door_sensor
+      to: "on"
   condition:
-    condition: state
-    entity_id: input_boolean.walkin_door_sensor
-    state: 'on'
+      condition: state
+      entity_id: input_boolean.walk_in_door_sensor
+      state: "on"
   action:
-    service: light.turn_on
-    entity_id: light.walkin
-    # data:
-    #   entity_id: light.walk_in
-    #   brightness: 200
-    #   kelvin: 2700
+      service: light.turn_on
+      entity_id: light.walk_in
 
-- id: bathroom_motion_sensors_off
-  alias: Turn off bathroom light 2 minute after on
+- id: walk_in_motion_sensors_off
+  alias: Turn off walkin light 2 minute after on
   trigger:
-    platform: state
-    entity_id: binary_sensor.walkin_door_sensor
-    to: 'off'
+      platform: state
+      entity_id: binary_sensor.walk_in_door_sensor
+      to: "off"
   condition:
-    condition: state
-    entity_id: input_boolean.walkin_door_sensor
-    state: 'on'
+      condition: state
+      entity_id: input_boolean.walk_in_door_sensor
+      state: "on"
   action:
-    service: light.turn_off
-    entity_id: light.walkin
+      service: light.turn_off
+      entity_id: light.walk_in

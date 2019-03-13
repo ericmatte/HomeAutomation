@@ -62,10 +62,8 @@ sensor.google_input_text:
   icon: mdi:text-to-speech
 sensor.recognized_at:
   icon: mdi:clock
-switch.google_assistant:
+switch.google_home:
   icon: mdi:google-assistant
-switch.live_cam:
-  icon: mdi:camera
 
 sensor.cat_litter:
   icon: mdi:cat

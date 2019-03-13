@@ -7,7 +7,7 @@ default_view:
   entities:
     - group.kitchen
     - group.living_room
-    - media_player.chromecast
+    - media_player.tv
     - group.office
     - group.bedroom
 
@@ -25,9 +25,7 @@ google_view:
   icon: mdi:google-assistant 
   entities:
     - group.google_speech
-    - switch.google_assistant
-    - switch.live_cam
-    - camera.live_cam
+    - switch.google_home
 
 misc:
   view: yes
@@ -35,7 +33,7 @@ misc:
     - group.cat_litter
     - group.weather
     - group.motion_sensors
-    # group.all_devices
+    - group.all_devices
 
 systems:
   name: Systems
@@ -63,7 +61,7 @@ kitchen:
 living_room:
   name: Living Room
   entities:
-    - light.tv_lamps
+    - light.home_theatre_lights
     - switch.rainbow_lights
     - switch.ac
 
@@ -77,7 +75,7 @@ office:
 bedroom:
   name: Bedroom
   entities:
-    - light.walkin
+    - light.walk_in
     - switch.cell_charger_eric
 
 google_speech:
@@ -91,8 +89,8 @@ motion_sensors:
   entities:
     - input_boolean.kitchen_motion_sensor
     - binary_sensor.kitchen_motion_sensor
-    - input_boolean.walkin_door_sensor
-    - binary_sensor.walkin_door_sensor
+    - input_boolean.walk_in_door_sensor
+    - binary_sensor.walk_in_door_sensor
 
 cat_litter:
   name: Cat Litter
@@ -118,14 +116,11 @@ system_info:
     - sensor.memory_free
     - sensor.processor_use
     - sensor.last_boot
-    - sensor.since_last_boot
   
 servers_certificate:
   name: Servers Certificate
   entities:
-    - binary_sensor.ubuntuvps
-    - sensor.ericmatteme
-    - sensor.raspericmatteme
+    - sensor.rasp_ericmatte_me
 
 z-wave:
   name: Z-Wave
