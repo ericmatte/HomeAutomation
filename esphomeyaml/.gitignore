@@ -1,1 +1,3 @@
-espdoor/*
+esp*/*
+.esphome/*
+secrets.yaml
