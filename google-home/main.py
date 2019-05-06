@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 
+import subprocess
 import argparse
 import os.path
 import json
@@ -15,7 +16,11 @@ from google.assistant.library.event import EventType
 from google.assistant.library.file_helpers import existing_file
 
 USE_GPIO = False
-API_URL = secrets.domain+'/api/{command}?api_password='+secrets.api_password
+API_URL = secrets.domain+'/api/{command}'
+HEADERS = {
+    'Authorization': 'Bearer '+secrets.api_token,
+    'content-type': 'application/json',
+}
 
 class BindingLight:
 
@@ -29,11 +34,11 @@ class BindingLight:
         u = API_URL.format(command='services/light/turn_'+state)
         print(u)
         print(data)
-        r = requests.post(u, json=data)
+        r = requests.post(u, headers=HEADERS, json=data)
         print(r)
 
     def get_current_state(self):
-        return requests.get(API_URL.format(command='states/'+self.light_id)).json()
+        return requests.get(API_URL.format(command='states/'+self.light_id), headers=HEADERS).json()
 
     def restore_state(self):
         current_state = self.get_current_state()
@@ -79,6 +84,7 @@ def on_conversation_started():
 def on_recognizing_speech(text):
     light.colorfade()
     requests.post(API_URL.format(command='services/mqtt/publish'),
+        headers=HEADERS,
         json={"retain": "True", "topic": secrets.google_assistant_notification_id, "payload": text})
 
 def on_misunderstanding():
@@ -103,9 +109,11 @@ def process_event(event):
     print(event)
 
     if event.type == EventType.ON_CONVERSATION_TURN_STARTED:
+        subprocess.Popen(["aplay", "start_sound.wav"])
         on_conversation_started()
 
     if event.type == EventType.ON_RECOGNIZING_SPEECH_FINISHED:
+        subprocess.Popen(["aplay", "end_sound.wav"])
         on_recognizing_speech(event.args['text'])
 
     if event.type == EventType.ON_CONVERSATION_TURN_TIMEOUT:
