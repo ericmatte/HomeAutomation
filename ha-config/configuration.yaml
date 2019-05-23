@@ -139,10 +139,10 @@ sensor:
             Need to be changed
           {% endif %}
 
-camera:
- - platform: mjpeg
-   mjpeg_url: http://localhost:8081
-   name: Live Cam
+# camera:
+#  - platform: mjpeg
+#    mjpeg_url: http://localhost:8081
+#    name: Live Cam
 
 switch:
   - platform: flux

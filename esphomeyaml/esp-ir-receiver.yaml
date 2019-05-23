@@ -61,3 +61,48 @@ binary_sensor:
     lg:
       data: 0xFE80B649
       nbits: 32
+  - platform: remote_receiver
+    name: "Remote previous preset button"
+    lg:
+      data: 0xFE807A84
+      nbits: 32
+  - platform: remote_receiver
+    name: "Remote next preset button"
+    lg:
+      data: 0xFE80DA24
+      nbits: 32
+  - platform: remote_receiver
+    name: "Remote red button"
+    lg:
+      data: 0x5EA103FD
+      nbits: 32
+  - platform: remote_receiver
+    name: "Remote green button"
+    lg:
+      data: 0x5EA1837D
+      nbits: 32
+  - platform: remote_receiver
+    name: "Remote yellow button"
+    lg:
+      data: 0x5EA143BD
+      nbits: 32
+  - platform: remote_receiver
+    name: "Remote blue button"
+    lg:
+      data: 0x5EA1C33D
+      nbits: 32
+  - platform: remote_receiver
+    name: "Remote top menu button"
+    lg:
+      data: 0x5EA105FB
+      nbits: 32
+  - platform: remote_receiver
+    name: "Remote home button"
+    lg:
+      data: 0xFE806699
+      nbits: 32
+  - platform: remote_receiver
+    name: "Remote pop-up menu button"
+    lg:
+      data: 0x5EA125DB
+      nbits: 32
