@@ -1,0 +1,13 @@
+# /etc/systemd/system/appdaemon@appdaemon.service
+
+[Unit]
+Description=AppDaemon
+After=home-assistant@hass.service
+
+[Service]
+Type=simple
+User=pi
+ExecStart=/home/pi/appdaemon/appdaemon_env/bin/appdaemon -c "/home/pi/appdaemon/conf/"
+
+[Install]
+WantedBy=multi-user.target

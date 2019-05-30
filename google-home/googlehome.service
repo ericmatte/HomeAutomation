@@ -1,4 +1,5 @@
 # /etc/systemd/system/googlehome.service
+
 [Unit]
 Description=Google Home Service
 After=home-assistant.service network.target
@@ -6,7 +7,6 @@ After=home-assistant.service network.target
 [Service]
 Type=simple
 User=pi
-
 WorkingDirectory=/home/pi/google_home/
 ExecStart=/home/pi/google_home/google_env/bin/python3 main.py
 
