@@ -12,7 +12,7 @@
     entity_id:
      - switch.google_home
 
-- id: automatic_charger_toggler
+- id: auto_on_google_home
   alias: Auto-restart Google Home at 4AM (ON)
   trigger:
     platform: time
@@ -25,3 +25,21 @@
     service: switch.turn_on
     entity_id:
      - switch.google_home
+
+- id: reset_lights
+  alias: Reset lights each night
+  trigger:
+    platform: time
+    at: '04:00:00'
+  condition:
+    condition: state
+    entity_id: switch.google_home
+    state: 'on'
+  action:
+    - service: input_boolean.turn_on
+      entity_id:
+       - input_boolean.kitchen_motion_sensor
+       - input_boolean.walk_in_door_sensor
+    - service: switch.turn_on
+      entity_id:
+       - switch.flux

@@ -9,6 +9,7 @@ homeassistant:
 
 frontend:
   themes: !include themes.yaml
+  javascript_version: latest
 
 http:
   base_url: !secret pi_domain
@@ -16,10 +17,6 @@ http:
   ssl_key: !secret ssl_privkey
   ip_ban_enabled: True
   login_attempts_threshold: 5
-  trusted_networks:
-    - 127.0.0.1
-    - ::1
-    - 192.168.0.0/24
 
 logger:
   default: warning
@@ -49,10 +46,12 @@ google_assistant:
     switch.flux:
       expose: false
 
-#device_tracker:
-#  - platform: bluetooth_tracker
-#    new_device_defaults:
-#      track_new_devices: false
+device_tracker:
+ - platform: bluetooth_tracker
+   interval_seconds: 10
+   consider_home: 240
+   new_device_defaults:
+     track_new_devices: false
 #   - platform: nmap_tracker
 #     interval_seconds: 30
 #     consider_home: 480
@@ -68,9 +67,6 @@ notify:
     gcm_api_key: !secret gcm_server_key
     gcm_sender_id: !secret gcm_sender_id
 
-tts:
-  platform: google
-
 zwave:
   usb_path: /dev/ttyACM0
 
@@ -78,17 +74,20 @@ updater:
 
 discovery:
 
-conversation:
-
 history:
 
 logbook:
 
 sun:
 
+vacuum:
+  - platform: xiaomi_miio
+    host: !secret roborock_ip
+    token: !secret roborock_token
+
 cast:
   media_player:
-    - host: 192.168.1.197
+    - host: !secret chromecast_ip
 
 sensor:
   - platform: time_date
@@ -139,10 +138,10 @@ sensor:
             Need to be changed
           {% endif %}
 
-# camera:
-#  - platform: mjpeg
-#    mjpeg_url: http://localhost:8081
-#    name: Live Cam
+camera:
+ - platform: mjpeg
+   mjpeg_url: http://localhost:8081
+   name: Live cam
 
 switch:
   - platform: flux
@@ -151,10 +150,6 @@ switch:
     lights:
       - light.dining_room
       # - light.hue_light_1
-  - platform: tplink
-    host: !secret hs200_1
-  - platform: tplink
-    host: !secret hs200_2
   - platform: rpi_rf
     gpio: 17
     switches:
@@ -195,7 +190,11 @@ switch:
         command_on: sudo systemctl start googlehome.service
         command_off: sudo systemctl stop googlehome.service
         command_state: 'sudo systemctl status googlehome.service --full | grep -oPc "Active: active"'
-        # value_template: '{{ value == "1" }}'
+      live_cam:
+        friendly_name: Live Camera
+        command_on: sudo motion && sudo systemctl start motion.service
+        command_off: sudo systemctl stop motion.service
+        command_state: 'sudo systemctl status motion.service --full | grep -oPc "Active: active"'
 
 light:
   - platform: mqtt
@@ -235,28 +234,24 @@ binary_sensor:
       21: Kitchen Switch
       20: Kitchen motion sensor
 
-# Coffee machine
-# input_datetime:
-#   coffee_time_selector:
-#     name: "Time to brew coffee"
-#     has_date: false
-#     has_time: true
-
 input_boolean:
   kitchen_motion_sensor:
     name: Kitchen motion sensor
+    initial: on
+    icon: mdi:flash-circle
+  sync_tv_lights:
+    name: Sync lights with Chromecast
     initial: on
     icon: mdi:flash-circle
   walk_in_door_sensor:
     name: Walk-in door sensor
     initial: on
     icon: mdi:flash-circle
-#   coffee_activator:
-#     name: "Brew coffee on selected time"
-#     initial: off
-#     icon: mdi:coffee
+  light_toggle:
+    name: Last light toggle
+    initial: off
 
 # Imports
 automation: !include_dir_merge_list automation/
 script: !include_dir_merge_named scripts/
-group: !include groups.yaml
+scene: !include scenes.yaml

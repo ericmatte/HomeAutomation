@@ -9,6 +9,8 @@ toggle_kitchen_lights_on:
       data:
         brightness: 255
         rgb_color: [255, 214, 170]
+    - condition: sun
+      before: sunset
     - service: switch.turn_on
       entity_id: switch.kitchen_light
 

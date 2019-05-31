@@ -1,33 +1,53 @@
-- alias: Set theme at startup
-  initial_state: 'on'
+- alias: Automatic Theme Change
   trigger:
     - platform: homeassistant
       event: start
-  condition:
-    - condition: state
-      entity_id: sun.sun
-      state: 'below_horizon'
-  action:
-    service: frontend.set_theme
-    data:
-      name: darkcyan
-
-- alias: Default theme during day
-  trigger:
     - platform: state
       entity_id: sun.sun
-      to: 'above_horizon'
-  action:
-    service: frontend.set_theme
-    data:
-      name: default
-
-- alias: Dark theme during night
-  trigger:
+      to: above_horizon
     - platform: state
       entity_id: sun.sun
-      to: 'below_horizon'
+      to: below_horizon
   action:
-    service: frontend.set_theme
-    data:
-      name: darkcyan
+    - service_template: frontend.set_theme
+      data_template:
+        name: >
+          {% if states.sun.sun.state == "above_horizon" %}
+            light
+          {% else %}
+            dark
+          {% endif %}
+
+# - alias: Set theme at startup
+#   initial_state: 'on'
+#   trigger:
+#     - platform: homeassistant
+#       event: start
+#   condition:
+#     - condition: state
+#       entity_id: sun.sun
+#       state: 'below_horizon'
+#   action:
+#     service: frontend.set_theme
+#     data:
+#       name: darkcyan
+
+# - alias: Default theme during day
+#   trigger:
+#     - platform: state
+#       entity_id: sun.sun
+#       to: 'above_horizon'
+#   action:
+#     service: frontend.set_theme
+#     data:
+#       name: default
+
+# - alias: Dark theme during night
+#   trigger:
+#     - platform: state
+#       entity_id: sun.sun
+#       to: 'below_horizon'
+#   action:
+#     service: frontend.set_theme
+#     data:
+#       name: darkcyan

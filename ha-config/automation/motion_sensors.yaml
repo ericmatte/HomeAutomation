@@ -38,14 +38,14 @@
             state: "on"
           - condition: template
             value_template: "{{ not is_state('media_player.tv', 'playing') }}"
-          # - condition: or
-          #   conditions:
-          #     - condition: state
-          #       entity_id: device_tracker.eric
-          #       state: 'home'
-          #     - condition: state
-          #       entity_id: device_tracker.caro
-          #       state: 'home'
+          - condition: or
+            conditions:
+              - condition: state
+                entity_id: device_tracker.eric
+                state: 'home'
+              - condition: state
+                entity_id: device_tracker.caro
+                state: 'home'
   action:
       service: light.turn_on
       entity_id: light.dining_room

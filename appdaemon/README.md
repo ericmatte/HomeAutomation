@@ -1,3 +1,26 @@
+This appdaemon app allows rgb lights to be synced with the thumbnail of a media player in Home Assistant.
+
+# Configuration
+
+## appdaemon.yaml
+
+Create a file name `secrets.yaml` alongside the `appdaemon.yaml` file with this content:
+
+```
+token: <a_long_lived_token_from_home_assistant>
+ha_url: <home_assistant_url>
+```
+
+## app.yaml
+
+| Property        | Description                                                                                                                                                                        |
+|-----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| media_player    | The media player to sync.                                                                                                                                                          |
+| photo_attribute | The photo attribue to listen for change.                                                                                                                                           |
+| condition       | _Optional_, must contain `entity` and `state` properties. Change the color of the lights only if the entity has the specific state.                                                  |
+| lights          | A list of all the lights to be synced with the media_player. A color palette from the thumbnail image is calculated, assigning a different color for each light. |
+
+
 # Installation
 
 https://appdaemon.readthedocs.io/en/latest/INSTALL.html

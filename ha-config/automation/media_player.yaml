@@ -1,0 +1,27 @@
+- id: media_player_turn_off_theatre_lights
+  alias: "When Chromecast is off, turn off theatre lights"
+  trigger:
+    - platform: state
+      entity_id: media_player.tv
+      to: 'off'
+  action:
+    service: light.turn_off
+    entity_id: light.home_theatre_lights
+
+- id: enable_tv_lights_sync
+  alias: Enable tv lights sync after 5pm
+  trigger:
+    platform: time
+    at: '17:00:00'
+  action:
+    service: input_boolean.turn_on
+    entity_id: input_boolean.sync_tv_lights
+
+- id: disable_tv_lights_sync
+  alias: Disable tv lights sync in the morning
+  trigger:
+    platform: time
+    at: '04:00:00'
+  action:
+    service: input_boolean.turn_off
+    entity_id: input_boolean.sync_tv_lights

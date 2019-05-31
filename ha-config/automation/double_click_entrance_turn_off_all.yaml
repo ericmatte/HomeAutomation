@@ -1,0 +1,23 @@
+- id: double_click_entrance_turn_off_all
+  alias: Double click entrance light turn off all lights
+  trigger:
+    platform: state
+    entity_id: switch.ge_12722_onoff_relay_switch_switch
+    from: 'on'
+    to: 'off'
+  condition: 
+    condition: template
+    value_template: '{{(as_timestamp(now()) - as_timestamp(states.input_boolean.light_toggle.last_changed) < 1.5)}}'
+  action: !include ../turn_off_all.yaml
+
+- id: entrance_turn_on_set_datetime
+  alias: Set a timestamp when entrance light turn on
+  trigger:
+    platform: state
+    entity_id: switch.ge_12722_onoff_relay_switch_switch
+    from: 'off'
+    to: 'on'
+  action:
+  - service: input_boolean.toggle
+    entity_id: input_boolean.light_toggle
+

@@ -16,14 +16,18 @@ from PIL import Image
 class tv_lights_sync(hass.Hass):
  
   def initialize(self):
+    self.condition = self.args.get("condition")
     self.lights = self.args["lights"]
-    self.listen_state(self.change_led_color, self.args["media_player"], attribute = self.args["photo_attribute"])
+    self.listen_state(self.change_lights_color, self.args["media_player"], attribute=self.args["photo_attribute"])
 
-  def change_led_color(self, entity, attribute, old, new, kwargs):
-    if new != old:
+  def change_lights_color(self, entity, attribute, old, new, kwargs):
+    if new != old and new is not None and self.can_change_colors():
       rgb_colors = self.get_colors(self.args["ha_url"] + new)
       for i in range(len(self.lights)):
         threading.Thread(target=self.set_light_rgb, args=(self.lights[i], rgb_colors[i])).start()
+
+  def can_change_colors(self):
+    return self.condition is None or self.get_state(self.condition["entity"]) == self.condition["state"]
 
   def set_light_rgb(self, light, color):
     self.turn_on(light, rgb_color=color)

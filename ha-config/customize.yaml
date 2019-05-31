@@ -1,28 +1,26 @@
 binary_sensor.kitchen_motion_sensor:
   device_class: motion
-
 switch.ge_12722_onoff_relay_switch_switch:
-  friendly_name: Office light
+  friendly_name: Entrance
 switch.eric_desktop:
   friendly_name: Black desktop
   icon: mdi:desk-lamp
 switch.caro_desktop:
   friendly_name: White desktop
-  icon: mdi:desk-lamp
+  icon: mdi:laptop
 switch.ac:
   friendly_name: AC
   icon: mdi:air-conditioner
 switch.rainbow_lights:
   friendly_name: Rainbow Lights
+  icon: mdi:looks
 switch.cell_charger_eric:
   friendly_name: Cell charger
   icon: mdi:cellphone
-
 sensor.disk_free_home:
   friendly_name: Disk Free
 sensor.disk_use_home:
   friendly_name: Disk Use
-  
 group.all_automations:
   friendly_name: All Automations
   hidden: false
@@ -39,7 +37,6 @@ group.all_lights:
 group.all_switches:
   friendly_name: All Switches
   hidden: false
-
 automation.cat_litter_days_counter:
   hidden: true
 automation.cat_litter_poopy_warning:
@@ -56,18 +53,21 @@ automation.save_google_speech_time:
   hidden: true
 automation.set_theme_at_startup:
   hidden: true
-
-
 sensor.google_input_text:
   icon: mdi:text-to-speech
 sensor.recognized_at:
   icon: mdi:clock
 switch.google_home:
   icon: mdi:google-assistant
-
 sensor.cat_litter:
   icon: mdi:cat
 script.reset_poopy_counter:
   icon: mdi:emoticon-poop
 script.increment_poopy_counter:
   icon: mdi:emoticon-poop
+light.dining_room:
+  icon: mdi:ceiling-light
+light.home_theatre_lights:
+  icon: mdi:television
+switch.live_cam:
+  icon: mdi:camera
