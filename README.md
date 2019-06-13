@@ -14,8 +14,8 @@ I also have left my configuration files to give you some examples.
 - [motion](motion): Connect a USB camera to home assistant
 - [rf-transmitter-receiver](rf-transmitter-receiver): Scan/send RF signals
 - archive (other micro-projects that have become obsolete)
-    - [rpi-mqtt-leds](archive\rpi-mqtt-leds)
-    - [toggle-lights-with-windows-connection](archive\toggle-lights-with-windows-connection)
+    - [rpi-mqtt-leds](archive/rpi-mqtt-leds)
+    - [toggle-lights-with-windows-connection](archive/toggle-lights-with-windows-connection)
 
 
 ## Other interesting projects
