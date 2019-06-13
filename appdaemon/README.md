@@ -16,8 +16,8 @@ ha_url: <home_assistant_url>
 | Property        | Description                                                                                                                                                                        |
 |-----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | media_player    | The media player to sync.                                                                                                                                                          |
-| photo_attribute | The photo attribue to listen for change.                                                                                                                                           |
-| condition       | _Optional_, must contain `entity` and `state` properties. Change the color of the lights only if the entity has the specific state.                                                  |
+| photo_attribute | [_Optional, defaults to `"photo_attribute`_] The photo attribue to listen for change.                                                                                                                                           |
+| condition       | [_Optional_], If not null, it must contain `entity` and `state` properties. Change the color of the lights only if the entity has the specific state.                                                  |
 | lights          | A list of all the lights to be synced with the media_player. A color palette from the thumbnail image is calculated, assigning a different color for each light. |
 
 

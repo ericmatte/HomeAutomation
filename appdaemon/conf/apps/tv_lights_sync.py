@@ -1,15 +1,14 @@
 import appdaemon.plugins.hass.hassapi as hass
 import sys
 import threading
+import io
+from PIL import Image
 
 if sys.version_info < (3, 0):
     from urllib2 import urlopen
 else:
     from urllib.request import urlopen
 
-import io
-
-from PIL import Image
 
 # This script controls one or multiple RGB lights entity color based on the photo attribute of a media player entity
 # Based on https://github.com/astone123/appdaemon-apps/blob/master/apps/music_lights.py
@@ -18,11 +17,11 @@ class tv_lights_sync(hass.Hass):
   def initialize(self):
     self.condition = self.args.get("condition")
     self.lights = self.args["lights"]
-    self.listen_state(self.change_lights_color, self.args["media_player"], attribute=self.args["photo_attribute"])
+    self.listen_state(self.change_lights_color, self.args["media_player"], attribute = self.args.get("photo_attribute", "entity_picture"))
 
-  def change_lights_color(self, entity, attribute, old, new, kwargs):
-    if new != old and new is not None and self.can_change_colors():
-      rgb_colors = self.get_colors(self.args["ha_url"] + new)
+  def change_lights_color(self, entity, attribute, oldUrl, newUrl, kwargs):
+    if newUrl != oldUrl and newUrl is not None and self.can_change_colors():
+      rgb_colors = self.get_colors(newUrl)
       for i in range(len(self.lights)):
         threading.Thread(target=self.set_light_rgb, args=(self.lights[i], rgb_colors[i])).start()
 

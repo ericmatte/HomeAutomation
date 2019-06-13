@@ -3,7 +3,6 @@ tv_lights_sync:
   class: tv_lights_sync
   ha_url: !secret ha_url
   media_player: "media_player.tv"
-  photo_attribute: "entity_picture"
   condition:
     entity: "input_boolean.sync_tv_lights"
     state: "on"
