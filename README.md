@@ -40,3 +40,14 @@ View logs
 ```
 $ sudo journalctl -u home-assistant@homeassistant.service -f
 ```
+
+## Notes
+
+### Xiaomi Roborock
+
+In order to be able to connect the Roborock to Home Assistant, you first need to get the token.
+
+This can be done by downloading the version 5.4.49 of the Mi Home App, and then checking the logs:
+
+- https://www.home-assistant.io/components/vacuum.xiaomi_miio/#retrieving-the-access-token
+- https://www.apkmirror.com/apk/xiaomi-inc/mihome/mihome-5-5-49-release/mi-home-5-5-49-android-apk-download/download/

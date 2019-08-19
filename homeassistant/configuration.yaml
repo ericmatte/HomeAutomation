@@ -95,10 +95,10 @@ sensor:
       - 'time'
       - 'date'
   # Https certificates validation
-  - platform: cert_expiry
-    scan_interval: 43200 # 2 times/day
-    host: !secret pi_domain
-    name: !secret pi_domain
+  # - platform: cert_expiry
+  #   scan_interval: 43200 # 2 times/day
+  #   host: !secret pi_domain
+  #   name: !secret pi_domain
   # Weather Prediction
   - platform: yr
     scan_interval: 3600 # 1 time/hour
@@ -139,9 +139,9 @@ sensor:
           {% endif %}
 
 camera:
- - platform: mjpeg
-   mjpeg_url: http://localhost:8081
-   name: Live cam
+  - platform: mjpeg
+    mjpeg_url: http://localhost:8081
+    name: Live cam
 
 switch:
   - platform: flux
