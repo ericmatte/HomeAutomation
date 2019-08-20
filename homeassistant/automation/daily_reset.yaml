@@ -1,40 +1,8 @@
-- id: auto_off_google_home
-  alias: Auto-restart Google Home at 4AM (OFF)
-  trigger:
-    platform: time
-    at: '04:00:00'
-  condition:
-    condition: state
-    entity_id: switch.google_home
-    state: 'on'
-  action:
-    service: switch.turn_off
-    entity_id:
-     - switch.google_home
-
-- id: auto_on_google_home
-  alias: Auto-restart Google Home at 4AM (ON)
-  trigger:
-    platform: time
-    at: '04:01:00'
-  condition:
-    condition: state
-    entity_id: switch.google_home
-    state: 'off'
-  action:
-    service: switch.turn_on
-    entity_id:
-     - switch.google_home
-
 - id: reset_lights
   alias: Reset lights each night
   trigger:
     platform: time
     at: '04:00:00'
-  condition:
-    condition: state
-    entity_id: switch.google_home
-    state: 'on'
   action:
     - service: input_boolean.turn_on
       entity_id:

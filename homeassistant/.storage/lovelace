@@ -15,7 +15,7 @@
                 },
                 {
                     "type": "module",
-                    "url": "/local/custom-lovelace/monster-card-master/monster-card.js?v=0.0.1"
+                    "url": "/local/custom-lovelace/monster-card/monster-card.js?v=1"
                 }
             ],
             "title": "Home",
@@ -103,59 +103,36 @@
                     "background": "var(--background-image)",
                     "cards": [
                         {
-                            "entities": [
-                                "light.dining_room",
-                                "light.entertainment_area_1",
-                                "light.home_theatre_lights",
-                                "light.hue_light_1",
-                                "light.hue_light_2",
-                                "light.hue_light_3",
-                                "light.hue_light_4",
-                                "light.kitchen_rgb_lights",
-                                "light.left_theatre_light",
-                                "light.right_theatre_light",
-                                "light.walk_in"
-                            ],
-                            "show_header_toggle": true,
-                            "title": "All Lights",
-                            "type": "entities"
+                            "card": {
+                                "title": "Lights On",
+                                "type": "entities"
+                            },
+                            "filter": {
+                                "include": [
+                                    {
+                                        "domain": "light",
+                                        "state": "on"
+                                    }
+                                ]
+                            },
+                            "show_empty": false,
+                            "type": "custom:monster-card"
                         },
                         {
-                            "entities": [
-                                {
-                                    "entity": "switch.flux"
-                                },
-                                {
-                                    "entity": "switch.ge_12722_onoff_relay_switch_switch"
-                                },
-                                {
-                                    "entity": "switch.google_home"
-                                },
-                                {
-                                    "entity": "switch.ac"
-                                },
-                                {
-                                    "entity": "switch.caro_desktop"
-                                },
-                                {
-                                    "entity": "switch.cell_charger_eric"
-                                },
-                                {
-                                    "entity": "switch.eric_desktop"
-                                },
-                                {
-                                    "entity": "switch.rainbow_lights"
-                                },
-                                {
-                                    "entity": "switch.kitchen_light"
-                                },
-                                {
-                                    "entity": "switch.living_room_light"
-                                }
-                            ],
-                            "show_header_toggle": true,
-                            "title": "All Switches",
-                            "type": "entities"
+                            "card": {
+                                "title": "Switches On",
+                                "type": "entities"
+                            },
+                            "filter": {
+                                "include": [
+                                    {
+                                        "domain": "switch",
+                                        "state": "on"
+                                    }
+                                ]
+                            },
+                            "show_empty": false,
+                            "type": "custom:monster-card"
                         }
                     ],
                     "icon": "mdi:lightbulb-on",
@@ -181,26 +158,24 @@
                             "type": "entities"
                         },
                         {
-                            "entities": [
-                                "sensor.yr_temperature"
-                            ],
-                            "type": "custom:mini-graph-card"
-                        },
-                        {
-                            "entities": [
-                                {
-                                    "entity": "sun.sun"
-                                },
-                                {
-                                    "entity": "sensor.moon"
-                                }
-                            ],
-                            "show_name": false,
-                            "show_state": true,
-                            "type": "glance"
-                        },
-                        {
                             "cards": [
+                                {
+                                    "entities": [
+                                        {
+                                            "entity": "input_boolean.kitchen_motion_sensor"
+                                        },
+                                        {
+                                            "entity": "input_boolean.walk_in_door_sensor"
+                                        },
+                                        {
+                                            "entity": "input_boolean.sync_tv_lights"
+                                        },
+                                        {
+                                            "entity": "switch.live_cam"
+                                        }
+                                    ],
+                                    "type": "entities"
+                                },
                                 {
                                     "cards": [
                                         {
@@ -225,71 +200,32 @@
                                         }
                                     ],
                                     "type": "horizontal-stack"
-                                },
-                                {
-                                    "entities": [
-                                        {
-                                            "entity": "input_boolean.kitchen_motion_sensor"
-                                        },
-                                        {
-                                            "entity": "input_boolean.walk_in_door_sensor"
-                                        },
-                                        {
-                                            "entity": "input_boolean.sync_tv_lights"
-                                        }
-                                    ],
-                                    "type": "entities"
                                 }
                             ],
                             "type": "vertical-stack"
+                        },
+                        {
+                            "entities": [
+                                "sensor.yr_temperature"
+                            ],
+                            "type": "custom:mini-graph-card"
+                        },
+                        {
+                            "entities": [
+                                {
+                                    "entity": "sun.sun"
+                                },
+                                {
+                                    "entity": "sensor.moon"
+                                }
+                            ],
+                            "show_name": false,
+                            "show_state": true,
+                            "type": "glance"
                         }
                     ],
                     "path": "misc",
                     "title": "misc"
-                },
-                {
-                    "background": "var(--background-image)",
-                    "badges": [],
-                    "cards": [
-                        {
-                            "entities": [
-                                "sensor.google_input_text",
-                                "sensor.recognized_at"
-                            ],
-                            "show_header_toggle": false,
-                            "title": "Last Recognized Speech",
-                            "type": "entities"
-                        },
-                        {
-                            "card": {
-                                "camera_image": "camera.live_cam",
-                                "entities": [],
-                                "type": "picture-glance"
-                            },
-                            "conditions": [
-                                {
-                                    "entity": "switch.live_cam",
-                                    "state": "on"
-                                }
-                            ],
-                            "type": "conditional"
-                        },
-                        {
-                            "entities": [
-                                {
-                                    "entity": "switch.google_home"
-                                },
-                                {
-                                    "entity": "switch.live_cam"
-                                }
-                            ],
-                            "title": "Interrupteur",
-                            "type": "entities"
-                        }
-                    ],
-                    "icon": "mdi:google-assistant",
-                    "path": "google_view",
-                    "title": "Google Assistant"
                 },
                 {
                     "background": "var(--background-image)",
@@ -318,14 +254,6 @@
                         },
                         {
                             "entities": [
-                                "sensor.rasp_ericmatte_me"
-                            ],
-                            "show_header_toggle": false,
-                            "title": "Servers Certificate",
-                            "type": "entities"
-                        },
-                        {
-                            "entities": [
                                 "script.good_night",
                                 "script.increment_poopy_counter",
                                 "script.reset_poopy_counter",
@@ -342,6 +270,25 @@
                                 "sensor.processor_use"
                             ],
                             "type": "custom:mini-graph-card"
+                        },
+                        {
+                            "card": {
+                                "title": "Things that are broken",
+                                "type": "entities"
+                            },
+                            "filter": {
+                                "exclude": [
+                                    {
+                                        "entity_id": "group.*"
+                                    }
+                                ],
+                                "include": [
+                                    {
+                                        "state": "unknown"
+                                    }
+                                ]
+                            },
+                            "type": "custom:monster-card"
                         }
                     ],
                     "icon": "mdi:desktop-tower",

@@ -57,8 +57,6 @@ sensor.google_input_text:
   icon: mdi:text-to-speech
 sensor.recognized_at:
   icon: mdi:clock
-switch.google_home:
-  icon: mdi:google-assistant
 sensor.cat_litter:
   icon: mdi:cat
 script.reset_poopy_counter:

@@ -42,8 +42,6 @@ google_assistant:
     - switch
     - light
   entity_config:
-    switch.google_home:
-      expose: false
     switch.flux:
       expose: false
 
@@ -53,11 +51,6 @@ device_tracker:
    consider_home: 240
    new_device_defaults:
      track_new_devices: false
-#   - platform: nmap_tracker
-#     interval_seconds: 30
-#     consider_home: 480
-#     track_new_devices: yes
-#     hosts: 192.168.1.200-201
 
 ifttt:
   key: !secret ifttt_key
@@ -186,11 +179,6 @@ switch:
         signal_repetitions: !secret zap_signal_repetition
   - platform: command_line
     switches:
-      google_home:
-        friendly_name: Google Home
-        command_on: sudo systemctl start googlehome.service
-        command_off: sudo systemctl stop googlehome.service
-        command_state: 'sudo systemctl status googlehome.service --full | grep -oPc "Active: active"'
       live_cam:
         friendly_name: Live Camera
         command_on: sudo motion && sudo systemctl start motion.service
