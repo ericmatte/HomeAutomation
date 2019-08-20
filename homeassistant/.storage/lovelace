@@ -1,0 +1,357 @@
+{
+    "data": {
+        "config": {
+            "cch": {
+                "swipe": true
+            },
+            "resources": [
+                {
+                    "type": "module",
+                    "url": "/local/custom-lovelace/compact-custom-header/compact-custom-header.js?v=0.0.1"
+                },
+                {
+                    "type": "module",
+                    "url": "/local/custom-lovelace/mini-graph-card/mini-graph-card-bundle.js?v=0.3.0"
+                },
+                {
+                    "type": "module",
+                    "url": "/local/custom-lovelace/monster-card-master/monster-card.js?v=0.0.1"
+                }
+            ],
+            "title": "Home",
+            "views": [
+                {
+                    "background": "var(--background-image)",
+                    "badges": [],
+                    "cards": [
+                        {
+                            "entities": [
+                                {
+                                    "entity": "light.dining_room"
+                                },
+                                {
+                                    "entity": "light.kitchen_rgb_lights"
+                                },
+                                {
+                                    "entity": "switch.kitchen_light"
+                                },
+                                {
+                                    "entity": "switch.ge_12722_onoff_relay_switch_switch"
+                                }
+                            ],
+                            "show_header_toggle": true,
+                            "title": "Kitchen",
+                            "type": "entities"
+                        },
+                        {
+                            "entities": [
+                                {
+                                    "entity": "switch.living_room_light"
+                                },
+                                {
+                                    "entity": "switch.rainbow_lights"
+                                },
+                                {
+                                    "entity": "light.home_theatre_lights"
+                                },
+                                {
+                                    "entity": "vacuum.xiaomi_vacuum_cleaner"
+                                },
+                                {
+                                    "entity": "switch.ac"
+                                }
+                            ],
+                            "show_header_toggle": true,
+                            "title": "Living Room",
+                            "type": "entities"
+                        },
+                        {
+                            "entities": [
+                                {
+                                    "entity": "switch.office_light"
+                                },
+                                {
+                                    "entity": "switch.eric_desktop"
+                                },
+                                {
+                                    "entity": "switch.caro_desktop"
+                                }
+                            ],
+                            "show_header_toggle": true,
+                            "title": "Office",
+                            "type": "entities"
+                        },
+                        {
+                            "entities": [
+                                "light.walk_in",
+                                "switch.cell_charger_eric"
+                            ],
+                            "show_header_toggle": true,
+                            "title": "Bedroom",
+                            "type": "entities"
+                        },
+                        {
+                            "entity": "media_player.tv",
+                            "type": "media-control"
+                        }
+                    ],
+                    "icon": "mdi:home",
+                    "path": "default_view",
+                    "title": "Home"
+                },
+                {
+                    "background": "var(--background-image)",
+                    "cards": [
+                        {
+                            "entities": [
+                                "light.dining_room",
+                                "light.entertainment_area_1",
+                                "light.home_theatre_lights",
+                                "light.hue_light_1",
+                                "light.hue_light_2",
+                                "light.hue_light_3",
+                                "light.hue_light_4",
+                                "light.kitchen_rgb_lights",
+                                "light.left_theatre_light",
+                                "light.right_theatre_light",
+                                "light.walk_in"
+                            ],
+                            "show_header_toggle": true,
+                            "title": "All Lights",
+                            "type": "entities"
+                        },
+                        {
+                            "entities": [
+                                {
+                                    "entity": "switch.flux"
+                                },
+                                {
+                                    "entity": "switch.ge_12722_onoff_relay_switch_switch"
+                                },
+                                {
+                                    "entity": "switch.google_home"
+                                },
+                                {
+                                    "entity": "switch.ac"
+                                },
+                                {
+                                    "entity": "switch.caro_desktop"
+                                },
+                                {
+                                    "entity": "switch.cell_charger_eric"
+                                },
+                                {
+                                    "entity": "switch.eric_desktop"
+                                },
+                                {
+                                    "entity": "switch.rainbow_lights"
+                                },
+                                {
+                                    "entity": "switch.kitchen_light"
+                                },
+                                {
+                                    "entity": "switch.living_room_light"
+                                }
+                            ],
+                            "show_header_toggle": true,
+                            "title": "All Switches",
+                            "type": "entities"
+                        }
+                    ],
+                    "icon": "mdi:lightbulb-on",
+                    "path": "all_lights_and_switches",
+                    "title": "All Lights and Switches"
+                },
+                {
+                    "background": "var(--background-image)",
+                    "badges": [
+                        "device_tracker.eric",
+                        "device_tracker.caro"
+                    ],
+                    "cards": [
+                        {
+                            "entities": [
+                                "input_select.who_clean",
+                                "sensor.cat_litter",
+                                "counter.poopy_counter",
+                                "script.reset_poopy_counter"
+                            ],
+                            "show_header_toggle": false,
+                            "title": "Cat Litter",
+                            "type": "entities"
+                        },
+                        {
+                            "entities": [
+                                "sensor.yr_temperature"
+                            ],
+                            "type": "custom:mini-graph-card"
+                        },
+                        {
+                            "entities": [
+                                {
+                                    "entity": "sun.sun"
+                                },
+                                {
+                                    "entity": "sensor.moon"
+                                }
+                            ],
+                            "show_name": false,
+                            "show_state": true,
+                            "type": "glance"
+                        },
+                        {
+                            "cards": [
+                                {
+                                    "cards": [
+                                        {
+                                            "entity": "binary_sensor.kitchen_motion_sensor",
+                                            "hold_action": {
+                                                "action": "none"
+                                            },
+                                            "tap_action": {
+                                                "action": "more-info"
+                                            },
+                                            "type": "entity-button"
+                                        },
+                                        {
+                                            "entity": "binary_sensor.walk_in_door_sensor",
+                                            "hold_action": {
+                                                "action": "none"
+                                            },
+                                            "tap_action": {
+                                                "action": "more-info"
+                                            },
+                                            "type": "entity-button"
+                                        }
+                                    ],
+                                    "type": "horizontal-stack"
+                                },
+                                {
+                                    "entities": [
+                                        {
+                                            "entity": "input_boolean.kitchen_motion_sensor"
+                                        },
+                                        {
+                                            "entity": "input_boolean.walk_in_door_sensor"
+                                        },
+                                        {
+                                            "entity": "input_boolean.sync_tv_lights"
+                                        }
+                                    ],
+                                    "type": "entities"
+                                }
+                            ],
+                            "type": "vertical-stack"
+                        }
+                    ],
+                    "path": "misc",
+                    "title": "misc"
+                },
+                {
+                    "background": "var(--background-image)",
+                    "badges": [],
+                    "cards": [
+                        {
+                            "entities": [
+                                "sensor.google_input_text",
+                                "sensor.recognized_at"
+                            ],
+                            "show_header_toggle": false,
+                            "title": "Last Recognized Speech",
+                            "type": "entities"
+                        },
+                        {
+                            "card": {
+                                "camera_image": "camera.live_cam",
+                                "entities": [],
+                                "type": "picture-glance"
+                            },
+                            "conditions": [
+                                {
+                                    "entity": "switch.live_cam",
+                                    "state": "on"
+                                }
+                            ],
+                            "type": "conditional"
+                        },
+                        {
+                            "entities": [
+                                {
+                                    "entity": "switch.google_home"
+                                },
+                                {
+                                    "entity": "switch.live_cam"
+                                }
+                            ],
+                            "title": "Interrupteur",
+                            "type": "entities"
+                        }
+                    ],
+                    "icon": "mdi:google-assistant",
+                    "path": "google_view",
+                    "title": "Google Assistant"
+                },
+                {
+                    "background": "var(--background-image)",
+                    "badges": [
+                        "updater.updater"
+                    ],
+                    "cards": [
+                        {
+                            "entities": [
+                                {
+                                    "entity": "sensor.disk_free_home"
+                                },
+                                {
+                                    "entity": "sensor.disk_use_percent_home"
+                                },
+                                {
+                                    "entity": "sensor.memory_free"
+                                },
+                                {
+                                    "entity": "sensor.last_boot"
+                                }
+                            ],
+                            "show_header_toggle": false,
+                            "title": "System Info",
+                            "type": "entities"
+                        },
+                        {
+                            "entities": [
+                                "sensor.rasp_ericmatte_me"
+                            ],
+                            "show_header_toggle": false,
+                            "title": "Servers Certificate",
+                            "type": "entities"
+                        },
+                        {
+                            "entities": [
+                                "script.good_night",
+                                "script.increment_poopy_counter",
+                                "script.reset_poopy_counter",
+                                "script.toggle_kitchen_lights",
+                                "script.toggle_kitchen_lights_off",
+                                "script.toggle_kitchen_lights_on"
+                            ],
+                            "show_header_toggle": false,
+                            "title": "All Scripts",
+                            "type": "entities"
+                        },
+                        {
+                            "entities": [
+                                "sensor.processor_use"
+                            ],
+                            "type": "custom:mini-graph-card"
+                        }
+                    ],
+                    "icon": "mdi:desktop-tower",
+                    "panel": false,
+                    "path": "systems",
+                    "title": "Systems"
+                }
+            ]
+        }
+    },
+    "key": "lovelace",
+    "version": 1
+}

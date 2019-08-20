@@ -4,3 +4,6 @@ known_devices.yaml
 
 www/*.png
 www/*.html
+
+.storage/**
+!.storage/lovelace
