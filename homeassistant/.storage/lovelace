@@ -16,6 +16,10 @@
                 {
                     "type": "module",
                     "url": "/local/custom-lovelace/monster-card/monster-card.js?v=1"
+                },
+                {
+                    "type": "module",
+                    "url": "/local/custom-lovelace/button-entity-row/button-entity-row.js?v=0.0.29"
                 }
             ],
             "title": "Home",
@@ -28,6 +32,29 @@
                             "entities": [
                                 {
                                     "entity": "light.dining_room"
+                                },
+                                {
+                                    "buttons": [
+                                        {
+                                            "entity": "script.pause_kitchen_motion",
+                                            "icon": "mdi:pause",
+                                            "name": "Pause 1 hour",
+                                            "style": [
+                                                {
+                                                    "color": "var(--paper-item-icon-color)"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "entity": "input_boolean.kitchen_motion_sensor",
+                                            "name": "Detect motion",
+                                            "state_icons": {
+                                                "off": "mdi:eye-off",
+                                                "on": "mdi:motion-sensor"
+                                            }
+                                        }
+                                    ],
+                                    "type": "custom:button-entity-row"
                                 },
                                 {
                                     "entity": "light.kitchen_rgb_lights"
@@ -55,10 +82,20 @@
                                     "entity": "light.home_theatre_lights"
                                 },
                                 {
-                                    "entity": "vacuum.xiaomi_vacuum_cleaner"
+                                    "buttons": [
+                                        {
+                                            "entity": "input_boolean.sync_tv_lights",
+                                            "name": "Sync color palette",
+                                            "state_icons": {
+                                                "off": "mdi:palette-outline",
+                                                "on": "mdi:palette"
+                                            }
+                                        }
+                                    ],
+                                    "type": "custom:button-entity-row"
                                 },
                                 {
-                                    "entity": "switch.ac"
+                                    "entity": "vacuum.xiaomi_vacuum_cleaner"
                                 }
                             ],
                             "show_header_toggle": true,
@@ -133,6 +170,55 @@
                             },
                             "show_empty": false,
                             "type": "custom:monster-card"
+                        },
+                        {
+                            "entities": [
+                                "light.dining_room",
+                                {
+                                    "buttons": [
+                                        {
+                                            "entity": "script.pause_motion_sensor",
+                                            "icon": "mdi:pause",
+                                            "name": "Pause for 1 hour",
+                                            "service_data": {
+                                                "entity_id": "input_boolean.kitchen_motion_sensor"
+                                            },
+                                            "style": [
+                                                {
+                                                    "color": "var(--paper-item-icon-color)"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "entity": "input_boolean.kitchen_motion_sensor",
+                                            "name": "Detect motion",
+                                            "state_icons": {
+                                                "off": "mdi:eye-off",
+                                                "on": "mdi:motion-sensor"
+                                            }
+                                        }
+                                    ],
+                                    "type": "custom:button-entity-row"
+                                },
+                                {
+                                    "entity": "light.home_theatre_lights"
+                                },
+                                {
+                                    "buttons": [
+                                        {
+                                            "entity": "input_boolean.sync_tv_lights",
+                                            "name": "Sync color palette",
+                                            "state_icons": {
+                                                "off": "mdi:palette-outline",
+                                                "on": "mdi:palette"
+                                            }
+                                        }
+                                    ],
+                                    "type": "custom:button-entity-row"
+                                }
+                            ],
+                            "show_header_toggle": true,
+                            "type": "entities"
                         }
                     ],
                     "icon": "mdi:lightbulb-on",
