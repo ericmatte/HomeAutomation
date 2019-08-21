@@ -33,7 +33,7 @@ To see what you can do with Home Assistant on your Raspberry Pi, navigate to the
 
 Restart server
 ```
-$ sudo systemctl restart home-assistant
+$ sudo systemctl restart home-assistant@homeassistant.service
 ```
 
 View logs
@@ -42,6 +42,36 @@ $ sudo journalctl -u home-assistant@homeassistant.service -f
 ```
 
 ## Notes
+
+### Setup HTTPS using Let's Encrypt
+
+```
+$ sudo apt-get install certbot
+$ sudo certbot certonly --preferred-challenges --standalone-supported-challenges http-01 --email your@email.address -d your.domain.com
+```
+
+Add the auto-renew command to the crontab (`sudo crontab -e`)
+```
+5 4 * * * certbot renew --quiet --no-self-upgrade --preferred-challenges http-01
+```
+
+
+### Setup MQTT
+
+[How-To Get Started with Mosquitto MQTT Broker on a Raspberry Pi](https://www.youtube.com/watch?v=AsDHEDbyLfg&t)
+
+
+### Add homeassistant user to sudo group
+
+If you need Home Assistant to be able to run local commands/scripts as root, add the user to the sudo group:
+```
+$ sudo visudo
+```
+
+At the end of the file, add homeassistant:
+```
+homeassistant ALL=NOPASSWD: ALL
+```
 
 ### Xiaomi Roborock
 

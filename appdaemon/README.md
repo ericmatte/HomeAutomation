@@ -32,7 +32,7 @@ Clone this folder into `/home/pi/appdaemon`
 ```
 $ python3 -m venv appdaemon_env
 $ source appdaemon_env/bin/activate
-$ sudo apt-get install libtiff5-dev zlib1g-dev libfreetype6-dev liblcms2-dev libwebp-dev libharfbuzz-dev libfribidi-dev tcl8.6-dev tk8.6-dev python-tk
+$ sudo apt-get install libtiff5-dev zlib1g-dev libfreetype6-dev liblcms2-dev libwebp-dev libharfbuzz-dev libfribidi-dev tcl8.6-dev tk8.6-dev python-tk libopenjp2-7
 $ pip3 install appdaemon Pillow
 $ sudo chown -R pi:pi /home/pi/appdaemon
 ```
@@ -51,4 +51,10 @@ You can test that the app is working like so:
 
 ```
 (appdaemon_env) pi@hassbian:~/appdaemon $ python3 -m appdaemon.admain -c "/home/pi/appdaemon/conf/"
+```
+
+# Log
+
+```
+$ sudo journalctl -u appdaemon@appdaemon.service -f
 ```

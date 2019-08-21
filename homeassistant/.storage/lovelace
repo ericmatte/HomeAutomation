@@ -38,7 +38,7 @@
                                         {
                                             "entity": "script.pause_kitchen_motion",
                                             "icon": "mdi:pause",
-                                            "name": "Pause 1 hour",
+                                            "name": "1 hour",
                                             "style": [
                                                 {
                                                     "color": "var(--paper-item-icon-color)"
