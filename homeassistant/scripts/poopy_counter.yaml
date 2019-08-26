@@ -7,6 +7,8 @@ reset_poopy_counter:
     - service: counter.reset
       entity_id: counter.poopy_counter
     - service: input_select.select_next
+      data:
+        entity_id: input_select.who_clean
 
 increment_poopy_counter:
   alias: Increment poopy counter

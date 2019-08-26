@@ -58,8 +58,9 @@ ifttt:
 notify:
   - name: html5
     platform: html5
-    gcm_api_key: !secret gcm_server_key
-    gcm_sender_id: !secret gcm_sender_id
+    vapid_pub_key: !secret vapid_public_key
+    vapid_prv_key: !secret vapid_private_key
+    vapid_email: !secret vapid_email
 
 zwave:
   usb_path: /dev/ttyACM0
@@ -183,7 +184,7 @@ switch:
         friendly_name: Live Camera
         command_on: sudo motion && sudo systemctl start motion.service
         command_off: sudo systemctl stop motion.service
-        command_state: 'sudo systemctl status motion.service --full | grep -oPc "Active: active"'
+        command_state: 'systemctl status motion.service --full | grep -oPc "Active: active"'
 
 light:
   - platform: mqtt

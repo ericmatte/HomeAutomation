@@ -22,11 +22,11 @@
         notification_id: "cat_notif"
         message: "{{ states.input_select.who_clean.state }}, it is your turn!"
         title: "The litter box must be changed"
-    - service_template: >
-        notify.html5_{{ states.input_select.who_clean.state | lower }}phone
+    - service: notify.html5
       data_template:
-        message: It is your turn to change the litter box
+        target: "{{ states.input_select.who_clean.state | lower }}phone"
       data:
+        message: It is your turn to change the litter box
         data:
           tag: 'notification-about-litter-box'
           vibrate: false
