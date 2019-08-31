@@ -1,4 +1,4 @@
-esphomeyaml:
+esphome:
   name: espdoor
   platform: ESP8266
   board: nodemcuv2
@@ -27,5 +27,5 @@ binary_sensor:
     filters:
       - delayed_on: 100ms
       - delayed_off: 100ms
-    name: "Front Door"
+    name: "Walk-in door sensor"
     device_class: door

@@ -29,7 +29,7 @@ class tv_lights_sync(hass.Hass):
     return self.condition is None or self.get_state(self.condition["entity"]) == self.condition["state"]
 
   def set_light_rgb(self, light, color):
-    self.turn_on(light, rgb_color=color)
+    self.turn_on(light, rgb_color=color, brightness=255)
 
   def get_colors(self, url):
     fd = urlopen(url)

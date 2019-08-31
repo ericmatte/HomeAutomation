@@ -37,24 +37,6 @@ group.all_lights:
 group.all_switches:
   friendly_name: All Switches
   hidden: false
-automation.cat_litter_days_counter:
-  hidden: true
-automation.cat_litter_poopy_warning:
-  hidden: true
-automation.dark_theme_during_night:
-  hidden: true
-automation.default_theme_during_day:
-  hidden: true
-automation.html5_push_notification_litter_box_cleaned_clicked:
-  hidden: true
-automation.kitchen_lights_toggle:
-  hidden: true
-automation.save_google_speech_time:
-  hidden: true
-automation.set_theme_at_startup:
-  hidden: true
-sensor.google_input_text:
-  icon: mdi:text-to-speech
 sensor.recognized_at:
   icon: mdi:clock
 sensor.cat_litter:

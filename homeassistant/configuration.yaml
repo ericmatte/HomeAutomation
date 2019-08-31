@@ -16,8 +16,8 @@ http:
   base_url: !secret pi_domain
   ssl_certificate: !secret ssl_fullchain
   ssl_key: !secret ssl_privkey
-  ip_ban_enabled: True
-  login_attempts_threshold: 5
+  # ip_ban_enabled: True
+  # login_attempts_threshold: 5
 
 logger:
   default: warning
@@ -110,13 +110,6 @@ sensor:
         arg: /home
       - type: disk_free
         arg: /home
-  # Google Home Text Display
-  - platform: mqtt
-    state_topic: "home-assistant/google-home"
-    name: "Google Input Text:"
-  - platform: mqtt
-    state_topic: "home-assistant/google-home-datetime"
-    name: "Recognized at"
   # Cat Litter Checker
   - platform: template
     sensors:

@@ -19,7 +19,7 @@
                 },
                 {
                     "type": "module",
-                    "url": "/local/custom-lovelace/button-entity-row/button-entity-row.js?v=0.0.29"
+                    "url": "/local/custom-lovelace/button-entity-row/button-entity-row.js?v=0.0.76"
                 }
             ],
             "title": "Home",
@@ -36,14 +36,23 @@
                                 {
                                     "buttons": [
                                         {
+                                            "entity": "switch.flux",
+                                            "state_icons": {
+                                                "off": "mdi:invert-colors-off",
+                                                "on": "mdi:invert-colors"
+                                            }
+                                        },
+                                        {
+                                            "entity": "binary_sensor.kitchen_motion_sensor",
+                                            "state_icons": {
+                                                "off": "mdi:walk",
+                                                "on": "mdi:run"
+                                            }
+                                        },
+                                        {
                                             "entity": "script.pause_kitchen_motion",
                                             "icon": "mdi:pause",
-                                            "name": "1 hour",
-                                            "style": [
-                                                {
-                                                    "color": "var(--paper-item-icon-color)"
-                                                }
-                                            ]
+                                            "name": "1 hour"
                                         },
                                         {
                                             "entity": "input_boolean.kitchen_motion_sensor",
@@ -121,7 +130,26 @@
                         {
                             "entities": [
                                 "light.walk_in",
-                                "switch.cell_charger_eric"
+                                {
+                                    "buttons": [
+                                        {
+                                            "entity": "binary_sensor.walk_in_door_sensor",
+                                            "state_icons": {
+                                                "off": "mdi:door",
+                                                "on": "mdi:door-open"
+                                            }
+                                        },
+                                        {
+                                            "entity": "input_boolean.walk_in_door_sensor",
+                                            "name": "Detect door",
+                                            "state_icons": {
+                                                "off": "mdi:leak-off",
+                                                "on": "mdi:leak"
+                                            }
+                                        }
+                                    ],
+                                    "type": "custom:button-entity-row"
+                                }
                             ],
                             "show_header_toggle": true,
                             "title": "Bedroom",
@@ -130,31 +158,50 @@
                         {
                             "entity": "media_player.tv",
                             "type": "media-control"
+                        },
+                        {
+                            "entities": [
+                                {
+                                    "entity": "switch.ge_12722_onoff_relay_switch_switch"
+                                },
+                                {
+                                    "buttons": [
+                                        {
+                                            "entity": "input_boolean.kitchen_motion_sensor",
+                                            "name": "Alarm System",
+                                            "state_icons": {
+                                                "off": "mdi:shield-home",
+                                                "on": "mdi:lock-open"
+                                            },
+                                            "state_styles": {
+                                                "off": {
+                                                    "color": "red",
+                                                    "font-weight": "bold"
+                                                },
+                                                "on": {
+                                                    "color": "green"
+                                                }
+                                            },
+                                            "style": {
+                                                "background": "lightgray",
+                                                "border-radius": "9999px"
+                                            }
+                                        }
+                                    ],
+                                    "type": "custom:button-entity-row"
+                                }
+                            ],
+                            "type": "entities"
                         }
                     ],
                     "icon": "mdi:home",
                     "path": "default_view",
+                    "theme": "Backend-selected",
                     "title": "Home"
                 },
                 {
                     "background": "var(--background-image)",
                     "cards": [
-                        {
-                            "card": {
-                                "title": "Lights On",
-                                "type": "entities"
-                            },
-                            "filter": {
-                                "include": [
-                                    {
-                                        "domain": "light",
-                                        "state": "on"
-                                    }
-                                ]
-                            },
-                            "show_empty": false,
-                            "type": "custom:monster-card"
-                        },
                         {
                             "card": {
                                 "title": "Switches On",
@@ -172,53 +219,34 @@
                             "type": "custom:monster-card"
                         },
                         {
-                            "entities": [
-                                "light.dining_room",
+                            "card": {
+                                "camera_view": "live",
+                                "entity": "camera.live_cam",
+                                "type": "picture-entity"
+                            },
+                            "conditions": [
                                 {
-                                    "buttons": [
-                                        {
-                                            "entity": "script.pause_motion_sensor",
-                                            "icon": "mdi:pause",
-                                            "name": "Pause for 1 hour",
-                                            "service_data": {
-                                                "entity_id": "input_boolean.kitchen_motion_sensor"
-                                            },
-                                            "style": [
-                                                {
-                                                    "color": "var(--paper-item-icon-color)"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "entity": "input_boolean.kitchen_motion_sensor",
-                                            "name": "Detect motion",
-                                            "state_icons": {
-                                                "off": "mdi:eye-off",
-                                                "on": "mdi:motion-sensor"
-                                            }
-                                        }
-                                    ],
-                                    "type": "custom:button-entity-row"
-                                },
-                                {
-                                    "entity": "light.home_theatre_lights"
-                                },
-                                {
-                                    "buttons": [
-                                        {
-                                            "entity": "input_boolean.sync_tv_lights",
-                                            "name": "Sync color palette",
-                                            "state_icons": {
-                                                "off": "mdi:palette-outline",
-                                                "on": "mdi:palette"
-                                            }
-                                        }
-                                    ],
-                                    "type": "custom:button-entity-row"
+                                    "entity": "switch.live_cam",
+                                    "state": "on"
                                 }
                             ],
-                            "show_header_toggle": true,
-                            "type": "entities"
+                            "type": "conditional"
+                        },
+                        {
+                            "card": {
+                                "title": "Lights On",
+                                "type": "entities"
+                            },
+                            "filter": {
+                                "include": [
+                                    {
+                                        "domain": "light",
+                                        "state": "on"
+                                    }
+                                ]
+                            },
+                            "show_empty": false,
+                            "type": "custom:monster-card"
                         }
                     ],
                     "icon": "mdi:lightbulb-on",
@@ -244,51 +272,12 @@
                             "type": "entities"
                         },
                         {
-                            "cards": [
+                            "entities": [
                                 {
-                                    "entities": [
-                                        {
-                                            "entity": "input_boolean.kitchen_motion_sensor"
-                                        },
-                                        {
-                                            "entity": "input_boolean.walk_in_door_sensor"
-                                        },
-                                        {
-                                            "entity": "input_boolean.sync_tv_lights"
-                                        },
-                                        {
-                                            "entity": "switch.live_cam"
-                                        }
-                                    ],
-                                    "type": "entities"
-                                },
-                                {
-                                    "cards": [
-                                        {
-                                            "entity": "binary_sensor.kitchen_motion_sensor",
-                                            "hold_action": {
-                                                "action": "none"
-                                            },
-                                            "tap_action": {
-                                                "action": "more-info"
-                                            },
-                                            "type": "entity-button"
-                                        },
-                                        {
-                                            "entity": "binary_sensor.walk_in_door_sensor",
-                                            "hold_action": {
-                                                "action": "none"
-                                            },
-                                            "tap_action": {
-                                                "action": "more-info"
-                                            },
-                                            "type": "entity-button"
-                                        }
-                                    ],
-                                    "type": "horizontal-stack"
+                                    "entity": "switch.live_cam"
                                 }
                             ],
-                            "type": "vertical-stack"
+                            "type": "entities"
                         },
                         {
                             "entities": [
@@ -310,13 +299,14 @@
                             "type": "glance"
                         }
                     ],
+                    "icon": "mdi:home-automation",
                     "path": "misc",
                     "title": "misc"
                 },
                 {
                     "background": "var(--background-image)",
                     "badges": [
-                        "updater.updater"
+                        "binary_sensor.updater"
                     ],
                     "cards": [
                         {
@@ -336,19 +326,6 @@
                             ],
                             "show_header_toggle": false,
                             "title": "System Info",
-                            "type": "entities"
-                        },
-                        {
-                            "entities": [
-                                "script.good_night",
-                                "script.increment_poopy_counter",
-                                "script.reset_poopy_counter",
-                                "script.toggle_kitchen_lights",
-                                "script.toggle_kitchen_lights_off",
-                                "script.toggle_kitchen_lights_on"
-                            ],
-                            "show_header_toggle": false,
-                            "title": "All Scripts",
                             "type": "entities"
                         },
                         {
@@ -374,6 +351,22 @@
                                     }
                                 ]
                             },
+                            "show_empty": false,
+                            "type": "custom:monster-card"
+                        },
+                        {
+                            "card": {
+                                "title": "All Scripts",
+                                "type": "entities"
+                            },
+                            "filter": {
+                                "include": [
+                                    {
+                                        "domain": "script"
+                                    }
+                                ]
+                            },
+                            "show_empty": false,
                             "type": "custom:monster-card"
                         }
                     ],

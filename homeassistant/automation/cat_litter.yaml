@@ -25,8 +25,9 @@
     - service: notify.html5
       data_template:
         target: "{{ states.input_select.who_clean.state | lower }}phone"
+        message: It's been {{ states('counter.poopy_counter') }} days since the last change
       data:
-        message: It is your turn to change the litter box
+        title: Clean the litter box
         data:
           tag: 'notification-about-litter-box'
           vibrate: false

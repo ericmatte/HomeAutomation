@@ -47,8 +47,13 @@
                 entity_id: device_tracker.caro
                 state: 'home'
   action:
-      service: light.turn_on
-      entity_id: light.dining_room
+      - service: light.turn_on
+        data:
+          entity_id: light.dining_room
+          brightness: 255
+      - service: light.turn_on
+        entity_id: switch.flux
+      - service: switch.flux_update
 
 - id: kitchen_motion_sensors_off
   alias: Kitchen light off when no movement
@@ -88,7 +93,9 @@
       state: "on"
   action:
       service: light.turn_on
-      entity_id: light.walk_in
+      data:
+        entity_id: light.walk_in
+        brightness: 255
 
 - id: walk_in_motion_sensors_off
   alias: Turn off walkin light 2 minute after on
