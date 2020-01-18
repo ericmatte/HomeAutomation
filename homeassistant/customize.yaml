@@ -21,22 +21,6 @@ sensor.disk_free_home:
   friendly_name: Disk Free
 sensor.disk_use_home:
   friendly_name: Disk Use
-group.all_automations:
-  friendly_name: All Automations
-  hidden: false
-group.all_scripts:
-  friendly_name: All Scripts
-  hidden: false
-group.all_devices:
-  friendly_name: All Of The People ♪
-  hidden: false
-  order: 1
-group.all_lights:
-  friendly_name: All Lights
-  hidden: false
-group.all_switches:
-  friendly_name: All Switches
-  hidden: false
 sensor.recognized_at:
   icon: mdi:clock
 sensor.cat_litter:

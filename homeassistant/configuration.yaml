@@ -111,20 +111,20 @@ sensor:
       - type: disk_free
         arg: /home
   # Cat Litter Checker
-  - platform: template
-    sensors:
-      cat_litter:
-        friendly_name: "State"
-        value_template: >-
-          {% if states.counter.poopy_counter.state == '0' %}
-            Clean
-          {% elif states.counter.poopy_counter.state == '1' %}
-            A little dirty
-          {% elif states.counter.poopy_counter.state == '2' %}
-            Could be changed
-          {% else %}
-            Need to be changed
-          {% endif %}
+  # - platform: template
+  #   sensors:
+  #     cat_litter:
+  #       friendly_name: "State"
+  #       value_template: >-
+  #         {% if states.counter.poopy_counter.state == '0' %}
+  #           Clean
+  #         {% elif states.counter.poopy_counter.state == '1' %}
+  #           A little dirty
+  #         {% elif states.counter.poopy_counter.state == '2' %}
+  #           Could be changed
+  #         {% else %}
+  #           Need to be changed
+  #         {% endif %}
 
 camera:
   - platform: mjpeg
@@ -194,12 +194,12 @@ light:
     qos: 0
 
 # Poopy counter
-counter:
-  poopy_counter:
-    name: "Number of days since last change"
-    initial: 0
-    step: 1
-    icon: mdi:paw
+# counter:
+#   poopy_counter:
+#     name: "Number of days since last change"
+#     initial: 0
+#     step: 1
+#     icon: mdi:paw
 
 input_select:
   who_clean:

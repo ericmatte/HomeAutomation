@@ -158,40 +158,6 @@
                         {
                             "entity": "media_player.tv",
                             "type": "media-control"
-                        },
-                        {
-                            "entities": [
-                                {
-                                    "entity": "switch.ge_12722_onoff_relay_switch_switch"
-                                },
-                                {
-                                    "buttons": [
-                                        {
-                                            "entity": "input_boolean.kitchen_motion_sensor",
-                                            "name": "Alarm System",
-                                            "state_icons": {
-                                                "off": "mdi:shield-home",
-                                                "on": "mdi:lock-open"
-                                            },
-                                            "state_styles": {
-                                                "off": {
-                                                    "color": "red",
-                                                    "font-weight": "bold"
-                                                },
-                                                "on": {
-                                                    "color": "green"
-                                                }
-                                            },
-                                            "style": {
-                                                "background": "lightgray",
-                                                "border-radius": "9999px"
-                                            }
-                                        }
-                                    ],
-                                    "type": "custom:button-entity-row"
-                                }
-                            ],
-                            "type": "entities"
                         }
                     ],
                     "icon": "mdi:home",
