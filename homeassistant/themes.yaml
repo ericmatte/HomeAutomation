@@ -19,6 +19,7 @@ light:
   paper-card-header-color: "var(--text-color)"                                    # Title in settings
   primary-background-color: "var(--background-color)"                             # Background (also title background in left menu)
   # Card
+  switch-checked-color: "var(--accent-color)"
   paper-card-background-color: "var(--background-card-color)"                     # Background
   dark-primary-color: "var(--text-color)"
   primary-text-color: "var(--text-color)"
@@ -74,6 +75,7 @@ dark:
   paper-grey-50: "var(--primary-text-color)"
   paper-grey-200: "#222222"
   # Paper card
+  switch-checked-color: "var(--accent-color)"
   paper-card-header-color: "var(--primary-color)"
   paper-card-background-color: "#292929"
   paper-dialog-background-color: "#292929"

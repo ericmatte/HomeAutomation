@@ -1,25 +1,25 @@
 {
     "data": {
         "config": {
-            "cch": {
-                "swipe": true
+            "custom_header": {
+                "compact_mode": true
             },
             "resources": [
                 {
                     "type": "module",
-                    "url": "/local/custom-lovelace/compact-custom-header/compact-custom-header.js?v=0.0.1"
+                    "url": "/local/custom-lovelace/custom-header/custom-header.js?v=1.2.1"
                 },
                 {
                     "type": "module",
-                    "url": "/local/custom-lovelace/mini-graph-card/mini-graph-card-bundle.js?v=0.3.0"
+                    "url": "/local/custom-lovelace/mini-graph-card/mini-graph-card-bundle.js?v=0.8.2"
                 },
                 {
                     "type": "module",
-                    "url": "/local/custom-lovelace/monster-card/monster-card.js?v=1"
+                    "url": "/local/custom-lovelace/auto-entities/auto-entities.js?v=14"
                 },
                 {
                     "type": "module",
-                    "url": "/local/custom-lovelace/button-entity-row/button-entity-row.js?v=0.0.76"
+                    "url": "/local/custom-lovelace/button-entity-row/button-entity-row.js?v=0.4.0"
                 }
             ],
             "title": "Home",
@@ -162,11 +162,12 @@
                     ],
                     "icon": "mdi:home",
                     "path": "default_view",
-                    "theme": "Backend-selected",
+                    "theme": "default",
                     "title": "Home"
                 },
                 {
                     "background": "var(--background-image)",
+                    "badges": [],
                     "cards": [
                         {
                             "card": {
@@ -182,7 +183,7 @@
                                 ]
                             },
                             "show_empty": false,
-                            "type": "custom:monster-card"
+                            "type": "custom:auto-entities"
                         },
                         {
                             "card": {
@@ -212,31 +213,25 @@
                                 ]
                             },
                             "show_empty": false,
-                            "type": "custom:monster-card"
+                            "type": "custom:auto-entities"
                         }
                     ],
                     "icon": "mdi:lightbulb-on",
                     "path": "all_lights_and_switches",
+                    "theme": "default",
                     "title": "All Lights and Switches"
                 },
                 {
                     "background": "var(--background-image)",
                     "badges": [
-                        "device_tracker.eric",
-                        "device_tracker.caro"
+                        {
+                            "entity": "device_tracker.eric"
+                        },
+                        {
+                            "entity": "device_tracker.caro"
+                        }
                     ],
                     "cards": [
-                        {
-                            "entities": [
-                                "input_select.who_clean",
-                                "sensor.cat_litter",
-                                "counter.poopy_counter",
-                                "script.reset_poopy_counter"
-                            ],
-                            "show_header_toggle": false,
-                            "title": "Cat Litter",
-                            "type": "entities"
-                        },
                         {
                             "entities": [
                                 {
@@ -267,12 +262,15 @@
                     ],
                     "icon": "mdi:home-automation",
                     "path": "misc",
+                    "theme": "default",
                     "title": "misc"
                 },
                 {
                     "background": "var(--background-image)",
                     "badges": [
-                        "binary_sensor.updater"
+                        {
+                            "entity": "binary_sensor.updater"
+                        }
                     ],
                     "cards": [
                         {
@@ -295,12 +293,6 @@
                             "type": "entities"
                         },
                         {
-                            "entities": [
-                                "sensor.processor_use"
-                            ],
-                            "type": "custom:mini-graph-card"
-                        },
-                        {
                             "card": {
                                 "title": "Things that are broken",
                                 "type": "entities"
@@ -318,7 +310,7 @@
                                 ]
                             },
                             "show_empty": false,
-                            "type": "custom:monster-card"
+                            "type": "custom:auto-entities"
                         },
                         {
                             "card": {
@@ -333,12 +325,39 @@
                                 ]
                             },
                             "show_empty": false,
-                            "type": "custom:monster-card"
+                            "type": "custom:auto-entities"
+                        },
+                        {
+                            "entities": [
+                                "sensor.processor_use"
+                            ],
+                            "type": "custom:mini-graph-card"
+                        },
+                        {
+                            "card": {
+                                "entities": [
+                                    "input_select.who_clean",
+                                    "sensor.cat_litter",
+                                    "counter.poopy_counter",
+                                    "script.reset_poopy_counter"
+                                ],
+                                "show_header_toggle": false,
+                                "title": "Cat Litter",
+                                "type": "entities"
+                            },
+                            "conditions": [
+                                {
+                                    "entity": "sensor.cat_litter",
+                                    "state": "on"
+                                }
+                            ],
+                            "type": "conditional"
                         }
                     ],
                     "icon": "mdi:desktop-tower",
                     "panel": false,
                     "path": "systems",
+                    "theme": "default",
                     "title": "Systems"
                 }
             ]
