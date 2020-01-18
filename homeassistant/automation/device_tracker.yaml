@@ -8,8 +8,12 @@
     entity_id: device_tracker.caro
     to: 'home'
   action:
-    - service: switch.turn_on
-      entity_id: switch.ge_12722_onoff_relay_switch_switch
+    - service: homeassistant.turn_on
+      entity_id:
+        - switch.ge_12722_onoff_relay_switch_switch
+        - light.dining_room
+        - light.home_theatre_lights
+        - switch.rainbow_lights
 
 - id: entrance_auto_off
   alias: Turn off Entrance Light after 1m

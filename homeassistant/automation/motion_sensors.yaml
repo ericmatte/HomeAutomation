@@ -27,33 +27,38 @@
       for:
           seconds: 1
   condition:
-      condition: and
+      condition: or
       conditions:
-          - condition: time
-            after: "07:00:00"
-          - condition: time
-            before: "23:00:00"
           - condition: state
-            entity_id: input_boolean.kitchen_motion_sensor
+            entity_id: switch.ge_12722_onoff_relay_switch_switch
             state: "on"
-          - condition: template
-            value_template: "{{ not is_state('media_player.tv', 'playing') }}"
-          - condition: or
+          - condition: and
             conditions:
+              - condition: time
+                after: "07:00:00"
+              - condition: time
+                before: "23:00:00"
               - condition: state
-                entity_id: device_tracker.eric
-                state: 'home'
-              - condition: state
-                entity_id: device_tracker.caro
-                state: 'home'
+                entity_id: input_boolean.kitchen_motion_sensor
+                state: "on"
+              - condition: template
+                value_template: "{{ not is_state('media_player.tv', 'playing') }}"
+              - condition: or
+                conditions:
+                  - condition: state
+                    entity_id: device_tracker.eric
+                    state: 'home'
+                  - condition: state
+                    entity_id: device_tracker.caro
+                    state: 'home'
   action:
       - service: light.turn_on
         data:
           entity_id: light.dining_room
           brightness: 255
-      - service: light.turn_on
-        entity_id: switch.flux
-      - service: switch.flux_update
+      # - service: switch.turn_on
+      #   entity_id: switch.flux
+      # - service: switch.flux_update
 
 - id: kitchen_motion_sensors_off
   alias: Kitchen light off when no movement
@@ -80,7 +85,7 @@
       service: light.turn_off
       entity_id: light.dining_room
 
-# Bathroom door sensor
+# Walkin door sensor
 - id: walk_in_motion_sensors_on
   alias: Turn on walkin light when opening the door
   trigger:
