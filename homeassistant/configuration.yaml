@@ -135,9 +135,9 @@ switch:
   - platform: flux
     mode: mired
     disable_brightness_adjust: True
+    stop_colortemp: 2300
     lights:
       - light.dining_room
-      # - light.hue_light_1
   - platform: rpi_rf
     gpio: 17
     switches:
@@ -200,15 +200,14 @@ light:
 #     initial: 0
 #     step: 1
 #     icon: mdi:paw
-
-input_select:
-  who_clean:
-    name: "Who will clean it"
-    options:
-     - Eric
-     - Carolanne
-    initial: Eric
-    icon: mdi:panda
+# input_select:
+#   who_clean:
+#     name: "Who will clean it"
+#     options:
+#      - Eric
+#      - Carolanne
+#     initial: Eric
+#     icon: mdi:panda
 
 binary_sensor:
   - platform: rpi_gpio
@@ -233,6 +232,15 @@ input_boolean:
   light_toggle:
     name: Last light toggle
     initial: off
+  use_wake_up_alarm:
+    name: Wake up light
+    initial: off
+
+input_datetime:
+  wake_up_alarm:
+    name: Wake up light alarm
+    has_date: false
+    has_time: true
 
 # Imports
 automation: !include_dir_merge_list automation/

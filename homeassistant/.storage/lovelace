@@ -129,6 +129,21 @@
                         },
                         {
                             "entities": [
+                                "light.bedroom_light",
+                                "input_datetime.wake_up_alarm",
+                                {
+                                    "buttons": [
+                                        {
+                                            "entity": "input_boolean.use_wake_up_alarm",
+                                            "name": "Wake up with fading light",
+                                            "state_icons": {
+                                                "off": "mdi:alarm-off",
+                                                "on": "mdi:alarm"
+                                            }
+                                        }
+                                    ],
+                                    "type": "custom:button-entity-row"
+                                },
                                 "light.walk_in",
                                 {
                                     "buttons": [

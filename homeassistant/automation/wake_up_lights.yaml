@@ -1,0 +1,16 @@
+- id: wake_up_lights
+  alias: Wake up bedroom light at the specified time
+  trigger:
+    platform: template
+    value_template: "{{ states('sensor.time') == (state_attr('input_datetime.wake_up_alarm', 'timestamp') | int | timestamp_custom('%H:%M', False)) }}"
+  condition:
+    condition: and
+    conditions:
+      - condition: state
+        entity_id: input_boolean.use_wake_up_alarm
+        state: 'on'
+      - condition: state
+        entity_id: light.bedroom_light
+        state: 'off'
+  action:
+    - service: script.wake_up
