@@ -20,6 +20,21 @@ ha_url: <home_assistant_url>
 | condition       | [_Optional_], If not null, it must contain `entity` and `state` properties. Change the color of the lights only if the entity has the specific state.                                                  |
 | lights          | A list of all the lights to be synced with the media_player. A color palette from the thumbnail image is calculated, assigning a different color for each light. |
 
+# Example:
+
+```
+tv_lights_sync:
+  module: tv_lights_sync
+  class: tv_lights_sync
+  ha_url: !secret ha_url # Home Assistant Endpoint
+  media_player: media_player.kodi
+  photo_attribute: "entity_picture"
+  condition:
+    entity: input_boolean.sync_tv_lights
+    state: 'on'
+  lights:
+    - light.hyperion
+```
 
 # Installation
 
