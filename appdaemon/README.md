@@ -26,7 +26,7 @@ ha_url: <home_assistant_url>
 tv_lights_sync:
   module: tv_lights_sync
   class: tv_lights_sync
-  ha_url: http://hassio/homeassistant #hassio setup
+  ha_url: !secret ha_url # Home Assistant Endpoint
   media_player: media_player.kodi
   photo_attribute: "entity_picture"
   condition:
