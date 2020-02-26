@@ -21,19 +21,19 @@ ota:
 binary_sensor:
   - platform: gpio
     pin:
-      number: D2
+      number: D1
       inverted: True
       mode: INPUT_PULLUP
     name: "Light remote button 1"
   - platform: gpio
     pin:
-      number: D3
+      number: D2
       inverted: True
       mode: INPUT_PULLUP
     name: "Light remote button 2"
   - platform: gpio
     pin:
-      number: D4
+      number: D3
       inverted: True
       mode: INPUT_PULLUP
     name: "Light remote button 3"
