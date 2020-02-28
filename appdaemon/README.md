@@ -8,6 +8,11 @@ eg:
 
 ```
 system_packages:
+  - gcc 
+  - libgcc 
+  - musl-dev 
+  - jpeg-dev 
+  - zlib-dev
   - libjpeg
   - tiff
   - gcc
