@@ -1,4 +1,23 @@
 This appdaemon app allows rgb lights to be synced with the thumbnail of a media player in Home Assistant.
+# Prerequsites
+
+- python pillow
+
+To install Python Pillow Package, please install either the way described below.If you are running Hassio Addon you must add those package manually in the AppDaemon-Config:
+eg:
+
+```
+system_packages:
+  - libjpeg
+  - tiff
+  - gcc
+  - python3-dev
+  - musl-dev
+python_packages:
+  - Pillow
+init_commands: []
+disable_auto_token: true
+log_level: info
 
 # Configuration
 
