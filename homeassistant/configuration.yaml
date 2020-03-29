@@ -37,7 +37,7 @@ mqtt:
 # Google Assistant Integration
 google_assistant:
   project_id: !secret google_assistant_project_id
-  api_key: !secret google_assistant_api_key
+  service_account: !include ha_service_account.secret.json
   exposed_domains:
     - switch
     - light
