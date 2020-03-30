@@ -5,9 +5,13 @@ Home automation is a great way to enable the full potential of your house, and [
 So this project is a summary of what I did to control my house.
 I also have left my configuration files to give you some examples.
 
+## HACS Projects
+
+- [ad-media-lights-sync](https://github.com/ericmatte/ad-media-lights-sync): Synchronize the color of RGB lights with the thumbnail of a media player
+
+
 ## Sub Projects
 
-- [appdaemon](appdaemon): TV lights sync
 - [esphome](esphome): Small projects using ESP8266
 - [google-home](google-home): Convert your Raspberry Pi into a DIY Google Home
 - [homeassistant](homeassistant): My home assistant configuration

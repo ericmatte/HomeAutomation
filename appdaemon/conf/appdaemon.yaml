@@ -1,7 +1,0 @@
-appdaemon:
-  threads: 10
-  plugins:
-    HASS:
-      type: hass
-      token: !secret token
-      ha_url: !secret ha_url
