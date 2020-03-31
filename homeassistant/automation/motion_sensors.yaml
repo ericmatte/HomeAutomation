@@ -30,7 +30,7 @@
       condition: or
       conditions:
           - condition: state
-            entity_id: switch.ge_12722_onoff_relay_switch_switch
+            entity_id: switch.entrance
             state: "on"
           - condition: and
             conditions:
@@ -46,10 +46,10 @@
               - condition: or
                 conditions:
                   - condition: state
-                    entity_id: device_tracker.eric
+                    entity_id: person.eric
                     state: 'home'
                   - condition: state
-                    entity_id: device_tracker.caro
+                    entity_id: person.caro
                     state: 'home'
   action:
       - service: light.turn_on

@@ -2,7 +2,7 @@
   alias: Double click entrance light turn off all lights
   trigger:
     platform: state
-    entity_id: switch.ge_12722_onoff_relay_switch_switch
+    entity_id: switch.entrance
     from: 'on'
     to: 'off'
   condition: 
@@ -14,7 +14,7 @@
   alias: Set a timestamp when entrance light turn on
   trigger:
     platform: state
-    entity_id: switch.ge_12722_onoff_relay_switch_switch
+    entity_id: switch.entrance
     from: 'off'
     to: 'on'
   action:

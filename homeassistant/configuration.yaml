@@ -8,31 +8,35 @@ homeassistant:
   customize: !include customize.yaml
 
 frontend:
-  # themes: !include_dir_merge_named themes
-  themes: !include themes.yaml
+  themes: !include_dir_merge_named themes
   javascript_version: latest
 
 http:
   base_url: !secret pi_domain
-  ssl_certificate: !secret ssl_fullchain
-  ssl_key: !secret ssl_privkey
+  ssl_certificate: /ssl/fullchain.pem
+  ssl_key: /ssl/privkey.pem
   # ip_ban_enabled: True
   # login_attempts_threshold: 5
 
-logger:
-  default: warning
-  # logs:
-  #   homeassistant.components.switch.command_line: critical
+# logger:
+#   default: warning
+#   logs:
+#     homeassistant.components.switch.command_line: critical
 
 config:
 
 system_health:
 
-mqtt:
-  discovery: true
-  broker: 127.0.0.1
-  username: !secret mqtt_username
-  password: !secret mqtt_password
+# mqtt:
+#   discovery: true
+#   broker: 127.0.0.1
+#   username: !secret mqtt_username
+#   password: !secret mqtt_password
+
+hue:
+  bridges:
+    - host: !secret hue_bridge_ip
+      allow_hue_groups: true
 
 # Google Assistant Integration
 google_assistant:
@@ -126,11 +130,6 @@ sensor:
   #           Need to be changed
   #         {% endif %}
 
-camera:
-  - platform: mjpeg
-    mjpeg_url: http://localhost:8081
-    name: Live cam
-
 switch:
   - platform: flux
     mode: mired
@@ -171,13 +170,6 @@ switch:
         code_on: !secret zap_switch3_on
         code_off: !secret zap_switch3_off
         signal_repetitions: !secret zap_signal_repetition
-  - platform: command_line
-    switches:
-      live_cam:
-        friendly_name: Live Camera
-        command_on: sudo motion && sudo systemctl start motion.service
-        command_off: sudo systemctl stop motion.service
-        command_state: 'systemctl status motion.service --full | grep -oPc "Active: active"'
 
 light:
   - platform: mqtt

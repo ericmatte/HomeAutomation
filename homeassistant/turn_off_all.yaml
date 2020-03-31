@@ -3,7 +3,7 @@
     - switch.kitchen_light
     - switch.living_room_light
     - switch.office_light
-    - switch.ge_12722_onoff_relay_switch_switch
+    - switch.entrance
     - switch.rainbow_lights
 - service: light.turn_off
   entity_id: all

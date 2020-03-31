@@ -54,7 +54,6 @@ class ButtonEntityRow extends LitElement {
               const iconStyle = this._getCurrentIconStyle(button, entityState)
               const name =
                 button.name || (!icon && entityState.attributes ? entityState.attributes.friendly_name : null)
-
               return html`
                 <paper-button
                   @click="${() => this._handleButtonClick(button)}"
@@ -77,6 +76,7 @@ class ButtonEntityRow extends LitElement {
   }
 
   setConfig(config) {
+    config = JSON.parse(JSON.stringify(config))
     if (!config.buttons) throw new Error("missing buttons")
     if (!Array.isArray(config.buttons)) throw new Error("buttons must be an array")
     if (config.buttons.length <= 0) throw new Error("at least one button required")
