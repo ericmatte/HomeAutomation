@@ -1,5 +1,33 @@
-*.pyc
 
+# Secrets and private information
 secrets.yaml
 secrets.py
 *.secret.*
+/html5_push_registrations.conf
+/known_devices.yaml
+/www/google*.html
+
+# Ignored files
+/custom_components
+/custom_components
+/www/community
+/home-assistant_v2.db
+/home-assistant.log
+/options.xml
+/OZW_Log.txt
+/pyozw.sqlite
+/zwcfg_0xdd825656.xml
+/zwscene.xml
+*.pyc
+
+/.storage/**
+!/.storage/lovelace
+
+/themes/*
+!/themes/my-themes
+
+/appdaemon/*
+!/appdaemon/appdaemon.yaml
+!/appdaemon/apps
+/appdaemon/apps/*
+!/appdaemon/apps/apps.yaml
