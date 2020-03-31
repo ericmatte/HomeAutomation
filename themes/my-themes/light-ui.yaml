@@ -18,7 +18,7 @@ My Light UI:
   disabled-text-color: "#717171"
   # Sidebar Menu
   sidebar-icon-color: var(--app-header-text-color)
-  sidebar-text-color: '#424242'
+  sidebar-text-color: "#424242"
   sidebar-background-color: "#FFFFFF"
   sidebar-selected-background-color: var(--primary-background-color)
   sidebar-selected-icon-color: "#5F9BEA"

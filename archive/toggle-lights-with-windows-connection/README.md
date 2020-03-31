@@ -16,6 +16,7 @@ From there, create a task and give it name.
 Go into the **Triggers** tab, and add a new trigger.
 Before sending the post request to Home Assistant, we need to wait for the computer to connect to the internet. That is the trigger we will use.
 To trigger the task on connection to internet, use theses settings:
+
 - **Begin the task:** On a event
 - **Basic:** Checked
 - **Log:** Microsoft-Windows-NetworkProfile/Operational
@@ -23,7 +24,8 @@ To trigger the task on connection to internet, use theses settings:
 - **Event ID:** 10000
 
 On the **Actions** tab, add a new action.
+
 - **Program/script**: The full path to your pythonw.exe
-*Note: We use here pythonw.exe instead of python.exe because it won't show a command line prompt when the script runs.*
+  _Note: We use here pythonw.exe instead of python.exe because it won't show a command line prompt when the script runs._
 - **Add arguments**: The full path to your script + the state for the lights
-*ex.: D:\HomeAutomation\toggle-lights-with-windows-connection\toggle_lights.py on*
+  _ex.: D:\HomeAutomation\toggle-lights-with-windows-connection\toggle_lights.py on_

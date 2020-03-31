@@ -18,7 +18,7 @@ My Dark UI:
   disabled-text-color: "#717171"
   # Sidebar Menu
   sidebar-icon-color: var(--app-header-text-color)
-  sidebar-text-color: '#BDC1C6'
+  sidebar-text-color: "#BDC1C6"
   sidebar-background-color: "#202124"
   sidebar-selected-background-color: var(--primary-background-color)
   sidebar-selected-icon-color: "#5F9BEA"
@@ -62,4 +62,3 @@ My Dark UI:
   table-row-background-color: var(--primary-background-color)
   table-row-alternative-background-color: var(--secondary-background-color)
   data-table-background-color: var(--primary-background-color)
-  

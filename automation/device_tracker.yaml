@@ -1,12 +1,12 @@
 - id: coming_home
   alias: Turn On Entrance Lights When Coming Home
   trigger:
-  - platform: state
-    entity_id: person.eric
-    to: 'home'
-  - platform: state
-    entity_id: person.caro
-    to: 'home'
+    - platform: state
+      entity_id: person.eric
+      to: "home"
+    - platform: state
+      entity_id: person.caro
+      to: "home"
   action:
     - service: homeassistant.turn_on
       entity_id:
@@ -18,10 +18,10 @@
 - id: entrance_auto_off
   alias: Turn off Entrance Light after 1m
   trigger:
-    platform: state 
+    platform: state
     entity_id: switch.entrance
-    from: 'off'
-    to: 'on'
+    from: "off"
+    to: "on"
     for:
       minutes: 1
       seconds: 20
@@ -32,19 +32,19 @@
 - id: away_from_home
   alias: Turn Off Everything When Away
   trigger:
-  - platform: state
-    entity_id: person.eric
-    to: 'not_home'
-  - platform: state
-    entity_id: person.caro
-    to: 'not_home'
+    - platform: state
+      entity_id: person.eric
+      to: "not_home"
+    - platform: state
+      entity_id: person.caro
+      to: "not_home"
   condition:
     condition: and
     conditions:
       - condition: state
         entity_id: person.eric
-        state: 'not_home'
+        state: "not_home"
       - condition: state
         entity_id: person.caro
-        state: 'not_home'
+        state: "not_home"
   action: !include ../turn_off_all.yaml

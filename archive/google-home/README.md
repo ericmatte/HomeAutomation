@@ -1,4 +1,4 @@
-*The Google Assistant Library for Python is deprecated as of June 28th, 2019*
+_The Google Assistant Library for Python is deprecated as of June 28th, 2019_
 
 The new method (which is not compatible with this code):
 https://developers.google.com/assistant/sdk/guides/service/python/
@@ -9,7 +9,6 @@ https://developers.google.com/assistant/sdk/guides/service/python/
 
 https://www.makeuseof.com/tag/diy-google-home-assistant-raspberry-pi/
 
-
 ## Installation
 
 ```
@@ -19,11 +18,12 @@ pip install -r requirements.txt
 
 ## Google
 
-https://developers.google.com/assistant/sdk/reference/library/python/ (*Deprecated*)
+https://developers.google.com/assistant/sdk/reference/library/python/ (_Deprecated_)
 
 ### Other commands
 
 #### Device registration
+
 ```
 googlesamples-assistant-devicetool --project-id PROJECT_ID register-device --device DEVICE_NAME --model DEVICE_MODEL_ID --client-type SERVICE
 ```

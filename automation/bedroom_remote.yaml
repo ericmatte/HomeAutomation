@@ -1,22 +1,22 @@
 - id: dim_bedroom_light
   alias: Dim bedroom light
   trigger:
-    platform: state 
+    platform: state
     entity_id: binary_sensor.light_remote_button_1
-    from: 'off'
-    to: 'on'
+    from: "off"
+    to: "on"
   action:
     service: script.dim_lights
     data:
-      light_id: 'bedroom_light'
+      light_id: "bedroom_light"
 
 - id: toggle_bedroom_light
   alias: Toggle bedroom light
   trigger:
-    platform: state 
+    platform: state
     entity_id: binary_sensor.light_remote_button_2
-    from: 'off'
-    to: 'on'
+    from: "off"
+    to: "on"
   action:
     service: light.toggle
     entity_id: light.bedroom_light
@@ -24,11 +24,11 @@
 - id: brighten_bedroom_light
   alias: Brighten bedroom light
   trigger:
-    platform: state 
+    platform: state
     entity_id: binary_sensor.light_remote_button_3
-    from: 'off'
-    to: 'on'
+    from: "off"
+    to: "on"
   action:
     service: script.brighten_lights
     data:
-      light_id: 'bedroom_light'
+      light_id: "bedroom_light"

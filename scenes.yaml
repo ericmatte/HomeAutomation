@@ -4,29 +4,29 @@
     switch.kitchen_light: false
     light.kitchen_rgb_lights:
       state: true
-      rgb_color: [255,36,200]
+      rgb_color: [255, 36, 200]
       brightness: 50
     # light.home_theatre_lights:
     light.left_theatre_light:
       state: true
-      rgb_color: [255,95,43]
+      rgb_color: [255, 95, 43]
       brightness: 115
     light.right_theatre_light:
       state: true
-      rgb_color: [255,163,84]
+      rgb_color: [255, 163, 84]
       brightness: 115
     # light.dining_room:
     light.hue_light_2:
       state: true
-      rgb_color: [255,198,219]
+      rgb_color: [255, 198, 219]
       brightness: 66
     light.hue_light_3:
       state: true
-      rgb_color: [200,164,255]
+      rgb_color: [200, 164, 255]
       brightness: 66
     light.hue_light_4:
       state: true
-      rgb_color: [255,160,77]
+      rgb_color: [255, 160, 77]
       brightness: 66
 
 - name: Green
@@ -35,29 +35,29 @@
     switch.kitchen_light: false
     light.kitchen_rgb_lights:
       state: true
-      rgb_color: [36,255,90]
+      rgb_color: [36, 255, 90]
       brightness: 50
     # light.home_theatre_lights:
     light.left_theatre_light:
       state: true
-      rgb_color: [89,251,255]
+      rgb_color: [89, 251, 255]
       brightness: 135
     light.right_theatre_light:
       state: true
-      rgb_color: [81,255,124]
+      rgb_color: [81, 255, 124]
       brightness: 135
     # light.dining_room:
     light.hue_light_2:
       state: true
-      rgb_color: [81,255,82]
+      rgb_color: [81, 255, 82]
       brightness: 100
     light.hue_light_3:
       state: true
-      rgb_color: [80,195,255]
+      rgb_color: [80, 195, 255]
       brightness: 80
     light.hue_light_4:
       state: true
-      rgb_color: [125,160,255]
+      rgb_color: [125, 160, 255]
       brightness: 60
 
 - name: Yellow
@@ -66,7 +66,7 @@
     switch.kitchen_light: true
     light.kitchen_rgb_lights:
       state: true
-      rgb_color: [255,240,223]
+      rgb_color: [255, 240, 223]
       brightness: 255
     light.home_theatre_lights:
       state: true
@@ -85,24 +85,22 @@
     # light.home_theatre_lights:
     light.left_theatre_light:
       state: true
-      rgb_color: [61,130,255]
+      rgb_color: [61, 130, 255]
       brightness: 145
     light.right_theatre_light:
       state: true
-      rgb_color: [165,114,255]
+      rgb_color: [165, 114, 255]
       brightness: 85
     # light.dining_room:
     light.hue_light_2:
       state: true
-      rgb_color: [78,156,255]
+      rgb_color: [78, 156, 255]
       brightness: 105
     light.hue_light_3:
       state: true
-      rgb_color: [63,79,255]
+      rgb_color: [63, 79, 255]
       brightness: 65
     light.hue_light_4:
       state: true
-      rgb_color: [194,82,255]
+      rgb_color: [194, 82, 255]
       brightness: 65
-
-

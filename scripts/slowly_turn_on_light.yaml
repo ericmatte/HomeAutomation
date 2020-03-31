@@ -1,6 +1,6 @@
 wake_up:
   alias: Wake up
-  description: 'Slowly turn on the bedroom lights for about 15 minutes'
+  description: "Slowly turn on the bedroom lights for about 15 minutes"
   sequence:
     - condition: template
       # entity_id: light.bedroom_light
@@ -25,4 +25,3 @@ wake_up_increment_brightness:
         seconds: 6 # 7.2sec * 125steps = 900 = 15min
     - alias: Rerun the script
       service: script.wake_up
-      

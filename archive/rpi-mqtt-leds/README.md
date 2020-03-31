@@ -5,6 +5,7 @@ This small project allow you to control leds using the software GPIOs directly o
 ## Getting Started
 
 Simply edit mqtt.py.
+
 - Choose the broker correspondind to Home Assistant (127.0.0.1 if on the same Raspberry Pi).
 - Select a topic to connect with.
 - You can now run the code.
@@ -20,21 +21,25 @@ Into this file, you can specify a path for the python to execute. I recommend to
 ### Useful commands
 
 Reload the configuration
+
 ```
 sudo systemctl daemon-reload
 ```
 
 Enable the service to boot with the Pi
+
 ```
 sudo systemctl enable ledstrip.service
 ```
 
 Start the service
+
 ```
 sudo systemctl start ledstrip.service
 ```
 
 Check the status of the service
+
 ```
 sudo systemctl status ledstrip.service
 ```

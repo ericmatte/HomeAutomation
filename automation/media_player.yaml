@@ -3,7 +3,7 @@
   trigger:
     - platform: state
       entity_id: media_player.tv
-      to: 'off'
+      to: "off"
   action:
     service: light.turn_off
     entity_id: light.home_theatre_lights

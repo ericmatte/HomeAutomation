@@ -8,9 +8,9 @@
     conditions:
       - condition: state
         entity_id: input_boolean.use_wake_up_alarm
-        state: 'on'
+        state: "on"
       - condition: state
         entity_id: light.bedroom_light
-        state: 'off'
+        state: "off"
   action:
     - service: script.wake_up
