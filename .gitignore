@@ -8,6 +8,7 @@ secrets.py
 /www/google*.html
 
 # Ignored files
+/.uuid
 /custom_components
 /custom_components
 /www/community

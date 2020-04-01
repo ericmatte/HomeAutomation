@@ -4,24 +4,6 @@
             "custom_header": {
                 "compact_mode": true
             },
-            "resources": [
-                {
-                    "type": "module",
-                    "url": "/local/custom-lovelace/custom-header/custom-header.js?v=1.2.1"
-                },
-                {
-                    "type": "module",
-                    "url": "/local/custom-lovelace/mini-graph-card/mini-graph-card-bundle.js?v=0.8.2"
-                },
-                {
-                    "type": "module",
-                    "url": "/local/custom-lovelace/auto-entities/auto-entities.js?v=14"
-                },
-                {
-                    "type": "module",
-                    "url": "/local/custom-lovelace/button-entity-row/button-entity-row.js?v=0.4.0"
-                }
-            ],
             "title": "Home",
             "views": [
                 {
@@ -72,7 +54,7 @@
                                     "entity": "switch.kitchen_light"
                                 },
                                 {
-                                    "entity": "switch.ge_12722_onoff_relay_switch_switch"
+                                    "entity": "switch.entrance"
                                 }
                             ],
                             "show_header_toggle": true,
@@ -202,20 +184,6 @@
                         },
                         {
                             "card": {
-                                "camera_view": "live",
-                                "entity": "camera.live_cam",
-                                "type": "picture-entity"
-                            },
-                            "conditions": [
-                                {
-                                    "entity": "switch.live_cam",
-                                    "state": "on"
-                                }
-                            ],
-                            "type": "conditional"
-                        },
-                        {
-                            "card": {
                                 "title": "Lights On",
                                 "type": "entities"
                             },
@@ -240,26 +208,17 @@
                     "background": "var(--background-image)",
                     "badges": [
                         {
-                            "entity": "device_tracker.eric"
+                            "entity": "person.eric"
                         },
                         {
-                            "entity": "device_tracker.caro"
+                            "entity": "person.caro"
                         }
                     ],
                     "cards": [
                         {
-                            "entities": [
-                                {
-                                    "entity": "switch.live_cam"
-                                }
-                            ],
-                            "type": "entities"
-                        },
-                        {
-                            "entities": [
-                                "sensor.yr_temperature"
-                            ],
-                            "type": "custom:mini-graph-card"
+                            "entity": "weather.home",
+                            "theme": "Backend-selected",
+                            "type": "weather-forecast"
                         },
                         {
                             "entities": [
@@ -273,6 +232,11 @@
                             "show_name": false,
                             "show_state": true,
                             "type": "glance"
+                        },
+                        {
+                            "entity": "sensor.yr_temperature",
+                            "graph": "line",
+                            "type": "sensor"
                         }
                     ],
                     "icon": "mdi:home-automation",
@@ -288,6 +252,26 @@
                         }
                     ],
                     "cards": [
+                        {
+                            "card": {
+                                "entities": [
+                                    "input_select.who_clean",
+                                    "sensor.cat_litter",
+                                    "counter.poopy_counter",
+                                    "script.reset_poopy_counter"
+                                ],
+                                "show_header_toggle": false,
+                                "title": "Cat Litter",
+                                "type": "entities"
+                            },
+                            "conditions": [
+                                {
+                                    "entity": "sensor.cat_litter",
+                                    "state": "on"
+                                }
+                            ],
+                            "type": "conditional"
+                        },
                         {
                             "entities": [
                                 {
@@ -328,6 +312,16 @@
                             "type": "custom:auto-entities"
                         },
                         {
+                            "entity": "sensor.processor_use",
+                            "graph": "line",
+                            "type": "sensor"
+                        },
+                        {
+                            "entity": "sensor.memory_free",
+                            "graph": "line",
+                            "type": "sensor"
+                        },
+                        {
                             "card": {
                                 "title": "All Scripts",
                                 "type": "entities"
@@ -341,32 +335,6 @@
                             },
                             "show_empty": false,
                             "type": "custom:auto-entities"
-                        },
-                        {
-                            "entities": [
-                                "sensor.processor_use"
-                            ],
-                            "type": "custom:mini-graph-card"
-                        },
-                        {
-                            "card": {
-                                "entities": [
-                                    "input_select.who_clean",
-                                    "sensor.cat_litter",
-                                    "counter.poopy_counter",
-                                    "script.reset_poopy_counter"
-                                ],
-                                "show_header_toggle": false,
-                                "title": "Cat Litter",
-                                "type": "entities"
-                            },
-                            "conditions": [
-                                {
-                                    "entity": "sensor.cat_litter",
-                                    "state": "on"
-                                }
-                            ],
-                            "type": "conditional"
                         }
                     ],
                     "icon": "mdi:desktop-tower",
