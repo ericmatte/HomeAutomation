@@ -27,12 +27,6 @@ config:
 
 system_health:
 
-# mqtt:
-#   discovery: true
-#   broker: 127.0.0.1
-#   username: !secret mqtt_username
-#   password: !secret mqtt_password
-
 hue:
   bridges:
     - host: !secret hue_bridge_ip

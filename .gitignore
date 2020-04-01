@@ -12,7 +12,7 @@ secrets.py
 /custom_components
 /custom_components
 /www/community
-/home-assistant_v2.db
+/home-assistant_v2.db*
 /home-assistant.log
 /options.xml
 /OZW_Log.txt
