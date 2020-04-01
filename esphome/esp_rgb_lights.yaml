@@ -1,0 +1,63 @@
+esphome:
+  name: esp_rgb_lights
+  platform: ESP8266
+  board: nodemcuv2
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  manual_ip:
+    static_ip: 192.168.1.210
+    gateway: 192.168.1.1
+    subnet: 255.255.255.0
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esp-RGB-Lights Fallback Hotspot"
+    password: !secret wifi_password
+
+captive_portal:
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: !secret esp_rgb_lights_password
+
+# Enable over-the-air updates
+ota:
+  password: !secret esp_rgb_lights_password
+  
+light:
+  - platform: rgb
+    name: "Kitchen RGB lights"
+    red: red_channel
+    green: green_channel
+    blue: blue_channel
+    effects:
+      - random:
+          name: "Rainbow"
+      - random:
+          name: "Slow Rainbow"
+          transition_length: 30s
+          update_interval: 30s
+      - random:
+          name: "Fast Rainbow"
+          transition_length: 4s
+          update_interval: 5s
+      - strobe:
+
+output:
+  - platform: esp8266_pwm
+    id: red_channel
+    max_power: 100% # 70%
+    pin: D6
+  - platform: esp8266_pwm
+    id: green_channel
+    max_power: 100% # 65%
+    pin: D7
+  - platform: esp8266_pwm
+    id: blue_channel
+    max_power: 100%
+    pin: D5
