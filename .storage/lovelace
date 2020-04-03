@@ -32,7 +32,7 @@
                                             }
                                         },
                                         {
-                                            "entity": "script.pause_kitchen_motion",
+                                            "entity": "script.33463523f5f0",
                                             "icon": "mdi:pause",
                                             "name": "1 hour"
                                         },
@@ -151,6 +151,10 @@
                             "show_header_toggle": true,
                             "title": "Bedroom",
                             "type": "entities"
+                        },
+                        {
+                            "entity": "weather.home",
+                            "type": "weather-forecast"
                         },
                         {
                             "entity": "media_player.tv",
@@ -335,6 +339,11 @@
                             },
                             "show_empty": false,
                             "type": "custom:auto-entities"
+                        },
+                        {
+                            "entity": "sensor.disk_free_home",
+                            "graph": "line",
+                            "type": "sensor"
                         }
                     ],
                     "icon": "mdi:desktop-tower",

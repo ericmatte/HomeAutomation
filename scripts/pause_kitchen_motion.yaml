@@ -1,9 +1,0 @@
-pause_kitchen_motion:
-  alias: Pause kitchen motion sensor
-  sequence:
-    - service: input_boolean.turn_off
-      entity_id: input_boolean.kitchen_motion_sensor
-    - delay:
-        hours: 1
-    - service: input_boolean.turn_on
-      entity_id: input_boolean.kitchen_motion_sensor

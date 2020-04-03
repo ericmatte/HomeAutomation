@@ -87,18 +87,11 @@ sensor:
     display_options:
       - "time"
       - "date"
-  # Https certificates validation
-  # - platform: cert_expiry
-  #   scan_interval: 43200 # 2 times/day
-  #   host: !secret pi_domain
-  #   name: !secret pi_domain
-  # Weather Prediction
   - platform: yr
     scan_interval: 3600 # 1 time/hour
     monitored_conditions:
       - temperature
   - platform: moon
-  # Raspberry Pi Monitor
   - platform: systemmonitor
     resources:
       - type: memory_free
@@ -228,7 +221,6 @@ input_datetime:
     has_date: false
     has_time: true
 
-# Imports
-automation: !include_dir_merge_list automation/
-script: !include_dir_merge_named scripts/
+automation: !include automations.yaml
+script: !include scripts.yaml
 scene: !include scenes.yaml

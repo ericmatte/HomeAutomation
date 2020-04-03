@@ -1,1 +1,452 @@
-[]
+- id: 1a2fb39aade3
+  alias: 'Bedroom light: Wake up sunrise at the specified time'
+  trigger:
+  - platform: template
+    value_template: '{{ states(''sensor.time'') == (state_attr(''input_datetime.wake_up_alarm'',
+      ''timestamp'') | int | timestamp_custom(''%H:%M'', False)) }}'
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: input_boolean.use_wake_up_alarm
+      state: 'on'
+    - condition: state
+      entity_id: light.bedroom_light
+      state: 'off'
+  action:
+  - entity_id: script.4d6cd3763adf
+    service: script.turn_on
+- id: 2a197cb06cf7
+  alias: 'Theme: Change automatically'
+  trigger:
+  - event: start
+    platform: homeassistant
+  - entity_id: sun.sun
+    platform: state
+    to: above_horizon
+  - entity_id: sun.sun
+    platform: state
+    to: below_horizon
+  action:
+  - data_template:
+      name: "{% if states.sun.sun.state == \"above_horizon\" %}\n  My Light UI\n{%\
+        \ else %}\n  My Dark UI\n{% endif %}\n"
+    service_template: frontend.set_theme
+- id: fd62eaf9a362
+  alias: 'Flux: On when no color in dining light.'
+  trigger:
+  - platform: template
+    value_template: '{{ not state_attr(''light.dining_room'', ''hs_color'') }}'
+  action:
+  - entity_id: switch.flux
+    service: switch.turn_on
+- id: 4ad87d87a42e
+  alias: 'Flux: Off when color in dining light.'
+  trigger:
+  - platform: template
+    value_template: '{{ not not state_attr(''light.dining_room'', ''hs_color'') }}'
+  action:
+  - entity_id: switch.flux
+    service: switch.turn_off
+- id: d6ab7e116a03
+  alias: 'Dining room light: Turn on when movement'
+  trigger:
+  - entity_id: binary_sensor.kitchen_motion_sensor
+    for: 0:00:01
+    platform: state
+    to: 'on'
+  condition:
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: switch.entrance
+      state: 'on'
+    - condition: and
+      conditions:
+      - after: 07:00:00
+        condition: time
+      - before: '23:00:00'
+        condition: time
+      - condition: state
+        entity_id: input_boolean.kitchen_motion_sensor
+        state: 'on'
+      - condition: template
+        value_template: '{{ not is_state(''media_player.tv'', ''playing'') }}'
+      - condition: or
+        conditions:
+        - condition: state
+          entity_id: person.eric
+          state: home
+        - condition: state
+          entity_id: person.caro
+          state: home
+  action:
+  - data:
+      brightness: 255
+      entity_id: light.dining_room
+    service: light.turn_on
+- id: b8343b239338
+  alias: 'Dining room light: Turn off when no movement'
+  trigger:
+  - entity_id: binary_sensor.kitchen_motion_sensor
+    for: 0:02:30
+    platform: state
+    to: 'off'
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: input_boolean.kitchen_motion_sensor
+      state: 'on'
+    - condition: template
+      value_template: '{{ not state_attr(''light.dining_room'', ''hs_color'') }}'
+    - condition: template
+      value_template: '{{ not is_state(''light.kitchen_rgb_lights'', ''on'') }}'
+    - condition: template
+      value_template: '{{ not is_state(''media_player.tv'', ''playing'') }}'
+  action:
+  - entity_id: light.dining_room
+    service: light.turn_off
+- id: 3682d9789788
+  alias: 'Walk-in: Turn on when opening the door'
+  trigger:
+  - entity_id: binary_sensor.walk_in_door_sensor
+    platform: state
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: input_boolean.walk_in_door_sensor
+    state: 'on'
+  action:
+  - data:
+      brightness: 255
+      entity_id: light.walk_in
+    service: light.turn_on
+- id: a682d9789788
+  alias: 'Walk-in: Turn off when closing the door'
+  trigger:
+  - entity_id: binary_sensor.walk_in_door_sensor
+    platform: state
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: input_boolean.walk_in_door_sensor
+    state: 'on'
+  action:
+  - data:
+      entity_id: light.walk_in
+    service: light.turn_off
+- id: d761a0887108
+  alias: 'Walk-in: Turn off after 2m'
+  trigger:
+  - entity_id: binary_sensor.walk_in_door_sensor
+    for: 00:02:00
+    platform: state
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: input_boolean.walk_in_door_sensor
+    state: 'on'
+  action:
+  - entity_id: light.walk_in
+    service: light.turn_off
+- id: 201217bcd95c
+  alias: 'Theatre lights: Turn off when Chromecast shuts off'
+  trigger:
+  - entity_id: media_player.tv
+    platform: state
+    to: 'off'
+  action:
+  - entity_id: light.home_theatre_lights
+    service: light.turn_off
+- id: 04aa3236b533
+  alias: 'Kitchen lights: Turn on using hidden button'
+  trigger:
+  - entity_id: binary_sensor.kitchen_switch
+    from: 'on'
+    platform: state
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: light.kitchen_rgb_lights
+    state: 'off'
+  action:
+  - data:
+      brightness: 255
+      rgb_color:
+      - 255
+      - 214
+      - 170
+    entity_id: light.kitchen_rgb_lights
+    service: light.turn_on
+  - before: '21:00:00'
+    condition: time
+  - entity_id: switch.kitchen_light
+    service: switch.turn_on
+- id: caddca3d81f3
+  alias: IR Kitchen Lights Toggle
+  trigger:
+    platform: state
+    entity_id: binary_sensor.remote_top_menu_button
+    from: 'off'
+    to: 'on'
+  action:
+  - service: light.toggle
+    entity_id: light.dining_room
+  - service_template: light.turn_{{states.light.dining_room.state}}
+    entity_id: light.kitchen_rgb_lights
+  - service_template: switch.turn_{{states.light.dining_room.state}}
+    entity_id: switch.kitchen_light
+- id: c38eb81920a4
+  alias: IR Living room light toggle
+  trigger:
+    platform: state
+    entity_id: binary_sensor.remote_home_button
+    from: 'off'
+    to: 'on'
+  action:
+    service: switch.toggle
+    entity_id: switch.living_room_light
+- id: 9e5f02e02a54
+  alias: IR Living room ambient lights toggle
+  trigger:
+    platform: state
+    entity_id: binary_sensor.remote_pop_up_menu_button
+    from: 'off'
+    to: 'on'
+  action:
+  - service: light.toggle
+    entity_id: light.home_theatre_lights
+  - service_template: switch.turn_{{states.light.home_theatre_lights.state}}
+    entity_id: switch.rainbow_lights
+- id: 5210c4e3b922
+  alias: IR Dim theatre lights
+  trigger:
+  - entity_id: binary_sensor.remote_fast_backward_button
+    from: 'off'
+    platform: state
+    to: 'on'
+  action:
+  - data:
+      brightness_step_pct: -25
+      entity_id: light.home_theatre_lights
+    service: light.turn_on
+- id: 2508e06bab90
+  alias: IR Brighten theatre lights
+  trigger:
+  - entity_id: binary_sensor.remote_fast_forward_button
+    from: 'off'
+    platform: state
+    to: 'on'
+  action:
+  - data:
+      brightness_pct: 100
+    entity_id: light.home_theatre_lights
+    service: light.turn_on
+- id: 7e75660732d2
+  alias: IR Dim dining room light
+  trigger:
+  - entity_id: binary_sensor.remote_backward_button
+    from: 'off'
+    platform: state
+    to: 'on'
+  action:
+  - data:
+      brightness_step_pct: -25
+    entity_id: light.dining_room,light.kitchen_rgb_lights
+    service: light.turn_on
+  - data: {}
+    entity_id: switch.kitchen_light
+    service: switch.turn_off
+- id: 0a399dadf5cf
+  alias: IR Brighten dining room light
+  trigger:
+  - entity_id: binary_sensor.remote_forward_button
+    from: 'off'
+    platform: state
+    to: 'on'
+  action:
+  - data:
+      brightness_pct: 100
+    entity_id:
+    - light.dining_room
+    - light.kitchen_rgb_lights
+    service: light.turn_on
+  - entity_id: switch.kitchen_light
+    service: switch.turn_on
+- id: 9c888e251cec
+  alias: IR Red scene
+  trigger:
+    platform: state
+    entity_id: binary_sensor.remote_red_button
+    from: 'off'
+    to: 'on'
+  action:
+  - service: scene.turn_on
+    entity_id: scene.red
+- id: 843131cc5c37
+  alias: IR Green scene
+  trigger:
+    platform: state
+    entity_id: binary_sensor.remote_green_button
+    from: 'off'
+    to: 'on'
+  action:
+  - service: scene.turn_on
+    entity_id: scene.green
+- id: 9209957e2527
+  alias: IR Yellow scene
+  trigger:
+    platform: state
+    entity_id: binary_sensor.remote_yellow_button
+    from: 'off'
+    to: 'on'
+  action:
+  - service: scene.turn_on
+    entity_id: scene.yellow
+- id: 86615e98e59c
+  alias: IR Blue scene
+  trigger:
+    platform: state
+    entity_id: binary_sensor.remote_blue_button
+    from: 'off'
+    to: 'on'
+  action:
+  - service: scene.turn_on
+    entity_id: scene.blue
+- id: 72ea00520f30
+  alias: 'Everything: Turn off when double clicking entrance light'
+  trigger:
+  - entity_id: switch.entrance
+    from: 'on'
+    platform: state
+    to: 'off'
+  condition:
+  - condition: template
+    value_template: '{{(as_timestamp(now()) - as_timestamp(states.input_boolean.light_toggle.last_changed)
+      < 1.5)}}'
+  action:
+  - entity_id: scene.turn_off_everything
+    service: scene.turn_on
+- id: d071a8006b33
+  alias: 'Entrance: Set a timestamp when light turns on'
+  trigger:
+  - entity_id: switch.entrance
+    from: 'off'
+    platform: state
+    to: 'on'
+  action:
+  - entity_id: input_boolean.light_toggle
+    service: input_boolean.toggle
+- id: 28c90f5faaa5
+  alias: 'Entrance: Turn on when coming home'
+  trigger:
+  - entity_id: person.eric
+    platform: state
+    to: home
+  - entity_id: person.caro
+    platform: state
+    to: home
+  action:
+  - entity_id:
+    - switch.entrance
+    - light.dining_room
+    - light.home_theatre_lights
+    - switch.rainbow_lights
+    service: homeassistant.turn_on
+- id: 5b184ef4e92a
+  alias: 'Entrance: Turn off after 1m30s'
+  trigger:
+  - entity_id: switch.entrance
+    for: 0:01:30
+    from: 'off'
+    platform: state
+    to: 'on'
+  action:
+  - entity_id: switch.entrance
+    service: switch.turn_off
+- id: badd1ec9d152
+  alias: 'Everything: Turn off when away'
+  trigger:
+  - entity_id: person.eric
+    platform: state
+    to: not_home
+  - entity_id: person.caro
+    platform: state
+    to: not_home
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: person.eric
+      state: not_home
+    - condition: state
+      entity_id: person.caro
+      state: not_home
+  action:
+  - entity_id: scene.turn_off_everything
+    service: scene.turn_on
+- id: 31445a8329bb
+  alias: 'Bedroom light: decrease brightness'
+  trigger:
+  - entity_id: binary_sensor.light_remote_button_1
+    from: 'off'
+    platform: state
+    to: 'on'
+  action:
+  - data:
+      brightness_step_pct: -25
+      entity_id: light.bedroom_light
+    service: light.turn_on
+- id: c9f3148d9539
+  alias: 'Bedroom light: toggle'
+  trigger:
+  - entity_id: binary_sensor.light_remote_button_2
+    from: 'off'
+    platform: state
+    to: 'on'
+  action:
+  - entity_id: light.bedroom_light
+    service: light.toggle
+- id: fa5d3a1b851a
+  alias: 'Bedroom light: increase brightness'
+  trigger:
+  - entity_id: binary_sensor.light_remote_button_3
+    from: 'off'
+    platform: state
+    to: 'on'
+  action:
+  - data:
+      brightness_step_pct: 25
+      entity_id: light.bedroom_light
+    service: light.turn_on
+- id: 2d234803180c
+  alias: 'Settings: Reset each night'
+  trigger:
+  - at: 04:00:00
+    platform: time
+  action:
+  - entity_id:
+    - input_boolean.kitchen_motion_sensor
+    - input_boolean.walk_in_door_sensor
+    service: input_boolean.turn_on
+  - entity_id:
+    - switch.flux
+    service: switch.turn_on
+- id: '1585884258303'
+  alias: 'Kitchen lights: Turn off using hidden button'
+  description: ''
+  trigger:
+  - entity_id: binary_sensor.kitchen_switch
+    from: 'on'
+    platform: state
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: light.kitchen_rgb_lights
+    state: 'on'
+  action:
+  - entity_id: light.kitchen_rgb_lights
+    service: light.turn_off
+  - entity_id: switch.kitchen_light
+    service: switch.turn_off

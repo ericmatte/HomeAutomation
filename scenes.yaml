@@ -1,72 +1,288 @@
-- name: Red
+- id: red
+  name: Red
   entities:
-    switch.rainbow_lights: true
-    switch.kitchen_light: false
-    light.kitchen_rgb_lights:
-      state: true
-      rgb_color: [255, 36, 200]
-      brightness: 50
-    # light.home_theatre_lights:
-    light.left_theatre_light:
-      state: true
-      rgb_color: [255, 95, 43]
-      brightness: 115
-    light.right_theatre_light:
-      state: true
-      rgb_color: [255, 163, 84]
-      brightness: 115
-    # light.dining_room:
     light.hue_light_2:
-      state: true
-      rgb_color: [255, 198, 219]
       brightness: 66
+      effect: none
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Hue light 2
+      hs_color:
+      - 338.276
+      - 22.745
+      max_mireds: 500
+      min_mireds: 153
+      rgb_color:
+      - 255
+      - 197
+      - 218
+      state: 'on'
+      supported_features: 63
+      xy_color:
+      - 0.378
+      - 0.302
     light.hue_light_3:
-      state: true
-      rgb_color: [200, 164, 255]
       brightness: 66
+      effect: none
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Hue light 3
+      hs_color:
+      - 264.396
+      - 35.686
+      max_mireds: 500
+      min_mireds: 153
+      rgb_color:
+      - 201
+      - 164
+      - 255
+      state: 'on'
+      supported_features: 63
+      xy_color:
+      - 0.292
+      - 0.222
     light.hue_light_4:
-      state: true
-      rgb_color: [255, 160, 77]
       brightness: 66
-
-- name: Green
-  entities:
-    switch.rainbow_lights: true
-    switch.kitchen_light: false
+      effect: none
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Hue light 4
+      hs_color:
+      - 28.136
+      - 69.412
+      max_mireds: 500
+      min_mireds: 153
+      rgb_color:
+      - 255
+      - 161
+      - 77
+      state: 'on'
+      supported_features: 63
+      xy_color:
+      - 0.539
+      - 0.388
     light.kitchen_rgb_lights:
-      state: true
-      rgb_color: [36, 255, 90]
-      brightness: 50
-    # light.home_theatre_lights:
+      brightness: 127
+      effect: None
+      effect_list:
+      - None
+      - Rainbow
+      - Slow Rainbow
+      - Fast Rainbow
+      - Strobe
+      friendly_name: Kitchen RGB lights
+      hs_color:
+      - 315.068
+      - 85.882
+      rgb_color:
+      - 255
+      - 36
+      - 200
+      state: 'on'
+      supported_features: 61
+      xy_color:
+      - 0.46
+      - 0.195
     light.left_theatre_light:
-      state: true
-      rgb_color: [89, 251, 255]
-      brightness: 135
+      brightness: 115
+      effect: none
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Left theatre light
+      hs_color:
+      - 14.712
+      - 81.569
+      max_mireds: 500
+      min_mireds: 153
+      rgb_color:
+      - 255
+      - 98
+      - 46
+      state: 'on'
+      supported_features: 63
+      xy_color:
+      - 0.631
+      - 0.336
     light.right_theatre_light:
-      state: true
-      rgb_color: [81, 255, 124]
-      brightness: 135
-    # light.dining_room:
+      brightness: 115
+      effect: none
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Right theatre light
+      hs_color:
+      - 27.529
+      - 66.667
+      max_mireds: 500
+      min_mireds: 153
+      rgb_color:
+      - 255
+      - 162
+      - 84
+      state: 'on'
+      supported_features: 63
+      xy_color:
+      - 0.533
+      - 0.384
+    switch.kitchen_light:
+      friendly_name: Kitchen light
+      state: 'off'
+    switch.rainbow_lights:
+      friendly_name: Rainbow Lights
+      icon: mdi:looks
+      state: 'on'
+- id: green
+  name: Green
+  entities:
     light.hue_light_2:
-      state: true
-      rgb_color: [81, 255, 82]
       brightness: 100
+      effect: none
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Hue light 2
+      hs_color:
+      - 120.69
+      - 68.235
+      max_mireds: 500
+      min_mireds: 153
+      rgb_color:
+      - 81
+      - 255
+      - 83
+      state: 'on'
+      supported_features: 63
+      xy_color:
+      - 0.207
+      - 0.646
     light.hue_light_3:
-      state: true
-      rgb_color: [80, 195, 255]
       brightness: 80
+      effect: none
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Hue light 3
+      hs_color:
+      - 200.809
+      - 67.843
+      max_mireds: 500
+      min_mireds: 153
+      rgb_color:
+      - 82
+      - 195
+      - 255
+      state: 'on'
+      supported_features: 63
+      xy_color:
+      - 0.171
+      - 0.247
     light.hue_light_4:
-      state: true
-      rgb_color: [125, 160, 255]
       brightness: 60
-
-- name: Yellow
+      effect: none
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Hue light 4
+      hs_color:
+      - 224.062
+      - 50.196
+      max_mireds: 500
+      min_mireds: 153
+      rgb_color:
+      - 127
+      - 161
+      - 255
+      state: 'on'
+      supported_features: 63
+      xy_color:
+      - 0.209
+      - 0.202
+    light.kitchen_rgb_lights:
+      brightness: 108
+      effect: None
+      effect_list:
+      - None
+      - Rainbow
+      - Slow Rainbow
+      - Fast Rainbow
+      - Strobe
+      friendly_name: Kitchen RGB lights
+      hs_color:
+      - 134.795
+      - 85.882
+      rgb_color:
+      - 36
+      - 255
+      - 90
+      state: 'on'
+      supported_features: 61
+      xy_color:
+      - 0.177
+      - 0.656
+    light.left_theatre_light:
+      brightness: 135
+      effect: none
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Left theatre light
+      hs_color:
+      - 182.169
+      - 65.098
+      max_mireds: 500
+      min_mireds: 153
+      rgb_color:
+      - 89
+      - 248
+      - 255
+      state: 'on'
+      supported_features: 63
+      xy_color:
+      - 0.175
+      - 0.33
+    light.right_theatre_light:
+      brightness: 135
+      effect: none
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Right theatre light
+      hs_color:
+      - 134.566
+      - 67.843
+      max_mireds: 500
+      min_mireds: 153
+      rgb_color:
+      - 82
+      - 255
+      - 123
+      state: 'on'
+      supported_features: 63
+      xy_color:
+      - 0.2
+      - 0.579
+    switch.kitchen_light:
+      friendly_name: Kitchen light
+      state: 'off'
+    switch.rainbow_lights:
+      friendly_name: Rainbow Lights
+      icon: mdi:looks
+      state: 'on'
+- id: yellow
+  name: Yellow
   entities:
     switch.rainbow_lights: false
     switch.kitchen_light: true
     light.kitchen_rgb_lights:
       state: true
-      rgb_color: [255, 240, 223]
+      rgb_color:
+      - 255
+      - 240
+      - 223
       brightness: 255
     light.home_theatre_lights:
       state: true
@@ -76,31 +292,68 @@
       state: true
       color_temp: 393
       brightness: 255
-
-- name: Blue
+- id: blue
+  name: Blue
   entities:
     switch.rainbow_lights: false
     switch.kitchen_light: false
     light.kitchen_rgb_lights: false
-    # light.home_theatre_lights:
     light.left_theatre_light:
       state: true
-      rgb_color: [61, 130, 255]
+      rgb_color:
+      - 61
+      - 130
+      - 255
       brightness: 145
     light.right_theatre_light:
       state: true
-      rgb_color: [165, 114, 255]
+      rgb_color:
+      - 165
+      - 114
+      - 255
       brightness: 85
-    # light.dining_room:
     light.hue_light_2:
       state: true
-      rgb_color: [78, 156, 255]
+      rgb_color:
+      - 78
+      - 156
+      - 255
       brightness: 105
     light.hue_light_3:
       state: true
-      rgb_color: [63, 79, 255]
+      rgb_color:
+      - 63
+      - 79
+      - 255
       brightness: 65
     light.hue_light_4:
       state: true
-      rgb_color: [194, 82, 255]
+      rgb_color:
+      - 194
+      - 82
+      - 255
       brightness: 65
+- id: turn_off_everything
+  name: Turn Off Everything
+  entities:
+    switch.kitchen_light: false
+    switch.living_room_light: false
+    switch.office_light: false
+    switch.entrance: false
+    switch.rainbow_lights: false
+    light.bedroom_light: false
+    light.dining_room: false
+    light.entertainment_area_1: false
+    light.home_theatre_lights: false
+    light.hue_light_1: false
+    light.hue_light_2: false
+    light.hue_light_3: false
+    light.hue_light_4: false
+    light.kitchen_rgb_lights: false
+    light.left_theatre_light: false
+    light.right_theatre_light: false
+    light.walk_in: false
+    media_player.tv: false
+    switch.eric_desktop: false
+    switch.caro_desktop: false
+    switch.cell_charger_eric: false

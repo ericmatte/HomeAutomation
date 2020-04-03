@@ -1,0 +1,34 @@
+4d6cd3763adf:
+  alias: Wake up sunrise
+  description: Slowly turn on the bedroom lights for about 15 minutes
+  sequence:
+  - condition: template
+    value_template: '{{ states.light.bedroom_light.attributes.get("brightness", 0)
+      < 200 }}'
+  - data:
+      brightness_step_pct: 5
+      entity_id: light.bedroom_light
+    service: light.turn_on
+  - data: {}
+    entity_id: script.1585885611964
+    service: script.turn_on
+33463523f5f0:
+  alias: Pause kitchen motion sensor for 1h
+  sequence:
+  - entity_id: input_boolean.kitchen_motion_sensor
+    service: input_boolean.turn_off
+  - delay: 01:00:00
+  - entity_id: input_boolean.kitchen_motion_sensor
+    service: input_boolean.turn_on
+6845bf93e987:
+  alias: Call it a night
+  sequence:
+  - entity_id: scene.turn_off_everything
+    service: scene.turn_on
+'1585885611964':
+  alias: Wake up sunrise loop
+  sequence:
+  - delay: 00:01:00
+  - data: {}
+    entity_id: script.4d6cd3763adf
+    service: script.turn_on
