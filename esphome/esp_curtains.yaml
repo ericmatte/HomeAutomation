@@ -1,0 +1,45 @@
+esphome:
+  name: esp_curtains
+  platform: ESP8266
+  board: nodemcuv2
+  on_boot:
+    then:
+      - servo.write:
+          id: curtains
+          level: 100.0%
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  manual_ip:
+    static_ip: 192.168.1.214
+    gateway: 192.168.1.1
+    subnet: 255.255.255.0
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esp-RGB-Lights Fallback Hotspot"
+    password: !secret wifi_password
+
+captive_portal:
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: !secret esp_curtains_password
+
+# Enable over-the-air updates
+ota:
+  password: !secret esp_curtains_password
+
+servo:
+  - id: curtains
+    output: sg_90
+
+output:
+  - platform: esp8266_pwm
+    id: sg_90
+    pin: D4
+    frequency: 50 Hz
