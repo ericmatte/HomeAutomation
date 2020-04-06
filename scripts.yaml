@@ -9,9 +9,11 @@
       brightness_step_pct: 5
       entity_id: light.bedroom_light
     service: light.turn_on
-  - data: {}
+  - data:
+      delay: 00:01:00
+      script: script.4d6cd3763adf
     entity_id: script.1585885611964
-    service: script.turn_on
+    service: script.repeat
 33463523f5f0:
   alias: Pause kitchen motion sensor for 1h
   sequence:
@@ -25,10 +27,19 @@
   sequence:
   - entity_id: scene.turn_off_everything
     service: scene.turn_on
-'1585885611964':
-  alias: Wake up sunrise loop
+repeat:
+  alias: Repeat
+  icon: mdi:reload
+  description: Allow to repeat a script in loop
+  fields:
+    delay:
+      description: The amount of time to wait before looping
+      example: 00:02:30
+    script:
+      description: The callback script for the loop
+      example: script.gradually_wake_up
   sequence:
-  - delay: 00:01:00
-  - data: {}
-    entity_id: script.4d6cd3763adf
-    service: script.turn_on
+  - delay: '{{ delay }}'
+  - service: script.turn_on
+    data_template:
+      entity_id: '{{ script }}'

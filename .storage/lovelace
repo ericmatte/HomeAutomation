@@ -100,9 +100,6 @@
                                 },
                                 {
                                     "entity": "switch.eric_desktop"
-                                },
-                                {
-                                    "entity": "switch.caro_desktop"
                                 }
                             ],
                             "show_header_toggle": true,
