@@ -111,6 +111,7 @@
                         {
                             "entities": [
                                 "light.bedroom_light",
+                                "cover.curtains",
                                 "input_datetime.wake_up_alarm",
                                 {
                                     "buttons": [

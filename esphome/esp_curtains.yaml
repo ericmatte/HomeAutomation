@@ -2,28 +2,25 @@ esphome:
   name: esp_curtains
   platform: ESP8266
   board: nodemcuv2
-  on_boot:
-    then:
-      - delay: 2s
-      - stepper.report_position:
-          id: my_stepper
-          position: 0
-      - stepper.set_target:
-          id: my_stepper
-          target: 30000
-  on_loop:
-    then:
-      if:
-        condition:
-          lambda: 'return id(my_stepper).current_position == 30000;'
-        then:
-          - delay: 2s
-          - stepper.set_target:
-              id: my_stepper
-              target: 5000
-      # - servo.write:
-      #     id: curtains
-      #     level: -100.0%
+#  on_boot:
+#    then:
+#      - delay: 8s
+#      - stepper.report_position:
+#          id: my_stepper
+#          position: 0
+#      - stepper.set_target:
+#          id: my_stepper
+#          target: 2048
+#  on_loop:
+#    then:
+#      if:
+#        condition:
+#          lambda: 'return id(my_stepper).current_position == 30000;'
+#        then:
+#          - delay: 2s
+#          - stepper.set_target:
+#              id: my_stepper
+#              target: 5000
 
 wifi:
   ssid: !secret wifi_ssid
@@ -51,6 +48,65 @@ api:
 ota:
   password: !secret esp_curtains_password
 
+globals:
+   - id: end_stop_open
+     type: int
+     initial_value: '37160' # 57cm / (1cm * pi) * 2048 ~= 37160
+     # NumberOfSteps: 57cm / (1cm * pi) = 18.1436
+     # StepsPerRevolution [FULL_STEP]: 64 * 64 / 2 = 2048
+
+cover:
+  - platform: template
+    name: "Curtains"
+    id: curtains
+    device_class: curtain
+    assumed_state: false
+    has_position: true
+    optimistic: false
+    open_action:
+      - stepper.set_target:
+          id: my_stepper
+          target: !lambda 'return id(end_stop_open);'
+      - while:
+          condition:
+            lambda: 'return id(curtains).position != 1;'
+          then:
+            - cover.template.publish:
+                id: curtains
+                current_operation: OPENING
+                position: !lambda 'return (float(float(id(my_stepper).current_position) / float(id(end_stop_open))));'
+            - delay: 1000 ms
+      - cover.template.publish:
+          id: curtains
+          current_operation: IDLE
+          position: !lambda 'return 1;'
+    close_action:
+      - stepper.set_target:
+          id: my_stepper
+          target: 0
+      - while:
+          condition:
+            lambda: 'return id(curtains).position != 0;'
+          then:
+            - cover.template.publish:
+                id: curtains
+                current_operation: CLOSING
+                position: !lambda 'return (float(float(id(my_stepper).current_position) / float(id(end_stop_open))));'
+            - delay: 1000 ms
+      - cover.template.publish:
+          id: curtains
+          current_operation: IDLE
+          position: !lambda 'return 0;'
+    stop_action:
+      - stepper.set_target:
+          id: my_stepper
+          target: !lambda 'return id(my_stepper).current_position;'
+      - cover.template.publish:
+          id: curtains
+          current_operation: IDLE
+          position: !lambda 'return (float(float(id(my_stepper).current_position) / float(id(end_stop_open))));'
+    # position_action: will be available in esphome 1.5
+
 stepper:
   - platform: uln2003
     id: my_stepper
@@ -59,18 +115,5 @@ stepper:
     pin_c: D7
     pin_d: D8
     max_speed: 500 steps/s
-    acceleration: 50 steps/s^2
-    deceleration: 50 steps/s^2
-
-# servo:
-#   - id: curtains
-#     output: sg_90
-#     min_level: 5%
-#     idle_level: 7.5%
-#     max_level: 10%
-
-# output:
-#   - platform: esp8266_pwm
-#     id: sg_90
-#     pin: D4
-#     frequency: 50 Hz
+    acceleration: inf # 50 steps/s^2
+    deceleration: inf # 50 steps/s^2
