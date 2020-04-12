@@ -2,7 +2,9 @@
     "data": {
         "config": {
             "custom_header": {
-                "compact_mode": true
+                "chevrons": false,
+                "compact_mode": true,
+                "header_text": "Home {{ time }}"
             },
             "title": "Home",
             "views": [
@@ -32,7 +34,7 @@
                                             }
                                         },
                                         {
-                                            "entity": "script.33463523f5f0",
+                                            "entity": "script.pause_kitchen",
                                             "icon": "mdi:pause",
                                             "name": "1 hour"
                                         },

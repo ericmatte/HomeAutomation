@@ -1,32 +1,32 @@
-4d6cd3763adf:
+wake_up_sunrise:
   alias: Wake up sunrise
   description: Slowly turn on the bedroom lights for about 15 minutes
   sequence:
-  - condition: template
-    value_template: '{{ states.light.bedroom_light.attributes.get("brightness", 0)
-      < 200 }}'
-  - data:
-      brightness_step_pct: 5
-      entity_id: light.bedroom_light
-    service: light.turn_on
-  - data:
-      delay: 00:01:00
-      script: script.4d6cd3763adf
-    entity_id: script.1585885611964
-    service: script.repeat
-33463523f5f0:
+    - condition: template
+      value_template:
+        '{{ states.light.bedroom_light.attributes.get("brightness", 0)
+        < 200 }}'
+    - data:
+        brightness_step_pct: 5
+        entity_id: light.bedroom_light
+      service: light.turn_on
+    - data:
+        delay: 00:01:00
+        script: script.wake_up_sunrise
+      service: script.repeat
+pause_kitchen:
   alias: Pause kitchen motion sensor for 1h
   sequence:
-  - entity_id: input_boolean.kitchen_motion_sensor
-    service: input_boolean.turn_off
-  - delay: 01:00:00
-  - entity_id: input_boolean.kitchen_motion_sensor
-    service: input_boolean.turn_on
-6845bf93e987:
+    - entity_id: input_boolean.kitchen_motion_sensor
+      service: input_boolean.turn_off
+    - delay: 01:00:00
+    - entity_id: input_boolean.kitchen_motion_sensor
+      service: input_boolean.turn_on
+good_night:
   alias: Call it a night
   sequence:
-  - entity_id: scene.turn_off_everything
-    service: scene.turn_on
+    - entity_id: scene.turn_off_everything
+      service: scene.turn_on
 repeat:
   alias: Repeat
   icon: mdi:reload
@@ -39,7 +39,7 @@ repeat:
       description: The callback script for the loop
       example: script.gradually_wake_up
   sequence:
-  - delay: '{{ delay }}'
-  - service: script.turn_on
-    data_template:
-      entity_id: '{{ script }}'
+    - delay: "{{ delay }}"
+    - service: script.turn_on
+      data_template:
+        entity_id: "{{ script }}"

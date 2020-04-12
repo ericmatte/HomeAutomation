@@ -66,6 +66,8 @@ zwave:
 updater:
 
 discovery:
+  ignore:
+    - igd
 
 history:
 

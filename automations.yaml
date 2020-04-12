@@ -14,7 +14,7 @@
       entity_id: light.bedroom_light
       state: 'off'
   action:
-  - entity_id: script.4d6cd3763adf
+  - entity_id: script.wake_up_sunrise
     service: script.turn_on
 - id: 2a197cb06cf7
   alias: 'Theme: Change automatically'

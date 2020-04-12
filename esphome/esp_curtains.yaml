@@ -4,9 +4,26 @@ esphome:
   board: nodemcuv2
   on_boot:
     then:
-      - servo.write:
-          id: curtains
-          level: 100.0%
+      - delay: 2s
+      - stepper.report_position:
+          id: my_stepper
+          position: 0
+      - stepper.set_target:
+          id: my_stepper
+          target: 30000
+  on_loop:
+    then:
+      if:
+        condition:
+          lambda: 'return id(my_stepper).current_position == 30000;'
+        then:
+          - delay: 2s
+          - stepper.set_target:
+              id: my_stepper
+              target: 5000
+      # - servo.write:
+      #     id: curtains
+      #     level: -100.0%
 
 wifi:
   ssid: !secret wifi_ssid
@@ -34,12 +51,26 @@ api:
 ota:
   password: !secret esp_curtains_password
 
-servo:
-  - id: curtains
-    output: sg_90
+stepper:
+  - platform: uln2003
+    id: my_stepper
+    pin_a: D5
+    pin_b: D6
+    pin_c: D7
+    pin_d: D8
+    max_speed: 500 steps/s
+    acceleration: 50 steps/s^2
+    deceleration: 50 steps/s^2
 
-output:
-  - platform: esp8266_pwm
-    id: sg_90
-    pin: D4
-    frequency: 50 Hz
+# servo:
+#   - id: curtains
+#     output: sg_90
+#     min_level: 5%
+#     idle_level: 7.5%
+#     max_level: 10%
+
+# output:
+#   - platform: esp8266_pwm
+#     id: sg_90
+#     pin: D4
+#     frequency: 50 Hz
