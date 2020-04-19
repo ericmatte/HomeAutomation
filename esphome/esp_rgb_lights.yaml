@@ -28,7 +28,7 @@ api:
 # Enable over-the-air updates
 ota:
   password: !secret esp_rgb_lights_password
-  
+
 light:
   - platform: rgb
     name: "Kitchen RGB lights"

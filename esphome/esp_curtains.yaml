@@ -1,26 +1,8 @@
+# Note: The starting is always if the curtains closed.
 esphome:
   name: esp_curtains
   platform: ESP8266
   board: nodemcuv2
-#  on_boot:
-#    then:
-#      - delay: 8s
-#      - stepper.report_position:
-#          id: my_stepper
-#          position: 0
-#      - stepper.set_target:
-#          id: my_stepper
-#          target: 2048
-#  on_loop:
-#    then:
-#      if:
-#        condition:
-#          lambda: 'return id(my_stepper).current_position == 30000;'
-#        then:
-#          - delay: 2s
-#          - stepper.set_target:
-#              id: my_stepper
-#              target: 5000
 
 wifi:
   ssid: !secret wifi_ssid
@@ -49,11 +31,11 @@ ota:
   password: !secret esp_curtains_password
 
 globals:
-   - id: end_stop_open
-     type: int
-     initial_value: '37160' # 57cm / (1cm * pi) * 2048 ~= 37160
-     # NumberOfSteps: 57cm / (1cm * pi) = 18.1436
-     # StepsPerRevolution [FULL_STEP]: 64 * 64 / 2 = 2048
+  - id: end_stop_open
+    type: int
+    initial_value: "30600" # ~= 47cm / (1cm * pi) * 2048
+    # NumberOfSteps: width / (pulleyDiameter * pi)
+    # StepsPerRevolution [FULL_STEP]: 64 * 64 / 2 = 2048
 
 cover:
   - platform: template
@@ -66,45 +48,45 @@ cover:
     open_action:
       - stepper.set_target:
           id: my_stepper
-          target: !lambda 'return id(end_stop_open);'
+          target: !lambda "return id(end_stop_open);"
       - while:
           condition:
-            lambda: 'return id(curtains).position != 1;'
+            lambda: "return id(curtains).position != 1;"
           then:
             - cover.template.publish:
                 id: curtains
                 current_operation: OPENING
-                position: !lambda 'return (float(float(id(my_stepper).current_position) / float(id(end_stop_open))));'
+                position: !lambda "return (float(float(id(my_stepper).current_position) / float(id(end_stop_open))));"
             - delay: 1000 ms
       - cover.template.publish:
           id: curtains
           current_operation: IDLE
-          position: !lambda 'return 1;'
+          position: !lambda "return 1;"
     close_action:
       - stepper.set_target:
           id: my_stepper
           target: 0
       - while:
           condition:
-            lambda: 'return id(curtains).position != 0;'
+            lambda: "return id(curtains).position != 0;"
           then:
             - cover.template.publish:
                 id: curtains
                 current_operation: CLOSING
-                position: !lambda 'return (float(float(id(my_stepper).current_position) / float(id(end_stop_open))));'
+                position: !lambda "return (float(float(id(my_stepper).current_position) / float(id(end_stop_open))));"
             - delay: 1000 ms
       - cover.template.publish:
           id: curtains
           current_operation: IDLE
-          position: !lambda 'return 0;'
+          position: !lambda "return 0;"
     stop_action:
       - stepper.set_target:
           id: my_stepper
-          target: !lambda 'return id(my_stepper).current_position;'
+          target: !lambda "return id(my_stepper).current_position;"
       - cover.template.publish:
           id: curtains
           current_operation: IDLE
-          position: !lambda 'return (float(float(id(my_stepper).current_position) / float(id(end_stop_open))));'
+          position: !lambda "return (float(float(id(my_stepper).current_position) / float(id(end_stop_open))));"
     # position_action: will be available in esphome 1.5
 
 stepper:

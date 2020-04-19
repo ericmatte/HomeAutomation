@@ -450,3 +450,33 @@
     service: light.turn_off
   - entity_id: switch.kitchen_light
     service: switch.turn_off
+- id: '1586909745033'
+  alias: 'Curtains: Open at sunrise'
+  description: ''
+  trigger:
+  - entity_id: sun.sun
+    platform: state
+    to: above_horizon
+  condition:
+  - condition: state
+    entity_id: input_boolean.use_sunrise_curtains
+    state: 'on'
+  action:
+  - data: {}
+    entity_id: cover.curtains
+    service: cover.open_cover
+- id: '1586909791957'
+  alias: 'Curtains: Close at sunset'
+  description: ''
+  trigger:
+  - entity_id: sun.sun
+    platform: state
+    to: below_horizon
+  condition:
+  - condition: state
+    entity_id: input_boolean.use_sunrise_curtains
+    state: 'on'
+  action:
+  - data: {}
+    entity_id: cover.curtains
+    service: cover.close_cover
