@@ -1,5 +1,7 @@
 # Home Automation with Home Assistant
 
+<a href="https://www.buymeacoffee.com/ericmatte" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
+
 Home automation is a great way to enable the full potential of your house, and [Home Assistant](https://www.home-assistant.io/) is one of the simplest way to do it!
 
 So this project is a summary of what I did to control my house.
@@ -11,7 +13,12 @@ I also have left my configuration files to give you some examples.
 
 ## Sub Projects
 
-- [esphome](esphome): Small projects using ESP8266
+- [esphome](esphome): Small projects using ESP8266 devices
+  - [esp_curtains](esphome/esp_curtains.yaml): Control your curtains
+  - [esp_door](esphome/esp_door.yaml): Door open/close sensor
+  - [esp_ir_receiver](esphome/esp_ir_receiver.yaml): TV remote sensor
+  - [esp_light_remote](esphome/esp_light_remote.yaml): Wireless remote buttons
+  - [esp_rgb_lights](esphome/esp_rgb_lights.yaml): RGB light
 - archive (other sub-projects that have become obsolete)
   - [rf-transmitter-receiver](archive/rf-transmitter-receiver): Scan/send RF signals
   - [google-home](archive/google-home): Convert your Raspberry Pi into a DIY Google Home
