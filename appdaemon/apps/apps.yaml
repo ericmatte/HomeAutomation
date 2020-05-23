@@ -5,9 +5,16 @@ media_lights_sync:
   module: media_lights_sync
   class: MediaLightsSync
   media_player: media_player.tv
+  ha_url: https://rasp.ericmatte.me/
+  photo_attribute: entity_picture_local
+  use_current_brightness: False
   condition:
     entity: input_boolean.sync_tv_lights
     state: "on"
   lights:
     - light.left_theatre_light
     - light.right_theatre_light
+    # - light.hue_light_2
+    # - light.hue_light_3
+    # - light.hue_light_4
+    # - light.kitchen_rgb_lights

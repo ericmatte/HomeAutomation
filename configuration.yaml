@@ -23,6 +23,8 @@ http:
 #   logs:
 #     homeassistant.components.switch.command_line: critical
 
+mobile_app:
+
 config:
 
 system_health:

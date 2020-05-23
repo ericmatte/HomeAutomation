@@ -125,7 +125,7 @@
                                         },
                                         {
                                             "entity": "input_boolean.use_wake_up_alarm",
-                                            "name": "Wake up with fading light",
+                                            "name": "Wake up light",
                                             "state_icons": {
                                                 "off": "mdi:alarm-off",
                                                 "on": "mdi:alarm"
