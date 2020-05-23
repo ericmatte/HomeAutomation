@@ -5,6 +5,8 @@ homeassistant:
   elevation: !secret elevation
   unit_system: metric
   time_zone: America/Toronto
+  external_url: !secret external_url
+  internal_url: !secret internal_url
   customize: !include customize.yaml
 
 frontend:
@@ -12,7 +14,6 @@ frontend:
   javascript_version: latest
 
 http:
-  base_url: !secret pi_domain
   ssl_certificate: /ssl/fullchain.pem
   ssl_key: /ssl/privkey.pem
   # ip_ban_enabled: True
@@ -68,8 +69,6 @@ zwave:
 updater:
 
 discovery:
-  ignore:
-    - igd
 
 history:
 
@@ -161,20 +160,6 @@ switch:
         code_on: !secret zap_switch3_on
         code_off: !secret zap_switch3_off
         signal_repetitions: !secret zap_signal_repetition
-
-light:
-  - platform: mqtt
-    name: "Kitchen RGB Lights"
-    schema: json
-    state_topic: "home-assistant/rgb"
-    command_topic: "home-assistant/rgb/set"
-    brightness: true
-    effect_list: ["ColorFade Slow", "ColorFade Fast", "Flash"]
-    color_temp: true
-    rgb: true
-    effect: true
-    optimistic: false
-    qos: 0
 
 # Poopy counter
 # counter:

@@ -176,7 +176,17 @@
                 },
                 {
                     "background": "var(--background-image)",
-                    "badges": [],
+                    "badges": [
+                        {
+                            "entity": "person.eric"
+                        },
+                        {
+                            "entity": "person.caro"
+                        },
+                        {
+                            "entity": "sun.sun"
+                        }
+                    ],
                     "cards": [
                         {
                             "card": {
@@ -215,49 +225,6 @@
                     "path": "all_lights_and_switches",
                     "theme": "default",
                     "title": "All Lights and Switches"
-                },
-                {
-                    "background": "var(--background-image)",
-                    "badges": [
-                        {
-                            "entity": "person.eric"
-                        },
-                        {
-                            "entity": "person.caro"
-                        },
-                        {
-                            "entity": "sun.sun"
-                        }
-                    ],
-                    "cards": [
-                        {
-                            "entity": "weather.home",
-                            "theme": "Backend-selected",
-                            "type": "weather-forecast"
-                        },
-                        {
-                            "entities": [
-                                {
-                                    "entity": "sun.sun"
-                                },
-                                {
-                                    "entity": "sensor.moon"
-                                }
-                            ],
-                            "show_name": false,
-                            "show_state": true,
-                            "type": "glance"
-                        },
-                        {
-                            "entity": "sensor.yr_temperature",
-                            "graph": "line",
-                            "type": "sensor"
-                        }
-                    ],
-                    "icon": "mdi:home-automation",
-                    "path": "misc",
-                    "theme": "default",
-                    "title": "misc"
                 },
                 {
                     "background": "var(--background-image)",
@@ -362,6 +329,34 @@
                     "path": "systems",
                     "theme": "default",
                     "title": "Systems"
+                },
+                {
+                    "background": "var(--background-image)",
+                    "badges": [],
+                    "cards": [
+                        {
+                            "entities": [
+                                {
+                                    "entity": "sun.sun"
+                                },
+                                {
+                                    "entity": "sensor.moon"
+                                }
+                            ],
+                            "show_name": false,
+                            "show_state": true,
+                            "type": "glance"
+                        },
+                        {
+                            "entity": "sensor.yr_temperature",
+                            "graph": "line",
+                            "type": "sensor"
+                        }
+                    ],
+                    "icon": "mdi:home-automation",
+                    "path": "misc",
+                    "theme": "default",
+                    "title": "misc"
                 }
             ]
         }
