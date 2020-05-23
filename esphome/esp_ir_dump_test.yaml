@@ -1,0 +1,41 @@
+esphome:
+  name: esp_ir_receiver
+  platform: ESP8266
+  board: nodemcuv2
+  # Temporary fix for https://github.com/esphome/issues/issues/877
+  on_loop:
+    then:
+      - lambda: delay(1);
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  manual_ip:
+    static_ip: 192.168.1.212
+    gateway: 192.168.1.1
+    subnet: 255.255.255.0
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esp-Ir-Receiver Fallback Hotspot"
+    password: !secret wifi_password
+
+captive_portal:
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: !secret esp_ir_receiver_password
+
+# Enable over-the-air updates
+ota:
+  password: !secret esp_ir_receiver_password
+
+remote_receiver:
+  pin:
+    number: D5
+    inverted: true
+    mode: INPUT_PULLUP
+  dump: [lg, nec, panasonic, jvc, samsung, sony, rc_switch, rc5]
