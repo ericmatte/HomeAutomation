@@ -348,11 +348,7 @@
     platform: state
     to: home
   action:
-  - entity_id:
-    - switch.entrance
-    - light.dining_room
-    - light.home_theatre_lights
-    - switch.rainbow_lights
+  - entity_id: switch.entrance,light.dining_room,light.home_theatre_lights
     service: homeassistant.turn_on
 - id: 5b184ef4e92a
   alias: 'Entrance: Turn off after 1m30s'
@@ -408,6 +404,10 @@
   action:
   - entity_id: light.bedroom_light
     service: light.toggle
+  - data: {}
+    entity_id: scene.turn_off_everything
+    service: scene.turn_on
+  mode: single
 - id: fa5d3a1b851a
   alias: 'Bedroom light: increase brightness'
   trigger:

@@ -228,11 +228,7 @@
                 },
                 {
                     "background": "var(--background-image)",
-                    "badges": [
-                        {
-                            "entity": "binary_sensor.updater"
-                        }
-                    ],
+                    "badges": [],
                     "cards": [
                         {
                             "card": {

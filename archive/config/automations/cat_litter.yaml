@@ -1,8 +1,39 @@
+## To add in configuration.yaml
+# sensor:
+#   - platform: template
+#     sensors:
+#       cat_litter:
+#         friendly_name: "State"
+#         value_template: >-
+#           {% if states.counter.poopy_counter.state == '0' %}
+#             Clean
+#           {% elif states.counter.poopy_counter.state == '1' %}
+#             A little dirty
+#           {% elif states.counter.poopy_counter.state == '2' %}
+#             Could be changed
+#           {% else %}
+#             Need to be changed
+#           {% endif %}
+# counter:
+#   poopy_counter:
+#     name: "Number of days since last change"
+#     initial: 0
+#     step: 1
+#     icon: mdi:paw
+# input_select:
+#   who_clean:
+#     name: "Who will clean it"
+#     options:
+#      - Eric
+#      - Carolanne
+#     initial: Eric
+#     icon: mdi:panda
+
 - id: cat_litter_days_counter
   alias: Cat Litter Days Counter
   trigger:
     platform: time
-    at: '00:00:00'
+    at: "00:00:00"
   action:
     service: counter.increment
     entity_id: counter.poopy_counter
@@ -10,10 +41,10 @@
 - id: cat_litter_warning
   alias: Cat Litter Poopy Warning
   trigger:
-    platform: state 
+    platform: state
     entity_id: counter.poopy_counter
   condition:
-    condition: numeric_state 
+    condition: numeric_state
     entity_id: counter.poopy_counter
     above: 1
   action:
@@ -29,13 +60,13 @@
       data:
         title: Clean the litter box
         data:
-          tag: 'notification-about-litter-box'
+          tag: "notification-about-litter-box"
           vibrate: false
           actions:
-          - title: Done
-            action: 'reset_poopy_counter'
-          - title: Dismiss
-            action: ''
+            - title: Done
+              action: "reset_poopy_counter"
+            - title: Dismiss
+              action: ""
 
 - alias: IFTTT litter box webhook
   trigger:

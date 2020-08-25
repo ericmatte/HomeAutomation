@@ -24,16 +24,15 @@ http:
 #   logs:
 #     homeassistant.components.switch.command_line: critical
 
+recorder:
+  auto_purge: true
+  purge_keep_days: 10
+
 mobile_app:
 
 config:
 
 system_health:
-
-hue:
-  bridges:
-    - host: !secret hue_bridge_ip
-      allow_hue_groups: true
 
 # Google Assistant Integration
 google_assistant:
@@ -104,21 +103,6 @@ sensor:
         arg: /home
       - type: disk_free
         arg: /home
-  # Cat Litter Checker
-  # - platform: template
-  #   sensors:
-  #     cat_litter:
-  #       friendly_name: "State"
-  #       value_template: >-
-  #         {% if states.counter.poopy_counter.state == '0' %}
-  #           Clean
-  #         {% elif states.counter.poopy_counter.state == '1' %}
-  #           A little dirty
-  #         {% elif states.counter.poopy_counter.state == '2' %}
-  #           Could be changed
-  #         {% else %}
-  #           Need to be changed
-  #         {% endif %}
 
 switch:
   - platform: flux
@@ -160,22 +144,6 @@ switch:
         code_on: !secret zap_switch3_on
         code_off: !secret zap_switch3_off
         signal_repetitions: !secret zap_signal_repetition
-
-# Poopy counter
-# counter:
-#   poopy_counter:
-#     name: "Number of days since last change"
-#     initial: 0
-#     step: 1
-#     icon: mdi:paw
-# input_select:
-#   who_clean:
-#     name: "Who will clean it"
-#     options:
-#      - Eric
-#      - Carolanne
-#     initial: Eric
-#     icon: mdi:panda
 
 binary_sensor:
   - platform: rpi_gpio

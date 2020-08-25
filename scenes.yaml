@@ -336,24 +336,149 @@
 - id: turn_off_everything
   name: Turn Off Everything
   entities:
-    switch.kitchen_light: false
-    switch.living_room_light: false
-    switch.office_light: false
-    switch.entrance: false
-    switch.rainbow_lights: false
-    light.bedroom_light: false
-    light.dining_room: false
-    light.entertainment_area_1: false
-    light.home_theatre_lights: false
-    light.hue_light_1: false
-    light.hue_light_2: false
-    light.hue_light_3: false
-    light.hue_light_4: false
-    light.kitchen_rgb_lights: false
-    light.left_theatre_light: false
-    light.right_theatre_light: false
-    light.walk_in: false
-    media_player.tv: false
-    switch.eric_desktop: false
-    switch.caro_desktop: false
-    switch.cell_charger_eric: false
+    light.bedroom_light:
+      friendly_name: Bedroom light
+      state: 'off'
+      supported_features: 1
+    light.dining_room:
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Dining room
+      icon: mdi:ceiling-light
+      is_hue_group: true
+      max_mireds: 500
+      min_mireds: 153
+      state: 'off'
+      supported_features: 63
+    light.entertainment_area_1:
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Entertainment area 1
+      is_hue_group: true
+      max_mireds: 500
+      min_mireds: 153
+      state: 'off'
+      supported_features: 63
+    light.home_theatre_lights:
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Home theatre lights
+      icon: mdi:television
+      is_hue_group: true
+      max_mireds: 500
+      min_mireds: 153
+      state: 'off'
+      supported_features: 63
+    light.hue_light_1:
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Hue light 1
+      max_mireds: 500
+      min_mireds: 153
+      state: 'off'
+      supported_features: 63
+    light.hue_light_2:
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Hue light 2
+      max_mireds: 500
+      min_mireds: 153
+      state: 'off'
+      supported_features: 63
+    light.hue_light_3:
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Hue light 3
+      max_mireds: 500
+      min_mireds: 153
+      state: 'off'
+      supported_features: 63
+    light.hue_light_4:
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Hue light 4
+      max_mireds: 500
+      min_mireds: 153
+      state: 'off'
+      supported_features: 63
+    light.kitchen_rgb_lights:
+      effect_list:
+      - None
+      - Rainbow
+      - Slow Rainbow
+      - Fast Rainbow
+      - Strobe
+      friendly_name: Kitchen RGB lights
+      state: 'off'
+      supported_features: 61
+    light.left_theatre_light:
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Left theatre light
+      max_mireds: 500
+      min_mireds: 153
+      state: 'off'
+      supported_features: 63
+    light.right_theatre_light:
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Right theatre light
+      max_mireds: 500
+      min_mireds: 153
+      state: 'off'
+      supported_features: 63
+    light.walk_in:
+      effect_list:
+      - colorloop
+      - random
+      friendly_name: Walk-in
+      is_hue_group: true
+      max_mireds: 500
+      min_mireds: 153
+      state: 'off'
+      supported_features: 63
+    media_player.tv:
+      friendly_name: TV
+      state: 'off'
+      supported_features: 21389
+    switch.caro_desktop:
+      friendly_name: White desktop
+      icon: mdi:laptop
+      state: 'off'
+    switch.cell_charger_eric:
+      friendly_name: Cell charger
+      icon: mdi:cellphone
+      state: 'off'
+    switch.entrance:
+      friendly_name: Entrance
+      node_id: 3
+      state: 'off'
+      value_id: '72057594093060096'
+      value_index: 0
+      value_instance: 1
+    switch.eric_desktop:
+      friendly_name: Black desktop
+      icon: mdi:desk-lamp
+      state: 'off'
+    switch.kitchen_light:
+      friendly_name: Kitchen light
+      state: 'off'
+    switch.living_room_light:
+      friendly_name: Living room light
+      state: 'off'
+    switch.office_light:
+      friendly_name: Office light
+      state: 'off'
+    switch.rainbow_lights:
+      friendly_name: Rainbow Lights
+      icon: mdi:looks
+      state: 'off'

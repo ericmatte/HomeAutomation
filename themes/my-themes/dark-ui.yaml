@@ -44,7 +44,7 @@ My Dark UI:
   # Cards
   ha-card-border-radius: "15px"
   ha-card-box-shadow: 1px 1px 5px 0px rgb(12, 12, 14)
-  paper-card-background-color: "#202124CC"
+  card-background-color: "#202124CC"
   paper-listbox-background-color: "#202124CC"
   # Dialogs
   paper-dialog-background-color: "#171717"
