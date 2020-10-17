@@ -1,4 +1,6 @@
 {
+    "version": 1,
+    "key": "lovelace",
     "data": {
         "config": {
             "custom_header": {
@@ -21,6 +23,7 @@
                                     "buttons": [
                                         {
                                             "entity": "switch.flux",
+                                            "name": false,
                                             "state_icons": {
                                                 "off": "mdi:invert-colors-off",
                                                 "on": "mdi:invert-colors"
@@ -28,6 +31,7 @@
                                         },
                                         {
                                             "entity": "binary_sensor.kitchen_motion_sensor",
+                                            "name": false,
                                             "state_icons": {
                                                 "off": "mdi:walk",
                                                 "on": "mdi:run"
@@ -47,7 +51,7 @@
                                             }
                                         }
                                     ],
-                                    "type": "custom:button-entity-row"
+                                    "type": "custom:paper-buttons-row"
                                 },
                                 {
                                     "entity": "light.kitchen_rgb_lights"
@@ -85,7 +89,7 @@
                                             }
                                         }
                                     ],
-                                    "type": "custom:button-entity-row"
+                                    "type": "custom:paper-buttons-row"
                                 },
                                 {
                                     "entity": "vacuum.xiaomi_vacuum_cleaner"
@@ -132,7 +136,7 @@
                                             }
                                         }
                                     ],
-                                    "type": "custom:button-entity-row"
+                                    "type": "custom:paper-buttons-row"
                                 },
                                 "light.walk_in",
                                 {
@@ -325,38 +329,8 @@
                     "path": "systems",
                     "theme": "default",
                     "title": "Systems"
-                },
-                {
-                    "background": "var(--background-image)",
-                    "badges": [],
-                    "cards": [
-                        {
-                            "entities": [
-                                {
-                                    "entity": "sun.sun"
-                                },
-                                {
-                                    "entity": "sensor.moon"
-                                }
-                            ],
-                            "show_name": false,
-                            "show_state": true,
-                            "type": "glance"
-                        },
-                        {
-                            "entity": "sensor.yr_temperature",
-                            "graph": "line",
-                            "type": "sensor"
-                        }
-                    ],
-                    "icon": "mdi:home-automation",
-                    "path": "misc",
-                    "theme": "default",
-                    "title": "misc"
                 }
             ]
         }
-    },
-    "key": "lovelace",
-    "version": 1
+    }
 }
