@@ -62,7 +62,6 @@ notify:
     vapid_email: !secret vapid_email
 
 zwave:
-  usb_path: /dev/ttyACM0
 
 updater:
 
