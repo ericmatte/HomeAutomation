@@ -11,7 +11,6 @@ homeassistant:
 
 frontend:
   themes: !include_dir_merge_named themes
-  javascript_version: latest
 
 http:
   ssl_certificate: /ssl/fullchain.pem
@@ -25,8 +24,8 @@ http:
 #     homeassistant.components.switch.command_line: critical
 
 recorder:
-  auto_purge: true
-  purge_keep_days: 10
+  # auto_purge: true
+  # purge_keep_days: 10
 
 mobile_app:
 
@@ -79,10 +78,6 @@ vacuum:
   - platform: xiaomi_miio
     host: !secret roborock_ip
     token: !secret roborock_token
-
-cast:
-  media_player:
-    - host: !secret chromecast_ip
 
 sensor:
   - platform: time_date
