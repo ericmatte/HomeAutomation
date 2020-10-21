@@ -89,10 +89,6 @@ sensor:
     display_options:
       - "time"
       - "date"
-  - platform: yr
-    scan_interval: 3600 # 1 time/hour
-    monitored_conditions:
-      - temperature
   - platform: moon
   - platform: systemmonitor
     resources:
