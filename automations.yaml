@@ -65,8 +65,7 @@
       conditions:
       - after: 07:00:00
         condition: time
-      - before: '23:00:00'
-        condition: time
+        before: '23:00:00'
       - condition: state
         entity_id: input_boolean.kitchen_motion_sensor
         state: 'on'
@@ -85,6 +84,7 @@
       brightness: 255
       entity_id: light.dining_room
     service: light.turn_on
+  mode: single
 - id: b8343b239338
   alias: 'Dining room light: Turn off when no movement'
   trigger:
@@ -156,9 +156,11 @@
   - entity_id: media_player.tv
     platform: state
     to: 'off'
+    for: 0:00:04
   action:
   - entity_id: light.home_theatre_lights
     service: light.turn_off
+  mode: single
 - id: 04aa3236b533
   alias: 'Kitchen lights: Turn on using hidden button'
   trigger:
@@ -480,3 +482,18 @@
   - data: {}
     entity_id: cover.curtains
     service: cover.close_cover
+- id: '1604810073072'
+  alias: Let's Encrypt Auto Renewal
+  description: ''
+  trigger:
+  - platform: time
+    at: 02:00:00
+  condition:
+  - condition: time
+    weekday:
+    - wed
+  action:
+  - service: hassio.addon_start
+    data:
+      adsdon: core_letsencrypt
+  mode: single

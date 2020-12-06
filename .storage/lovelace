@@ -3,11 +3,6 @@
     "key": "lovelace",
     "data": {
         "config": {
-            "custom_header": {
-                "chevrons": false,
-                "compact_mode": true,
-                "header_text": "Home {{ time }}"
-            },
             "title": "Home",
             "views": [
                 {
@@ -68,6 +63,11 @@
                             "type": "entities"
                         },
                         {
+                            "type": "custom:mini-media-player",
+                            "entity": "media_player.tv",
+                            "artwork": "cover"
+                        },
+                        {
                             "entities": [
                                 {
                                     "entity": "switch.living_room_light"
@@ -90,9 +90,6 @@
                                         }
                                     ],
                                     "type": "custom:paper-buttons-row"
-                                },
-                                {
-                                    "entity": "vacuum.xiaomi_vacuum_cleaner"
                                 }
                             ],
                             "show_header_toggle": true,
@@ -100,17 +97,8 @@
                             "type": "entities"
                         },
                         {
-                            "entities": [
-                                {
-                                    "entity": "switch.office_light"
-                                },
-                                {
-                                    "entity": "switch.eric_desktop"
-                                }
-                            ],
-                            "show_header_toggle": true,
-                            "title": "Office",
-                            "type": "entities"
+                            "entity": "weather.home",
+                            "type": "weather-forecast"
                         },
                         {
                             "entities": [
@@ -165,12 +153,24 @@
                             "type": "entities"
                         },
                         {
-                            "entity": "weather.home",
-                            "type": "weather-forecast"
+                            "entities": [
+                                {
+                                    "entity": "switch.office_light"
+                                },
+                                {
+                                    "entity": "switch.eric_desktop"
+                                },
+                                {
+                                    "entity": "vacuum.xiaomi_vacuum_cleaner"
+                                }
+                            ],
+                            "show_header_toggle": true,
+                            "title": "Office",
+                            "type": "entities"
                         },
                         {
-                            "entity": "media_player.tv",
-                            "type": "media-control"
+                            "type": "media-control",
+                            "entity": "media_player.tv"
                         }
                     ],
                     "icon": "mdi:home",

@@ -33,7 +33,7 @@ ota:
 globals:
   - id: end_stop_open
     type: int
-    initial_value: "30600" # ~= 47cm / (1cm * pi) * 2048
+    initial_value: "-30600" # ~= 47cm / (1cm * pi) * 2048
     # NumberOfSteps: width / (pulleyDiameter * pi)
     # StepsPerRevolution [FULL_STEP]: 64 * 64 / 2 = 2048
 
@@ -99,3 +99,4 @@ stepper:
     max_speed: 500 steps/s
     acceleration: inf # 50 steps/s^2
     deceleration: inf # 50 steps/s^2
+    sleep_when_done: true
