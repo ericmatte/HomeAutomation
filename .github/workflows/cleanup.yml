@@ -10,6 +10,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "${{github.ref}}"
+        if: startsWith(github.ref, 'refs/pull')
       - run: echo "$GH"
         env:
           GH: ${{ toJson(github) }}
+  cleanup-after-pr-closed2:
+    if: startsWith(github.ref, 'refs/pull')
+    name: Cleanup After PR Closed2
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "${{github.ref}}"
+      - run: echo "$GH"
+        env:
+          GH: ${{ toJson(github) }}
+
+
