@@ -5,9 +5,9 @@ switch.entrance:
 switch.eric_desktop:
   friendly_name: Black desktop
   icon: mdi:desk-lamp
-switch.caro_desktop:
-  friendly_name: White desktop
-  icon: mdi:laptop
+switch.humidifier:
+  friendly_name: Humidifier
+  icon: mdi:air-filter
 switch.ac:
   friendly_name: AC
   icon: mdi:air-conditioner

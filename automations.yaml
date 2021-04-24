@@ -52,33 +52,35 @@
   alias: 'Dining room light: Turn on when movement'
   trigger:
   - entity_id: binary_sensor.kitchen_motion_sensor
-    for: 0:00:01
+    for: 0:00:02
     platform: state
     to: 'on'
   condition:
-  - condition: or
+  - condition: and
     conditions:
     - condition: state
-      entity_id: switch.entrance
+      entity_id: input_boolean.kitchen_motion_sensor
       state: 'on'
-    - condition: and
+    - condition: or
       conditions:
-      - after: 07:00:00
-        condition: time
-        before: '23:00:00'
       - condition: state
-        entity_id: input_boolean.kitchen_motion_sensor
+        entity_id: switch.entrance
         state: 'on'
-      - condition: template
-        value_template: '{{ not is_state(''media_player.tv'', ''playing'') }}'
-      - condition: or
+      - condition: and
         conditions:
-        - condition: state
-          entity_id: person.eric
-          state: home
-        - condition: state
-          entity_id: person.caro
-          state: home
+        - after: 07:00:00
+          condition: time
+          before: '22:15:00'
+        - condition: template
+          value_template: '{{ not is_state(''media_player.tv'', ''playing'') }}'
+        - condition: or
+          conditions:
+          - condition: state
+            entity_id: person.eric
+            state: home
+          - condition: state
+            entity_id: person.caro
+            state: home
   action:
   - data:
       brightness: 255
@@ -89,7 +91,7 @@
   alias: 'Dining room light: Turn off when no movement'
   trigger:
   - entity_id: binary_sensor.kitchen_motion_sensor
-    for: 0:02:30
+    for: 0:05:00
     platform: state
     to: 'off'
   condition:
@@ -107,6 +109,7 @@
   action:
   - entity_id: light.dining_room
     service: light.turn_off
+  mode: single
 - id: 3682d9789788
   alias: 'Walk-in: Turn on when opening the door'
   trigger:
@@ -156,7 +159,7 @@
   - entity_id: media_player.tv
     platform: state
     to: 'off'
-    for: 0:00:04
+    for: 0:05:00
   action:
   - entity_id: light.home_theatre_lights
     service: light.turn_off
@@ -353,16 +356,17 @@
   - entity_id: switch.entrance,light.dining_room,light.home_theatre_lights
     service: homeassistant.turn_on
 - id: 5b184ef4e92a
-  alias: 'Entrance: Turn off after 1m30s'
+  alias: 'Entrance: Turn off after 2m30s'
   trigger:
   - entity_id: switch.entrance
-    for: 0:01:30
+    for: 0:02:30
     from: 'off'
     platform: state
     to: 'on'
   action:
   - entity_id: switch.entrance
     service: switch.turn_off
+  mode: single
 - id: badd1ec9d152
   alias: 'Everything: Turn off when away'
   trigger:
@@ -496,4 +500,49 @@
   - service: hassio.addon_start
     data:
       adsdon: core_letsencrypt
+  mode: single
+- id: '1608127387393'
+  alias: 'Everything: Turn off when putting my phone on the charger at night'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: sensor.eric_phone_charger_type
+    to: wireless
+  condition:
+  - condition: time
+    after: '22:00:00'
+    before: 04:00:00
+  action:
+  - scene: scene.bedtime
+  mode: single
+- id: '1614129859585'
+  alias: 'Humidifier: Turn on at 9 AM'
+  description: ''
+  trigger:
+  - platform: time
+    at: 09:00:00
+  condition:
+  - condition: time
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+  action:
+  - service: switch.turn_on
+    data: {}
+    entity_id: switch.humidifier
+  mode: single
+- id: '1614129881005'
+  alias: 'Humidifier: Turn off at 5 PM'
+  description: ''
+  trigger:
+  - platform: time
+    at: '17:00:00'
+  condition: []
+  action:
+  - service: switch.turn_off
+    data: {}
+    entity_id: switch.humidifier
   mode: single

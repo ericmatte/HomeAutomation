@@ -482,3 +482,62 @@
       friendly_name: Rainbow Lights
       icon: mdi:looks
       state: 'off'
+- id: '1608349101232'
+  name: Bedtime
+  entities:
+    switch.kitchen_light:
+      friendly_name: Kitchen light
+      state: 'off'
+    switch.office_light:
+      friendly_name: Office light
+      state: 'off'
+    switch.entrance:
+      node_id: 3
+      value_index: 0
+      value_instance: 1
+      value_id: '72057594093060096'
+      friendly_name: Entrance
+      state: 'off'
+    light.dining_room:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      is_hue_group: true
+      friendly_name: Dining room
+      supported_features: 63
+      icon: mdi:ceiling-light
+      state: 'off'
+    media_player.tv:
+      friendly_name: TV
+      supported_features: 21389
+      state: 'off'
+    light.home_theatre_lights:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      is_hue_group: true
+      friendly_name: Home theatre lights
+      supported_features: 63
+      icon: mdi:television
+      state: 'off'
+    light.kitchen_rgb_lights:
+      effect_list:
+      - None
+      - Rainbow
+      - Slow Rainbow
+      - Fast Rainbow
+      - Strobe
+      friendly_name: Kitchen RGB lights
+      supported_features: 61
+      state: 'off'
+    switch.rainbow_lights:
+      friendly_name: Rainbow Lights
+      icon: mdi:looks
+      state: 'off'
+    switch.living_room_light:
+      friendly_name: Living room light
+      state: 'off'

@@ -24,8 +24,8 @@ http:
 #     homeassistant.components.switch.command_line: critical
 
 recorder:
-  # auto_purge: true
-  # purge_keep_days: 10
+  auto_purge: true
+  purge_keep_days: 90
 
 mobile_app:
 
@@ -33,7 +33,18 @@ config:
 
 system_health:
 
-# Google Assistant Integration
+spotify:
+  client_id: !secret spotify_client_id
+  client_secret: !secret spotify_client_secret
+
+# media_player:
+#   # Use the Python ADB implementation
+#   - platform: androidtv
+#     name: Google TV
+#     host: !secret chromecast_ip
+#     screencap: true
+
+# Google Assistant Integration!
 google_assistant:
   project_id: !secret google_assistant_project_id
   service_account: !include ha_service_account.secret.json
@@ -61,7 +72,8 @@ notify:
     vapid_prv_key: !secret vapid_private_key
     vapid_email: !secret vapid_email
 
-zwave:
+# zwave:
+#   usb_path: /dev/ttyACM1 # /dev/ttyACM0
 
 updater:
 
@@ -92,7 +104,17 @@ sensor:
       - type: disk_use_percent
         arg: /home
       - type: disk_free
-        arg: /home
+        arg: /
+  - platform: command_line
+    name: CPU temperature
+    command: "cat /sys/class/thermal/thermal_zone0/temp"
+    unit_of_measurement: "°C"
+    value_template: "{{ value | multiply(0.001) | round(1) }}"
+  - platform: command_line
+    name: Database filesize
+    command: "du -m /config/home-assistant_v2.db | cut -f1"
+    unit_of_measurement: "MB"
+    value_template: "{{ value | int - 1 }}"
 
 switch:
   - platform: flux
@@ -110,7 +132,7 @@ switch:
         code_on: !secret zap_switch1_on
         code_off: !secret zap_switch1_off
         signal_repetitions: !secret zap_signal_repetition
-      caro_desktop:
+      humidifier:
         protocol: !secret zap_protocol
         pulselength: !secret zap_pulselength
         code_on: !secret zap_switch2_on
@@ -141,6 +163,15 @@ binary_sensor:
     ports:
       21: Kitchen Switch
       20: Kitchen motion sensor
+
+tplink:
+  discovery: false
+  switch:
+    - host: !secret hs200_1
+    - host: !secret hs200_2
+    - host: !secret hs200_3
+  dimmer:
+    - host: !secret hs220_1
 
 input_boolean:
   kitchen_motion_sensor:
