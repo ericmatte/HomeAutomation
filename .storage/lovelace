@@ -6,7 +6,6 @@
             "title": "Home",
             "views": [
                 {
-                    "background": "var(--background-image)",
                     "icon": "mdi:home",
                     "path": "default_view",
                     "theme": "",
@@ -178,7 +177,6 @@
                     ]
                 },
                 {
-                    "background": "var(--background-image)",
                     "badges": [
                         {
                             "entity": "person.eric"
@@ -230,7 +228,6 @@
                     "title": "All Lights and Switches"
                 },
                 {
-                    "background": "var(--background-image)",
                     "badges": [],
                     "cards": [
                         {

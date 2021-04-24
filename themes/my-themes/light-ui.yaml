@@ -1,64 +1,74 @@
-# Mix from https://github.com/JuanMTech/google_light_theme and https://github.com/basnijholt/lovelace-ios-themes
-
+#
+# Modified theme from iOS Light Mode Theme - dark-green
+#
 My Light UI:
+  # Global
   background-image: "center / cover no-repeat fixed url('/hacsfiles/themes/my-themes/homekit-bg-dark-green.jpg')"
-  # Header:
-  app-header-background-color: "#F8F8F8DD"
-  app-header-text-color: "#424242"
-  # Main Interface Colors
-  primary-color: "#5F9BEA"
-  light-primary-color: var(--primary-color)
-  primary-background-color: "#F8F8F8"
-  secondary-background-color: var(--primary-background-color)
-  divider-color: var(--primary-background-color)
+  lovelace-background: var(--background-image)
+  primary-color: "#ff9409" # from Apple systemOrange light mode
+  light-primary-color: "#2fac51" # "#2c2c2e" # (icons on left menu) (light: systemGray5 from iOS dark mode, dark: XXX)
+  primary-background-color: "#ebebf1" # "#e5e5ea" # systemGray5 light mode
+  secondary-background-color: rgba(255, 255, 255, 0.9)
+  divider-color: "#a6a6ab" # from Apple systemGray light mode
+  accent-color: rgba(255, 159, 9, 1)
   # Text
-  primary-text-color: "#424242"
-  secondary-text-color: "#5F6267"
-  text-primary-color: "var(--primary-text-color)"
-  disabled-text-color: "#717171"
+  primary-text-color: "#464a47"
+  secondary-text-color: "#000000"
+  text-primary-color: "#FFF"
+  disabled-text-color: "#555" # XXX: https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/2
+  text-dark-color: "#FFF"
   # Sidebar Menu
-  sidebar-icon-color: var(--app-header-text-color)
-  sidebar-text-color: "#424242"
-  sidebar-background-color: "#FFFFFF"
+  sidebar-background-color: var(--primary-background-color)
+  sidebar-icon-color: "#424242"
+  sidebar-text-color: var(--sidebar-icon-color)
   sidebar-selected-background-color: var(--primary-background-color)
-  sidebar-selected-icon-color: "#5F9BEA"
-  sidebar-selected-text-color: var(--sidebar-selected-icon-color))
+  sidebar-selected-icon-color: var(--light-primary-color) # (light: systemGray5 from iOS light mode, dark: XXX)
+  sidebar-selected-text-color: var(--sidebar-selected-icon-color)
   # States and Badges
-  state-icon-color: "#5F6267"
-  state-icon-active-color: "#5F9BEA"
+  state-icon-color: "#FFF"
+  state-icon-active-color: "#333333" # or make light icons yellow when active: rgba(255, 214, 10, 1)
   state-icon-unavailable-color: var(--disabled-text-color)
+  paper-item-icon-active-color: "#333333" # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
-  paper-slider-knob-color: "#5F9BEA"
+  paper-slider-knob-color: "#FFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
   paper-slider-pin-color: var(--paper-slider-knob-color)
-  paper-slider-active-color: var(--paper-slider-knob-color)
-  paper-slider-secondary-color: var(--light-primary-color)
+  paper-slider-active-color: "#007aff" # from Apple systemBlue light mode
+  paper-slider-secondary-color: var(--paper-slider-knob-color)
+  paper-slider-container-color: rgba(255, 255, 255, 0.5)
+  paper-slider-font-color: "#000"
+  ha-slider-background: none !important
   # Labels
-  label-badge-background-color: "#F8FAF9"
-  label-badge-text-color: "#4D5575"
-  label-badge-red: "#C7484C"
-  label-badge-green: "#6DC071"
-  label-badge-blue: "#51AAD1"
-  label-badge-yellow: "#D9B757"
-  label-badge-gray: "#5F6267"
-  # Dialogs
-  paper-dialog-background-color: "#F8F8F8"
+  label-badge-background-color: "#23232E"
+  label-badge-text-color: "#F1F1F1"
+  label-badge-red: rgba(255, 149, 9, 0.7) # from Apple systemOrange light mode
   # Cards
-  ha-card-border-radius: "15px"
-  ha-card-box-shadow: 1px 1px 5px 0px rgb(12, 12, 14, 0.4)
-  card-background-color: "#FFFFFFDD"
-  paper-listbox-background-color: "#FFFFFFDD"
-  # Switches
-  switch-checked-button-color: "#5F9BEA"
-  switch-checked-track-color: "#75a2f0"
-  switch-unchecked-button-color: "#5F6267"
-  switch-unchecked-track-color: "#888b91"
+  card-background-color: var(--secondary-background-color) # Unused entities table background
+  paper-listbox-background-color: var(--primary-background-color)
+  ha-card-border-radius: 20px
+  ha-card-background: rgba(245, 245, 245, 0.4)
+  paper-card-background-color: var(--ha-card-background)
   # Toggles
-  paper-toggle-button-checked-button-color: var(--switch-checked-button-color)
-  paper-toggle-button-checked-bar-color: var(--switch-checked-track-color)
-  paper-toggle-button-unchecked-button-color: var(--switch-unchecked-button-color)
-  paper-toggle-button-unchecked-bar-color: var(--switch-unchecked-track-color)
-  # Table
+  paper-toggle-button-checked-button-color: "#484848"
+  paper-toggle-button-checked-bar-color: "#484848"
+  paper-toggle-button-unchecked-button-color: var(--paper-toggle-button-checked-button-color)
+  paper-toggle-button-unchecked-bar-color: var(--disabled-text-color)
+  # Table row
   table-row-background-color: var(--primary-background-color)
   table-row-alternative-background-color: var(--secondary-background-color)
-  data-table-background-color: var(--primary-background-color)
+  # Switches
+  switch-checked-color: "#30d257" # XXX: remove when https://github.com/home-assistant/home-assistant-polymer/pull/4203 is in HA
+  switch-checked-track-color: "#34c759" # from Apple systemGreen light mode
+  switch-checked-button-color: "#FFF"
+  # Other
+  paper-dialog-background-color: rgba(200, 200, 200, 0.8) # e.g., background of more-info
+  paper-item-icon-color: "#333333" # also should mini-media-player icon white (but doesn't work by itself)
+  more-info-header-background: rgba(230, 230, 230, 0.5)
+  lumo-body-text-color: var(--primary-text-color) # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/42
+  app-header-background-color: rgba(61, 107, 86, 0.4)
+  markdown-code-background-color: "#FFFFFF"
+  code-editor-background-color: "#FFF"
+  # Custom
+  mcg-title-letter-spacing: .15em
+  mini-media-player-base-color: white
+  mini-media-player-icon-color: white
