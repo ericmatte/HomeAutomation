@@ -9,10 +9,10 @@ My Light UI:
   light-primary-color: "#2fac51" # "#2c2c2e" # (icons on left menu) (light: systemGray5 from iOS dark mode, dark: XXX)
   primary-background-color: "#ebebf1" # "#e5e5ea" # systemGray5 light mode
   secondary-background-color: rgba(255, 255, 255, 0.9)
-  divider-color: "#a6a6ab" # from Apple systemGray light mode
+  divider-color: "#c6cec9" # "#a6a6ab" # from Apple systemGray light mode
   accent-color: rgba(255, 159, 9, 1)
   # Text
-  primary-text-color: "#464a47"
+  primary-text-color: "#1b1d1c"
   secondary-text-color: "#000000"
   text-primary-color: "#FFF"
   disabled-text-color: "#555" # XXX: https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/2
@@ -28,7 +28,7 @@ My Light UI:
   state-icon-color: "#FFF"
   state-icon-active-color: "#333333" # or make light icons yellow when active: rgba(255, 214, 10, 1)
   state-icon-unavailable-color: var(--disabled-text-color)
-  paper-item-icon-active-color: "#333333" # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
+  paper-item-icon-active-color: "#ffe212" # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
   # Sliders
   paper-slider-knob-color: "#FFF"
   paper-slider-knob-start-color: var(--paper-slider-knob-color)
@@ -54,18 +54,20 @@ My Light UI:
   paper-toggle-button-unchecked-button-color: var(--paper-toggle-button-checked-button-color)
   paper-toggle-button-unchecked-bar-color: var(--disabled-text-color)
   # Table row
-  table-row-background-color: var(--primary-background-color)
+  table-row-background-color: "#f5f5fb" # var(--primary-background-color)
   table-row-alternative-background-color: var(--secondary-background-color)
   # Switches
   switch-checked-color: "#30d257" # XXX: remove when https://github.com/home-assistant/home-assistant-polymer/pull/4203 is in HA
-  switch-checked-track-color: "#34c759" # from Apple systemGreen light mode
+  switch-checked-track-color: "#00e63a" # "#34c759" # from Apple systemGreen light mode
   switch-checked-button-color: "#FFF"
+  switch-unchecked-button-color: "#e6e6ec"
   # Other
   paper-dialog-background-color: rgba(200, 200, 200, 0.8) # e.g., background of more-info
   paper-item-icon-color: "#333333" # also should mini-media-player icon white (but doesn't work by itself)
   more-info-header-background: rgba(230, 230, 230, 0.5)
   lumo-body-text-color: var(--primary-text-color) # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/42
-  app-header-background-color: rgba(61, 107, 86, 0.4)
+  app-header-background-color: rgb(245, 245, 245, 0.2) # rgba(61, 107, 86, 0.4)
+  app-header-text-color: var(--primary-text-color)
   markdown-code-background-color: "#FFFFFF"
   code-editor-background-color: "#FFF"
   # Custom

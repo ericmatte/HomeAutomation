@@ -54,7 +54,7 @@ My Dark UI:
   paper-toggle-button-unchecked-button-color: var(--paper-toggle-button-checked-button-color)
   paper-toggle-button-unchecked-bar-color: var(--disabled-text-color)
   # Table row
-  table-row-background-color: var(--primary-background-color)
+  table-row-background-color: "#1d1d21"
   table-row-alternative-background-color: var(--secondary-background-color)
   # Switches
   switch-checked-color: "#30d257" # XXX: remove when https://github.com/home-assistant/home-assistant-polymer/pull/4203 is in HA
@@ -68,7 +68,7 @@ My Dark UI:
   app-header-background-color: "#16161f80"
   markdown-code-background-color: "#464646"
   code-editor-background-color: "#161616"
-  switch-unchecked-button-color: "#59595f"
+  switch-unchecked-button-color: "#777782"
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
