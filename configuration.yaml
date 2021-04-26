@@ -85,10 +85,10 @@ logbook:
 
 sun:
 
-vacuum:
-  - platform: xiaomi_miio
-    host: !secret roborock_ip
-    token: !secret roborock_token
+# vacuum:
+#   - platform: xiaomi_miio
+#     host: !secret roborock_ip
+#     token: !secret roborock_token
 
 sensor:
   - platform: time_date
@@ -169,9 +169,9 @@ tplink:
   switch:
     - host: !secret hs200_1
     - host: !secret hs200_2
-    - host: !secret hs200_3
-  dimmer:
-    - host: !secret hs220_1
+  #   - host: !secret hs200_3
+  # dimmer:
+  #   - host: !secret hs220_1
 
 input_boolean:
   kitchen_motion_sensor:

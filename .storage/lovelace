@@ -15,7 +15,9 @@
                         {
                             "entities": [
                                 {
-                                    "entity": "light.dining_room"
+                                    "type": "custom:slider-entity-row",
+                                    "entity": "light.dining_room",
+                                    "toggle": true
                                 },
                                 {
                                     "buttons": [
@@ -52,7 +54,9 @@
                                     "type": "custom:paper-buttons-row"
                                 },
                                 {
-                                    "entity": "light.kitchen_rgb_lights"
+                                    "type": "custom:slider-entity-row",
+                                    "entity": "light.kitchen_rgb_lights",
+                                    "toggle": true
                                 },
                                 {
                                     "entity": "switch.kitchen_light"
@@ -99,11 +103,16 @@
                         },
                         {
                             "entity": "weather.home",
-                            "type": "weather-forecast"
+                            "type": "weather-forecast",
+                            "show_forecast": false
                         },
                         {
                             "entities": [
-                                "light.bedroom_light",
+                                {
+                                    "type": "custom:slider-entity-row",
+                                    "entity": "light.bedroom_light",
+                                    "toggle": true
+                                },
                                 "cover.curtains",
                                 "input_datetime.wake_up_alarm",
                                 {
@@ -162,7 +171,7 @@
                                     "entity": "switch.eric_desktop"
                                 },
                                 {
-                                    "entity": "vacuum.xiaomi_vacuum_cleaner"
+                                    "entity": "vacuum.roborock_vacuum_s5"
                                 }
                             ],
                             "show_header_toggle": true,

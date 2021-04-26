@@ -7,6 +7,9 @@ secrets.py
 /known_devices.yaml
 /www/google*.html
 
+# Certificates
+*.pem
+
 # Ignored files
 /.uuid
 /custom_components
