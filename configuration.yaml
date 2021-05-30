@@ -9,14 +9,19 @@ homeassistant:
   internal_url: !secret internal_url
   customize: !include customize.yaml
 
+  # Fix for Zooz RGBW mqtt light styling
+  customize_domain:
+    light:
+      assumed_state: false
+
 frontend:
   themes: !include_dir_merge_named themes
 
 http:
   ssl_certificate: /ssl/fullchain.pem
   ssl_key: /ssl/privkey.pem
-  # ip_ban_enabled: True
-  # login_attempts_threshold: 5
+  ip_ban_enabled: True
+  login_attempts_threshold: 5
 
 # logger:
 #   default: warning
@@ -54,6 +59,25 @@ google_assistant:
   entity_config:
     switch.flux:
       expose: false
+    light.rgbw_dimmer_r:
+      expose: false
+    light.rgbw_dimmer_g:
+      expose: false
+    light.rgbw_dimmer_b:
+      expose: false
+    light.rgbw_dimmer_w:
+      expose: false
+    switch.rf_4:
+      expose: false
+    switch.rf_5:
+      expose: false
+
+rest_command:
+  assistant_relay:
+    url: http://127.0.0.1:3000/assistant
+    method: POST
+    content_type: "application/json"
+    payload: '{"command":"{{ command }}"}'
 
 device_tracker:
   - platform: bluetooth_tracker
@@ -144,13 +168,13 @@ switch:
         code_on: !secret zap_switch4_on
         code_off: !secret zap_switch4_off
         signal_repetitions: !secret zap_signal_repetition
-      cell_charger_eric:
+      rf_4:
         protocol: !secret zap_protocol
         pulselength: !secret zap_pulselength
         code_on: !secret zap_switch5_on
         code_off: !secret zap_switch5_off
         signal_repetitions: !secret zap_signal_repetition
-      ac:
+      rf_5:
         protocol: !secret zap_protocol
         pulselength: !secret zap_pulselength
         code_on: !secret zap_switch3_on
@@ -163,15 +187,6 @@ binary_sensor:
     ports:
       21: Kitchen Switch
       20: Kitchen motion sensor
-
-tplink:
-  discovery: false
-  switch:
-    - host: !secret hs200_1
-    - host: !secret hs200_2
-  #   - host: !secret hs200_3
-  # dimmer:
-  #   - host: !secret hs220_1
 
 input_boolean:
   kitchen_motion_sensor:

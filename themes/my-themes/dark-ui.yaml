@@ -69,6 +69,7 @@ My Dark UI:
   markdown-code-background-color: "#464646"
   code-editor-background-color: "#161616"
   switch-unchecked-button-color: "#777782"
+  ha-icon-button-active-color: var(--paper-item-icon-active-color
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white

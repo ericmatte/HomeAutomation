@@ -70,6 +70,7 @@ My Light UI:
   app-header-text-color: var(--primary-text-color)
   markdown-code-background-color: "#FFFFFF"
   code-editor-background-color: "#FFF"
+  ha-icon-button-active-color: var(--paper-item-icon-active-color)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white

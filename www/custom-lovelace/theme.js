@@ -6,11 +6,12 @@ const setBackground = () => {
     ?.shadowRoot.querySelector("hui-root")
     ?.shadowRoot.querySelector("ha-app-layout");
 
-  console.log("setBackground", { haAppLayout });
-
   if (haAppLayout) {
     haAppLayout.style.background = "var(--background-image)";
-    haAppLayout.querySelector("hui-view").style.background = "none";
+    const huiView = haAppLayout.querySelector("hui-view");
+    if (huiView) {
+      huiView.style.background = "none";
+    }
   }
 };
 

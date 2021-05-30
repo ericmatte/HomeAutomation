@@ -45,7 +45,22 @@ cover:
     assumed_state: false
     has_position: true
     optimistic: false
+    position_action:
+      - logger.log:
+          format: "Position is %.1f -> %.1f"
+          args: [ 'pos', 'float(id(end_stop_open)) * pos' ]
+      - stepper.report_position:
+          id: my_stepper
+          position: !lambda "return float(id(end_stop_open)) * pos;"
+      - stepper.set_target:
+          id: my_stepper
+          target: !lambda "return float(id(end_stop_open)) * pos;"
+      - cover.template.publish:
+          id: curtains
+          current_operation: IDLE
+          position: !lambda "return pos;"
     open_action:
+      - logger.log: 'open_action'
       - stepper.set_target:
           id: my_stepper
           target: !lambda "return id(end_stop_open);"
@@ -63,6 +78,7 @@ cover:
           current_operation: IDLE
           position: !lambda "return 1;"
     close_action:
+      - logger.log: 'close_action'
       - stepper.set_target:
           id: my_stepper
           target: 0
@@ -80,6 +96,7 @@ cover:
           current_operation: IDLE
           position: !lambda "return 0;"
     stop_action:
+      - logger.log: 'stop_action'
       - stepper.set_target:
           id: my_stepper
           target: !lambda "return id(my_stepper).current_position;"
@@ -87,7 +104,6 @@ cover:
           id: curtains
           current_operation: IDLE
           position: !lambda "return (float(float(id(my_stepper).current_position) / float(id(end_stop_open))));"
-    # position_action: will be available in esphome 1.5
 
 stepper:
   - platform: uln2003

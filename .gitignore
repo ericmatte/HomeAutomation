@@ -19,9 +19,9 @@ secrets.py
 /home-assistant.log
 /options.xml
 /OZW_Log.txt
-/pyozw.sqlite
-/zwcfg_0xdd825656.xml
-/zwscene.xml
+pyozw.sqlite
+zwcfg_0xdd825656.xml
+zwscene.xml
 *.pyc
 
 /.storage/**

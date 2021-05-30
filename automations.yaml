@@ -103,7 +103,7 @@
     - condition: template
       value_template: '{{ not state_attr(''light.dining_room'', ''hs_color'') }}'
     - condition: template
-      value_template: '{{ not is_state(''light.kitchen_rgb_lights'', ''on'') }}'
+      value_template: '{{ not is_state(''light.under_cabinet'', ''on'') }}'
     - condition: template
       value_template: '{{ not is_state(''media_player.tv'', ''playing'') }}'
   action:
@@ -153,17 +153,6 @@
   action:
   - entity_id: light.walk_in
     service: light.turn_off
-- id: 201217bcd95c
-  alias: 'Theatre lights: Turn off when Chromecast shuts off'
-  trigger:
-  - entity_id: media_player.tv
-    platform: state
-    to: 'off'
-    for: 0:05:00
-  action:
-  - entity_id: light.home_theatre_lights
-    service: light.turn_off
-  mode: single
 - id: 04aa3236b533
   alias: 'Kitchen lights: Turn on using hidden button'
   trigger:
@@ -173,21 +162,24 @@
     to: 'off'
   condition:
   - condition: state
-    entity_id: light.kitchen_rgb_lights
+    entity_id: light.under_cabinet
     state: 'off'
   action:
   - data:
       brightness: 255
-      rgb_color:
+      rgbw_color:
+      - 0
+      - 0
+      - 0
       - 255
-      - 214
-      - 170
-    entity_id: light.kitchen_rgb_lights
     service: light.turn_on
+    target:
+      entity_id: light.under_cabinet
   - before: '21:00:00'
     condition: time
   - entity_id: switch.kitchen_light
     service: switch.turn_on
+  mode: single
 - id: caddca3d81f3
   alias: IR Kitchen Lights Toggle
   trigger:
@@ -199,7 +191,7 @@
   - service: light.toggle
     entity_id: light.dining_room
   - service_template: light.turn_{{states.light.dining_room.state}}
-    entity_id: light.kitchen_rgb_lights
+    entity_id: light.under_cabinet
   - service_template: switch.turn_{{states.light.dining_room.state}}
     entity_id: switch.kitchen_light
 - id: c38eb81920a4
@@ -258,7 +250,7 @@
   action:
   - data:
       brightness_step_pct: -25
-    entity_id: light.dining_room,light.kitchen_rgb_lights
+    entity_id: light.dining_room,light.under_cabinet
     service: light.turn_on
   - data: {}
     entity_id: switch.kitchen_light
@@ -275,7 +267,7 @@
       brightness_pct: 100
     entity_id:
     - light.dining_room
-    - light.kitchen_rgb_lights
+    - light.under_cabinet
     service: light.turn_on
   - entity_id: switch.kitchen_light
     service: switch.turn_on
@@ -388,47 +380,21 @@
   action:
   - entity_id: scene.turn_off_everything
     service: scene.turn_on
-- id: 31445a8329bb
-  alias: 'Bedroom light: decrease brightness'
-  trigger:
-  - entity_id: binary_sensor.light_remote_button_1
-    from: 'off'
-    platform: state
-    to: 'on'
-  action:
-  - data:
-      brightness_step_pct: -25
-    service: light.turn_on
-    target:
-      entity_id: light.bedroom_light
-  mode: single
 - id: c9f3148d9539
-  alias: 'Bedroom light: toggle'
+  alias: 'Bedroom light: Turn off everything in low light'
   trigger:
-  - entity_id: binary_sensor.light_remote_button_2
-    from: 'off'
-    platform: state
-    to: 'on'
+  - platform: state
+    entity_id: light.bedroom_light
+    from: 'on'
+    to: 'off'
+  condition:
+  - condition: template
+    value_template: "{{ trigger.from_state and \n   trigger.from_state.attributes.brightness\
+      \ == 2 }}\n"
   action:
-  - entity_id: light.bedroom_light
-    service: light.toggle
-  - data: {}
-    entity_id: scene.turn_off_everything
-    service: scene.turn_on
-  mode: single
-- id: fa5d3a1b851a
-  alias: 'Bedroom light: increase brightness'
-  trigger:
-  - entity_id: binary_sensor.light_remote_button_3
-    from: 'off'
-    platform: state
-    to: 'on'
-  action:
-  - data:
-      brightness_step_pct: 25
-    service: light.turn_on
+  - service: scene.turn_on
     target:
-      entity_id: light.bedroom_light
+      entity_id: scene.turn_off_everything
   mode: single
 - id: 2d234803180c
   alias: 'Settings: Reset each night'
@@ -453,10 +419,10 @@
     to: 'off'
   condition:
   - condition: state
-    entity_id: light.kitchen_rgb_lights
+    entity_id: light.under_cabinet
     state: 'on'
   action:
-  - entity_id: light.kitchen_rgb_lights
+  - entity_id: light.under_cabinet
     service: light.turn_off
   - entity_id: switch.kitchen_light
     service: switch.turn_off
@@ -500,10 +466,11 @@
   - condition: time
     weekday:
     - wed
+    - sat
   action:
   - service: hassio.addon_start
     data:
-      adsdon: core_letsencrypt
+      addon: core_letsencrypt
   mode: single
 - id: '1608127387393'
   alias: 'Everything: Turn off when putting my phone on the charger at night'
@@ -559,11 +526,6 @@
     to: 'on'
   condition: []
   action:
-  - delay:
-      hours: 0
-      minutes: 0
-      seconds: 1
-      milliseconds: 0
   - service: switch.turn_on
     target:
       entity_id:
@@ -578,13 +540,28 @@
     to: 'off'
   condition: []
   action:
-  - delay:
-      hours: 0
-      minutes: 0
-      seconds: 1
-      milliseconds: 0
   - service: switch.turn_off
     target:
       entity_id:
       - switch.eric_desktop
   mode: single
+- id: '1620346496383'
+  alias: 'Bedroom: Reverse sync under_bed with ceiling light'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: light.bedroom_light
+  condition: []
+  action:
+  - service: light.turn_on
+    target:
+      entity_id: light.under_bed
+    data:
+      rgb_color: "{% set ambiance = [255, 71, 71] %}\n{% set low_light = [255, 117,\
+        \ 71] %}\n{% if (state_attr('light.bedroom_light', 'brightness') or 0) < 5\
+        \ %}\n  {{ low_light }}\n{% else %}\n  {{ ambiance }}\n{% endif %}\n"
+      brightness: "{% set threshold = 200 %}\n{% if states('light.bedroom_light')\
+        \ == 'off' %}\n  0\n{% elif (state_attr('light.bedroom_light', 'brightness')\
+        \ or 0) < 5 %}\n  90\n{% else %}\n  {{ threshold - min(state_attr('light.bedroom_light',\
+        \ 'brightness'), threshold) }}\n{% endif %}\n"
+  mode: restart

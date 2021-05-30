@@ -55,7 +55,7 @@
                                 },
                                 {
                                     "type": "custom:slider-entity-row",
-                                    "entity": "light.kitchen_rgb_lights",
+                                    "entity": "light.under_cabinet",
                                     "toggle": true
                                 },
                                 {
@@ -136,27 +136,12 @@
                                     ],
                                     "type": "custom:paper-buttons-row"
                                 },
-                                "light.walk_in",
                                 {
-                                    "buttons": [
-                                        {
-                                            "entity": "binary_sensor.walk_in_door_sensor",
-                                            "state_icons": {
-                                                "off": "mdi:door",
-                                                "on": "mdi:door-open"
-                                            }
-                                        },
-                                        {
-                                            "entity": "input_boolean.walk_in_door_sensor",
-                                            "name": "Detect door",
-                                            "state_icons": {
-                                                "off": "mdi:leak-off",
-                                                "on": "mdi:leak"
-                                            }
-                                        }
-                                    ],
-                                    "type": "custom:button-entity-row"
-                                }
+                                    "type": "custom:slider-entity-row",
+                                    "entity": "light.under_bed",
+                                    "toggle": true
+                                },
+                                "light.walk_in"
                             ],
                             "show_header_toggle": true,
                             "title": "Bedroom",
@@ -182,6 +167,41 @@
                             "type": "custom:mini-media-player",
                             "entity": "media_player.tv",
                             "artwork": "cover"
+                        },
+                        {
+                            "entities": [
+                                {
+                                    "action_name": "On/Off",
+                                    "name": "Window AC",
+                                    "icon": "mdi:air-conditioner",
+                                    "service": "rest_command.assistant_relay",
+                                    "type": "call-service",
+                                    "service_data": {
+                                        "command": "Turn on Window AC"
+                                    }
+                                },
+                                {
+                                    "buttons": [
+                                        {
+                                            "service": "rest_command.assistant_relay",
+                                            "icon": "mdi:minus",
+                                            "service_data": {
+                                                "command": "Turn on Swing on Window AC"
+                                            }
+                                        },
+                                        {
+                                            "service": "rest_command.assistant_relay",
+                                            "icon": "mdi:plus",
+                                            "service_data": {
+                                                "command": "Turn on Light on Window AC"
+                                            }
+                                        }
+                                    ],
+                                    "type": "custom:paper-buttons-row",
+                                    "align_icons": "right"
+                                }
+                            ],
+                            "type": "entities"
                         }
                     ]
                 },
@@ -344,6 +364,33 @@
                             "icon": "hass:database",
                             "graph": "line",
                             "hours_to_show": 168
+                        },
+                        {
+                            "type": "entities",
+                            "entities": [
+                                {
+                                    "buttons": [
+                                        {
+                                            "entity": "binary_sensor.walk_in_door_sensor",
+                                            "name": "Door",
+                                            "state_icons": {
+                                                "off": "mdi:door",
+                                                "on": "mdi:door-open"
+                                            }
+                                        },
+                                        {
+                                            "entity": "input_boolean.walk_in_door_sensor",
+                                            "name": "Detect door",
+                                            "state_icons": {
+                                                "off": "mdi:leak-off",
+                                                "on": "mdi:leak"
+                                            }
+                                        }
+                                    ],
+                                    "type": "custom:paper-buttons-row"
+                                }
+                            ],
+                            "title": "Other entities"
                         }
                     ],
                     "icon": "mdi:desktop-tower",
