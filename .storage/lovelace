@@ -81,7 +81,14 @@
                                     "entity": "switch.humidifier"
                                 },
                                 {
-                                    "entity": "light.home_theatre_lights"
+                                    "type": "custom:slider-entity-row",
+                                    "entity": "light.plants",
+                                    "toggle": true
+                                },
+                                {
+                                    "type": "custom:slider-entity-row",
+                                    "entity": "light.theatre_lights",
+                                    "toggle": true
                                 },
                                 {
                                     "buttons": [
@@ -100,11 +107,6 @@
                             "show_header_toggle": true,
                             "title": "Living Room",
                             "type": "entities"
-                        },
-                        {
-                            "entity": "weather.home",
-                            "type": "weather-forecast",
-                            "show_forecast": false
                         },
                         {
                             "entities": [
@@ -131,6 +133,17 @@
                                             "state_icons": {
                                                 "off": "mdi:alarm-off",
                                                 "on": "mdi:alarm"
+                                            }
+                                        },
+                                        {
+                                            "icon": "mdi:bed-king-outline",
+                                            "tap_action": {
+                                                "action": "call-service",
+                                                "service": "scene.turn_on",
+                                                "service_data": {
+                                                    "entity_id": "scene.cozy",
+                                                    "transition": 2
+                                                }
                                             }
                                         }
                                     ],
@@ -183,22 +196,77 @@
                                 {
                                     "buttons": [
                                         {
-                                            "service": "rest_command.assistant_relay",
-                                            "icon": "mdi:minus",
-                                            "service_data": {
-                                                "command": "Turn on Swing on Window AC"
+                                            "icon": "mdi:cog-transfer-outline",
+                                            "tap_action": {
+                                                "action": "call-service",
+                                                "service": "rest_command.assistant_relay",
+                                                "service_data": {
+                                                    "command": "Turn on Window AC Mode"
+                                                }
                                             }
                                         },
                                         {
-                                            "service": "rest_command.assistant_relay",
+                                            "icon": "mdi:fan",
+                                            "tap_action": {
+                                                "action": "call-service",
+                                                "service": "rest_command.assistant_relay",
+                                                "service_data": {
+                                                    "command": "Turn on Window AC Fan Speed"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "icon": "mdi:power-sleep",
+                                            "tap_action": {
+                                                "action": "call-service",
+                                                "service": "rest_command.assistant_relay",
+                                                "service_data": {
+                                                    "command": "Turn on Window AC Sleep"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "icon": "mdi:timer-outline",
+                                            "tap_action": {
+                                                "action": "call-service",
+                                                "service": "rest_command.assistant_relay",
+                                                "service_data": {
+                                                    "command": "Turn on Window AC Timer"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "icon": "mdi:power-plug-outline",
+                                            "tap_action": {
+                                                "action": "call-service",
+                                                "service": "rest_command.assistant_relay",
+                                                "service_data": {
+                                                    "command": "Turn on Window AC Eco"
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "icon": "mdi:minus",
+                                            "tap_action": {
+                                                "action": "call-service",
+                                                "service": "rest_command.assistant_relay",
+                                                "service_data": {
+                                                    "command": "Turn on Swing on Window AC"
+                                                }
+                                            }
+                                        },
+                                        {
                                             "icon": "mdi:plus",
-                                            "service_data": {
-                                                "command": "Turn on Light on Window AC"
+                                            "tap_action": {
+                                                "action": "call-service",
+                                                "service": "rest_command.assistant_relay",
+                                                "service_data": {
+                                                    "command": "Turn on Light on Window AC"
+                                                }
                                             }
                                         }
                                     ],
-                                    "type": "custom:paper-buttons-row",
-                                    "align_icons": "right"
+                                    "type": "custom:paper-buttons-row"
                                 }
                             ],
                             "type": "entities"
@@ -249,6 +317,15 @@
                             },
                             "show_empty": false,
                             "type": "custom:auto-entities"
+                        },
+                        {
+                            "type": "custom:sun-card"
+                        },
+                        {
+                            "entity": "weather.home",
+                            "type": "weather-forecast",
+                            "show_forecast": true,
+                            "secondary_info_attribute": "humidity"
                         }
                     ],
                     "icon": "mdi:lightbulb-on",

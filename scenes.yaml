@@ -284,7 +284,7 @@
         - 240
         - 223
       brightness: 255
-    light.home_theatre_lights:
+    light.theatre_lights:
       state: true
       color_temp: 393
       brightness: 255
@@ -337,150 +337,207 @@
   name: Turn Off Everything
   entities:
     light.bedroom_light:
+      supported_color_modes:
+        - brightness
+      device_id: "2"
+      zone_id: "1"
       friendly_name: Bedroom light
+      supported_features: 33
+      assumed_state: false
       state: "off"
-      supported_features: 1
     light.dining_room:
+      min_mireds: 153
+      max_mireds: 500
       effect_list:
         - colorloop
         - random
+      supported_color_modes:
+        - color_temp
+        - hs
+      is_hue_group: true
       friendly_name: Dining room
+      supported_features: 63
+      assumed_state: false
       icon: mdi:ceiling-light
-      is_hue_group: true
-      max_mireds: 500
-      min_mireds: 153
       state: "off"
-      supported_features: 63
     light.entertainment_area_1:
+      min_mireds: 153
+      max_mireds: 500
       effect_list:
         - colorloop
         - random
+      supported_color_modes:
+        - color_temp
+        - hs
+      is_hue_group: true
       friendly_name: Entertainment area 1
-      is_hue_group: true
-      max_mireds: 500
-      min_mireds: 153
-      state: "off"
       supported_features: 63
-    light.home_theatre_lights:
+      assumed_state: false
+      state: "off"
+    light.theatre_lights:
+      min_mireds: 153
+      max_mireds: 500
       effect_list:
         - colorloop
         - random
-      friendly_name: Home theatre lights
+      supported_color_modes:
+        - color_temp
+        - hs
+      is_hue_group: true
+      friendly_name: Theatre lights
+      supported_features: 63
+      assumed_state: false
       icon: mdi:television
-      is_hue_group: true
-      max_mireds: 500
-      min_mireds: 153
       state: "off"
-      supported_features: 63
     light.hue_light_1:
+      min_mireds: 153
+      max_mireds: 500
       effect_list:
         - colorloop
         - random
+      supported_color_modes:
+        - color_temp
+        - hs
       friendly_name: Hue light 1
-      max_mireds: 500
-      min_mireds: 153
-      state: "off"
       supported_features: 63
+      assumed_state: false
+      state: "off"
     light.hue_light_2:
+      min_mireds: 153
+      max_mireds: 500
       effect_list:
         - colorloop
         - random
+      supported_color_modes:
+        - color_temp
+        - hs
       friendly_name: Hue light 2
-      max_mireds: 500
-      min_mireds: 153
-      state: "off"
       supported_features: 63
+      assumed_state: false
+      state: "off"
     light.hue_light_3:
+      min_mireds: 153
+      max_mireds: 500
       effect_list:
         - colorloop
         - random
+      supported_color_modes:
+        - color_temp
+        - hs
       friendly_name: Hue light 3
-      max_mireds: 500
-      min_mireds: 153
-      state: "off"
       supported_features: 63
+      assumed_state: false
+      state: "off"
     light.hue_light_4:
+      min_mireds: 153
+      max_mireds: 500
       effect_list:
         - colorloop
         - random
+      supported_color_modes:
+        - color_temp
+        - hs
       friendly_name: Hue light 4
-      max_mireds: 500
-      min_mireds: 153
-      state: "off"
       supported_features: 63
+      assumed_state: false
+      state: "off"
     light.under_cabinet:
       effect_list:
-        - None
+        - Disabled
+        - Fireplace
+        - Storm
         - Rainbow
-        - Slow Rainbow
-        - Fast Rainbow
-        - Strobe
-      friendly_name: Kitchen RGB lights
-      state: "off"
+        - Polar Lights
+        - Police
+      supported_color_modes:
+        - rgbw
+      friendly_name: Cabinets
+      icon: mdi:led-strip-variant
+      assumed_state: false
       supported_features: 61
+      state: "off"
     light.left_theatre_light:
+      min_mireds: 153
+      max_mireds: 500
       effect_list:
         - colorloop
         - random
+      supported_color_modes:
+        - color_temp
+        - hs
       friendly_name: Left theatre light
-      max_mireds: 500
-      min_mireds: 153
-      state: "off"
       supported_features: 63
+      assumed_state: false
+      state: "off"
     light.right_theatre_light:
+      min_mireds: 153
+      max_mireds: 500
       effect_list:
         - colorloop
         - random
+      supported_color_modes:
+        - color_temp
+        - hs
       friendly_name: Right theatre light
-      max_mireds: 500
-      min_mireds: 153
-      state: "off"
       supported_features: 63
+      assumed_state: false
+      state: "off"
     light.walk_in:
+      min_mireds: 153
+      max_mireds: 500
       effect_list:
         - colorloop
         - random
-      friendly_name: Walk-in
+      supported_color_modes:
+        - color_temp
+        - hs
       is_hue_group: true
-      max_mireds: 500
-      min_mireds: 153
-      state: "off"
+      friendly_name: Walk-in
       supported_features: 63
+      assumed_state: false
+      state: "off"
     media_player.tv:
       friendly_name: TV
-      state: "off"
-      supported_features: 21389
-    switch.caro_desktop:
-      friendly_name: White desktop
-      icon: mdi:laptop
-      state: "off"
-    switch.cell_charger_eric:
-      friendly_name: Cell charger
-      icon: mdi:cellphone
+      supported_features: 21377
       state: "off"
     switch.entrance:
       friendly_name: Entrance
-      node_id: 3
+      icon: mdi:lightbulb
       state: "off"
-      value_id: "72057594093060096"
-      value_index: 0
-      value_instance: 1
     switch.eric_desktop:
       friendly_name: Black desktop
       icon: mdi:desk-lamp
       state: "off"
     switch.kitchen_light:
+      device_id: "3"
+      zone_id: "2"
       friendly_name: Kitchen light
+      icon: mdi:lightbulb
       state: "off"
     switch.living_room_light:
       friendly_name: Living room light
+      icon: mdi:lightbulb
       state: "off"
     switch.office_light:
       friendly_name: Office light
+      icon: mdi:lightbulb
       state: "off"
     switch.rainbow_lights:
       friendly_name: Rainbow Lights
       icon: mdi:looks
+      state: "off"
+    light.plants:
+      min_mireds: 158
+      max_mireds: 495
+      effect_list:
+        - colorloop
+        - random
+      supported_color_modes:
+        - color_temp
+        - hs
+      friendly_name: Plants
+      supported_features: 63
+      assumed_state: false
       state: "off"
 - id: "1608349101232"
   name: Bedtime
@@ -513,7 +570,7 @@
       friendly_name: TV
       supported_features: 21389
       state: "off"
-    light.home_theatre_lights:
+    light.theatre_lights:
       min_mireds: 153
       max_mireds: 500
       effect_list:
@@ -541,3 +598,50 @@
     switch.living_room_light:
       friendly_name: Living room light
       state: "off"
+- id: "1623326328127"
+  name: Cozy
+  entities:
+    light.under_bed:
+      effect_list:
+        - None
+        - Rainbow
+        - Slow Rainbow
+        - Fast Rainbow
+        - Strobe
+      supported_color_modes:
+        - hs
+      color_mode: hs
+      brightness: 200
+      hs_color:
+        - 0
+        - 72.549
+      rgb_color:
+        - 255
+        - 70
+        - 70
+      xy_color:
+        - 0.635
+        - 0.304
+      effect: None
+      friendly_name: Under bed
+      icon: mdi:led-strip-variant
+      supported_features: 61
+      assumed_state: false
+      state: "on"
+    cover.curtains:
+      current_position: 0
+      friendly_name: Curtains
+      supported_features: 15
+      device_class: curtain
+      state: closed
+    light.bedroom_light:
+      supported_color_modes:
+        - brightness
+      color_mode: brightness
+      brightness: 56
+      device_id: "2"
+      zone_id: "1"
+      friendly_name: Bedroom light
+      supported_features: 33
+      assumed_state: false
+      state: "on"

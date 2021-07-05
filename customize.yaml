@@ -31,7 +31,7 @@ script.increment_poopy_counter:
   icon: mdi:emoticon-poop
 light.dining_room:
   icon: mdi:ceiling-light
-light.home_theatre_lights:
+light.theatre_lights:
   icon: mdi:television
 switch.live_cam:
   icon: mdi:camera

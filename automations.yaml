@@ -213,8 +213,8 @@
     to: 'on'
   action:
   - service: light.toggle
-    entity_id: light.home_theatre_lights
-  - service_template: switch.turn_{{states.light.home_theatre_lights.state}}
+    entity_id: light.theatre_lights
+  - service_template: switch.turn_{{states.light.theatre_lights.state}}
     entity_id: switch.rainbow_lights
 - id: 5210c4e3b922
   alias: IR Dim theatre lights
@@ -226,7 +226,7 @@
   action:
   - data:
       brightness_step_pct: -25
-      entity_id: light.home_theatre_lights
+      entity_id: light.theatre_lights
     service: light.turn_on
 - id: 2508e06bab90
   alias: IR Brighten theatre lights
@@ -238,7 +238,7 @@
   action:
   - data:
       brightness_pct: 100
-    entity_id: light.home_theatre_lights
+    entity_id: light.theatre_lights
     service: light.turn_on
 - id: 7e75660732d2
   alias: IR Dim dining room light
@@ -345,7 +345,7 @@
     platform: state
     to: home
   action:
-  - entity_id: switch.entrance,light.dining_room,light.home_theatre_lights
+  - entity_id: switch.entrance,light.dining_room,light.theatre_lights
     service: homeassistant.turn_on
 - id: 5b184ef4e92a
   alias: 'Entrance: Turn off after 2m30s'
@@ -487,7 +487,7 @@
   - scene: scene.bedtime
   mode: single
 - id: '1614129859585'
-  alias: 'Humidifier: Turn on at 9 AM'
+  alias: 'Plants: Turn humidifier on at 9 AM'
   description: ''
   trigger:
   - platform: time
@@ -506,7 +506,7 @@
     entity_id: switch.humidifier
   mode: single
 - id: '1614129881005'
-  alias: 'Humidifier: Turn off at 5 PM'
+  alias: 'Plants: Turn off at 5 PM'
   description: ''
   trigger:
   - platform: time
@@ -516,6 +516,16 @@
   - service: switch.turn_off
     data: {}
     entity_id: switch.humidifier
+  - service: light.turn_on
+    target:
+      entity_id: light.plants
+    data:
+      brightness_pct: 25
+  - condition: template
+    value_template: '{{ not state_attr(''light.plants'', ''hs_color'') }}'
+  - service: light.turn_off
+    target:
+      entity_id: light.plants
   mode: single
 - id: '1619359015843'
   alias: 'Office: Turn on lights'
@@ -546,7 +556,7 @@
       - switch.eric_desktop
   mode: single
 - id: '1620346496383'
-  alias: 'Bedroom: Reverse sync under_bed with ceiling light'
+  alias: 'Bedroom: Sync under_bed with ceiling light'
   description: ''
   trigger:
   - platform: state
@@ -561,7 +571,31 @@
         \ 71] %}\n{% if (state_attr('light.bedroom_light', 'brightness') or 0) < 5\
         \ %}\n  {{ low_light }}\n{% else %}\n  {{ ambiance }}\n{% endif %}\n"
       brightness: "{% set threshold = 200 %}\n{% if states('light.bedroom_light')\
-        \ == 'off' %}\n  0\n{% elif (state_attr('light.bedroom_light', 'brightness')\
-        \ or 0) < 5 %}\n  90\n{% else %}\n  {{ threshold - min(state_attr('light.bedroom_light',\
-        \ 'brightness'), threshold) }}\n{% endif %}\n"
+        \ == 'off' or state_attr('light.bedroom_light', 'brightness') > threshold\
+        \ %}\n  0\n{% elif (state_attr('light.bedroom_light', 'brightness') or 0)\
+        \ < 5 %}\n  90\n{% else %}\n  200\n  {# threshold - min(state_attr('light.bedroom_light',\
+        \ 'brightness'), threshold) #}\n{% endif %}\n"
   mode: restart
+- id: '1623326884562'
+  alias: 'Plants: Turn grow lights on at sunrise'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: sun.sun
+    to: above_horizon
+  condition:
+  - condition: time
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+  action:
+  - service: light.turn_on
+    target:
+      entity_id: light.plants
+    data:
+      brightness: 255
+      color_temp: 158
+  mode: single

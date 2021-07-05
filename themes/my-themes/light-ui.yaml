@@ -5,7 +5,7 @@ My Light UI:
   # Global
   background-image: "center / cover no-repeat fixed url('/hacsfiles/themes/my-themes/homekit-bg-dark-green.jpg')"
   lovelace-background: var(--background-image)
-  primary-color: "#ff9409" # from Apple systemOrange light mode
+  primary-color: "#6200ee" # "#ff9409" # from Apple systemOrange light mode
   light-primary-color: "#2fac51" # "#2c2c2e" # (icons on left menu) (light: systemGray5 from iOS dark mode, dark: XXX)
   primary-background-color: "#ebebf1" # "#e5e5ea" # systemGray5 light mode
   secondary-background-color: rgba(255, 255, 255, 0.9)
