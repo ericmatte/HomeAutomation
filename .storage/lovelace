@@ -15,6 +15,17 @@
                         {
                             "entities": [
                                 {
+                                    "entity": "switch.entrance"
+                                },
+                                {
+                                    "entity": "switch.kitchen_light"
+                                },
+                                {
+                                    "type": "custom:slider-entity-row",
+                                    "entity": "light.under_cabinet",
+                                    "toggle": true
+                                },
+                                {
                                     "type": "custom:slider-entity-row",
                                     "entity": "light.dining_room",
                                     "toggle": true
@@ -36,33 +47,9 @@
                                                 "off": "mdi:walk",
                                                 "on": "mdi:run"
                                             }
-                                        },
-                                        {
-                                            "entity": "script.pause_kitchen",
-                                            "icon": "mdi:pause",
-                                            "name": "1 hour"
-                                        },
-                                        {
-                                            "entity": "input_boolean.kitchen_motion_sensor",
-                                            "name": "Detect motion",
-                                            "state_icons": {
-                                                "off": "mdi:eye-off",
-                                                "on": "mdi:motion-sensor"
-                                            }
                                         }
                                     ],
                                     "type": "custom:paper-buttons-row"
-                                },
-                                {
-                                    "type": "custom:slider-entity-row",
-                                    "entity": "light.under_cabinet",
-                                    "toggle": true
-                                },
-                                {
-                                    "entity": "switch.kitchen_light"
-                                },
-                                {
-                                    "entity": "switch.entrance"
                                 }
                             ],
                             "show_header_toggle": true,
@@ -115,8 +102,17 @@
                                     "entity": "light.bedroom_light",
                                     "toggle": true
                                 },
-                                "cover.curtains",
-                                "input_datetime.wake_up_alarm",
+                                {
+                                    "entity": "cover.curtains"
+                                },
+                                {
+                                    "type": "custom:slider-entity-row",
+                                    "entity": "light.under_bed",
+                                    "toggle": true
+                                },
+                                {
+                                    "entity": "light.walk_in"
+                                },
                                 {
                                     "buttons": [
                                         {
@@ -125,14 +121,6 @@
                                             "state_icons": {
                                                 "off": "mdi:filter-variant",
                                                 "on": "mdi:weather-sunset"
-                                            }
-                                        },
-                                        {
-                                            "entity": "input_boolean.use_wake_up_alarm",
-                                            "name": "Wake up light",
-                                            "state_icons": {
-                                                "off": "mdi:alarm-off",
-                                                "on": "mdi:alarm"
                                             }
                                         },
                                         {
@@ -145,16 +133,18 @@
                                                     "transition": 2
                                                 }
                                             }
+                                        },
+                                        {
+                                            "entity": "binary_sensor.walk_in_door_sensor",
+                                            "name": false,
+                                            "state_icons": {
+                                                "off": "mdi:door",
+                                                "on": "mdi:door-open"
+                                            }
                                         }
                                     ],
                                     "type": "custom:paper-buttons-row"
-                                },
-                                {
-                                    "type": "custom:slider-entity-row",
-                                    "entity": "light.under_bed",
-                                    "toggle": true
-                                },
-                                "light.walk_in"
+                                }
                             ],
                             "show_header_toggle": true,
                             "title": "Bedroom",
@@ -180,6 +170,241 @@
                             "type": "custom:mini-media-player",
                             "entity": "media_player.tv",
                             "artwork": "cover"
+                        }
+                    ]
+                },
+                {
+                    "icon": "mdi:lightbulb-on",
+                    "path": "all_lights_and_switches",
+                    "theme": "default",
+                    "title": "All Lights and Switches",
+                    "badges": [
+                        {
+                            "entity": "person.eric"
+                        },
+                        {
+                            "entity": "person.caro"
+                        },
+                        {
+                            "entity": "sun.sun"
+                        },
+                        {
+                            "entity": "device_tracker.galaxy_s8"
+                        },
+                        {
+                            "entity": "device_tracker.pixel_4a_5g"
+                        },
+                        {
+                            "entity": "device_tracker.eric"
+                        },
+                        {
+                            "entity": "device_tracker.caro"
+                        }
+                    ],
+                    "cards": [
+                        {
+                            "card": {
+                                "title": "Switches On",
+                                "type": "entities"
+                            },
+                            "filter": {
+                                "include": [
+                                    {
+                                        "domain": "switch",
+                                        "state": "on"
+                                    }
+                                ]
+                            },
+                            "show_empty": false,
+                            "type": "custom:auto-entities"
+                        },
+                        {
+                            "card": {
+                                "title": "Lights On",
+                                "type": "entities"
+                            },
+                            "filter": {
+                                "include": [
+                                    {
+                                        "domain": "light",
+                                        "state": "on"
+                                    }
+                                ]
+                            },
+                            "show_empty": false,
+                            "type": "custom:auto-entities"
+                        },
+                        {
+                            "type": "custom:sun-card"
+                        },
+                        {
+                            "entity": "weather.home",
+                            "type": "weather-forecast",
+                            "show_forecast": true,
+                            "secondary_info_attribute": "humidity"
+                        }
+                    ]
+                },
+                {
+                    "badges": [],
+                    "cards": [
+                        {
+                            "entities": [
+                                {
+                                    "entity": "sensor.last_boot"
+                                },
+                                {
+                                    "entity": "sensor.disk_use_percent_home"
+                                },
+                                {
+                                    "entity": "sensor.memory_free"
+                                },
+                                {
+                                    "entity": "sensor.disk_free"
+                                }
+                            ],
+                            "show_header_toggle": false,
+                            "title": "System Info",
+                            "type": "entities",
+                            "footer": {
+                                "type": "graph",
+                                "entity": "sensor.disk_free",
+                                "hours_to_show": 168,
+                                "detail": 1
+                            }
+                        },
+                        {
+                            "type": "gauge",
+                            "entity": "sensor.cpu_temperature",
+                            "min": 0,
+                            "max": 100
+                        },
+                        {
+                            "card": {
+                                "title": "Things that are broken",
+                                "type": "entities"
+                            },
+                            "filter": {
+                                "exclude": [
+                                    {
+                                        "entity_id": "group.*"
+                                    }
+                                ],
+                                "include": [
+                                    {
+                                        "state": "unknown"
+                                    }
+                                ]
+                            },
+                            "show_empty": false,
+                            "type": "custom:auto-entities"
+                        },
+                        {
+                            "entity": "sensor.processor_use",
+                            "graph": "line",
+                            "type": "sensor",
+                            "hours_to_show": 168
+                        },
+                        {
+                            "entity": "sensor.memory_free",
+                            "graph": "line",
+                            "type": "sensor",
+                            "detail": 1,
+                            "hours_to_show": 168
+                        },
+                        {
+                            "card": {
+                                "title": "All Scripts",
+                                "type": "entities"
+                            },
+                            "filter": {
+                                "include": [
+                                    {
+                                        "domain": "script"
+                                    }
+                                ]
+                            },
+                            "show_empty": false,
+                            "type": "custom:auto-entities"
+                        },
+                        {
+                            "type": "sensor",
+                            "entity": "sensor.database_filesize",
+                            "icon": "hass:database",
+                            "graph": "line",
+                            "hours_to_show": 168
+                        }
+                    ],
+                    "icon": "mdi:desktop-tower",
+                    "panel": false,
+                    "path": "systems",
+                    "theme": "default",
+                    "title": "Systems"
+                },
+                {
+                    "icon": "mdi:cast",
+                    "title": "Cast",
+                    "path": "cast",
+                    "visible": [
+                        {
+                            "user": "69a925601798477bb75f5126a0081b3b"
+                        },
+                        {
+                            "user": "e464da0d2d1d4c5099243127042dba9f"
+                        }
+                    ],
+                    "badges": [],
+                    "cards": [
+                        {
+                            "type": "media-control",
+                            "entity": "media_player.tv"
+                        },
+                        {
+                            "type": "custom:mini-media-player",
+                            "entity": "media_player.tv",
+                            "artwork": "cover"
+                        },
+                        {
+                            "type": "custom:mini-media-player",
+                            "entity": "media_player.google_tv",
+                            "artwork": "cover"
+                        },
+                        {
+                            "type": "custom:mini-media-player",
+                            "entity": "media_player.spotify_eric_matte",
+                            "artwork": "cover"
+                        },
+                        {
+                            "type": "media-control",
+                            "entity": "media_player.google_tv"
+                        }
+                    ]
+                },
+                {
+                    "icon": "mdi:dots-horizontal",
+                    "title": "Others",
+                    "path": "others",
+                    "badges": [],
+                    "cards": [
+                        {
+                            "card": {
+                                "entities": [
+                                    "input_select.who_clean",
+                                    "sensor.cat_litter",
+                                    "counter.poopy_counter",
+                                    "script.reset_poopy_counter"
+                                ],
+                                "show_header_toggle": false,
+                                "title": "Cat Litter",
+                                "type": "entities"
+                            },
+                            "conditions": [
+                                {
+                                    "entity": "sensor.cat_litter",
+                                    "state": "on"
+                                }
+                            ],
+                            "type": "conditional"
                         },
                         {
                             "entities": [
@@ -270,181 +495,17 @@
                                 }
                             ],
                             "type": "entities"
-                        }
-                    ]
-                },
-                {
-                    "badges": [
-                        {
-                            "entity": "person.eric"
                         },
                         {
-                            "entity": "person.caro"
-                        },
-                        {
-                            "entity": "sun.sun"
-                        }
-                    ],
-                    "cards": [
-                        {
-                            "card": {
-                                "title": "Switches On",
-                                "type": "entities"
-                            },
-                            "filter": {
-                                "include": [
-                                    {
-                                        "domain": "switch",
-                                        "state": "on"
-                                    }
-                                ]
-                            },
-                            "show_empty": false,
-                            "type": "custom:auto-entities"
-                        },
-                        {
-                            "card": {
-                                "title": "Lights On",
-                                "type": "entities"
-                            },
-                            "filter": {
-                                "include": [
-                                    {
-                                        "domain": "light",
-                                        "state": "on"
-                                    }
-                                ]
-                            },
-                            "show_empty": false,
-                            "type": "custom:auto-entities"
-                        },
-                        {
-                            "type": "custom:sun-card"
-                        },
-                        {
-                            "entity": "weather.home",
-                            "type": "weather-forecast",
-                            "show_forecast": true,
-                            "secondary_info_attribute": "humidity"
-                        }
-                    ],
-                    "icon": "mdi:lightbulb-on",
-                    "path": "all_lights_and_switches",
-                    "theme": "default",
-                    "title": "All Lights and Switches"
-                },
-                {
-                    "badges": [],
-                    "cards": [
-                        {
-                            "entities": [
-                                {
-                                    "entity": "sensor.last_boot"
-                                },
-                                {
-                                    "entity": "sensor.disk_use_percent_home"
-                                },
-                                {
-                                    "entity": "sensor.memory_free"
-                                },
-                                {
-                                    "entity": "sensor.disk_free"
-                                }
-                            ],
-                            "show_header_toggle": false,
-                            "title": "System Info",
-                            "type": "entities",
-                            "footer": {
-                                "type": "graph",
-                                "entity": "sensor.disk_free",
-                                "hours_to_show": 168,
-                                "detail": 1
-                            }
-                        },
-                        {
-                            "type": "gauge",
-                            "entity": "sensor.cpu_temperature",
-                            "min": 0,
-                            "max": 100
-                        },
-                        {
-                            "card": {
-                                "entities": [
-                                    "input_select.who_clean",
-                                    "sensor.cat_litter",
-                                    "counter.poopy_counter",
-                                    "script.reset_poopy_counter"
-                                ],
-                                "show_header_toggle": false,
-                                "title": "Cat Litter",
-                                "type": "entities"
-                            },
-                            "conditions": [
-                                {
-                                    "entity": "sensor.cat_litter",
-                                    "state": "on"
-                                }
-                            ],
-                            "type": "conditional"
-                        },
-                        {
-                            "card": {
-                                "title": "Things that are broken",
-                                "type": "entities"
-                            },
-                            "filter": {
-                                "exclude": [
-                                    {
-                                        "entity_id": "group.*"
-                                    }
-                                ],
-                                "include": [
-                                    {
-                                        "state": "unknown"
-                                    }
-                                ]
-                            },
-                            "show_empty": false,
-                            "type": "custom:auto-entities"
-                        },
-                        {
-                            "entity": "sensor.processor_use",
-                            "graph": "line",
-                            "type": "sensor",
-                            "hours_to_show": 168
-                        },
-                        {
-                            "entity": "sensor.memory_free",
-                            "graph": "line",
-                            "type": "sensor",
-                            "detail": 1,
-                            "hours_to_show": 168
-                        },
-                        {
-                            "card": {
-                                "title": "All Scripts",
-                                "type": "entities"
-                            },
-                            "filter": {
-                                "include": [
-                                    {
-                                        "domain": "script"
-                                    }
-                                ]
-                            },
-                            "show_empty": false,
-                            "type": "custom:auto-entities"
-                        },
-                        {
-                            "type": "sensor",
-                            "entity": "sensor.database_filesize",
-                            "icon": "hass:database",
-                            "graph": "line",
-                            "hours_to_show": 168
+                            "type": "thermostat",
+                            "entity": "climate.ac_unit"
                         },
                         {
                             "type": "entities",
                             "entities": [
+                                {
+                                    "entity": "input_datetime.wake_up_alarm"
+                                },
                                 {
                                     "buttons": [
                                         {
@@ -462,56 +523,54 @@
                                                 "off": "mdi:leak-off",
                                                 "on": "mdi:leak"
                                             }
+                                        },
+                                        {
+                                            "entity": "input_boolean.use_wake_up_alarm",
+                                            "name": "Wake up light",
+                                            "state_icons": {
+                                                "off": "mdi:alarm-off",
+                                                "on": "mdi:alarm"
+                                            }
+                                        }
+                                    ],
+                                    "type": "custom:paper-buttons-row"
+                                },
+                                {
+                                    "buttons": [
+                                        {
+                                            "entity": "switch.flux",
+                                            "name": false,
+                                            "state_icons": {
+                                                "off": "mdi:invert-colors-off",
+                                                "on": "mdi:invert-colors"
+                                            }
+                                        },
+                                        {
+                                            "entity": "binary_sensor.kitchen_motion_sensor",
+                                            "name": false,
+                                            "state_icons": {
+                                                "off": "mdi:walk",
+                                                "on": "mdi:run"
+                                            }
+                                        },
+                                        {
+                                            "entity": "script.pause_kitchen",
+                                            "icon": "mdi:pause",
+                                            "name": "1 hour"
+                                        },
+                                        {
+                                            "entity": "input_boolean.kitchen_motion_sensor",
+                                            "name": "Detect motion",
+                                            "state_icons": {
+                                                "off": "mdi:eye-off",
+                                                "on": "mdi:motion-sensor"
+                                            }
                                         }
                                     ],
                                     "type": "custom:paper-buttons-row"
                                 }
                             ],
                             "title": "Other entities"
-                        }
-                    ],
-                    "icon": "mdi:desktop-tower",
-                    "panel": false,
-                    "path": "systems",
-                    "theme": "default",
-                    "title": "Systems"
-                },
-                {
-                    "icon": "mdi:cast",
-                    "title": "Cast",
-                    "path": "cast",
-                    "visible": [
-                        {
-                            "user": "69a925601798477bb75f5126a0081b3b"
-                        },
-                        {
-                            "user": "e464da0d2d1d4c5099243127042dba9f"
-                        }
-                    ],
-                    "badges": [],
-                    "cards": [
-                        {
-                            "type": "media-control",
-                            "entity": "media_player.tv"
-                        },
-                        {
-                            "type": "custom:mini-media-player",
-                            "entity": "media_player.tv",
-                            "artwork": "cover"
-                        },
-                        {
-                            "type": "custom:mini-media-player",
-                            "entity": "media_player.google_tv",
-                            "artwork": "cover"
-                        },
-                        {
-                            "type": "custom:mini-media-player",
-                            "entity": "media_player.spotify_eric_matte",
-                            "artwork": "cover"
-                        },
-                        {
-                            "type": "media-control",
-                            "entity": "media_player.google_tv"
                         }
                     ]
                 }

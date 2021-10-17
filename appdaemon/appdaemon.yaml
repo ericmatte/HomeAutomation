@@ -7,6 +7,13 @@ appdaemon:
   plugins:
     HASS:
       type: hass
+    MQTT:
+      type: mqtt
+      namespace: mqtt
+      client_host: !secret mqtt_host
+      client_port: !secret mqtt_port
+      client_user: !secret mqtt_user
+      client_password: !secret mqtt_password
 http:
   url: http://127.0.0.1:5050
 admin:

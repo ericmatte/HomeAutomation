@@ -9,8 +9,8 @@ media_lights_sync:
     # - media_player.google_tv
     # - media_player.spotify_eric_matte
   ha_url: https://rasp.ericmatte.me/
-  # quantization_method: "MedianCut" # "FastOctree" "MedianCut" "MaxCoverage" "libimagequant"
-  use_saturated_colors: false
+  quantization_method: "FastOctree" # "FastOctree" "MedianCut" "MaxCoverage" "libimagequant"
+  use_saturated_colors: true
   use_current_brightness: true
   reset_lights_after: true
   # transition: 8
@@ -24,7 +24,7 @@ media_lights_sync:
     # - light.hue_light_2
     # - light.hue_light_3
     # - light.hue_light_4
-    # - light.kitchen_rgb_lights
+    # - light.under_cabinet
 
 zooz_rgbw_light:
   module: zooz_rgbw_light
@@ -37,3 +37,8 @@ zooz_rgbw_light:
     g: light.rgbw_dimmer_g
     b: light.rgbw_dimmer_b
     w: light.rgbw_dimmer_w
+# ir_ac_unit:
+#   module: ir_ac_unit
+#   class: IrAcUnit
+#   name: "AC Unit"
+#   unique_id: ac_unit

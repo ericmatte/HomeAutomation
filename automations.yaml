@@ -94,6 +94,10 @@
     for: 0:05:00
     platform: state
     to: 'off'
+  - platform: state
+    entity_id: light.dining_room
+    to: 'on'
+    for: 0:05:00
   condition:
   - condition: and
     conditions:
@@ -103,9 +107,11 @@
     - condition: template
       value_template: '{{ not state_attr(''light.dining_room'', ''hs_color'') }}'
     - condition: template
-      value_template: '{{ not is_state(''light.under_cabinet'', ''on'') }}'
-    - condition: template
       value_template: '{{ not is_state(''media_player.tv'', ''playing'') }}'
+    - condition: state
+      entity_id: binary_sensor.kitchen_motion_sensor
+      state: 'off'
+      for: 0:05:00
   action:
   - entity_id: light.dining_room
     service: light.turn_off
@@ -344,9 +350,14 @@
   - entity_id: person.caro
     platform: state
     to: home
+  condition:
+  - condition: time
+    before: '22:15:00'
+    after: 07:00:00
   action:
   - entity_id: switch.entrance,light.dining_room,light.theatre_lights
     service: homeassistant.turn_on
+  mode: single
 - id: 5b184ef4e92a
   alias: 'Entrance: Turn off after 2m30s'
   trigger:
@@ -521,8 +532,6 @@
       entity_id: light.plants
     data:
       brightness_pct: 25
-  - condition: template
-    value_template: '{{ not state_attr(''light.plants'', ''hs_color'') }}'
   - service: light.turn_off
     target:
       entity_id: light.plants
@@ -598,4 +607,62 @@
     data:
       brightness: 255
       color_temp: 158
+  mode: single
+- id: '1627786342308'
+  alias: 'TV: Netflix'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: media_player.tv
+    attribute: app_name
+    to: Netflix
+    for: 00:00:03
+  condition: []
+  action:
+  - service: scene.turn_on
+    target:
+      entity_id: scene.netflix
+    data: {}
+  mode: single
+- id: '1627786365787'
+  alias: 'TV: Netflix off'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: media_player.tv
+    attribute: app_name
+    from: Netflix
+    for: 00:00:03
+  condition: []
+  action:
+  - service: scene.turn_on
+    data: {}
+    target:
+      entity_id: scene.yellow
+  mode: single
+- id: '1633194150021'
+  alias: 'Dining room: Motion Blueprint'
+  description: ''
+  use_blueprint:
+    path: homeassistant/motion_light.yaml
+    input:
+      motion_entity: binary_sensor.kitchen_motion_sensor
+      light_target:
+        entity_id:
+        - light.dining_room
+        - light.under_cabinet
+      no_motion_wait: 200
+- id: '1633610648352'
+  alias: 'Kitchen lights: Toggle with hidden button'
+  description: ''
+  trigger:
+  - entity_id: binary_sensor.kitchen_switch
+    from: 'on'
+    platform: state
+    to: 'off'
+  condition: []
+  action:
+  - service: switch.toggle
+    target:
+      entity_id: switch.kitchen_light
   mode: single

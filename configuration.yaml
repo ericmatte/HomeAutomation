@@ -17,6 +17,8 @@ homeassistant:
 frontend:
   themes: !include_dir_merge_named themes
 
+my:
+
 http:
   ssl_certificate: /ssl/fullchain.pem
   ssl_key: /ssl/privkey.pem
@@ -41,6 +43,30 @@ system_health:
 spotify:
   client_id: !secret spotify_client_id
   client_secret: !secret spotify_client_secret
+
+climate:
+  - platform: mqtt
+    name: AC unit
+    send_if_off: true
+    # action_topic: /climate/ac_unit/action
+    # aux_command_topic: /climate/ac_unit/
+    fan_mode_command_topic: /climate/ac_unit/fan_mode
+    mode_command_topic: /climate/ac_unit/mode
+    temperature_command_topic: /climate/ac_unit/temperature
+    power_command_topic: /climate/ac_unit/power
+    max_temp: 30
+    min_temp: 17
+    fan_modes:
+      - "auto"
+      - "low"
+      - "medium"
+      - "high"
+    modes:
+      - "auto"
+      - "cool"
+      - "dry"
+      - "fan_only"
+      - "off"
 
 # media_player:
 #   # Use the Python ADB implementation
