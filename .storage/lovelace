@@ -41,11 +41,24 @@
                                             }
                                         },
                                         {
-                                            "entity": "binary_sensor.kitchen_motion_sensor",
+                                            "entity": "binary_sensor.controller_pir_sensor",
                                             "name": false,
                                             "state_icons": {
                                                 "off": "mdi:walk",
                                                 "on": "mdi:run"
+                                            }
+                                        },
+                                        {
+                                            "entity": "script.pause_kitchen",
+                                            "icon": "mdi:pause",
+                                            "name": "1 hour"
+                                        },
+                                        {
+                                            "entity": "automation.dining_room_motion_blueprint",
+                                            "name": "Detect motion",
+                                            "state_icons": {
+                                                "off": "mdi:eye-off",
+                                                "on": "mdi:motion-sensor"
                                             }
                                         }
                                     ],
@@ -186,19 +199,25 @@
                             "entity": "person.caro"
                         },
                         {
-                            "entity": "sun.sun"
-                        },
-                        {
-                            "entity": "device_tracker.galaxy_s8"
+                            "entity": "device_tracker.caro"
                         },
                         {
                             "entity": "device_tracker.pixel_4a_5g"
                         },
                         {
+                            "entity": "device_tracker.sm_g920w8"
+                        },
+                        {
+                            "entity": "sun.sun"
+                        },
+                        {
+                            "entity": "device_tracker.eric_phone"
+                        },
+                        {
                             "entity": "device_tracker.eric"
                         },
                         {
-                            "entity": "device_tracker.caro"
+                            "entity": "device_tracker.galaxy_s8"
                         }
                     ],
                     "cards": [

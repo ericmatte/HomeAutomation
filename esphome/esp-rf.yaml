@@ -1,0 +1,124 @@
+# NOTE: Currently not working as intended.
+
+esphome:
+  name: esp-rf
+  platform: ESP8266
+  board: nodemcuv2
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  manual_ip:
+    static_ip: 192.168.1.216
+    gateway: 192.168.1.1
+    subnet: 255.255.255.0
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esp-RF Hotspot"
+    password: !secret wifi_password
+
+captive_portal:
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: !secret esp_main_controller_password
+
+# Enable over-the-air updates
+ota:
+  password: !secret esp_main_controller_password
+
+remote_receiver:
+  pin: D2
+  dump:
+    - rc_switch
+  # Settings to optimize recognition of RF devices
+  tolerance: 65%
+  # filter: 35us
+  idle: 4ms
+  buffer_size: 1kb
+
+remote_transmitter:
+  pin:
+    number: D0
+    inverted: True
+  # RF uses a 100% carrier signal
+  carrier_duty_percent: 100%
+
+switch:
+  - platform: template
+    name: Controller RF switch 1
+    optimistic: true
+    turn_on_action:
+      - remote_transmitter.transmit_rc_switch_raw:
+          code: "010101010001010100110011"
+          protocol: 1
+    turn_off_action:
+      - remote_transmitter.transmit_rc_switch_raw:
+          code: "010101010001010100111100"
+          protocol: 1
+  - platform: template
+    name: Controller RF switch 2
+    optimistic: true
+    turn_on_action:
+      - remote_transmitter.transmit_rc_switch_raw:
+          code: !secret zap_switch2_on
+          repeat:
+            times: !secret zap_signal_repetition
+          protocol: !secret zap_protocol
+    turn_off_action:
+      - remote_transmitter.transmit_rc_switch_raw:
+          code: !secret zap_switch2_off
+          repeat:
+            times: !secret zap_signal_repetition
+          protocol: !secret zap_protocol
+  - platform: template
+    name: Controller RF switch 3
+    optimistic: true
+    turn_on_action:
+      - remote_transmitter.transmit_rc_switch_raw:
+          code: !secret zap_switch3_on
+          repeat:
+            times: !secret zap_signal_repetition
+          protocol: !secret zap_protocol
+    turn_off_action:
+      - remote_transmitter.transmit_rc_switch_raw:
+          code: !secret zap_switch3_off
+          repeat:
+            times: !secret zap_signal_repetition
+          protocol: !secret zap_protocol
+  - platform: template
+    name: Controller RF switch 4
+    optimistic: true
+    turn_on_action:
+      - remote_transmitter.transmit_rc_switch_raw:
+          code: !secret zap_switch4_on
+          protocol:
+            pulse_length: 187
+          repeat:
+            times: 20
+    turn_off_action:
+      - remote_transmitter.transmit_rc_switch_raw:
+          code: !secret zap_switch4_off
+          protocol:
+            pulse_length: 187
+          repeat:
+            times: 20
+  - platform: template
+    name: Controller RF switch 5
+    optimistic: true
+    turn_on_action:
+      - remote_transmitter.transmit_rc_switch_raw:
+          code: !secret zap_switch5_on
+          repeat:
+            times: !secret zap_signal_repetition
+          protocol: !secret zap_protocol
+    turn_off_action:
+      - remote_transmitter.transmit_rc_switch_raw:
+          code: !secret zap_switch5_off
+          repeat:
+            times: !secret zap_signal_repetition
+          protocol: !secret zap_protocol

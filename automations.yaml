@@ -36,7 +36,8 @@
   alias: 'Flux: On when no color in dining light.'
   trigger:
   - platform: template
-    value_template: '{{ not state_attr(''light.dining_room'', ''hs_color'') }}'
+    value_template: '{{ not not state_attr(''light.dining_room'', ''color_temp'')
+      }}'
   action:
   - entity_id: switch.flux
     service: switch.turn_on
@@ -44,78 +45,10 @@
   alias: 'Flux: Off when color in dining light.'
   trigger:
   - platform: template
-    value_template: '{{ not not state_attr(''light.dining_room'', ''hs_color'') }}'
+    value_template: '{{ not state_attr(''light.dining_room'', ''color_temp'') }}'
   action:
   - entity_id: switch.flux
     service: switch.turn_off
-- id: d6ab7e116a03
-  alias: 'Dining room light: Turn on when movement'
-  trigger:
-  - entity_id: binary_sensor.kitchen_motion_sensor
-    for: 0:00:02
-    platform: state
-    to: 'on'
-  condition:
-  - condition: and
-    conditions:
-    - condition: state
-      entity_id: input_boolean.kitchen_motion_sensor
-      state: 'on'
-    - condition: or
-      conditions:
-      - condition: state
-        entity_id: switch.entrance
-        state: 'on'
-      - condition: and
-        conditions:
-        - after: 07:00:00
-          condition: time
-          before: '22:15:00'
-        - condition: template
-          value_template: '{{ not is_state(''media_player.tv'', ''playing'') }}'
-        - condition: or
-          conditions:
-          - condition: state
-            entity_id: person.eric
-            state: home
-          - condition: state
-            entity_id: person.caro
-            state: home
-  action:
-  - data:
-      brightness: 255
-      entity_id: light.dining_room
-    service: light.turn_on
-  mode: single
-- id: b8343b239338
-  alias: 'Dining room light: Turn off when no movement'
-  trigger:
-  - entity_id: binary_sensor.kitchen_motion_sensor
-    for: 0:05:00
-    platform: state
-    to: 'off'
-  - platform: state
-    entity_id: light.dining_room
-    to: 'on'
-    for: 0:05:00
-  condition:
-  - condition: and
-    conditions:
-    - condition: state
-      entity_id: input_boolean.kitchen_motion_sensor
-      state: 'on'
-    - condition: template
-      value_template: '{{ not state_attr(''light.dining_room'', ''hs_color'') }}'
-    - condition: template
-      value_template: '{{ not is_state(''media_player.tv'', ''playing'') }}'
-    - condition: state
-      entity_id: binary_sensor.kitchen_motion_sensor
-      state: 'off'
-      for: 0:05:00
-  action:
-  - entity_id: light.dining_room
-    service: light.turn_off
-  mode: single
 - id: 3682d9789788
   alias: 'Walk-in: Turn on when opening the door'
   trigger:
@@ -159,33 +92,6 @@
   action:
   - entity_id: light.walk_in
     service: light.turn_off
-- id: 04aa3236b533
-  alias: 'Kitchen lights: Turn on using hidden button'
-  trigger:
-  - entity_id: binary_sensor.kitchen_switch
-    from: 'on'
-    platform: state
-    to: 'off'
-  condition:
-  - condition: state
-    entity_id: light.under_cabinet
-    state: 'off'
-  action:
-  - data:
-      brightness: 255
-      rgbw_color:
-      - 0
-      - 0
-      - 0
-      - 255
-    service: light.turn_on
-    target:
-      entity_id: light.under_cabinet
-  - before: '21:00:00'
-    condition: time
-  - entity_id: switch.kitchen_light
-    service: switch.turn_on
-  mode: single
 - id: caddca3d81f3
   alias: IR Kitchen Lights Toggle
   trigger:
@@ -373,21 +279,10 @@
 - id: badd1ec9d152
   alias: 'Everything: Turn off when away'
   trigger:
-  - entity_id: person.eric
-    platform: state
-    to: not_home
-  - entity_id: person.caro
-    platform: state
-    to: not_home
-  condition:
-  - condition: and
-    conditions:
-    - condition: state
-      entity_id: person.eric
-      state: not_home
-    - condition: state
-      entity_id: person.caro
-      state: not_home
+  - platform: template
+    value_template: '{{ is_state(''person.eric'', ''not_home'') and is_state(''person.caro'',
+      ''not_home'') }}'
+  condition: []
   action:
   - entity_id: scene.turn_off_everything
     service: scene.turn_on
@@ -407,36 +302,6 @@
     target:
       entity_id: scene.turn_off_everything
   mode: single
-- id: 2d234803180c
-  alias: 'Settings: Reset each night'
-  trigger:
-  - at: 04:00:00
-    platform: time
-  action:
-  - entity_id:
-    - input_boolean.kitchen_motion_sensor
-    - input_boolean.walk_in_door_sensor
-    service: input_boolean.turn_on
-  - entity_id:
-    - switch.flux
-    service: switch.turn_on
-- id: '1585884258303'
-  alias: 'Kitchen lights: Turn off using hidden button'
-  description: ''
-  trigger:
-  - entity_id: binary_sensor.kitchen_switch
-    from: 'on'
-    platform: state
-    to: 'off'
-  condition:
-  - condition: state
-    entity_id: light.under_cabinet
-    state: 'on'
-  action:
-  - entity_id: light.under_cabinet
-    service: light.turn_off
-  - entity_id: switch.kitchen_light
-    service: switch.turn_off
 - id: '1586909745033'
   alias: 'Curtains: Open at sunrise'
   description: ''
@@ -646,7 +511,7 @@
   use_blueprint:
     path: homeassistant/motion_light.yaml
     input:
-      motion_entity: binary_sensor.kitchen_motion_sensor
+      motion_entity: binary_sensor.controller_pir_sensor
       light_target:
         entity_id:
         - light.dining_room
@@ -656,13 +521,86 @@
   alias: 'Kitchen lights: Toggle with hidden button'
   description: ''
   trigger:
-  - entity_id: binary_sensor.kitchen_switch
-    from: 'on'
+  - from: 'on'
     platform: state
     to: 'off'
+    entity_id: binary_sensor.controller_button
   condition: []
   action:
   - service: switch.toggle
     target:
       entity_id: switch.kitchen_light
+  mode: single
+- id: '1634488152004'
+  alias: 'Default color: Cabinets'
+  description: ''
+  use_blueprint:
+    path: Noblewolf/default-turn-on-brightness-color-temperature-for-lights.yaml
+    input:
+      target_lights: light.under_cabinet
+- id: '1634488309210'
+  alias: 'Default color: Plants'
+  description: ''
+  use_blueprint:
+    path: Noblewolf/default-turn-on-brightness-color-temperature-for-lights.yaml
+    input:
+      target_lights: light.plants
+      light_color_temperature: 154
+- id: '1634488992406'
+  alias: 'Default: Dining room '
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: light.dining_room
+    to: 'on'
+  condition:
+  - condition: template
+    value_template: '{{ not state_attr(''light.dining_room'', ''color_temp'') }}'
+  action:
+  - service: light.turn_on
+    target:
+      entity_id: light.dining_room
+    data:
+      color_temp: 300
+  mode: single
+- id: '1634492924927'
+  alias: 'Dining room: Disable motion'
+  description: At night and away
+  trigger:
+  - platform: template
+    value_template: '{{ is_state(''person.eric'', ''not_home'') and is_state(''person.caro'',
+      ''not_home'') }}'
+  - platform: time
+    at: '23:00:00'
+  condition: []
+  action:
+  - service: automation.turn_off
+    target:
+      entity_id: automation.dining_room_motion_blueprint
+  mode: single
+- id: '1634492984452'
+  alias: 'Dining room: Enable motion'
+  description: In the morning and at home
+  trigger:
+  - platform: time
+    at: 07:00:00
+    id: time
+  - platform: state
+    entity_id: person.eric
+    to: home
+  - platform: state
+    entity_id: person.caro
+    to: home
+  condition:
+  - condition: or
+    conditions:
+    - condition: trigger
+      id: time
+    - condition: time
+      after: 07:00:00
+      before: '23:00:00'
+  action:
+  - service: automation.turn_on
+    target:
+      entity_id: automation.dining_room_motion_blueprint
   mode: single

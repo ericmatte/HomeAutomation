@@ -207,18 +207,7 @@ switch:
         code_off: !secret zap_switch3_off
         signal_repetitions: !secret zap_signal_repetition
 
-binary_sensor:
-  - platform: rpi_gpio
-    bouncetime: 50
-    ports:
-      21: Kitchen Switch
-      20: Kitchen motion sensor
-
 input_boolean:
-  kitchen_motion_sensor:
-    name: Kitchen motion sensor
-    initial: on
-    icon: mdi:flash-circle
   sync_tv_lights:
     name: Sync lights with Chromecast
     initial: on

@@ -25,18 +25,17 @@ media_lights_sync:
     # - light.hue_light_3
     # - light.hue_light_4
     # - light.under_cabinet
-
-zooz_rgbw_light:
-  module: zooz_rgbw_light
-  class: ZoozRGBWLight
-  light_name: "Cabinets"
-  unique_id: under_cabinet
-  zooz_entities:
-    main: light.rgbw_dimmer
-    r: light.rgbw_dimmer_r
-    g: light.rgbw_dimmer_g
-    b: light.rgbw_dimmer_b
-    w: light.rgbw_dimmer_w
+# zooz_rgbw_light:
+#   module: zooz_rgbw_light
+#   class: ZoozRGBWLight
+#   light_name: "Cabinets"
+#   unique_id: under_cabinet
+#   zooz_entities:
+#     main: light.rgbw_dimmer
+#     r: light.rgbw_dimmer_r
+#     g: light.rgbw_dimmer_g
+#     b: light.rgbw_dimmer_b
+#     w: light.rgbw_dimmer_w
 # ir_ac_unit:
 #   module: ir_ac_unit
 #   class: IrAcUnit

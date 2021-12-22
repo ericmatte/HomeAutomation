@@ -711,37 +711,28 @@
   name: Netflix
   entities:
     light.under_cabinet:
-      effect_list:
-      - Disabled
-      - Fireplace
-      - Storm
-      - Rainbow
-      - Polar Lights
-      - Police
+      min_mireds: 153
+      max_mireds: 370
       supported_color_modes:
-      - rgbw
-      color_mode: rgbw
-      brightness: 255
+      - color_temp
+      - hs
+      color_mode: color_temp
+      brightness: 70
+      color_temp: 370
       hs_color:
-      - 27.692
-      - 50
+      - 28.391
+      - 65.659
       rgb_color:
-      - 26
-      - 19
-      - 13
-      rgbw_color:
-      - 26
-      - 16
-      - 6
-      - 13
+      - 255
+      - 166
+      - 87
       xy_color:
-      - 0.417
-      - 0.366
-      effect: None
+      - 0.526
+      - 0.387
       friendly_name: Cabinets
       icon: mdi:led-strip-variant
+      supported_features: 32
       assumed_state: false
-      supported_features: 61
       state: 'on'
     light.dining_room:
       min_mireds: 153
@@ -752,15 +743,12 @@
       supported_color_modes:
       - color_temp
       - hs
-      color_mode: color_temp
-      brightness: 255
-      color_temp: 266
       is_hue_group: true
       friendly_name: Dining room
       supported_features: 63
       assumed_state: false
       icon: mdi:ceiling-light
-      state: 'on'
+      state: 'off'
     switch.kitchen_light:
       device_id: '3'
       zone_id: '2'
@@ -783,15 +771,15 @@
       color_mode: hs
       brightness: 200
       hs_color:
-      - 14.493
-      - 81.176
+      - 5.325
+      - 66.275
       rgb_color:
       - 255
-      - 98
-      - 48
+      - 100
+      - 85
       xy_color:
-      - 0.63
-      - 0.336
+      - 0.597
+      - 0.319
       effect: none
       friendly_name: Left theatre light
       supported_features: 63
@@ -809,15 +797,15 @@
       color_mode: hs
       brightness: 200
       hs_color:
-      - 27.882
-      - 66.667
+      - 22.367
+      - 66.275
       rgb_color:
       - 255
-      - 163
-      - 84
+      - 148
+      - 85
       xy_color:
-      - 0.532
-      - 0.386
+      - 0.548
+      - 0.368
       effect: none
       friendly_name: Right theatre light
       supported_features: 63
@@ -826,4 +814,4 @@
     switch.rainbow_lights:
       friendly_name: Rainbow Lights
       icon: mdi:looks
-      state: 'off'
+      state: 'on'

@@ -1,0 +1,42 @@
+esphome:
+  name: esp-main-controller
+  platform: ESP8266
+  board: nodemcuv2
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  manual_ip:
+    static_ip: 192.168.1.215
+    gateway: 192.168.1.1
+    subnet: 255.255.255.0
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esp-Main-Controller Hotspot"
+    password: !secret wifi_password
+
+captive_portal:
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: !secret esp_main_controller_password
+
+# Enable over-the-air updates
+ota:
+  password: !secret esp_main_controller_password
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: D3
+      inverted: True
+      mode: INPUT_PULLUP
+    name: Controller button
+  - platform: gpio
+    pin: D5
+    device_class: motion
+    name: Controller PIR sensor

@@ -1,5 +1,3 @@
-binary_sensor.kitchen_motion_sensor:
-  device_class: motion
 switch.entrance:
   friendly_name: Entrance
 switch.eric_desktop:
