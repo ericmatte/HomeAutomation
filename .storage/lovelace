@@ -1,5 +1,6 @@
 {
     "version": 1,
+    "minor_version": 1,
     "key": "lovelace",
     "data": {
         "config": {
@@ -87,7 +88,7 @@
                                 },
                                 {
                                     "type": "custom:slider-entity-row",
-                                    "entity": "light.theatre_lights",
+                                    "entity": "light.theatre",
                                     "toggle": true
                                 },
                                 {
@@ -169,7 +170,7 @@
                                     "entity": "switch.office_light"
                                 },
                                 {
-                                    "entity": "switch.eric_desktop"
+                                    "entity": "light.desktop"
                                 },
                                 {
                                     "entity": "vacuum.roborock_vacuum_s5"

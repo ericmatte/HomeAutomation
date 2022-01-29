@@ -1,5 +1,5 @@
 esphome:
-  name: esp_rgb_lights
+  name: esp-rgb-lights
   platform: ESP8266
   board: nodemcuv2
 
@@ -7,8 +7,8 @@ wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
   manual_ip:
-    static_ip: 192.168.1.210
-    gateway: 192.168.1.1
+    static_ip: 192.168.0.210
+    gateway: 192.168.0.1
     subnet: 255.255.255.0
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
@@ -31,7 +31,8 @@ ota:
 
 light:
   - platform: rgb
-    name: "Kitchen RGB lights"
+    name: "Under bed"
+    id: under_bed
     red: red_channel
     green: green_channel
     blue: blue_channel
