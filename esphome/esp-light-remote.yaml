@@ -1,5 +1,5 @@
 esphome:
-  name: esp-main-controller
+  name: esp-light-remote
   platform: ESP8266
   board: nodemcuv2
 
@@ -7,13 +7,13 @@ wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
   manual_ip:
-    static_ip: 192.168.0.215
+    static_ip: 192.168.0.211
     gateway: 192.168.0.1
     subnet: 255.255.255.0
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
-    ssid: "Esp-Main-Controller Hotspot"
+    ssid: "Esp-LightRemote Fallback Hotspot"
     password: !secret wifi_password
 
 captive_portal:
@@ -23,20 +23,28 @@ logger:
 
 # Enable Home Assistant API
 api:
-  password: !secret esp_main_controller_password
+  password: !secret esp_light_remote_password
 
 # Enable over-the-air updates
 ota:
-  password: !secret esp_main_controller_password
+  password: !secret esp_light_remote_password
 
 binary_sensor:
+  - platform: gpio
+    pin:
+      number: D1
+      inverted: True
+      mode: INPUT_PULLUP
+    name: "Light remote button 1"
+  - platform: gpio
+    pin:
+      number: D2
+      inverted: True
+      mode: INPUT_PULLUP
+    name: "Light remote button 2"
   - platform: gpio
     pin:
       number: D3
       inverted: True
       mode: INPUT_PULLUP
-    name: Controller button
-  - platform: gpio
-    pin: D5
-    device_class: motion
-    name: Controller PIR sensor
+    name: "Light remote button 3"

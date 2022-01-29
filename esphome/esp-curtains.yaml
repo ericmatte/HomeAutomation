@@ -1,6 +1,6 @@
 # Note: The starting is always if the curtains closed.
 esphome:
-  name: esp_curtains
+  name: esp-curtains
   platform: ESP8266
   board: nodemcuv2
 

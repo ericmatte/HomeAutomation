@@ -1,5 +1,5 @@
 esphome:
-  name: esp_ir_receiver
+  name: esp-ir-receiver
   platform: ESP8266
   board: nodemcuv2
   # Temporary fix for https://github.com/esphome/issues/issues/877
