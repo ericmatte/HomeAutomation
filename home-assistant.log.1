@@ -1,0 +1,148 @@
+2022-01-29 14:08:05 WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration hacs which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant
+2022-01-29 14:08:17 WARNING (MainThread) [homeassistant.helpers.frame] Detected code that uses str for device registry entry_type. This is deprecated and will stop working in Home Assistant 2022.3, it should be updated to use DeviceEntryType instead. Please report this issue.
+Stack (most recent call last):
+  File "/usr/local/lib/python3.9/runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/local/lib/python3.9/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/usr/src/homeassistant/homeassistant/__main__.py", line 331, in <module>
+    sys.exit(main())
+  File "/usr/src/homeassistant/homeassistant/__main__.py", line 318, in main
+    exit_code = runner.run(runtime_conf)
+  File "/usr/src/homeassistant/homeassistant/runner.py", line 121, in run
+    return loop.run_until_complete(setup_and_run_hass(runtime_config))
+  File "/usr/local/lib/python3.9/asyncio/base_events.py", line 629, in run_until_complete
+    self.run_forever()
+  File "/usr/local/lib/python3.9/asyncio/base_events.py", line 596, in run_forever
+    self._run_once()
+  File "/usr/local/lib/python3.9/asyncio/base_events.py", line 1890, in _run_once
+    handle._run()
+  File "/usr/local/lib/python3.9/asyncio/events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "/usr/src/homeassistant/homeassistant/helpers/entity_platform.py", line 500, in _async_add_entity
+    device = device_registry.async_get_or_create(**processed_dev_info)  # type: ignore[arg-type]
+  File "/usr/src/homeassistant/homeassistant/helpers/device_registry.py", line 360, in async_get_or_create
+    report(  # type: ignore[unreachable]
+  File "/usr/src/homeassistant/homeassistant/helpers/frame.py", line 74, in report
+    _LOGGER.warning(msg, stack_info=True)
+Stack (most recent call last):
+  File "/usr/local/lib/python3.9/runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/local/lib/python3.9/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/usr/src/homeassistant/homeassistant/__main__.py", line 331, in <module>
+    sys.exit(main())
+  File "/usr/src/homeassistant/homeassistant/__main__.py", line 318, in main
+    exit_code = runner.run(runtime_conf)
+  File "/usr/src/homeassistant/homeassistant/runner.py", line 121, in run
+    return loop.run_until_complete(setup_and_run_hass(runtime_config))
+  File "/usr/local/lib/python3.9/asyncio/base_events.py", line 629, in run_until_complete
+    self.run_forever()
+  File "/usr/local/lib/python3.9/asyncio/base_events.py", line 596, in run_forever
+    self._run_once()
+  File "/usr/local/lib/python3.9/asyncio/base_events.py", line 1890, in _run_once
+    handle._run()
+  File "/usr/local/lib/python3.9/asyncio/events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "/usr/src/homeassistant/homeassistant/helpers/entity_platform.py", line 500, in _async_add_entity
+    device = device_registry.async_get_or_create(**processed_dev_info)  # type: ignore[arg-type]
+  File "/usr/src/homeassistant/homeassistant/helpers/device_registry.py", line 360, in async_get_or_create
+    report(  # type: ignore[unreachable]
+  File "/usr/src/homeassistant/homeassistant/helpers/frame.py", line 74, in report
+    _LOGGER.warning(msg, stack_info=True)
+2022-01-29 14:08:17 WARNING (MainThread) [homeassistant.helpers.entity] Entity sensor.hacs (<class 'custom_components.hacs.sensor.HACSSensor'>) implements device_state_attributes. Please report it to the custom component author.
+2022-01-29 14:08:20 WARNING (MainThread) [aioesphomeapi.reconnect_logic] Can't connect to ESPHome API for 192.168.0.210 @ 192.168.0.210: Error connecting to ('192.168.0.210', 6053): [Errno 113] Connect call failed ('192.168.0.210', 6053)
+2022-01-29 14:08:31 WARNING (SyncWorker_4) [charset_normalizer] Trying to detect encoding from a tiny portion of (9) byte(s).
+2022-01-29 14:08:33 ERROR (MainThread) [homeassistant.components.automation.closet_motion] Closet: motion: Error rendering Closet: motion delay template: TemplateError: str: Invalid domain name '00:00:10'
+2022-01-29 14:08:42 ERROR (MainThread) [homeassistant.components.google_assistant.http] Request for https://homegraph.googleapis.com/v1/devices:requestSync failed: 500
+2022-01-29 14:08:57 ERROR (MainThread) [homeassistant.components.automation.closet_motion] Closet: motion: Error rendering Closet: motion delay template: TemplateError: str: Invalid domain name '00:00:10'
+2022-01-29 14:09:05 ERROR (MainThread) [homeassistant.components.automation.closet_motion] Closet: motion: Error rendering Closet: motion delay template: TemplateError: str: Invalid domain name '00:00:10'
+2022-01-29 14:09:34 ERROR (MainThread) [homeassistant.components.automation.closet_motion] Closet: motion: Error rendering Closet: motion delay template: TemplateError: str: Invalid domain name '00:00:10'
+2022-01-29 14:09:46 ERROR (MainThread) [homeassistant.components.automation.closet_motion] Closet: motion: Error rendering Closet: motion delay template: TemplateError: str: Invalid domain name '00:00:10'
+2022-01-29 14:10:07 ERROR (MainThread) [homeassistant.components.automation.closet_motion] Closet: motion: Error rendering Closet: motion delay template: TemplateError: str: Invalid domain name '00:00:10'
+2022-01-29 14:30:25 ERROR (MainThread) [homeassistant.components.automation.bedroom_reverse_sync_under_bed_with_ceiling_light] Bedroom: Sync under_bed with ceiling light: Error executing script. Error for call_service at pos 1: Error rendering data template: TypeError: '>' not supported between instances of 'NoneType' and 'int'
+2022-01-29 14:30:25 ERROR (MainThread) [homeassistant.components.automation.bedroom_reverse_sync_under_bed_with_ceiling_light] Error while executing automation automation.bedroom_reverse_sync_under_bed_with_ceiling_light: Error rendering data template: TypeError: '>' not supported between instances of 'NoneType' and 'int'
+2022-01-29 14:30:27 ERROR (MainThread) [homeassistant.components.automation.bedroom_reverse_sync_under_bed_with_ceiling_light] Bedroom: Sync under_bed with ceiling light: Error executing script. Error for call_service at pos 1: Error rendering data template: TypeError: '>' not supported between instances of 'NoneType' and 'int'
+2022-01-29 14:30:27 ERROR (MainThread) [homeassistant.components.automation.bedroom_reverse_sync_under_bed_with_ceiling_light] Error while executing automation automation.bedroom_reverse_sync_under_bed_with_ceiling_light: Error rendering data template: TypeError: '>' not supported between instances of 'NoneType' and 'int'
+2022-01-29 14:30:32 ERROR (MainThread) [homeassistant.components.automation.bedroom_reverse_sync_under_bed_with_ceiling_light] Bedroom: Sync under_bed with ceiling light: Error executing script. Error for call_service at pos 1: Error rendering data template: TypeError: '>' not supported between instances of 'NoneType' and 'int'
+2022-01-29 14:30:32 ERROR (MainThread) [homeassistant.components.automation.bedroom_reverse_sync_under_bed_with_ceiling_light] Error while executing automation automation.bedroom_reverse_sync_under_bed_with_ceiling_light: Error rendering data template: TypeError: '>' not supported between instances of 'NoneType' and 'int'
+2022-01-29 14:30:33 ERROR (MainThread) [homeassistant.components.automation.bedroom_reverse_sync_under_bed_with_ceiling_light] Bedroom: Sync under_bed with ceiling light: Error executing script. Error for call_service at pos 1: Error rendering data template: TypeError: '>' not supported between instances of 'NoneType' and 'int'
+2022-01-29 14:30:33 ERROR (MainThread) [homeassistant.components.automation.bedroom_reverse_sync_under_bed_with_ceiling_light] Error while executing automation automation.bedroom_reverse_sync_under_bed_with_ceiling_light: Error rendering data template: TypeError: '>' not supported between instances of 'NoneType' and 'int'
+2022-01-29 14:30:34 ERROR (MainThread) [homeassistant.components.automation.bedroom_reverse_sync_under_bed_with_ceiling_light] Bedroom: Sync under_bed with ceiling light: Error executing script. Error for call_service at pos 1: Error rendering data template: TypeError: '>' not supported between instances of 'NoneType' and 'int'
+2022-01-29 14:30:34 ERROR (MainThread) [homeassistant.components.automation.bedroom_reverse_sync_under_bed_with_ceiling_light] Error while executing automation automation.bedroom_reverse_sync_under_bed_with_ceiling_light: Error rendering data template: TypeError: '>' not supported between instances of 'NoneType' and 'int'
+2022-01-29 14:30:37 ERROR (MainThread) [homeassistant.components.automation.bedroom_reverse_sync_under_bed_with_ceiling_light] Bedroom: Sync under_bed with ceiling light: Error executing script. Error for call_service at pos 1: Error rendering data template: TypeError: '>' not supported between instances of 'NoneType' and 'int'
+2022-01-29 14:30:37 ERROR (MainThread) [homeassistant.components.automation.bedroom_reverse_sync_under_bed_with_ceiling_light] Error while executing automation automation.bedroom_reverse_sync_under_bed_with_ceiling_light: Error rendering data template: TypeError: '>' not supported between instances of 'NoneType' and 'int'
+2022-01-29 14:30:41 ERROR (MainThread) [homeassistant.components.automation.bedroom_reverse_sync_under_bed_with_ceiling_light] Bedroom: Sync under_bed with ceiling light: Error executing script. Error for call_service at pos 1: Error rendering data template: TypeError: '>' not supported between instances of 'NoneType' and 'int'
+2022-01-29 14:30:41 ERROR (MainThread) [homeassistant.components.automation.bedroom_reverse_sync_under_bed_with_ceiling_light] Error while executing automation automation.bedroom_reverse_sync_under_bed_with_ceiling_light: Error rendering data template: TypeError: '>' not supported between instances of 'NoneType' and 'int'
+2022-01-29 14:58:11 ERROR (MainThread) [homeassistant.core] Error executing service: <ServiceCall switch.turn_on (c:0f8acf2dd74bb3c4c33418480ce7d529): entity_id=['switch.closet']>
+Traceback (most recent call last):
+  File "/usr/src/homeassistant/homeassistant/core.py", line 1511, in catch_exceptions
+    await coro_or_task
+  File "/usr/src/homeassistant/homeassistant/core.py", line 1530, in _execute_service
+    await handler.job.target(service_call)
+  File "/usr/src/homeassistant/homeassistant/helpers/entity_component.py", line 209, in handle_service
+    await self.hass.helpers.service.entity_service_call(
+  File "/usr/src/homeassistant/homeassistant/helpers/service.py", line 663, in entity_service_call
+    future.result()  # pop exception if have
+  File "/usr/src/homeassistant/homeassistant/helpers/entity.py", line 896, in async_request_call
+    await coro
+  File "/usr/src/homeassistant/homeassistant/helpers/service.py", line 700, in _handle_entity_call
+    await result
+  File "/usr/src/homeassistant/homeassistant/components/zwave_js/switch.py", line 78, in async_turn_on
+    await self.info.node.async_set_value(self._target_value, True)
+  File "/usr/local/lib/python3.9/site-packages/zwave_js_server/model/node.py", line 449, in async_set_value
+    result = await self.async_send_command(
+  File "/usr/local/lib/python3.9/site-packages/zwave_js_server/model/node.py", line 406, in async_send_command
+    result = await self.client.async_send_command(message, **kwargs)
+  File "/usr/local/lib/python3.9/site-packages/zwave_js_server/client.py", line 79, in async_send_command
+    return await future
+zwave_js_server.exceptions.FailedZWaveCommand: Z-Wave error 204: Failed to send the command after 3 attempts (Status NoAck) (ZW0204)
+2022-01-29 14:58:18 ERROR (MainThread) [homeassistant.core] Error executing service: <ServiceCall switch.turn_on (c:34150ab4f4e5a2148a99d8cb1f96fd92): entity_id=['switch.closet']>
+Traceback (most recent call last):
+  File "/usr/src/homeassistant/homeassistant/core.py", line 1511, in catch_exceptions
+    await coro_or_task
+  File "/usr/src/homeassistant/homeassistant/core.py", line 1530, in _execute_service
+    await handler.job.target(service_call)
+  File "/usr/src/homeassistant/homeassistant/helpers/entity_component.py", line 209, in handle_service
+    await self.hass.helpers.service.entity_service_call(
+  File "/usr/src/homeassistant/homeassistant/helpers/service.py", line 663, in entity_service_call
+    future.result()  # pop exception if have
+  File "/usr/src/homeassistant/homeassistant/helpers/entity.py", line 896, in async_request_call
+    await coro
+  File "/usr/src/homeassistant/homeassistant/helpers/service.py", line 700, in _handle_entity_call
+    await result
+  File "/usr/src/homeassistant/homeassistant/components/zwave_js/switch.py", line 78, in async_turn_on
+    await self.info.node.async_set_value(self._target_value, True)
+  File "/usr/local/lib/python3.9/site-packages/zwave_js_server/model/node.py", line 449, in async_set_value
+    result = await self.async_send_command(
+  File "/usr/local/lib/python3.9/site-packages/zwave_js_server/model/node.py", line 406, in async_send_command
+    result = await self.client.async_send_command(message, **kwargs)
+  File "/usr/local/lib/python3.9/site-packages/zwave_js_server/client.py", line 79, in async_send_command
+    return await future
+zwave_js_server.exceptions.FailedZWaveCommand: Z-Wave error 202: The message cannot be sent because node 6 is dead (ZW0202)
+2022-01-29 15:30:14 ERROR (MainThread) [homeassistant.components.automation.bedroom_reverse_sync_under_bed_with_ceiling_light] Bedroom: Sync under_bed with ceiling light: Error executing script. Error for call_service at pos 1: Error rendering data template: TypeError: '>' not supported between instances of 'NoneType' and 'int'
+2022-01-29 15:30:14 ERROR (MainThread) [homeassistant.components.automation.bedroom_reverse_sync_under_bed_with_ceiling_light] Error while executing automation automation.bedroom_reverse_sync_under_bed_with_ceiling_light: Error rendering data template: TypeError: '>' not supported between instances of 'NoneType' and 'int'
+2022-01-29 15:30:14 ERROR (MainThread) [homeassistant.components.automation.bedroom_reverse_sync_under_bed_with_ceiling_light] Bedroom: Sync under_bed with ceiling light: Error executing script. Error for call_service at pos 1: Error rendering data template: TypeError: '>' not supported between instances of 'NoneType' and 'int'
+2022-01-29 15:30:14 ERROR (MainThread) [homeassistant.components.automation.bedroom_reverse_sync_under_bed_with_ceiling_light] Error while executing automation automation.bedroom_reverse_sync_under_bed_with_ceiling_light: Error rendering data template: TypeError: '>' not supported between instances of 'NoneType' and 'int'
+2022-01-29 15:37:55 WARNING (MainThread) [homeassistant.helpers.service] Unable to find referenced entities switch.office_wardrobe
+2022-01-29 15:37:56 WARNING (MainThread) [homeassistant.helpers.service] Unable to find referenced entities switch.office_wardrobe
+2022-01-29 15:37:57 WARNING (MainThread) [homeassistant.helpers.service] Unable to find referenced entities switch.office_wardrobe
+2022-01-29 15:38:00 WARNING (MainThread) [homeassistant.helpers.service] Unable to find referenced entities switch.office_wardrobe
+2022-01-29 15:38:00 WARNING (MainThread) [homeassistant.helpers.service] Unable to find referenced entities switch.office_wardrobe
+2022-01-29 15:39:16 WARNING (MainThread) [homeassistant.helpers.service] Unable to find referenced entities switch.office_wardrobe
+2022-01-29 15:39:20 WARNING (MainThread) [homeassistant.helpers.service] Unable to find referenced entities switch.office_wardrobe
+2022-01-29 15:46:49 WARNING (MainThread) [homeassistant.helpers.frame] Detected integration that called async_timeout.timeout with loop keyword argument. The loop keyword argument is deprecated and calls will fail after Home Assistant 2022.2. Please report issue to the custom component author for hacs using this method at custom_components/hacs/helpers/functions/download.py, line 43: 
+2022-01-29 15:47:31 ERROR (MainThread) [homeassistant.components.hassio.handler] Timeout on /homeassistant/restart request
+2022-01-29 15:47:44 ERROR (MainThread) [root] Uncaught exception
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.9/runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/local/lib/python3.9/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/usr/src/homeassistant/homeassistant/__main__.py", line 331, in <module>
+    sys.exit(main())
+  File "/usr/src/homeassistant/homeassistant/__main__.py", line 321, in main
+    if os.path.getsize(fault_file_name) == 0:
+  File "/usr/local/lib/python3.9/genericpath.py", line 50, in getsize
+    return os.stat(filename).st_size
+FileNotFoundError: [Errno 2] No such file or directory: '/config/home-assistant.log.fault'

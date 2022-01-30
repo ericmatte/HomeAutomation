@@ -23,11 +23,11 @@ logger:
 
 # Enable Home Assistant API
 api:
-  password: !secret esp_main_controller_password
+  password: !secret esp_motion_closet_password
 
 # Enable over-the-air updates
 ota:
-  password: !secret esp_main_controller_password
+  password: !secret esp_motion_closet_password
 
 binary_sensor:
   - platform: gpio

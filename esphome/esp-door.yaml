@@ -38,5 +38,5 @@ binary_sensor:
     filters:
       - delayed_on: 100ms
       - delayed_off: 100ms
-    name: "Walk-in door sensor"
+    name: "Caro wardrobe sensor"
     device_class: door

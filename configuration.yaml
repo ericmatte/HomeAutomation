@@ -45,30 +45,6 @@ spotify:
   client_id: !secret spotify_client_id
   client_secret: !secret spotify_client_secret
 
-climate:
-  - platform: mqtt
-    name: AC unit
-    send_if_off: true
-    # action_topic: /climate/ac_unit/action
-    # aux_command_topic: /climate/ac_unit/
-    fan_mode_command_topic: /climate/ac_unit/fan_mode
-    mode_command_topic: /climate/ac_unit/mode
-    temperature_command_topic: /climate/ac_unit/temperature
-    power_command_topic: /climate/ac_unit/power
-    max_temp: 30
-    min_temp: 17
-    fan_modes:
-      - "auto"
-      - "low"
-      - "medium"
-      - "high"
-    modes:
-      - "auto"
-      - "cool"
-      - "dry"
-      - "fan_only"
-      - "off"
-
 # media_player:
 #   # Use the Python ADB implementation
 #   - platform: androidtv
@@ -113,8 +89,8 @@ device_tracker:
     new_device_defaults:
       track_new_devices: false
 
-ifttt:
-  key: !secret ifttt_key
+# ifttt:
+#   key: !secret ifttt_key
 
 notify:
   - name: html5
@@ -126,6 +102,8 @@ notify:
 # zwave:
 #   usb_path: /dev/ttyACM1 # /dev/ttyACM0
 
+default_config:
+
 updater:
 
 discovery:
@@ -135,11 +113,6 @@ history:
 logbook:
 
 sun:
-
-# vacuum:
-#   - platform: xiaomi_miio
-#     host: !secret roborock_ip
-#     token: !secret roborock_token
 
 sensor:
   - platform: time_date
@@ -173,62 +146,16 @@ switch:
     disable_brightness_adjust: True
     stop_colortemp: 2300
     lights:
-      - light.dining_room
-  - platform: rpi_rf
-    gpio: 17
-    switches:
-      eric_desktop:
-        protocol: !secret zap_protocol
-        pulselength: !secret zap_pulselength
-        code_on: !secret zap_switch1_on
-        code_off: !secret zap_switch1_off
-        signal_repetitions: !secret zap_signal_repetition
-      humidifier:
-        protocol: !secret zap_protocol
-        pulselength: !secret zap_pulselength
-        code_on: !secret zap_switch2_on
-        code_off: !secret zap_switch2_off
-        signal_repetitions: !secret zap_signal_repetition
-      rainbow_lights:
-        protocol: !secret zap_protocol
-        pulselength: !secret zap_pulselength
-        code_on: !secret zap_switch4_on
-        code_off: !secret zap_switch4_off
-        signal_repetitions: !secret zap_signal_repetition
-      rf_4:
-        protocol: !secret zap_protocol
-        pulselength: !secret zap_pulselength
-        code_on: !secret zap_switch5_on
-        code_off: !secret zap_switch5_off
-        signal_repetitions: !secret zap_signal_repetition
-      rf_5:
-        protocol: !secret zap_protocol
-        pulselength: !secret zap_pulselength
-        code_on: !secret zap_switch3_on
-        code_off: !secret zap_switch3_off
-        signal_repetitions: !secret zap_signal_repetition
+      - light.dining_table
 
 input_boolean:
   sync_tv_lights:
     name: Sync lights with Chromecast
     initial: on
     icon: mdi:flash-circle
-  walk_in_door_sensor:
-    name: Walk-in door sensor
-    initial: on
-    icon: mdi:flash-circle
   light_toggle:
     name: Last light toggle
     initial: off
-  use_wake_up_alarm:
-    name: Wake up light
-    initial: off
-
-input_datetime:
-  wake_up_alarm:
-    name: Wake up light alarm
-    has_date: false
-    has_time: true
 
 automation: !include automations.yaml
 script: !include scripts.yaml
