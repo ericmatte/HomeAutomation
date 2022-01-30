@@ -14,17 +14,12 @@ I also have left my configuration files to give you some examples.
 ## Sub Projects
 
 - [esphome](esphome): Small projects using ESP8266 devices
-  - [esp_curtains](esphome/esp_curtains.yaml): Control your curtains
-  - [esp_door](esphome/esp_door.yaml): Door open/close sensor
-  - [esp_ir_receiver](esphome/esp_ir_receiver.yaml): TV remote sensor
-  - [esp_light_remote](esphome/esp_light_remote.yaml): Wireless remote buttons
-  - [esp_rgb_lights](esphome/esp_rgb_lights.yaml): RGB light
 - archive (other sub-projects that have become obsolete)
-  - [rf-transmitter-receiver](archive/rf-transmitter-receiver): Scan/send RF signals
-  - [google-home](archive/google-home): Convert your Raspberry Pi into a DIY Google Home
-  - [motion](archive/motion): Connect a USB camera to home assistant
-  - [rpi-mqtt-leds](archive/rpi-mqtt-leds)
-  - [toggle-lights-with-windows-connection](archive/toggle-lights-with-windows-connection)
+  - [rf-transmitter-receiver](https://github.com/ericmatte/HomeAutomation/tree/first-home/archive/rf-transmitter-receiver): Scan/send RF signals
+  - [google-home](https://github.com/ericmatte/HomeAutomation/tree/first-home/archive/google-home): Convert your Raspberry Pi into a DIY Google Home
+  - [motion](https://github.com/ericmatte/HomeAutomation/tree/first-home/archive/motion): Connect a USB camera to home assistant
+  - [rpi-mqtt-leds](https://github.com/ericmatte/HomeAutomation/tree/first-home/archive/rpi-mqtt-leds)
+  - [toggle-lights-with-windows-connection](https://github.com/ericmatte/HomeAutomation/tree/first-home/archive/toggle-lights-with-windows-connection)
   - [esp-mqtt-rgb-led](https://github.com/corbanmailloux/esp-mqtt-rgb-led): MQTT RGB LEDs Using JSON for Home Assistant
 
 ## The Power of Home Assistant

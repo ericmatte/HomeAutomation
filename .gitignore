@@ -16,7 +16,7 @@ secrets.py
 /custom_components
 /www/community
 /home-assistant_v2.db*
-/home-assistant.log
+/home-assistant.log*
 /options.xml
 /OZW_Log.txt
 pyozw.sqlite

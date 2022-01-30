@@ -1,1 +1,0 @@
-/home/pi/google_home/google_env/bin/python3 -u /home/pi/google_home/main.py
