@@ -1,0 +1,123 @@
+type: picture-elements
+elements:
+  - type: service-button
+    service: scene.turn_on
+    service_data:
+      entity_id: scene.turn_off_everything
+    style:
+      left: 91%
+      top: 77%
+      background-color: rgba(255, 255, 255, 0.3)
+      border-radius: 20px
+      line-height: 50px
+  - type: state-badge
+    entity: person.eric
+    style:
+      left: 43%
+      top: 7%
+  - type: state-badge
+    entity: person.caro
+    style:
+      left: 63%
+      top: 7%
+  - type: state-icon
+    entity: switch.caro_wardrobe
+    style:
+      left: 18%
+      top: 78%
+      border-radius: 50%
+      transform: scale(1.5) translate(-50%, -50%)
+      background-color: rgba(255, 255, 255, 0.3)
+    tap_action:
+      action: toggle
+  - type: state-icon
+    entity: light.desktop
+    style:
+      left: 12%
+      top: 84%
+      border-radius: 50%
+      transform: scale(1.5) translate(-50%, -50%)
+      background-color: rgba(255, 255, 255, 0.3)
+    tap_action:
+      action: toggle
+  - type: state-icon
+    entity: switch.office_wardrobe
+    style:
+      left: 39%
+      top: 81%
+      border-radius: 50%
+      transform: scale(1.5) translate(-50%, -50%)
+      background-color: rgba(255, 255, 255, 0.3)
+    tap_action:
+      action: toggle
+  - type: state-icon
+    entity: light.dining_table
+    style:
+      left: 35%
+      top: 39%
+      border-radius: 50%
+      transform: scale(1.5) translate(-50%, -50%)
+      background-color: rgba(255, 255, 255, 0.3)
+    tap_action:
+      action: toggle
+  - type: state-icon
+    entity: light.plants
+    style:
+      left: 17%
+      top: 65%
+      border-radius: 50%
+      transform: scale(1.5) translate(-50%, -50%)
+      background-color: rgba(255, 255, 255, 0.3)
+    tap_action:
+      action: toggle
+  - type: state-icon
+    entity: light.theatre
+    style:
+      left: 22%
+      top: 16%
+      border-radius: 50%
+      transform: scale(1.5) translate(-50%, -50%)
+      background-color: rgba(255, 255, 255, 0.3)
+    tap_action:
+      action: toggle
+  - type: state-icon
+    entity: switch.closet
+    style:
+      left: 78%
+      top: 90%
+      border-radius: 50%
+      transform: scale(1.5) translate(-50%, -50%)
+      background-color: rgba(255, 255, 255, 0.3)
+    tap_action:
+      action: toggle
+  - type: state-icon
+    entity: light.under_cabinet
+    style:
+      left: 74%
+      top: 58%
+      border-radius: 50%
+      transform: scale(1.5) translate(-50%, -50%)
+      background-color: rgba(255, 255, 255, 0.3)
+    tap_action:
+      action: toggle
+  - type: state-icon
+    entity: light.bedroom
+    style:
+      left: 78%
+      top: 25%
+      border-radius: 50%
+      transform: scale(1.5) translate(-50%, -50%)
+      background-color: rgba(255, 255, 255, 0.3)
+    tap_action:
+      action: toggle
+  - type: state-icon
+    entity: light.under_bed
+    style:
+      left: 92%
+      top: 25%
+      border-radius: 50%
+      transform: scale(1.5) translate(-50%, -50%)
+      background-color: rgba(255, 255, 255, 0.3)
+    tap_action:
+      action: toggle
+image: /local/floorplan/floorplan-90.png

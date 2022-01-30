@@ -319,6 +319,8 @@
       motion_sensor: binary_sensor.motion_closet
       target_entity: switch.closet
       no_motion_wait: input_number.motion_time_off
+      time_limit_after: input_datetime.motion_on
+      time_limit_before: input_datetime.motion_off
 - id: '1643490019007'
   alias: 'Caro''s wardrobe: Turn on when opening'
   description: ''

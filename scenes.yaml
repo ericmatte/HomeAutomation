@@ -1,10 +1,6 @@
 - id: turn_off_everything
   name: Turn Off Everything
   entities:
-    media_player.tv:
-      friendly_name: TV
-      supported_features: 152449
-      state: 'off'
     light.plants:
       min_mireds: 158
       max_mireds: 495
@@ -57,14 +53,12 @@
       assumed_state: false
       state: 'off'
     switch.office_wardrobe:
-      device_id: '3'
-      zone_id: '2'
       icon: mdi:wardrobe-outline
       friendly_name: Wardrobe
       state: 'off'
     switch.caro_wardrobe:
       icon: mdi:wardrobe-outline
-      friendly_name: Caro's Wardrobe
+      friendly_name: Caro's wardrobe
       state: 'off'
     light.under_bed:
       effect_list:
@@ -127,8 +121,10 @@
       assumed_state: false
       state: 'off'
     switch.closet:
+      device_id: '3'
+      zone_id: '2'
       icon: mdi:hanger
-      friendly_name: Entrance closet
+      friendly_name: Closet
       state: 'off'
     light.bedroom:
       supported_color_modes:
