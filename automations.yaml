@@ -386,3 +386,38 @@
     target:
       entity_id: switch.closet
   mode: restart
+- id: '1643860305249'
+  alias: 'Dining table: Sync with Kitchen island'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: light.kitchen_island
+  condition:
+  - condition: and
+    conditions:
+    - condition: template
+      value_template: '{{ trigger.to_state.context.parent_id == none }}'
+    - condition: template
+      value_template: '{{ trigger.to_state.context.user_id == none }}'
+  action:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ trigger.to_state.state == ''on'' }}'
+      sequence:
+      - service: light.turn_on
+        data:
+          brightness: '{{ state_attr(''light.kitchen_island'', ''brightness'') }}'
+        target:
+          entity_id: light.dining_table
+    - conditions:
+      - condition: template
+        value_template: '{{ trigger.to_state.state == ''off'' }}'
+      sequence:
+      - service: light.turn_off
+        target:
+          entity_id: light.dining_table
+        data: {}
+    default: []
+  mode: parallel
+  max: 10
