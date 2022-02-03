@@ -53,8 +53,38 @@ elements:
   - type: state-icon
     entity: light.dining_table
     style:
-      left: 35%
+      left: 34%
       top: 39%
+      border-radius: 50%
+      transform: scale(1.5) translate(-50%, -50%)
+      background-color: rgba(255, 255, 255, 0.3)
+    tap_action:
+      action: toggle
+  - type: state-icon
+    entity: light.kitchen_island
+    style:
+      left: 34%
+      top: 50%
+      border-radius: 50%
+      transform: scale(1.5) translate(-50%, -50%)
+      background-color: rgba(255, 255, 255, 0.3)
+    tap_action:
+      action: toggle
+  - type: state-icon
+    entity: light.kitchen
+    style:
+      left: 34%
+      top: 55%
+      border-radius: 50%
+      transform: scale(1.5) translate(-50%, -50%)
+      background-color: rgba(255, 255, 255, 0.3)
+    tap_action:
+      action: toggle
+  - type: state-icon
+    entity: light.living_room
+    style:
+      left: 34%
+      top: 25%
       border-radius: 50%
       transform: scale(1.5) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -71,9 +101,19 @@ elements:
     tap_action:
       action: toggle
   - type: state-icon
-    entity: light.theatre
+    entity: light.right_theatre
     style:
-      left: 22%
+      left: 26%
+      top: 16%
+      border-radius: 50%
+      transform: scale(1.5) translate(-50%, -50%)
+      background-color: rgba(255, 255, 255, 0.3)
+    tap_action:
+      action: toggle
+  - type: state-icon
+    entity: light.left_theatre
+    style:
+      left: 18%
       top: 16%
       border-radius: 50%
       transform: scale(1.5) translate(-50%, -50%)
@@ -93,7 +133,7 @@ elements:
   - type: state-icon
     entity: light.under_cabinet
     style:
-      left: 74%
+      left: 80%
       top: 58%
       border-radius: 50%
       transform: scale(1.5) translate(-50%, -50%)
@@ -111,6 +151,16 @@ elements:
     tap_action:
       action: toggle
   - type: state-icon
+    entity: light.small_bathroom
+    style:
+      left: 80%
+      top: 50%
+      border-radius: 50%
+      transform: scale(1.5) translate(-50%, -50%)
+      background-color: rgba(255, 255, 255, 0.3)
+    tap_action:
+      action: toggle
+  - type: state-icon
     entity: light.under_bed
     style:
       left: 92%
@@ -120,4 +170,12 @@ elements:
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
       action: toggle
+  - type: state-icon
+    entity: vacuum.roby
+    style:
+      left: 67%
+      top: 58%
+      border-radius: 50%
+      transform: scale(1.5) translate(-50%, -50%)
+      background-color: rgba(255, 255, 255, 0.3)
 image: /local/floorplan/floorplan-90.png

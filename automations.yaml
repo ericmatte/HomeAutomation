@@ -1,21 +1,3 @@
-- id: 1a2fb39aade3
-  alias: 'Bedroom light: Wake up sunrise at the specified time'
-  trigger:
-  - platform: template
-    value_template: '{{ states(''sensor.time'') == (state_attr(''input_datetime.wake_up_alarm'',
-      ''timestamp'') | int | timestamp_custom(''%H:%M'', False)) }}'
-  condition:
-  - condition: and
-    conditions:
-    - condition: state
-      entity_id: input_boolean.use_wake_up_alarm
-      state: 'on'
-    - condition: state
-      entity_id: light.bedroom_light
-      state: 'off'
-  action:
-  - entity_id: script.wake_up_sunrise
-    service: script.turn_on
 - id: 2a197cb06cf7
   alias: 'Theme: Change automatically'
   trigger:
@@ -36,8 +18,7 @@
   alias: 'Flux: On when no color in dining light.'
   trigger:
   - platform: template
-    value_template: '{{ not not state_attr(''light.dining_room'', ''color_temp'')
-      }}'
+    value_template: '{{ not not state_attr(''light.desktop'', ''color_temp'') }}'
   action:
   - entity_id: switch.flux
     service: switch.turn_on
@@ -60,30 +41,6 @@
   - service: switch.turn_off
     target:
       entity_id: switch.caro_wardrobe
-- id: 72ea00520f30
-  alias: 'Everything: Turn off when double clicking entrance light'
-  trigger:
-  - entity_id: switch.entrance
-    from: 'on'
-    platform: state
-    to: 'off'
-  condition:
-  - condition: template
-    value_template: '{{(as_timestamp(now()) - as_timestamp(states.input_boolean.light_toggle.last_changed)
-      < 1.5)}}'
-  action:
-  - entity_id: scene.turn_off_everything
-    service: scene.turn_on
-- id: d071a8006b33
-  alias: 'Entrance: Set a timestamp when light turns on'
-  trigger:
-  - entity_id: switch.entrance
-    from: 'off'
-    platform: state
-    to: 'on'
-  action:
-  - entity_id: input_boolean.light_toggle
-    service: input_boolean.toggle
 - id: 28c90f5faaa5
   alias: 'Entrance: Turn on when coming home'
   trigger:
@@ -187,25 +144,6 @@
   action:
   - scene: scene.bedtime
   mode: single
-- id: '1614129859585'
-  alias: 'Plants: Turn humidifier on at 9 AM'
-  description: ''
-  trigger:
-  - platform: time
-    at: 09:00:00
-  condition:
-  - condition: time
-    weekday:
-    - mon
-    - tue
-    - wed
-    - thu
-    - fri
-  action:
-  - service: switch.turn_on
-    data: {}
-    entity_id: switch.humidifier
-  mode: single
 - id: '1614129881005'
   alias: 'Plants: Turn off at 5 PM'
   description: ''
@@ -262,6 +200,8 @@
     - wed
     - thu
     - fri
+    - sat
+    - sun
   action:
   - service: light.turn_on
     target:
@@ -269,38 +209,6 @@
     data:
       brightness: 255
       color_temp: 158
-  mode: single
-- id: '1627786342308'
-  alias: 'TV: Netflix'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: media_player.tv
-    attribute: app_name
-    to: Netflix
-    for: 00:00:03
-  condition: []
-  action:
-  - service: scene.turn_on
-    target:
-      entity_id: scene.netflix
-    data: {}
-  mode: single
-- id: '1627786365787'
-  alias: 'TV: Netflix off'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: media_player.tv
-    attribute: app_name
-    from: Netflix
-    for: 00:00:03
-  condition: []
-  action:
-  - service: scene.turn_on
-    data: {}
-    target:
-      entity_id: scene.yellow
   mode: single
 - id: '1634488309210'
   alias: 'Default color: Plants'
@@ -321,6 +229,7 @@
       no_motion_wait: input_number.motion_time_off
       time_limit_after: input_datetime.motion_on
       time_limit_before: input_datetime.motion_off
+      blocker_entity: input_boolean.motion_disabled
 - id: '1643490019007'
   alias: 'Caro''s wardrobe: Turn on when opening'
   description: ''
@@ -334,3 +243,146 @@
     target:
       entity_id: switch.caro_wardrobe
   mode: single
+- id: '1643521875134'
+  alias: 'Theatre: Turn on when TV is on'
+  description: ''
+  trigger:
+  - platform: device
+    device_id: 1c05c6a0aaa4f4be1645832535abfd7d
+    domain: media_player
+    entity_id: media_player.tv
+    type: playing
+  condition: []
+  action:
+  - service: light.turn_on
+    target:
+      entity_id: light.theatre
+  mode: single
+- id: '1643594926751'
+  alias: 'Entrance: Button 3 turn off all'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.entrance_button_3
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: scene.turn_on
+    target:
+      entity_id: scene.turn_off_everything
+  mode: single
+- id: '1643595025000'
+  alias: 'Office: Turn on desktop while arriving'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.motion_entrance
+    to: 'on'
+  condition:
+  - condition: time
+    after: 07:00:00
+    before: '10:00:00'
+  action:
+  - service: light.turn_on
+    target:
+      entity_id: light.desktop
+    data:
+      color_temp: 251
+      brightness: 255
+  mode: single
+- id: '1643652849957'
+  alias: 'Office wardrobe: Turn off when closing'
+  description: ''
+  trigger:
+  - entity_id: binary_sensor.office_wardrobe_sensor
+    platform: state
+    to: 'off'
+  condition: []
+  action:
+  - service: switch.turn_off
+    target:
+      entity_id: switch.office_wardrobe
+  mode: single
+- id: '1643652869790'
+  alias: 'Office wardrobe: Turn on when opening'
+  description: ''
+  trigger:
+  - entity_id: binary_sensor.office_wardrobe_sensor
+    platform: state
+    to: 'on'
+  condition: []
+  action:
+  - service: switch.turn_on
+    target:
+      entity_id: switch.office_wardrobe
+  mode: single
+- id: '1643660425100'
+  alias: 'Office: Turn on desktop while quitting'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.motion_entrance
+    to: 'on'
+  condition:
+  - condition: time
+    after: '16:00:00'
+    before: '18:00:00'
+  action:
+  - service: light.turn_off
+    target:
+      entity_id: light.desktop
+  mode: single
+- id: '1643760185803'
+  alias: 'Bathroom: motion'
+  description: ''
+  use_blueprint:
+    path: freakshock88/motion_illuminance_activated_entity.yaml
+    input:
+      motion_sensor: binary_sensor.motion_bathroom
+      target_entity: light.small_bathroom
+      no_motion_wait: input_number.motion_time_off
+- id: '1643768034083'
+  alias: 'Entrance: Button 1 disables motion'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.entrance_button_1
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.motion_disabled
+  - service: switch.turn_on
+    target:
+      entity_id: switch.closet
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 0
+      milliseconds: 500
+  - service: switch.turn_off
+    target:
+      entity_id: switch.closet
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 0
+      milliseconds: 500
+  - service: switch.turn_on
+    target:
+      entity_id: switch.closet
+  - delay:
+      hours: 0
+      minutes: 15
+      seconds: 0
+      milliseconds: 0
+  - service: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.motion_disabled
+  - service: switch.turn_off
+    target:
+      entity_id: switch.closet
+  mode: restart

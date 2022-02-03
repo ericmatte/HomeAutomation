@@ -92,8 +92,50 @@
                                     "type": "state-icon",
                                     "entity": "light.dining_table",
                                     "style": {
-                                        "left": "35%",
+                                        "left": "34%",
                                         "top": "39%",
+                                        "border-radius": "50%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)",
+                                        "background-color": "rgba(255, 255, 255, 0.3)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    }
+                                },
+                                {
+                                    "type": "state-icon",
+                                    "entity": "light.kitchen_island",
+                                    "style": {
+                                        "left": "34%",
+                                        "top": "50%",
+                                        "border-radius": "50%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)",
+                                        "background-color": "rgba(255, 255, 255, 0.3)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    }
+                                },
+                                {
+                                    "type": "state-icon",
+                                    "entity": "light.kitchen",
+                                    "style": {
+                                        "left": "34%",
+                                        "top": "55%",
+                                        "border-radius": "50%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)",
+                                        "background-color": "rgba(255, 255, 255, 0.3)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    }
+                                },
+                                {
+                                    "type": "state-icon",
+                                    "entity": "light.living_room",
+                                    "style": {
+                                        "left": "34%",
+                                        "top": "25%",
                                         "border-radius": "50%",
                                         "transform": "scale(1.5) translate(-50%, -50%)",
                                         "background-color": "rgba(255, 255, 255, 0.3)"
@@ -118,9 +160,23 @@
                                 },
                                 {
                                     "type": "state-icon",
-                                    "entity": "light.theatre",
+                                    "entity": "light.right_theatre",
                                     "style": {
-                                        "left": "22%",
+                                        "left": "26%",
+                                        "top": "16%",
+                                        "border-radius": "50%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)",
+                                        "background-color": "rgba(255, 255, 255, 0.3)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    }
+                                },
+                                {
+                                    "type": "state-icon",
+                                    "entity": "light.left_theatre",
+                                    "style": {
+                                        "left": "18%",
                                         "top": "16%",
                                         "border-radius": "50%",
                                         "transform": "scale(1.5) translate(-50%, -50%)",
@@ -148,7 +204,7 @@
                                     "type": "state-icon",
                                     "entity": "light.under_cabinet",
                                     "style": {
-                                        "left": "74%",
+                                        "left": "80%",
                                         "top": "58%",
                                         "border-radius": "50%",
                                         "transform": "scale(1.5) translate(-50%, -50%)",
@@ -174,6 +230,20 @@
                                 },
                                 {
                                     "type": "state-icon",
+                                    "entity": "light.small_bathroom",
+                                    "style": {
+                                        "left": "80%",
+                                        "top": "50%",
+                                        "border-radius": "50%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)",
+                                        "background-color": "rgba(255, 255, 255, 0.3)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    }
+                                },
+                                {
+                                    "type": "state-icon",
                                     "entity": "light.under_bed",
                                     "style": {
                                         "left": "92%",
@@ -185,345 +255,20 @@
                                     "tap_action": {
                                         "action": "toggle"
                                     }
+                                },
+                                {
+                                    "type": "state-icon",
+                                    "entity": "vacuum.roby",
+                                    "style": {
+                                        "left": "67%",
+                                        "top": "58%",
+                                        "border-radius": "50%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)",
+                                        "background-color": "rgba(255, 255, 255, 0.3)"
+                                    }
                                 }
                             ],
                             "image": "/local/floorplan/floorplan-90.png"
-                        }
-                    ]
-                },
-                {
-                    "icon": "mdi:home",
-                    "path": "default_view",
-                    "theme": "",
-                    "title": "Home",
-                    "badges": [],
-                    "cards": [
-                        {
-                            "type": "custom:auto-entities",
-                            "card": {
-                                "type": "entities",
-                                "title": "Office"
-                            },
-                            "filter": {
-                                "include": [
-                                    {
-                                        "area": "Office"
-                                    }
-                                ],
-                                "exclude": []
-                            }
-                        },
-                        {
-                            "type": "custom:auto-entities",
-                            "card": {
-                                "type": "entities",
-                                "title": "Bathroom",
-                                "state_color": false
-                            },
-                            "filter": {
-                                "include": [
-                                    {
-                                        "area": "Bathroom"
-                                    }
-                                ],
-                                "exclude": []
-                            },
-                            "sort": {
-                                "method": "none"
-                            }
-                        },
-                        {
-                            "type": "custom:auto-entities",
-                            "card": {
-                                "type": "entities",
-                                "title": "Living room"
-                            },
-                            "filter": {
-                                "include": [
-                                    {
-                                        "area": "Living room"
-                                    }
-                                ],
-                                "exclude": []
-                            },
-                            "sort": {
-                                "method": "none"
-                            }
-                        },
-                        {
-                            "type": "custom:auto-entities",
-                            "card": {
-                                "type": "entities",
-                                "title": "Home of plants \ud83c\udf31"
-                            },
-                            "filter": {
-                                "include": [
-                                    {
-                                        "area": "Home of plants \ud83c\udf31"
-                                    }
-                                ],
-                                "exclude": []
-                            },
-                            "sort": {
-                                "method": "none"
-                            }
-                        },
-                        {
-                            "type": "custom:auto-entities",
-                            "card": {
-                                "type": "entities",
-                                "title": "Entrance"
-                            },
-                            "filter": {
-                                "include": [
-                                    {
-                                        "area": "Entrance"
-                                    }
-                                ],
-                                "exclude": []
-                            },
-                            "sort": {
-                                "method": "none"
-                            }
-                        },
-                        {
-                            "type": "custom:auto-entities",
-                            "card": {
-                                "type": "entities",
-                                "title": "Kitchen"
-                            },
-                            "filter": {
-                                "include": [
-                                    {
-                                        "area": "Kitchen"
-                                    }
-                                ],
-                                "exclude": []
-                            }
-                        },
-                        {
-                            "type": "custom:auto-entities",
-                            "card": {
-                                "type": "entities",
-                                "title": "Bedroom"
-                            },
-                            "filter": {
-                                "include": [
-                                    {
-                                        "area": "Bedroom"
-                                    }
-                                ],
-                                "exclude": []
-                            }
-                        },
-                        {
-                            "type": "glance",
-                            "entities": [
-                                {
-                                    "entity": "person.eric"
-                                },
-                                {
-                                    "entity": "person.caro"
-                                }
-                            ],
-                            "show_icon": true,
-                            "show_state": true,
-                            "state_color": false
-                        }
-                    ]
-                },
-                {
-                    "type": "panel",
-                    "icon": "mdi:tablet-dashboard",
-                    "theme": "",
-                    "visible": [
-                        {
-                            "user": "69a925601798477bb75f5126a0081b3b"
-                        },
-                        {
-                            "user": "62143df1a9aa4127a4847f9eeb3dbb3c"
-                        },
-                        {
-                            "user": "e464da0d2d1d4c5099243127042dba9f"
-                        }
-                    ],
-                    "badges": [],
-                    "cards": [
-                        {
-                            "elements": [
-                                {
-                                    "service": "scene.turn_on",
-                                    "service_data": {
-                                        "entity_id": "scene.turn_off_everything"
-                                    },
-                                    "style": {
-                                        "background-color": "rgba(255, 255, 255, 0.3)",
-                                        "border-radius": "20px",
-                                        "left": "77%",
-                                        "top": "11%",
-                                        "line-height": "50px"
-                                    },
-                                    "type": "service-button"
-                                },
-                                {
-                                    "entity": "person.eric",
-                                    "style": {
-                                        "left": "7%",
-                                        "top": "59%"
-                                    },
-                                    "type": "state-badge"
-                                },
-                                {
-                                    "entity": "person.caro",
-                                    "style": {
-                                        "left": "7%",
-                                        "top": "39%"
-                                    },
-                                    "type": "state-badge"
-                                },
-                                {
-                                    "entity": "switch.caro_wardrobe",
-                                    "style": {
-                                        "background-color": "rgba(255, 255, 255, 0.3)",
-                                        "border-radius": "50%",
-                                        "left": "78%",
-                                        "top": "84%",
-                                        "transform": "scale(1.5) translate(-50%, -50%)"
-                                    },
-                                    "tap_action": {
-                                        "action": "toggle"
-                                    },
-                                    "type": "state-icon"
-                                },
-                                {
-                                    "entity": "light.desktop",
-                                    "style": {
-                                        "background-color": "rgba(255, 255, 255, 0.3)",
-                                        "border-radius": "50%",
-                                        "left": "84%",
-                                        "top": "90%",
-                                        "transform": "scale(1.5) translate(-50%, -50%)"
-                                    },
-                                    "tap_action": {
-                                        "action": "toggle"
-                                    },
-                                    "type": "state-icon"
-                                },
-                                {
-                                    "entity": "switch.office_wardrobe",
-                                    "style": {
-                                        "background-color": "rgba(255, 255, 255, 0.3)",
-                                        "border-radius": "50%",
-                                        "left": "81%",
-                                        "top": "63%",
-                                        "transform": "scale(1.5) translate(-50%, -50%)"
-                                    },
-                                    "tap_action": {
-                                        "action": "toggle"
-                                    },
-                                    "type": "state-icon"
-                                },
-                                {
-                                    "entity": "light.dining_table",
-                                    "style": {
-                                        "background-color": "rgba(255, 255, 255, 0.3)",
-                                        "border-radius": "50%",
-                                        "left": "39%",
-                                        "top": "67%",
-                                        "transform": "scale(1.5) translate(-50%, -50%)"
-                                    },
-                                    "tap_action": {
-                                        "action": "toggle"
-                                    },
-                                    "type": "state-icon"
-                                },
-                                {
-                                    "entity": "light.plants",
-                                    "style": {
-                                        "background-color": "rgba(255, 255, 255, 0.3)",
-                                        "border-radius": "50%",
-                                        "left": "65%",
-                                        "top": "85%",
-                                        "transform": "scale(1.5) translate(-50%, -50%)"
-                                    },
-                                    "tap_action": {
-                                        "action": "toggle"
-                                    },
-                                    "type": "state-icon"
-                                },
-                                {
-                                    "entity": "light.theatre",
-                                    "style": {
-                                        "background-color": "rgba(255, 255, 255, 0.3)",
-                                        "border-radius": "50%",
-                                        "left": "16%",
-                                        "top": "80%",
-                                        "transform": "scale(1.5) translate(-50%, -50%)"
-                                    },
-                                    "tap_action": {
-                                        "action": "toggle"
-                                    },
-                                    "type": "state-icon"
-                                },
-                                {
-                                    "entity": "switch.closet",
-                                    "style": {
-                                        "background-color": "rgba(255, 255, 255, 0.3)",
-                                        "border-radius": "50%",
-                                        "left": "90%",
-                                        "top": "24%",
-                                        "transform": "scale(1.5) translate(-50%, -50%)"
-                                    },
-                                    "tap_action": {
-                                        "action": "toggle"
-                                    },
-                                    "type": "state-icon"
-                                },
-                                {
-                                    "entity": "light.under_cabinet",
-                                    "style": {
-                                        "background-color": "rgba(255, 255, 255, 0.3)",
-                                        "border-radius": "50%",
-                                        "left": "58%",
-                                        "top": "28%",
-                                        "transform": "scale(1.5) translate(-50%, -50%)"
-                                    },
-                                    "tap_action": {
-                                        "action": "toggle"
-                                    },
-                                    "type": "state-icon"
-                                },
-                                {
-                                    "entity": "light.bedroom",
-                                    "style": {
-                                        "background-color": "rgba(255, 255, 255, 0.3)",
-                                        "border-radius": "50%",
-                                        "left": "25%",
-                                        "top": "24%",
-                                        "transform": "scale(1.5) translate(-50%, -50%)"
-                                    },
-                                    "tap_action": {
-                                        "action": "toggle"
-                                    },
-                                    "type": "state-icon"
-                                },
-                                {
-                                    "entity": "light.under_bed",
-                                    "style": {
-                                        "background-color": "rgba(255, 255, 255, 0.3)",
-                                        "border-radius": "50%",
-                                        "left": "25%",
-                                        "top": "10%",
-                                        "transform": "scale(1.5) translate(-50%, -50%)"
-                                    },
-                                    "tap_action": {
-                                        "action": "toggle"
-                                    },
-                                    "type": "state-icon"
-                                }
-                            ],
-                            "image": "/local/floorplan/floorplan-180.png",
-                            "type": "picture-elements"
                         }
                     ]
                 },
@@ -684,6 +429,282 @@
                     "title": "Systems"
                 },
                 {
+                    "type": "panel",
+                    "icon": "mdi:tablet-dashboard",
+                    "theme": "",
+                    "visible": [
+                        {
+                            "user": "69a925601798477bb75f5126a0081b3b"
+                        },
+                        {
+                            "user": "62143df1a9aa4127a4847f9eeb3dbb3c"
+                        },
+                        {
+                            "user": "e464da0d2d1d4c5099243127042dba9f"
+                        }
+                    ],
+                    "badges": [],
+                    "cards": [
+                        {
+                            "elements": [
+                                {
+                                    "service": "scene.turn_on",
+                                    "service_data": {
+                                        "entity_id": "scene.turn_off_everything"
+                                    },
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "20px",
+                                        "left": "77%",
+                                        "line-height": "50px",
+                                        "top": "11%"
+                                    },
+                                    "type": "service-button"
+                                },
+                                {
+                                    "entity": "person.eric",
+                                    "style": {
+                                        "left": "7%",
+                                        "top": "59%"
+                                    },
+                                    "type": "state-badge"
+                                },
+                                {
+                                    "entity": "person.caro",
+                                    "style": {
+                                        "left": "7%",
+                                        "top": "39%"
+                                    },
+                                    "type": "state-badge"
+                                },
+                                {
+                                    "entity": "switch.caro_wardrobe",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "78%",
+                                        "top": "84%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    },
+                                    "type": "state-icon"
+                                },
+                                {
+                                    "entity": "light.desktop",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "84%",
+                                        "top": "90%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    },
+                                    "type": "state-icon"
+                                },
+                                {
+                                    "entity": "switch.office_wardrobe",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "81%",
+                                        "top": "63%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    },
+                                    "type": "state-icon"
+                                },
+                                {
+                                    "entity": "light.dining_table",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "39%",
+                                        "top": "68%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    },
+                                    "type": "state-icon"
+                                },
+                                {
+                                    "entity": "light.kitchen_island",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "50%",
+                                        "top": "68%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    },
+                                    "type": "state-icon"
+                                },
+                                {
+                                    "entity": "light.kitchen",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "55%",
+                                        "top": "68%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    },
+                                    "type": "state-icon"
+                                },
+                                {
+                                    "entity": "light.living_room",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "25%",
+                                        "top": "68%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    },
+                                    "type": "state-icon"
+                                },
+                                {
+                                    "entity": "light.plants",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "65%",
+                                        "top": "85%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    },
+                                    "type": "state-icon"
+                                },
+                                {
+                                    "entity": "light.right_theatre",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "16%",
+                                        "top": "76%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    },
+                                    "type": "state-icon"
+                                },
+                                {
+                                    "entity": "light.left_theatre",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "16%",
+                                        "top": "84%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    },
+                                    "type": "state-icon"
+                                },
+                                {
+                                    "entity": "switch.closet",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "90%",
+                                        "top": "24%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    },
+                                    "type": "state-icon"
+                                },
+                                {
+                                    "entity": "light.under_cabinet",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "58%",
+                                        "top": "22%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    },
+                                    "type": "state-icon"
+                                },
+                                {
+                                    "entity": "light.bedroom",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "25%",
+                                        "top": "24%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    },
+                                    "type": "state-icon"
+                                },
+                                {
+                                    "entity": "light.small_bathroom",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "50%",
+                                        "top": "22%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    },
+                                    "type": "state-icon"
+                                },
+                                {
+                                    "entity": "light.under_bed",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "25%",
+                                        "top": "10%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    },
+                                    "type": "state-icon"
+                                },
+                                {
+                                    "entity": "vacuum.roby",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "58%",
+                                        "top": "35%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)"
+                                    },
+                                    "type": "state-icon"
+                                }
+                            ],
+                            "image": "/local/floorplan/floorplan-180.png",
+                            "type": "picture-elements"
+                        }
+                    ]
+                },
+                {
                     "icon": "mdi:cast",
                     "title": "Cast",
                     "path": "cast",
@@ -710,271 +731,6 @@
                             "type": "custom:mini-media-player",
                             "entity": "media_player.tv",
                             "artwork": "cover"
-                        }
-                    ]
-                },
-                {
-                    "icon": "mdi:dots-horizontal",
-                    "title": "Others",
-                    "path": "others",
-                    "badges": [],
-                    "cards": [
-                        {
-                            "entities": [
-                                {
-                                    "action_name": "On/Off",
-                                    "name": "Window AC",
-                                    "icon": "mdi:air-conditioner",
-                                    "service": "rest_command.assistant_relay",
-                                    "type": "call-service",
-                                    "service_data": {
-                                        "command": "Turn on Window AC"
-                                    }
-                                },
-                                {
-                                    "buttons": [
-                                        {
-                                            "icon": "mdi:cog-transfer-outline",
-                                            "tap_action": {
-                                                "action": "call-service",
-                                                "service": "rest_command.assistant_relay",
-                                                "service_data": {
-                                                    "command": "Turn on Window AC Mode"
-                                                }
-                                            }
-                                        },
-                                        {
-                                            "icon": "mdi:fan",
-                                            "tap_action": {
-                                                "action": "call-service",
-                                                "service": "rest_command.assistant_relay",
-                                                "service_data": {
-                                                    "command": "Turn on Window AC Fan Speed"
-                                                }
-                                            }
-                                        },
-                                        {
-                                            "icon": "mdi:power-sleep",
-                                            "tap_action": {
-                                                "action": "call-service",
-                                                "service": "rest_command.assistant_relay",
-                                                "service_data": {
-                                                    "command": "Turn on Window AC Sleep"
-                                                }
-                                            }
-                                        },
-                                        {
-                                            "icon": "mdi:timer-outline",
-                                            "tap_action": {
-                                                "action": "call-service",
-                                                "service": "rest_command.assistant_relay",
-                                                "service_data": {
-                                                    "command": "Turn on Window AC Timer"
-                                                }
-                                            }
-                                        },
-                                        {
-                                            "icon": "mdi:power-plug-outline",
-                                            "tap_action": {
-                                                "action": "call-service",
-                                                "service": "rest_command.assistant_relay",
-                                                "service_data": {
-                                                    "command": "Turn on Window AC Eco"
-                                                }
-                                            }
-                                        },
-                                        {
-                                            "icon": "mdi:minus",
-                                            "tap_action": {
-                                                "action": "call-service",
-                                                "service": "rest_command.assistant_relay",
-                                                "service_data": {
-                                                    "command": "Turn on Swing on Window AC"
-                                                }
-                                            }
-                                        },
-                                        {
-                                            "icon": "mdi:plus",
-                                            "tap_action": {
-                                                "action": "call-service",
-                                                "service": "rest_command.assistant_relay",
-                                                "service_data": {
-                                                    "command": "Turn on Light on Window AC"
-                                                }
-                                            }
-                                        }
-                                    ],
-                                    "type": "custom:paper-buttons-row"
-                                }
-                            ],
-                            "type": "entities"
-                        },
-                        {
-                            "entities": [
-                                {
-                                    "entity": "switch.entrance"
-                                },
-                                {
-                                    "entity": "switch.kitchen_light"
-                                },
-                                {
-                                    "type": "custom:slider-entity-row",
-                                    "entity": "light.under_cabinet",
-                                    "toggle": true
-                                },
-                                {
-                                    "type": "custom:slider-entity-row",
-                                    "entity": "light.dining_room",
-                                    "toggle": true
-                                },
-                                {
-                                    "buttons": [
-                                        {
-                                            "entity": "switch.flux",
-                                            "name": false,
-                                            "state_icons": {
-                                                "off": "mdi:invert-colors-off",
-                                                "on": "mdi:invert-colors"
-                                            }
-                                        },
-                                        {
-                                            "entity": "binary_sensor.controller_pir_sensor",
-                                            "name": false,
-                                            "state_icons": {
-                                                "off": "mdi:walk",
-                                                "on": "mdi:run"
-                                            }
-                                        },
-                                        {
-                                            "entity": "script.pause_kitchen",
-                                            "icon": "mdi:pause",
-                                            "name": "1 hour"
-                                        },
-                                        {
-                                            "entity": "automation.dining_room_motion_blueprint",
-                                            "name": "Detect motion",
-                                            "state_icons": {
-                                                "off": "mdi:eye-off",
-                                                "on": "mdi:motion-sensor"
-                                            }
-                                        }
-                                    ],
-                                    "type": "custom:paper-buttons-row"
-                                }
-                            ],
-                            "show_header_toggle": true,
-                            "title": "Kitchen",
-                            "type": "entities"
-                        },
-                        {
-                            "entities": [
-                                {
-                                    "entity": "switch.living_room_light"
-                                },
-                                {
-                                    "entity": "switch.rainbow_lights"
-                                },
-                                {
-                                    "entity": "switch.humidifier"
-                                },
-                                {
-                                    "type": "custom:slider-entity-row",
-                                    "entity": "light.plants",
-                                    "toggle": true
-                                },
-                                {
-                                    "type": "custom:slider-entity-row",
-                                    "entity": "light.theatre",
-                                    "toggle": true
-                                },
-                                {
-                                    "buttons": [
-                                        {
-                                            "entity": "input_boolean.sync_tv_lights",
-                                            "name": "Sync color palette",
-                                            "state_icons": {
-                                                "off": "mdi:palette-outline",
-                                                "on": "mdi:palette"
-                                            }
-                                        }
-                                    ],
-                                    "type": "custom:paper-buttons-row"
-                                }
-                            ],
-                            "show_header_toggle": true,
-                            "title": "Living Room",
-                            "type": "entities"
-                        },
-                        {
-                            "entities": [
-                                {
-                                    "type": "custom:slider-entity-row",
-                                    "entity": "light.bedroom_light",
-                                    "toggle": true
-                                },
-                                {
-                                    "entity": "cover.curtains"
-                                },
-                                {
-                                    "type": "custom:slider-entity-row",
-                                    "entity": "light.under_bed",
-                                    "toggle": true
-                                },
-                                {
-                                    "entity": "light.walk_in"
-                                },
-                                {
-                                    "buttons": [
-                                        {
-                                            "entity": "input_boolean.use_sunrise_curtains",
-                                            "name": "Sunrise curtains",
-                                            "state_icons": {
-                                                "off": "mdi:filter-variant",
-                                                "on": "mdi:weather-sunset"
-                                            }
-                                        },
-                                        {
-                                            "icon": "mdi:bed-king-outline",
-                                            "tap_action": {
-                                                "action": "call-service",
-                                                "service": "scene.turn_on",
-                                                "service_data": {
-                                                    "entity_id": "scene.cozy",
-                                                    "transition": 2
-                                                }
-                                            }
-                                        },
-                                        {
-                                            "entity": "binary_sensor.walk_in_door_sensor",
-                                            "name": false,
-                                            "state_icons": {
-                                                "off": "mdi:door",
-                                                "on": "mdi:door-open"
-                                            }
-                                        }
-                                    ],
-                                    "type": "custom:paper-buttons-row"
-                                }
-                            ],
-                            "show_header_toggle": true,
-                            "title": "Bedroom",
-                            "type": "entities"
-                        },
-                        {
-                            "entities": [
-                                {
-                                    "entity": "switch.office_light"
-                                },
-                                {
-                                    "entity": "light.desktop"
-                                },
-                                {
-                                    "entity": "vacuum.roborock_vacuum_s5"
-                                }
-                            ],
-                            "show_header_toggle": true,
-                            "title": "Office",
-                            "type": "entities"
                         }
                     ]
                 }

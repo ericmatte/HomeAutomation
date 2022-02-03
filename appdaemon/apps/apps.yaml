@@ -8,8 +8,9 @@ media_lights_sync:
     - media_player.tv
     # - media_player.google_tv
     # - media_player.spotify_eric_matte
-  ha_url: https://rasp.ericmatte.me/
+  # ha_url: https://rasp.ericmatte.me/
   # ha_url: !secret external_url
+  ha_url: http://192.168.0.199:8123/
   # ha_url: https://192.168.0.199:8123/ # working when skipping Cert check
   # ha_url: https://127.0.0.1:8123/ # not working
   quantization_method: "FastOctree" # "FastOctree" "MedianCut" "MaxCoverage" "libimagequant"
@@ -21,9 +22,9 @@ media_lights_sync:
     entity: input_boolean.sync_tv_lights
     state: "on"
   lights:
-    - light.left_theatre_light
-    - light.right_theatre_light
-    - light.plants
+    - light.left_theatre
+    - light.right_theatre
+    # - light.plants
     # - light.hue_light_2
     # - light.hue_light_3
     # - light.hue_light_4

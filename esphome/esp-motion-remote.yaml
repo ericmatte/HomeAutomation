@@ -1,5 +1,5 @@
 esphome:
-  name: esp-light-remote
+  name: esp-motion-remote
   platform: ESP8266
   board: nodemcuv2
 
@@ -13,7 +13,7 @@ wifi:
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
-    ssid: "Esp-LightRemote Fallback Hotspot"
+    ssid: "Esp-MotionRemote Hotspot"
     password: !secret wifi_password
 
 captive_portal:
@@ -23,11 +23,11 @@ logger:
 
 # Enable Home Assistant API
 api:
-  password: !secret esp_light_remote_password
+  password: !secret esp_motion_remote_password
 
 # Enable over-the-air updates
 ota:
-  password: !secret esp_light_remote_password
+  password: !secret esp_motion_remote_password
 
 binary_sensor:
   - platform: gpio
@@ -35,16 +35,20 @@ binary_sensor:
       number: D1
       inverted: True
       mode: INPUT_PULLUP
-    name: "Light remote button 1"
+    name: "Entrance button 1"
   - platform: gpio
     pin:
       number: D2
       inverted: True
       mode: INPUT_PULLUP
-    name: "Light remote button 2"
+    name: "Entrance button 2"
   - platform: gpio
     pin:
       number: D3
       inverted: True
       mode: INPUT_PULLUP
-    name: "Light remote button 3"
+    name: "Entrance button 3"
+  - platform: gpio
+    pin: D6
+    device_class: motion
+    name: Motion entrance
