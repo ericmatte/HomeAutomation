@@ -333,15 +333,6 @@
     target:
       entity_id: light.desktop
   mode: single
-- id: '1643760185803'
-  alias: 'Bathroom: motion'
-  description: ''
-  use_blueprint:
-    path: freakshock88/motion_illuminance_activated_entity.yaml
-    input:
-      motion_sensor: binary_sensor.motion_bathroom
-      target_entity: light.small_bathroom
-      no_motion_wait: input_number.motion_time_off
 - id: '1643768034083'
   alias: 'Entrance: Button 1 disables motion'
   description: ''
@@ -421,3 +412,46 @@
     default: []
   mode: parallel
   max: 10
+- id: '1643899203409'
+  alias: 'Bathroom: Motion'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.motion_bathroom
+    to: 'on'
+    from: 'off'
+  condition:
+  - condition: time
+    after: 06:00:00
+    before: 00:00:00
+  - condition: state
+    entity_id: light.small_bathroom
+    state: 'off'
+  action:
+  - service: light.turn_on
+    data:
+      brightness: '{% if now().hour > 22 %}50{% elif now().hour > 20 %}100{% elif
+        now().hour < 8 %}100{% else %}255{% endif %}
+
+        '
+    target:
+      entity_id: light.small_bathroom
+  - delay:
+      hours: 0
+      minutes: 25
+      seconds: 0
+      milliseconds: 0
+  - condition: state
+    entity_id: light.small_bathroom
+    state: 'on'
+    for:
+      hours: 0
+      minutes: 24
+      seconds: 0
+  - service: light.turn_off
+    data:
+      transition: 3
+    target:
+      entity_id: light.small_bathroom
+  mode: parallel
+  max: 20

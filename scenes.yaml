@@ -201,13 +201,19 @@
       icon: mdi:ceiling-light
       state: 'off'
     light.theatre:
+      min_mireds: 153
+      max_mireds: 500
       supported_color_modes:
-      - onoff
+      - color_temp
+      - xy
       is_hue_group: true
       hue_scenes:
       - Soho
       hue_type: room
-      lights: []
+      lights:
+      - Right theatre
+      - Left theatre
+      dynamics: false
       icon: mdi:lightbulb-group
       friendly_name: Theatre
       supported_features: 40
@@ -323,8 +329,9 @@
       supported_features: 33
       assumed_state: false
       state: 'off'
+  icon: mdi:bed
 - id: '1643857476363'
-  name: 'Main: All dimmed'
+  name: All dimmed
   entities:
     light.living_room:
       supported_color_modes:
@@ -372,8 +379,9 @@
       assumed_state: false
       icon: mdi:ceiling-light
       state: 'off'
+  icon: mdi:lightbulb-outline
 - id: '1643857530014'
-  name: 'Main: Movies'
+  name: Movies
   entities:
     light.kitchen:
       supported_color_modes:
@@ -417,8 +425,9 @@
       supported_features: 33
       assumed_state: false
       state: 'off'
+  icon: mdi:television
 - id: '1643857598856'
-  name: 'Main: Kitchen'
+  name: Kitchen
   entities:
     light.dining_table:
       min_mireds: 153
@@ -477,8 +486,9 @@
       supported_features: 33
       assumed_state: false
       state: 'off'
+  icon: mdi:water-pump
 - id: '1643857642472'
-  name: 'Main: Dining table'
+  name: Dining table
   entities:
     light.dining_table:
       min_mireds: 153
@@ -537,8 +547,9 @@
       supported_features: 33
       assumed_state: false
       state: 'on'
+  icon: mdi:table-chair
 - id: '1643857722499'
-  name: 'Main: All up'
+  name: All up
   entities:
     light.kitchen:
       supported_color_modes:
@@ -599,3 +610,4 @@
       supported_features: 33
       assumed_state: false
       state: 'on'
+  icon: mdi:lightbulb-on
