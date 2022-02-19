@@ -168,42 +168,70 @@ function collectAllElementsDeep(e = null, t, n = null) {
   (window.querySelectorAllDeep = querySelectorAllDeep);
 
 /****************************/
-/** ACTUAL CODE STARTS HERE */ 
+/** ACTUAL CODE STARTS HERE */
 
-const selectRotation = () => {
-  const appDrawer = querySelectorDeep("app-drawer");
-  const redirectionButton = querySelectorDeep("hui-icon-element ha-icon");
-  if (!redirectionButton) return false;
+let disableCheckPageTransition = false;
+let currentUrl = location.href;
+let interval;
 
-  const width = document.body.clientWidth - (appDrawer ? appDrawer.clientWidth : 0);
-  const height = document.body.clientHeight;
-
-  switch (window.location.pathname) {
-    case "/lovelace/90":
-      if (width > height) {
-        redirectionButton.click();
-        setupUI("/lovelace/180")
-      }
-      break;
-    case "/lovelace/180":
-      if (width <= height) {
-        redirectionButton.click();
-        setupUI("/lovelace/90")
-      }
-      break;
-  }
-  return true;
-};
-
-const setupUI = (url = undefined) => {
-  selectRotation();
-  const waiter = setInterval(() => {
-    const urlIsOk = !url || window.location.pathname === url;
-    if (urlIsOk && selectRotation()) {
-      clearInterval(waiter);
+const waitForRedirectionButton = (path, callback) => {
+  const check = () => {
+    if (window.location.pathname !== path) {
+      return clearInterval(interval);
     }
-  }, 100);
+
+    const redirectionButton = querySelectorDeep("hui-icon-element ha-icon");
+    if (redirectionButton && !redirectionButton.getAttribute("title").includes(path)) {
+      callback({ redirectionButton });
+      return clearInterval(interval);
+    }
+  }
+
+  check();
+  interval = setInterval(check, 50);
 }
 
+const selectRotation = () => {
+  const callback = ({ redirectionButton }) => {
+    disableCheckPageTransition = true;
+    const appDrawer = querySelectorDeep("app-drawer");
+    const width = document.body.clientWidth - (appDrawer ? appDrawer.clientWidth : 0);
+    const height = document.body.clientHeight;
+  
+    switch (window.location.pathname) {
+      case "/lovelace/90":
+        if (width > height) {
+          redirectionButton.click();
+        }
+        break;
+      case "/lovelace/180":
+        if (width <= height) {
+          redirectionButton.click();
+        }
+        break;
+    }
+    currentUrl = location.href;
+    disableCheckPageTransition = false;
+  }
+
+  clearInterval(interval);
+  waitForRedirectionButton(window.location.pathname, callback)
+};
+
+const checkPageTransition = () => {
+  if (disableCheckPageTransition) return;
+  requestAnimationFrame(() => {
+    if (currentUrl !== location.href) {
+      selectRotation()
+      currentUrl = location.href;
+    }
+  }, true);
+};
+
+document.body.addEventListener("click", checkPageTransition);
+document.body.addEventListener("keyup", (e) => {
+  if (e.code === "Enter" || e.code === "Space") checkPageTransition();
+});
+
 window.addEventListener("resize", () => selectRotation());
-setupUI();
+selectRotation();

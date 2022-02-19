@@ -229,7 +229,6 @@
       no_motion_wait: input_number.motion_time_off
       time_limit_after: input_datetime.motion_on
       time_limit_before: input_datetime.motion_off
-      blocker_entity: input_boolean.motion_disabled
 - id: '1643490019007'
   alias: 'Caro''s wardrobe: Turn on when opening'
   description: ''
@@ -283,6 +282,12 @@
   - condition: time
     after: 07:00:00
     before: '10:00:00'
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
   action:
   - service: light.turn_on
     target:
@@ -326,12 +331,20 @@
     to: 'on'
   condition:
   - condition: time
-    after: '16:00:00'
+    after: '16:30:00'
     before: '18:00:00'
+  - condition: state
+    entity_id: light.desktop
+    state: 'on'
+    for:
+      hours: 3
+      minutes: 30
+      seconds: 0
   action:
   - service: light.turn_off
     target:
       entity_id: light.desktop
+    data: {}
   mode: single
 - id: '1643768034083'
   alias: 'Entrance: Button 1 disables motion'
@@ -343,12 +356,14 @@
     to: 'on'
   condition: []
   action:
-  - service: input_boolean.turn_on
+  - service: automation.turn_off
+    data: {}
     target:
-      entity_id: input_boolean.motion_disabled
+      entity_id: automation.closet_motion
   - service: switch.turn_on
     target:
       entity_id: switch.closet
+    data: {}
   - delay:
       hours: 0
       minutes: 0
@@ -357,6 +372,7 @@
   - service: switch.turn_off
     target:
       entity_id: switch.closet
+    data: {}
   - delay:
       hours: 0
       minutes: 0
@@ -365,17 +381,20 @@
   - service: switch.turn_on
     target:
       entity_id: switch.closet
+    data: {}
   - delay:
       hours: 0
       minutes: 15
       seconds: 0
       milliseconds: 0
-  - service: input_boolean.turn_off
-    target:
-      entity_id: input_boolean.motion_disabled
   - service: switch.turn_off
     target:
       entity_id: switch.closet
+    data: {}
+  - service: automation.turn_on
+    data: {}
+    target:
+      entity_id: automation.closet_motion
   mode: restart
 - id: '1643860305249'
   alias: 'Dining table: Sync with Kitchen island'
@@ -421,12 +440,14 @@
     to: 'on'
     from: 'off'
   condition:
-  - condition: time
-    after: 06:00:00
-    before: 00:00:00
   - condition: state
     entity_id: light.small_bathroom
     state: 'off'
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: vacuum.roby
+      state: cleaning
   action:
   - service: light.turn_on
     data:
@@ -455,3 +476,84 @@
       entity_id: light.small_bathroom
   mode: parallel
   max: 20
+- id: '1644094148476'
+  alias: 'Entrance: Motion'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.motion_entrance
+    to: 'on'
+    from: 'off'
+  condition:
+  - condition: time
+    after: 06:00:00
+    before: 01:00:00
+  action:
+  - service: light.turn_on
+    data:
+      brightness: '{% if state_attr("light.hall", "brightness") != None %}{{ state_attr("light.hall",
+        "brightness") }}{% elif now().hour > 22 %}50{% elif now().hour > 20 %}100{%
+        elif now().hour < 8 %}100{% else %}255{% endif %}
+
+        '
+      transition: 2
+    target:
+      entity_id: light.hall
+  - wait_for_trigger:
+    - platform: state
+      entity_id: binary_sensor.motion_entrance
+      from: 'on'
+      to: 'off'
+  - delay:
+      hours: 0
+      minutes: 3
+      seconds: 0
+      milliseconds: 0
+  - service: light.turn_off
+    data:
+      transition: 3
+    target:
+      entity_id: light.hall
+  mode: restart
+- id: '1645234889986'
+  alias: 'Bathroom: Sync cabinets with Hall/Kitchen lights'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: light.kitchen
+  - platform: state
+    entity_id: light.hall
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: state
+          entity_id: light.kitchen
+          state: 'off'
+        - condition: state
+          entity_id: light.hall
+          state: 'off'
+      sequence:
+      - service: light.turn_off
+        data:
+          transition: 3
+        target:
+          entity_id: light.under_cabinet
+    - conditions:
+      - condition: state
+        entity_id: light.under_cabinet
+        state: 'off'
+      sequence:
+      - service: light.turn_on
+        data:
+          rgb_color:
+          - 255
+          - 218
+          - 108
+          brightness: 210
+        target:
+          entity_id: light.under_cabinet
+    default: []
+  mode: single

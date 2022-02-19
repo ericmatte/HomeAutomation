@@ -21,7 +21,7 @@ def invert(element):
         return element
 
     element["style"]["top"] = invert_percent(element["style"]["top"], 2)
-    element["style"]["left"] = invert_percent(element["style"]["left"])
+    element["style"]["left"] = invert_percent(element["style"]["left"], 1)
     return element
 
 

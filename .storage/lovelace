@@ -98,6 +98,20 @@
                                 },
                                 {
                                     "type": "state-icon",
+                                    "entity": "light.hall",
+                                    "style": {
+                                        "left": "68%",
+                                        "top": "77%",
+                                        "border-radius": "50%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)",
+                                        "background-color": "rgba(255, 255, 255, 0.3)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    }
+                                },
+                                {
+                                    "type": "state-icon",
                                     "entity": "light.desktop",
                                     "style": {
                                         "left": "12%",
@@ -122,50 +136,6 @@
                                     },
                                     "tap_action": {
                                         "action": "toggle"
-                                    }
-                                },
-                                {
-                                    "type": "state-icon",
-                                    "entity": "light.dining_table",
-                                    "style": {
-                                        "left": "34%",
-                                        "top": "39%",
-                                        "border-radius": "50%",
-                                        "transform": "scale(1.5) translate(-50%, -50%)",
-                                        "background-color": "rgba(255, 255, 255, 0.3)"
-                                    }
-                                },
-                                {
-                                    "type": "state-icon",
-                                    "entity": "light.kitchen_island",
-                                    "style": {
-                                        "left": "34%",
-                                        "top": "50%",
-                                        "border-radius": "50%",
-                                        "transform": "scale(1.5) translate(-50%, -50%)",
-                                        "background-color": "rgba(255, 255, 255, 0.3)"
-                                    }
-                                },
-                                {
-                                    "type": "state-icon",
-                                    "entity": "light.kitchen",
-                                    "style": {
-                                        "left": "34%",
-                                        "top": "55%",
-                                        "border-radius": "50%",
-                                        "transform": "scale(1.5) translate(-50%, -50%)",
-                                        "background-color": "rgba(255, 255, 255, 0.3)"
-                                    }
-                                },
-                                {
-                                    "type": "state-icon",
-                                    "entity": "light.living_room",
-                                    "style": {
-                                        "left": "34%",
-                                        "top": "25%",
-                                        "border-radius": "50%",
-                                        "transform": "scale(1.5) translate(-50%, -50%)",
-                                        "background-color": "rgba(255, 255, 255, 0.3)"
                                     }
                                 },
                                 {
@@ -290,6 +260,74 @@
                                         "transform": "scale(1.5) translate(-50%, -50%)",
                                         "background-color": "rgba(255, 255, 255, 0.3)"
                                     }
+                                },
+                                {
+                                    "type": "state-icon",
+                                    "entity": "light.dining_table",
+                                    "style": {
+                                        "left": "34%",
+                                        "top": "39%",
+                                        "border-radius": "50%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)",
+                                        "background-color": "rgba(255, 255, 255, 0.3)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    },
+                                    "double_tap_action": {
+                                        "action": "more-info"
+                                    }
+                                },
+                                {
+                                    "type": "state-icon",
+                                    "entity": "light.kitchen_island",
+                                    "style": {
+                                        "left": "34%",
+                                        "top": "50%",
+                                        "border-radius": "50%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)",
+                                        "background-color": "rgba(255, 255, 255, 0.3)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    },
+                                    "double_tap_action": {
+                                        "action": "more-info"
+                                    }
+                                },
+                                {
+                                    "type": "state-icon",
+                                    "entity": "light.kitchen",
+                                    "style": {
+                                        "left": "34%",
+                                        "top": "55%",
+                                        "border-radius": "50%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)",
+                                        "background-color": "rgba(255, 255, 255, 0.3)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    },
+                                    "double_tap_action": {
+                                        "action": "more-info"
+                                    }
+                                },
+                                {
+                                    "type": "state-icon",
+                                    "entity": "light.living_room",
+                                    "style": {
+                                        "left": "34%",
+                                        "top": "25%",
+                                        "border-radius": "50%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)",
+                                        "background-color": "rgba(255, 255, 255, 0.3)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    },
+                                    "double_tap_action": {
+                                        "action": "more-info"
+                                    }
                                 }
                             ],
                             "image": "/local/floorplan/floorplan-90.png",
@@ -334,6 +372,21 @@
                             },
                             "show_empty": false,
                             "type": "custom:auto-entities"
+                        },
+                        {
+                            "type": "custom:auto-entities",
+                            "card": {
+                                "type": "entities"
+                            },
+                            "filter": {
+                                "include": [
+                                    {
+                                        "domain": "scene",
+                                        "name": "Theatre *"
+                                    }
+                                ],
+                                "exclude": []
+                            }
                         }
                     ]
                 },
@@ -397,7 +450,7 @@
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
                                         "border-radius": "20px",
-                                        "left": "23%",
+                                        "left": "24%",
                                         "line-height": "50px",
                                         "top": "91%"
                                     },
@@ -406,7 +459,7 @@
                                 {
                                     "entity": "person.eric",
                                     "style": {
-                                        "left": "93%",
+                                        "left": "94%",
                                         "top": "43%"
                                     },
                                     "type": "state-badge"
@@ -414,7 +467,7 @@
                                 {
                                     "entity": "person.caro",
                                     "style": {
-                                        "left": "93%",
+                                        "left": "94%",
                                         "top": "63%"
                                     },
                                     "type": "state-badge"
@@ -424,8 +477,22 @@
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
                                         "border-radius": "50%",
-                                        "left": "22%",
+                                        "left": "23%",
                                         "top": "18%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    },
+                                    "type": "state-icon"
+                                },
+                                {
+                                    "entity": "light.hall",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "24%",
+                                        "top": "68%",
                                         "transform": "scale(1.5) translate(-50%, -50%)"
                                     },
                                     "tap_action": {
@@ -438,7 +505,7 @@
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
                                         "border-radius": "50%",
-                                        "left": "16%",
+                                        "left": "17%",
                                         "top": "12%",
                                         "transform": "scale(1.5) translate(-50%, -50%)"
                                     },
@@ -452,7 +519,7 @@
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
                                         "border-radius": "50%",
-                                        "left": "19%",
+                                        "left": "20%",
                                         "top": "39%",
                                         "transform": "scale(1.5) translate(-50%, -50%)"
                                     },
@@ -462,55 +529,11 @@
                                     "type": "state-icon"
                                 },
                                 {
-                                    "entity": "light.dining_table",
-                                    "style": {
-                                        "background-color": "rgba(255, 255, 255, 0.3)",
-                                        "border-radius": "50%",
-                                        "left": "61%",
-                                        "top": "34%",
-                                        "transform": "scale(1.5) translate(-50%, -50%)"
-                                    },
-                                    "type": "state-icon"
-                                },
-                                {
-                                    "entity": "light.kitchen_island",
-                                    "style": {
-                                        "background-color": "rgba(255, 255, 255, 0.3)",
-                                        "border-radius": "50%",
-                                        "left": "50%",
-                                        "top": "34%",
-                                        "transform": "scale(1.5) translate(-50%, -50%)"
-                                    },
-                                    "type": "state-icon"
-                                },
-                                {
-                                    "entity": "light.kitchen",
-                                    "style": {
-                                        "background-color": "rgba(255, 255, 255, 0.3)",
-                                        "border-radius": "50%",
-                                        "left": "45%",
-                                        "top": "34%",
-                                        "transform": "scale(1.5) translate(-50%, -50%)"
-                                    },
-                                    "type": "state-icon"
-                                },
-                                {
-                                    "entity": "light.living_room",
-                                    "style": {
-                                        "background-color": "rgba(255, 255, 255, 0.3)",
-                                        "border-radius": "50%",
-                                        "left": "75%",
-                                        "top": "34%",
-                                        "transform": "scale(1.5) translate(-50%, -50%)"
-                                    },
-                                    "type": "state-icon"
-                                },
-                                {
                                     "entity": "light.plants",
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
                                         "border-radius": "50%",
-                                        "left": "35%",
+                                        "left": "36%",
                                         "top": "17%",
                                         "transform": "scale(1.5) translate(-50%, -50%)"
                                     },
@@ -524,7 +547,7 @@
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
                                         "border-radius": "50%",
-                                        "left": "84%",
+                                        "left": "85%",
                                         "top": "26%",
                                         "transform": "scale(1.5) translate(-50%, -50%)"
                                     },
@@ -538,7 +561,7 @@
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
                                         "border-radius": "50%",
-                                        "left": "84%",
+                                        "left": "85%",
                                         "top": "18%",
                                         "transform": "scale(1.5) translate(-50%, -50%)"
                                     },
@@ -552,7 +575,7 @@
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
                                         "border-radius": "50%",
-                                        "left": "10%",
+                                        "left": "11%",
                                         "top": "78%",
                                         "transform": "scale(1.5) translate(-50%, -50%)"
                                     },
@@ -566,7 +589,7 @@
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
                                         "border-radius": "50%",
-                                        "left": "42%",
+                                        "left": "43%",
                                         "top": "80%",
                                         "transform": "scale(1.5) translate(-50%, -50%)"
                                     },
@@ -580,7 +603,7 @@
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
                                         "border-radius": "50%",
-                                        "left": "75%",
+                                        "left": "76%",
                                         "top": "78%",
                                         "transform": "scale(1.5) translate(-50%, -50%)"
                                     },
@@ -594,7 +617,7 @@
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
                                         "border-radius": "50%",
-                                        "left": "50%",
+                                        "left": "51%",
                                         "top": "80%",
                                         "transform": "scale(1.5) translate(-50%, -50%)"
                                     },
@@ -608,7 +631,7 @@
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
                                         "border-radius": "50%",
-                                        "left": "75%",
+                                        "left": "76%",
                                         "top": "92%",
                                         "transform": "scale(1.5) translate(-50%, -50%)"
                                     },
@@ -622,9 +645,77 @@
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
                                         "border-radius": "50%",
-                                        "left": "42%",
+                                        "left": "43%",
                                         "top": "67%",
                                         "transform": "scale(1.5) translate(-50%, -50%)"
+                                    },
+                                    "type": "state-icon"
+                                },
+                                {
+                                    "double_tap_action": {
+                                        "action": "more-info"
+                                    },
+                                    "entity": "light.dining_table",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "62%",
+                                        "top": "34%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    },
+                                    "type": "state-icon"
+                                },
+                                {
+                                    "double_tap_action": {
+                                        "action": "more-info"
+                                    },
+                                    "entity": "light.kitchen_island",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "51%",
+                                        "top": "34%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    },
+                                    "type": "state-icon"
+                                },
+                                {
+                                    "double_tap_action": {
+                                        "action": "more-info"
+                                    },
+                                    "entity": "light.kitchen",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "46%",
+                                        "top": "34%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    },
+                                    "type": "state-icon"
+                                },
+                                {
+                                    "double_tap_action": {
+                                        "action": "more-info"
+                                    },
+                                    "entity": "light.living_room",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "76%",
+                                        "top": "34%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
                                     },
                                     "type": "state-icon"
                                 }
