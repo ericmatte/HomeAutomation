@@ -53,9 +53,15 @@ rest_command:
     payload: '{"command":"{{ command }}"}'
 
 device_tracker:
+  - platform: ping
+    interval_seconds: 60
+    consider_home: 300
+    hosts:
+      eric_ping: 192.168.0.100
+      caro_ping: 192.168.0.101
   - platform: bluetooth_tracker
     interval_seconds: 10
-    consider_home: 240
+    consider_home: 300
     new_device_defaults:
       track_new_devices: false
 
@@ -83,6 +89,18 @@ history:
 logbook:
 
 sun:
+
+binary_sensor:
+  - platform: ping
+    name: Macbook
+    host: 192.168.0.102
+    count: 2
+    scan_interval: 30
+  - platform: ping
+    name: Gaming PC
+    host: 192.168.0.103
+    count: 2
+    scan_interval: 30
 
 sensor:
   - platform: time_date

@@ -55,8 +55,12 @@
     before: '22:15:00'
     after: 07:00:00
   action:
-  - entity_id: switch.entrance,light.dining_room,light.theatre_lights
-    service: homeassistant.turn_on
+  - service: homeassistant.turn_on
+    data: {}
+    target:
+      entity_id:
+      - light.hall
+      - switch.closet
   mode: single
 - id: badd1ec9d152
   alias: 'Everything: Turn off when away'
@@ -323,28 +327,34 @@
       entity_id: switch.office_wardrobe
   mode: single
 - id: '1643660425100'
-  alias: 'Office: Turn on desktop while quitting'
+  alias: 'Office: Turn off desktop while quitting'
   description: ''
   trigger:
   - platform: state
     entity_id: binary_sensor.motion_entrance
     to: 'on'
+  - platform: state
+    entity_id: binary_sensor.macbook
+    from: 'on'
+    to: 'off'
   condition:
-  - condition: time
-    after: '16:30:00'
-    before: '18:00:00'
+  - condition: or
+    conditions:
+    - condition: time
+      after: '18:00:00'
+      before: '20:00:00'
+    - condition: state
+      entity_id: binary_sensor.macbook
+      state: 'off'
   - condition: state
-    entity_id: light.desktop
-    state: 'on'
-    for:
-      hours: 3
-      minutes: 30
-      seconds: 0
+    entity_id: binary_sensor.gaming_pc
+    state: 'off'
   action:
   - service: light.turn_off
     target:
       entity_id: light.desktop
-    data: {}
+    data:
+      transition: 3
   mode: single
 - id: '1643768034083'
   alias: 'Entrance: Button 1 disables motion'
@@ -440,9 +450,6 @@
     to: 'on'
     from: 'off'
   condition:
-  - condition: state
-    entity_id: light.small_bathroom
-    state: 'off'
   - condition: not
     conditions:
     - condition: state
@@ -451,31 +458,30 @@
   action:
   - service: light.turn_on
     data:
-      brightness: '{% if now().hour > 22 %}50{% elif now().hour > 20 %}100{% elif
-        now().hour < 8 %}100{% else %}255{% endif %}
+      brightness: '{% if state_attr("light.small_bathroom", "brightness") != None
+        %}{{ state_attr("light.small_bathroom", "brightness") }}{% elif now().hour
+        > 22 %}50{% elif now().hour > 20 %}100{% elif now().hour < 8 %}100{% else
+        %}255{% endif %}
 
         '
     target:
       entity_id: light.small_bathroom
-  - delay:
-      hours: 0
-      minutes: 25
-      seconds: 0
-      milliseconds: 0
-  - condition: state
-    entity_id: light.small_bathroom
-    state: 'on'
-    for:
-      hours: 0
-      minutes: 24
-      seconds: 0
+  - wait_for_trigger:
+    - platform: state
+      entity_id: binary_sensor.motion_bathroom
+      to: 'off'
+      for:
+        hours: 0
+        minutes: 25
+        seconds: 0
+      from: 'on'
+    timeout: 00:35:00
   - service: light.turn_off
     data:
       transition: 3
     target:
       entity_id: light.small_bathroom
-  mode: parallel
-  max: 20
+  mode: restart
 - id: '1644094148476'
   alias: 'Entrance: Motion'
   description: ''
@@ -511,7 +517,7 @@
       milliseconds: 0
   - service: light.turn_off
     data:
-      transition: 3
+      transition: 5
     target:
       entity_id: light.hall
   mode: restart
@@ -523,7 +529,10 @@
     entity_id: light.kitchen
   - platform: state
     entity_id: light.hall
-  condition: []
+  condition:
+  - condition: time
+    after: '16:00:00'
+    before: 00:00:00
   action:
   - choose:
     - conditions:
@@ -556,4 +565,59 @@
         target:
           entity_id: light.under_cabinet
     default: []
+  mode: single
+- id: '1645530868434'
+  alias: 'Entrance: Turn off light reset motion'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: switch.closet
+    from: 'on'
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: automation.closet_motion
+    state: 'off'
+  action:
+  - service: automation.turn_off
+    data: {}
+    target:
+      entity_id: automation.entrance_button_3_turn_off_all_duplicate
+  - service: automation.turn_on
+    data: {}
+    target:
+      entity_id:
+      - automation.entrance_button_3_turn_off_all_duplicate
+      - automation.closet_motion
+  mode: single
+- id: '1645757455109'
+  alias: 'Office: Turn on Gamer mode'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.gaming_pc
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: scene.turn_on
+    data: {}
+    target:
+      entity_id: scene.gamer_mode
+  mode: single
+- id: '1645757496159'
+  alias: 'Office: Turn off Gamer mode'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.gaming_pc
+    from: 'on'
+    to: 'off'
+  condition: []
+  action:
+  - service: light.turn_off
+    data:
+      transition: 3
+    target:
+      entity_id: light.desktop
   mode: single

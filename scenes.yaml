@@ -218,11 +218,19 @@
       - xy
       is_hue_group: true
       hue_scenes:
+      - Blue lagoon
+      - Mountain breeze
+      - Arctic aurora
+      - Nebula
+      - Fairfax
+      - Sundown
+      - Ibiza
       - Soho
+      - Cozy candel
       hue_type: room
       lights:
-      - Right theatre
       - Left theatre
+      - Right theatre
       dynamics: false
       icon: mdi:lightbulb-group
       friendly_name: Theatre
@@ -303,15 +311,6 @@
       icon: mdi:hanger
       friendly_name: Closet
       state: 'off'
-    light.small_bathroom:
-      supported_color_modes:
-      - brightness
-      device_id: '8'
-      zone_id: '6'
-      friendly_name: Small bathroom
-      supported_features: 33
-      assumed_state: false
-      state: 'off'
     light.living_room:
       supported_color_modes:
       - brightness
@@ -344,7 +343,7 @@
       - brightness
       device_id: '9'
       zone_id: '7'
-      friendly_name: Kitchen_Hall
+      friendly_name: Hall
       supported_features: 33
       assumed_state: false
       state: 'off'
@@ -516,7 +515,7 @@
       - color_temp
       - xy
       color_mode: color_temp
-      brightness: 196
+      brightness: 255
       color_temp: 366
       hs_color:
       - 28.327
@@ -550,7 +549,7 @@
       supported_color_modes:
       - brightness
       color_mode: brightness
-      brightness: 63
+      brightness: 150
       device_id: '6'
       zone_id: '4'
       friendly_name: Kitchen
@@ -561,7 +560,7 @@
       supported_color_modes:
       - brightness
       color_mode: brightness
-      brightness: 89
+      brightness: 147
       device_id: '5'
       zone_id: '3'
       friendly_name: Living room
@@ -632,3 +631,31 @@
       assumed_state: false
       state: 'on'
   icon: mdi:lightbulb-on
+- id: '1645757398558'
+  name: Gamer mode
+  entities:
+    light.desktop:
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: xy
+      brightness: 178
+      hs_color:
+      - 300.414
+      - 56.863
+      rgb_color:
+      - 255
+      - 110
+      - 254
+      xy_color:
+      - 0.373
+      - 0.19
+      mode: normal
+      dynamics: none
+      friendly_name: Desktop
+      supported_features: 40
+      assumed_state: false
+      state: 'on'
+  icon: mdi:microsoft-xbox-controller

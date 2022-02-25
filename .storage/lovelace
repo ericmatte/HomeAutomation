@@ -94,6 +94,9 @@
                                     },
                                     "tap_action": {
                                         "action": "toggle"
+                                    },
+                                    "double_tap_action": {
+                                        "action": "more-info"
                                     }
                                 },
                                 {
@@ -108,6 +111,9 @@
                                     },
                                     "tap_action": {
                                         "action": "toggle"
+                                    },
+                                    "double_tap_action": {
+                                        "action": "more-info"
                                     }
                                 },
                                 {
@@ -122,6 +128,9 @@
                                     },
                                     "tap_action": {
                                         "action": "toggle"
+                                    },
+                                    "double_tap_action": {
+                                        "action": "more-info"
                                     }
                                 },
                                 {
@@ -136,6 +145,9 @@
                                     },
                                     "tap_action": {
                                         "action": "toggle"
+                                    },
+                                    "double_tap_action": {
+                                        "action": "more-info"
                                     }
                                 },
                                 {
@@ -150,6 +162,9 @@
                                     },
                                     "tap_action": {
                                         "action": "toggle"
+                                    },
+                                    "double_tap_action": {
+                                        "action": "more-info"
                                     }
                                 },
                                 {
@@ -164,6 +179,9 @@
                                     },
                                     "tap_action": {
                                         "action": "toggle"
+                                    },
+                                    "double_tap_action": {
+                                        "action": "more-info"
                                     }
                                 },
                                 {
@@ -178,6 +196,9 @@
                                     },
                                     "tap_action": {
                                         "action": "toggle"
+                                    },
+                                    "double_tap_action": {
+                                        "action": "more-info"
                                     }
                                 },
                                 {
@@ -192,6 +213,9 @@
                                     },
                                     "tap_action": {
                                         "action": "toggle"
+                                    },
+                                    "double_tap_action": {
+                                        "action": "more-info"
                                     }
                                 },
                                 {
@@ -206,6 +230,9 @@
                                     },
                                     "tap_action": {
                                         "action": "toggle"
+                                    },
+                                    "double_tap_action": {
+                                        "action": "more-info"
                                     }
                                 },
                                 {
@@ -220,6 +247,9 @@
                                     },
                                     "tap_action": {
                                         "action": "toggle"
+                                    },
+                                    "double_tap_action": {
+                                        "action": "more-info"
                                     }
                                 },
                                 {
@@ -234,6 +264,9 @@
                                     },
                                     "tap_action": {
                                         "action": "toggle"
+                                    },
+                                    "double_tap_action": {
+                                        "action": "more-info"
                                     }
                                 },
                                 {
@@ -248,6 +281,9 @@
                                     },
                                     "tap_action": {
                                         "action": "toggle"
+                                    },
+                                    "double_tap_action": {
+                                        "action": "more-info"
                                     }
                                 },
                                 {
@@ -259,6 +295,12 @@
                                         "border-radius": "50%",
                                         "transform": "scale(1.5) translate(-50%, -50%)",
                                         "background-color": "rgba(255, 255, 255, 0.3)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    },
+                                    "double_tap_action": {
+                                        "action": "more-info"
                                     }
                                 },
                                 {
@@ -473,6 +515,9 @@
                                     "type": "state-badge"
                                 },
                                 {
+                                    "double_tap_action": {
+                                        "action": "more-info"
+                                    },
                                     "entity": "switch.caro_wardrobe",
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
@@ -487,6 +532,9 @@
                                     "type": "state-icon"
                                 },
                                 {
+                                    "double_tap_action": {
+                                        "action": "more-info"
+                                    },
                                     "entity": "light.hall",
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
@@ -501,6 +549,9 @@
                                     "type": "state-icon"
                                 },
                                 {
+                                    "double_tap_action": {
+                                        "action": "more-info"
+                                    },
                                     "entity": "light.desktop",
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
@@ -515,6 +566,9 @@
                                     "type": "state-icon"
                                 },
                                 {
+                                    "double_tap_action": {
+                                        "action": "more-info"
+                                    },
                                     "entity": "switch.office_wardrobe",
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
@@ -529,6 +583,9 @@
                                     "type": "state-icon"
                                 },
                                 {
+                                    "double_tap_action": {
+                                        "action": "more-info"
+                                    },
                                     "entity": "light.plants",
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
@@ -543,6 +600,9 @@
                                     "type": "state-icon"
                                 },
                                 {
+                                    "double_tap_action": {
+                                        "action": "more-info"
+                                    },
                                     "entity": "light.right_theatre",
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
@@ -557,6 +617,9 @@
                                     "type": "state-icon"
                                 },
                                 {
+                                    "double_tap_action": {
+                                        "action": "more-info"
+                                    },
                                     "entity": "light.left_theatre",
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
@@ -571,6 +634,9 @@
                                     "type": "state-icon"
                                 },
                                 {
+                                    "double_tap_action": {
+                                        "action": "more-info"
+                                    },
                                     "entity": "switch.closet",
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
@@ -585,6 +651,9 @@
                                     "type": "state-icon"
                                 },
                                 {
+                                    "double_tap_action": {
+                                        "action": "more-info"
+                                    },
                                     "entity": "light.under_cabinet",
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
@@ -599,6 +668,9 @@
                                     "type": "state-icon"
                                 },
                                 {
+                                    "double_tap_action": {
+                                        "action": "more-info"
+                                    },
                                     "entity": "light.bedroom",
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
@@ -613,6 +685,9 @@
                                     "type": "state-icon"
                                 },
                                 {
+                                    "double_tap_action": {
+                                        "action": "more-info"
+                                    },
                                     "entity": "light.small_bathroom",
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
@@ -627,6 +702,9 @@
                                     "type": "state-icon"
                                 },
                                 {
+                                    "double_tap_action": {
+                                        "action": "more-info"
+                                    },
                                     "entity": "light.under_bed",
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
@@ -641,6 +719,9 @@
                                     "type": "state-icon"
                                 },
                                 {
+                                    "double_tap_action": {
+                                        "action": "more-info"
+                                    },
                                     "entity": "vacuum.roby",
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
@@ -648,6 +729,9 @@
                                         "left": "43%",
                                         "top": "67%",
                                         "transform": "scale(1.5) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
                                     },
                                     "type": "state-icon"
                                 },

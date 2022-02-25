@@ -37,6 +37,8 @@ elements:
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
       action: toggle
+    double_tap_action:
+      action: more-info
   - type: state-icon
     entity: light.hall
     style:
@@ -47,6 +49,8 @@ elements:
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
       action: toggle
+    double_tap_action:
+      action: more-info
   - type: state-icon
     entity: light.desktop
     style:
@@ -57,6 +61,8 @@ elements:
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
       action: toggle
+    double_tap_action:
+      action: more-info
   - type: state-icon
     entity: switch.office_wardrobe
     style:
@@ -67,6 +73,8 @@ elements:
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
       action: toggle
+    double_tap_action:
+      action: more-info
   - type: state-icon
     entity: light.plants
     style:
@@ -77,6 +85,8 @@ elements:
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
       action: toggle
+    double_tap_action:
+      action: more-info
   - type: state-icon
     entity: light.right_theatre
     style:
@@ -87,6 +97,8 @@ elements:
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
       action: toggle
+    double_tap_action:
+      action: more-info
   - type: state-icon
     entity: light.left_theatre
     style:
@@ -97,6 +109,8 @@ elements:
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
       action: toggle
+    double_tap_action:
+      action: more-info
   - type: state-icon
     entity: switch.closet
     style:
@@ -107,6 +121,8 @@ elements:
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
       action: toggle
+    double_tap_action:
+      action: more-info
   - type: state-icon
     entity: light.under_cabinet
     style:
@@ -117,6 +133,8 @@ elements:
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
       action: toggle
+    double_tap_action:
+      action: more-info
   - type: state-icon
     entity: light.bedroom
     style:
@@ -127,6 +145,8 @@ elements:
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
       action: toggle
+    double_tap_action:
+      action: more-info
   - type: state-icon
     entity: light.small_bathroom
     style:
@@ -137,6 +157,8 @@ elements:
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
       action: toggle
+    double_tap_action:
+      action: more-info
   - type: state-icon
     entity: light.under_bed
     style:
@@ -147,6 +169,8 @@ elements:
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
       action: toggle
+    double_tap_action:
+      action: more-info
   - type: state-icon
     entity: vacuum.roby
     style:
@@ -155,6 +179,10 @@ elements:
       border-radius: 50%
       transform: scale(1.5) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
+    tap_action:
+      action: toggle
+    double_tap_action:
+      action: more-info
   - type: state-icon
     entity: light.dining_table
     style:
