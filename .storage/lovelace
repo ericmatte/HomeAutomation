@@ -101,6 +101,62 @@
                                 },
                                 {
                                     "type": "state-icon",
+                                    "entity": "vacuum.roby",
+                                    "style": {
+                                        "left": "67%",
+                                        "top": "58%",
+                                        "border-radius": "50%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)",
+                                        "background-color": "rgba(255, 255, 255, 0.3)"
+                                    },
+                                    "tap_action": {
+                                        "action": "more-info"
+                                    }
+                                },
+                                {
+                                    "type": "state-icon",
+                                    "entity": "climate.bedroom_thermostat",
+                                    "style": {
+                                        "left": "81%",
+                                        "top": "15%",
+                                        "border-radius": "50%",
+                                        "transform": "scale(1) translate(-50%, -50%)",
+                                        "background-color": "rgba(255, 255, 255, 0.3)"
+                                    },
+                                    "tap_action": {
+                                        "action": "more-info"
+                                    }
+                                },
+                                {
+                                    "type": "state-icon",
+                                    "entity": "climate.living_room_thermostat",
+                                    "style": {
+                                        "left": "9%",
+                                        "top": "30%",
+                                        "border-radius": "50%",
+                                        "transform": "scale(1) translate(-50%, -50%)",
+                                        "background-color": "rgba(255, 255, 255, 0.3)"
+                                    },
+                                    "tap_action": {
+                                        "action": "more-info"
+                                    }
+                                },
+                                {
+                                    "type": "state-icon",
+                                    "entity": "climate.office_thermostat",
+                                    "style": {
+                                        "left": "9%",
+                                        "top": "90%",
+                                        "border-radius": "50%",
+                                        "transform": "scale(1) translate(-50%, -50%)",
+                                        "background-color": "rgba(255, 255, 255, 0.3)"
+                                    },
+                                    "tap_action": {
+                                        "action": "more-info"
+                                    }
+                                },
+                                {
+                                    "type": "state-icon",
                                     "entity": "light.hall",
                                     "style": {
                                         "left": "68%",
@@ -275,23 +331,6 @@
                                     "style": {
                                         "left": "92%",
                                         "top": "25%",
-                                        "border-radius": "50%",
-                                        "transform": "scale(1.5) translate(-50%, -50%)",
-                                        "background-color": "rgba(255, 255, 255, 0.3)"
-                                    },
-                                    "tap_action": {
-                                        "action": "toggle"
-                                    },
-                                    "double_tap_action": {
-                                        "action": "more-info"
-                                    }
-                                },
-                                {
-                                    "type": "state-icon",
-                                    "entity": "vacuum.roby",
-                                    "style": {
-                                        "left": "67%",
-                                        "top": "58%",
                                         "border-radius": "50%",
                                         "transform": "scale(1.5) translate(-50%, -50%)",
                                         "background-color": "rgba(255, 255, 255, 0.3)"
@@ -532,6 +571,62 @@
                                     "type": "state-icon"
                                 },
                                 {
+                                    "entity": "vacuum.roby",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "43%",
+                                        "top": "67%",
+                                        "transform": "scale(1.5) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "more-info"
+                                    },
+                                    "type": "state-icon"
+                                },
+                                {
+                                    "entity": "climate.bedroom_thermostat",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "86%",
+                                        "top": "81%",
+                                        "transform": "scale(1) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "more-info"
+                                    },
+                                    "type": "state-icon"
+                                },
+                                {
+                                    "entity": "climate.living_room_thermostat",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "71%",
+                                        "top": "9%",
+                                        "transform": "scale(1) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "more-info"
+                                    },
+                                    "type": "state-icon"
+                                },
+                                {
+                                    "entity": "climate.office_thermostat",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "11%",
+                                        "top": "9%",
+                                        "transform": "scale(1) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "more-info"
+                                    },
+                                    "type": "state-icon"
+                                },
+                                {
                                     "double_tap_action": {
                                         "action": "more-info"
                                     },
@@ -711,23 +806,6 @@
                                         "border-radius": "50%",
                                         "left": "76%",
                                         "top": "92%",
-                                        "transform": "scale(1.5) translate(-50%, -50%)"
-                                    },
-                                    "tap_action": {
-                                        "action": "toggle"
-                                    },
-                                    "type": "state-icon"
-                                },
-                                {
-                                    "double_tap_action": {
-                                        "action": "more-info"
-                                    },
-                                    "entity": "vacuum.roby",
-                                    "style": {
-                                        "background-color": "rgba(255, 255, 255, 0.3)",
-                                        "border-radius": "50%",
-                                        "left": "43%",
-                                        "top": "67%",
                                         "transform": "scale(1.5) translate(-50%, -50%)"
                                     },
                                     "tap_action": {

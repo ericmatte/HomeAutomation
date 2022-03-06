@@ -50,10 +50,7 @@
   - entity_id: person.caro
     platform: state
     to: home
-  condition:
-  - condition: time
-    before: '22:15:00'
-    after: 07:00:00
+  condition: []
   action:
   - service: homeassistant.turn_on
     data: {}
@@ -61,6 +58,14 @@
       entity_id:
       - light.hall
       - switch.closet
+  - service: automation.turn_on
+    data: {}
+    target:
+      entity_id:
+      - automation.bathroom_motion_2
+      - automation.closet_motion
+      - automation.entrance_motion
+      - automation.office_turn_on_desktop_while_arriving
   mode: single
 - id: badd1ec9d152
   alias: 'Everything: Turn off when away'
@@ -72,6 +77,14 @@
   action:
   - entity_id: scene.turn_off_everything
     service: scene.turn_on
+  - service: automation.turn_off
+    data: {}
+    target:
+      entity_id:
+      - automation.bathroom_motion_2
+      - automation.closet_motion
+      - automation.entrance_motion
+      - automation.office_turn_on_desktop_while_arriving
 - id: c9f3148d9539
   alias: 'Bedroom light: Turn off everything in low light'
   trigger:
@@ -255,11 +268,16 @@
     domain: media_player
     entity_id: media_player.tv
     type: playing
-  condition: []
+  condition:
+  - condition: time
+    before: 01:00:00
+    after: '17:00:00'
   action:
   - service: light.turn_on
     target:
       entity_id: light.theatre
+    data:
+      brightness: 255
   mode: single
 - id: '1643594926751'
   alias: 'Entrance: Button 3 turn off all'
@@ -333,19 +351,10 @@
   - platform: state
     entity_id: binary_sensor.motion_entrance
     to: 'on'
-  - platform: state
-    entity_id: binary_sensor.macbook
-    from: 'on'
-    to: 'off'
   condition:
-  - condition: or
-    conditions:
-    - condition: time
-      after: '18:00:00'
-      before: '20:00:00'
-    - condition: state
-      entity_id: binary_sensor.macbook
-      state: 'off'
+  - condition: time
+    after: '18:00:00'
+    before: '20:00:00'
   - condition: state
     entity_id: binary_sensor.gaming_pc
     state: 'off'
@@ -567,13 +576,17 @@
     default: []
   mode: single
 - id: '1645530868434'
-  alias: 'Entrance: Turn off light reset motion'
+  alias: 'Closet: Turn off light reset motion'
   description: ''
   trigger:
   - platform: state
     entity_id: switch.closet
     from: 'on'
     to: 'off'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 2
   condition:
   - condition: state
     entity_id: automation.closet_motion
@@ -620,4 +633,150 @@
       transition: 3
     target:
       entity_id: light.desktop
+  mode: single
+- id: '1646591760545'
+  alias: 'Office: Heat high'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: sensor.time
+    to: 08:30
+  condition:
+  - condition: time
+    before: 00:00:00
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+    after: 00:00:00
+  action:
+  - service: climate.set_temperature
+    data:
+      temperature: 22
+    target:
+      entity_id: climate.office_thermostat
+  mode: single
+- id: '1646591800062'
+  alias: 'Office: Heat low'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: sensor.time
+    to: '23:45'
+  condition: []
+  action:
+  - service: climate.set_temperature
+    data:
+      temperature: 19.5
+    target:
+      entity_id: climate.office_thermostat
+  mode: single
+- id: '1646591943644'
+  alias: 'Bedroom: Heat low'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: sensor.time
+    to: 00:30
+  - platform: state
+    entity_id: sensor.time
+    to: '10:30'
+  condition: []
+  action:
+  - service: climate.set_temperature
+    data:
+      temperature: 19.5
+    target:
+      entity_id: climate.bedroom_thermostat
+  mode: single
+- id: '1646592004352'
+  alias: 'Bedroom: Heat high'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: sensor.time
+    to: '21:30'
+  - platform: state
+    entity_id: sensor.time
+    to: 06:45
+  condition: []
+  action:
+  - service: climate.set_temperature
+    data:
+      temperature: 21.5
+    target:
+      entity_id: climate.bedroom_thermostat
+  mode: single
+- id: '1646592307267'
+  alias: 'Office: Heat high weekend'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: sensor.time
+    to: '11:30'
+  condition:
+  - condition: time
+    before: 00:00:00
+    weekday:
+    - sat
+    - sun
+  action:
+  - service: climate.set_temperature
+    data:
+      temperature: 21.5
+    target:
+      entity_id: climate.office_thermostat
+  mode: single
+- id: '1646592576276'
+  alias: 'Heat: Low when away'
+  description: ''
+  trigger:
+  - platform: template
+    value_template: '{{ is_state(''person.eric'', ''not_home'') and is_state(''person.caro'',
+      ''not_home'') }}'
+  condition: []
+  action:
+  - service: automation.turn_off
+    data: {}
+    target:
+      entity_id:
+      - automation.office_heat_on
+      - automation.office_heat_high_weekend
+      - automation.bedroom_heat_high
+  - service: climate.set_temperature
+    data:
+      temperature: 19.5
+    target:
+      entity_id:
+      - climate.bedroom_thermostat
+      - climate.living_room_thermostat
+      - climate.office_thermostat
+  mode: single
+- id: '1646592700362'
+  alias: 'Heat: High when home'
+  description: ''
+  trigger:
+  - platform: template
+    value_template: '{{ is_state(''person.eric'', ''home'') or is_state(''person.caro'',
+      ''home'') }}'
+  condition:
+  - condition: template
+    value_template: '{{ state_attr(''automation.heat_high_when_home'', ''last_triggered'')
+      < state_attr(''automation.heat_low_when_away'', ''last_triggered'') }}'
+  action:
+  - service: automation.turn_on
+    data: {}
+    target:
+      entity_id:
+      - automation.office_heat_high_weekend
+      - automation.bedroom_heat_high
+      - automation.office_heat_on
+  - service: climate.set_temperature
+    data:
+      temperature: 20
+    target:
+      entity_id:
+      - climate.living_room_thermostat
   mode: single
