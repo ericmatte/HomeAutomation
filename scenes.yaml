@@ -659,3 +659,101 @@
       assumed_state: false
       state: 'on'
   icon: mdi:microsoft-xbox-controller
+- id: '1646613565633'
+  name: Movies and eat
+  entities:
+    light.left_theatre:
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: xy
+      brightness: 255
+      hs_color:
+      - 326.323
+      - 60.784
+      rgb_color:
+      - 255
+      - 100
+      - 187
+      xy_color:
+      - 0.463
+      - 0.2356
+      mode: normal
+      dynamics: none
+      icon: mdi:television-ambient-light
+      friendly_name: Left theatre
+      supported_features: 40
+      assumed_state: false
+      state: 'on'
+    light.right_theatre:
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: xy
+      brightness: 255
+      hs_color:
+      - 268.421
+      - 89.412
+      rgb_color:
+      - 135
+      - 27
+      - 255
+      xy_color:
+      - 0.2221
+      - 0.0827
+      mode: normal
+      dynamics: none
+      icon: mdi:television-ambient-light
+      friendly_name: Right theatre
+      supported_features: 40
+      assumed_state: false
+      state: 'on'
+    light.living_room:
+      supported_color_modes:
+      - brightness
+      color_mode: brightness
+      brightness: 17
+      device_id: '5'
+      zone_id: '3'
+      friendly_name: Living room
+      supported_features: 33
+      assumed_state: false
+      state: 'on'
+    light.kitchen:
+      supported_color_modes:
+      - brightness
+      device_id: '6'
+      zone_id: '4'
+      friendly_name: Kitchen
+      supported_features: 33
+      assumed_state: false
+      state: 'off'
+    light.kitchen_island:
+      supported_color_modes:
+      - brightness
+      color_mode: brightness
+      brightness: 2
+      device_id: '7'
+      zone_id: '5'
+      friendly_name: Kitchen island
+      supported_features: 33
+      assumed_state: false
+      state: 'on'
+    light.dining_table:
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      mode: normal
+      dynamics: none
+      friendly_name: Dining table
+      supported_features: 40
+      assumed_state: false
+      icon: mdi:ceiling-light
+      state: 'off'
+  icon: mdi:television

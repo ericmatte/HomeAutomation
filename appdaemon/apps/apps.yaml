@@ -2,7 +2,7 @@ media_lights_sync:
   module: media_lights_sync
   class: MediaLightsSync
   media_player:
-    # - media_player.tv
+    - media_player.tv
     - media_player.kitchen_speaker
   # ha_url: https://rasp.ericmatte.me/
   # ha_url: !secret external_url
@@ -10,7 +10,7 @@ media_lights_sync:
   # ha_url: https://127.0.0.1:8123/ # not working
   quantization_method: "FastOctree" # "FastOctree" "MedianCut" "MaxCoverage" "libimagequant"
   use_saturated_colors: true
-  use_current_brightness: true
+  use_current_brightness: false
   reset_lights_after: true
   # transition: 8
   condition:
@@ -19,20 +19,22 @@ media_lights_sync:
   lights:
     - light.left_theatre
     - light.right_theatre
-# media_lights_sync_spotify:
-#   module: media_lights_sync
-#   class: MediaLightsSync
-#   media_player:
-#     - media_player.spotify_eric_matte
-#   ha_url: http://192.168.0.199:8123/
-#   quantization_method: "FastOctree"
-#   use_saturated_colors: true
-#   condition:
-#     entity: media_player.tv
-#     state: "playing"
-#   lights:
-#     - light.left_theatre
-#     - light.right_theatre
+
+media_lights_sync_spotify:
+  module: media_lights_sync
+  class: MediaLightsSync
+  media_player:
+    - media_player.spotify_eric_matte
+  ha_url: http://192.168.0.199:8123/
+  quantization_method: "FastOctree"
+  use_saturated_colors: true
+  use_current_brightness: false
+  condition:
+    entity: media_player.tv
+    state: "playing"
+  lights:
+    - light.left_theatre
+    - light.right_theatre
 #
 # zooz_rgbw_light:
 #   module: zooz_rgbw_light

@@ -24,7 +24,7 @@ http:
   # ssl_certificate: /ssl/fullchain.pem
   # ssl_key: /ssl/privkey.pem
   #ip_ban_enabled: True
-  #login_attempts_threshold: 5
+  login_attempts_threshold: 5
 
 # logger:
 #   default: warning
@@ -95,7 +95,7 @@ binary_sensor:
   #   name: Macbook
   #   host: 192.168.0.102
   #   count: 2
-  #   scan_interval: 30
+  #   scan_interval: 45
   - platform: ping
     name: Gaming PC
     host: 192.168.0.103

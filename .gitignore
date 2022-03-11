@@ -6,11 +6,13 @@ secrets.py
 /html5_push_registrations.conf
 /known_devices.yaml
 /www/google*.html
+*auth.json
 
 # Certificates
 *.pem
 
 # Ignored files
+/tts
 /.uuid
 /custom_components
 /custom_components

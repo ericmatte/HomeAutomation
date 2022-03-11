@@ -30,17 +30,6 @@
   action:
   - entity_id: switch.flux
     service: switch.turn_off
-- id: a682d9789788
-  alias: 'Caro''s wardrobe: Turn off when closing'
-  trigger:
-  - entity_id: binary_sensor.caro_wardrobe_sensor
-    platform: state
-    to: 'off'
-  condition: []
-  action:
-  - service: switch.turn_off
-    target:
-      entity_id: switch.caro_wardrobe
 - id: 28c90f5faaa5
   alias: 'Entrance: Turn on when coming home'
   trigger:
@@ -101,52 +90,37 @@
     target:
       entity_id: scene.turn_off_everything
   mode: single
-- id: '1586909745033'
-  alias: 'Curtains: Open at sunrise'
-  description: ''
-  trigger:
-  - entity_id: sun.sun
-    platform: state
-    to: above_horizon
-  condition:
-  - condition: state
-    entity_id: input_boolean.use_sunrise_curtains
-    state: 'on'
-  action:
-  - data: {}
-    entity_id: cover.curtains
-    service: cover.open_cover
 - id: '1586909791957'
-  alias: 'Curtains: Close at sunset'
+  alias: 'Bedroom: Curtains'
   description: ''
   trigger:
   - entity_id: sun.sun
     platform: state
-    to: below_horizon
   condition:
   - condition: state
     entity_id: input_boolean.use_sunrise_curtains
     state: 'on'
   action:
-  - data: {}
-    entity_id: cover.curtains
-    service: cover.close_cover
-- id: '1604810073072'
-  alias: Let's Encrypt Auto Renewal
-  description: ''
-  trigger:
-  - platform: time
-    at: 02:00:00
-  condition:
-  - condition: time
-    weekday:
-    - wed
-    - sat
-  action:
-  - service: hassio.addon_start
-    data:
-      addon: core_letsencrypt
-  mode: single
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: sun.sun
+        state: above_horizon
+      sequence:
+      - service: cover.open_cover
+        data: {}
+        target:
+          entity_id: cover.curtains
+    - conditions:
+      - condition: state
+        entity_id: sun.sun
+        state: below_horizon
+      sequence:
+      - service: cover.close_cover
+        data: {}
+        target:
+          entity_id: cover.curtains
+    default: []
 - id: '1608127387393'
   alias: 'Everything: Turn off when putting my phone on the charger at night'
   description: ''
@@ -246,19 +220,6 @@
       no_motion_wait: input_number.motion_time_off
       time_limit_after: input_datetime.motion_on
       time_limit_before: input_datetime.motion_off
-- id: '1643490019007'
-  alias: 'Caro''s wardrobe: Turn on when opening'
-  description: ''
-  trigger:
-  - entity_id: binary_sensor.caro_wardrobe_sensor
-    platform: state
-    to: 'on'
-  condition: []
-  action:
-  - service: switch.turn_on
-    target:
-      entity_id: switch.caro_wardrobe
-  mode: single
 - id: '1643521875134'
   alias: 'Theatre: Turn on when TV is on'
   description: ''
@@ -317,32 +278,6 @@
     data:
       color_temp: 251
       brightness: 255
-  mode: single
-- id: '1643652849957'
-  alias: 'Office wardrobe: Turn off when closing'
-  description: ''
-  trigger:
-  - entity_id: binary_sensor.office_wardrobe_sensor
-    platform: state
-    to: 'off'
-  condition: []
-  action:
-  - service: switch.turn_off
-    target:
-      entity_id: switch.office_wardrobe
-  mode: single
-- id: '1643652869790'
-  alias: 'Office wardrobe: Turn on when opening'
-  description: ''
-  trigger:
-  - entity_id: binary_sensor.office_wardrobe_sensor
-    platform: state
-    to: 'on'
-  condition: []
-  action:
-  - service: switch.turn_on
-    target:
-      entity_id: switch.office_wardrobe
   mode: single
 - id: '1643660425100'
   alias: 'Office: Turn off desktop while quitting'
@@ -464,6 +399,13 @@
     - condition: state
       entity_id: vacuum.roby
       state: cleaning
+  - condition: state
+    entity_id: light.small_bathroom
+    state: 'off'
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
   action:
   - service: light.turn_on
     data:
@@ -481,7 +423,7 @@
       to: 'off'
       for:
         hours: 0
-        minutes: 25
+        minutes: 30
         seconds: 0
       from: 'on'
     timeout: 00:35:00
@@ -657,15 +599,56 @@
       temperature: 22
     target:
       entity_id: climate.office_thermostat
-  mode: single
+  - delay:
+      hours: 3
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: binary_sensor.eric_mbp_active
+        state: 'off'
+        for:
+          hours: 3
+          minutes: 0
+          seconds: 0
+      - condition: state
+        entity_id: binary_sensor.gaming_pc
+        for:
+          hours: 3
+          minutes: 0
+          seconds: 0
+        state: 'off'
+      sequence:
+      - service: climate.set_temperature
+        data:
+          temperature: 19.5
+        target:
+          entity_id: climate.office_thermostat
+    default: []
+  mode: restart
 - id: '1646591800062'
   alias: 'Office: Heat low'
   description: ''
   trigger:
   - platform: state
-    entity_id: sensor.time
-    to: '23:45'
-  condition: []
+    entity_id: binary_sensor.eric_mbp_active
+    to: 'off'
+    from: 'on'
+  - platform: state
+    entity_id: binary_sensor.gaming_pc
+    from: 'on'
+    to: 'off'
+  - platform: time
+    at: '23:45:00'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.eric_mbp_active
+    state: 'off'
+  - condition: state
+    entity_id: binary_sensor.gaming_pc
+    state: 'off'
   action:
   - service: climate.set_temperature
     data:
@@ -677,12 +660,10 @@
   alias: 'Bedroom: Heat low'
   description: ''
   trigger:
-  - platform: state
-    entity_id: sensor.time
-    to: 00:30
-  - platform: state
-    entity_id: sensor.time
-    to: '10:30'
+  - platform: time
+    at: 00:30:00
+  - platform: time
+    at: '10:00:00'
   condition: []
   action:
   - service: climate.set_temperature
@@ -722,6 +703,7 @@
     weekday:
     - sat
     - sun
+    after: 00:00:00
   action:
   - service: climate.set_temperature
     data:
@@ -779,4 +761,159 @@
     target:
       entity_id:
       - climate.living_room_thermostat
+  mode: single
+- id: '1646680887309'
+  alias: 'Office: Heat high PC on'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.eric_mbp_active
+    to: 'on'
+    from: 'off'
+  - platform: state
+    entity_id: binary_sensor.gaming_pc
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: climate.set_temperature
+    data:
+      temperature: 22
+    target:
+      entity_id: climate.office_thermostat
+  mode: single
+- id: '1646710305446'
+  alias: 'Office: Desktop light sync with PC'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.eric_mbp_active
+    to: 'on'
+  - platform: state
+    entity_id: binary_sensor.eric_mbp_active
+    to: 'off'
+    from: 'on'
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  - platform: state
+    entity_id: binary_sensor.gaming_pc
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: binary_sensor.gaming_pc
+        state: 'on'
+      sequence:
+      - service: scene.turn_on
+        data: {}
+        target:
+          entity_id: scene.gamer_mode
+    - conditions:
+      - condition: state
+        entity_id: binary_sensor.eric_mbp_active
+        state: 'on'
+      sequence:
+      - service: light.turn_on
+        data:
+          color_temp: 251
+          brightness: 255
+        target:
+          entity_id: light.desktop
+    default:
+    - service: light.turn_off
+      data: {}
+      target:
+        entity_id: light.desktop
+  mode: single
+- id: '1646710431195'
+  alias: 'Office: Wardrobe light from sensor'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.office_wardrobe_sensor
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: binary_sensor.office_wardrobe_sensor
+        state: 'on'
+      sequence:
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: switch.office_wardrobe
+    default:
+    - service: switch.turn_off
+      data: {}
+      target:
+        entity_id: switch.office_wardrobe
+  mode: single
+- id: '1646710542220'
+  alias: 'Plants: Wardrobe light from sensor'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.caro_wardrobe_sensor
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: binary_sensor.caro_wardrobe_sensor
+        state: 'on'
+      sequence:
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: switch.caro_wardrobe
+    default:
+    - service: switch.turn_off
+      data: {}
+      target:
+        entity_id: switch.caro_wardrobe
+  mode: single
+- id: '1646933996426'
+  alias: 'Bedroom: Sync climate'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: climate.bedroom_thermostat
+    attribute: temperature
+    id: bedroom
+  - platform: state
+    entity_id: climate.small_bathroom_thermostat
+    attribute: temperature
+    id: bathroom
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: bedroom
+      sequence:
+      - service: climate.set_temperature
+        data:
+          temperature: '{{ state_attr(''climate.bedroom_thermostat'', ''temperature'')
+            }}
+
+            '
+        target:
+          entity_id: climate.small_bathroom_thermostat
+    - conditions:
+      - condition: trigger
+        id: bathroom
+      sequence:
+      - service: climate.set_temperature
+        data:
+          temperature: '{{ state_attr(''climate.small_bathroom_thermostat'', ''temperature'')
+            }}
+
+            '
+        target:
+          entity_id: climate.bedroom_thermostat
+    default: []
   mode: single

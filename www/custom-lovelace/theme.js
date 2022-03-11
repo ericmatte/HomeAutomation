@@ -1,6 +1,6 @@
 const setBackground = () => {
   const haAppLayout = document
-    ?.querySelector("home-assistant")
+    .querySelector("home-assistant")
     ?.shadowRoot.querySelector("home-assistant-main")
     ?.shadowRoot.querySelector("ha-panel-lovelace")
     ?.shadowRoot.querySelector("hui-root")
