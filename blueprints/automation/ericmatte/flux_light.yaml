@@ -14,11 +14,13 @@ blueprint:
       selector:
         entity:
           domain: switch
+
+variables:
+  light_target: !input light_target
+
 trigger:
   - platform: state
-    entity_id: !input "light_target"
-variables:
-  light_target: !input "light_target"
+    entity_id: !input light_target
 action:
   - choose:
       - conditions:
@@ -28,10 +30,10 @@ action:
           - service: switch.turn_on
             data: {}
             target:
-              entity_id: !input "flux_switch"
+              entity_id: !input flux_switch
     default:
       - service: switch.turn_off
         data: {}
         target:
-          entity_id: !input "flux_switch"
+          entity_id: !input flux_switch
 mode: restart

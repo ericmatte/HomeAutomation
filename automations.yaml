@@ -10,12 +10,15 @@
     platform: state
     to: below_horizon
   action:
-  - data_template:
+  - data:
       name: "{% if states.sun.sun.state == \"above_horizon\" %}\n  My Light UI\n{%\
         \ else %}\n  My Dark UI\n{% endif %}\n"
-    service_template: frontend.set_theme
+    service: frontend.set_theme
 - id: 28c90f5faaa5
-  alias: 'Person: Home/Away'
+  alias: 'Home: Away mode'
+  description: 'Disable home automations while away.
+
+    Turn entrance lights on when arriving.'
   trigger:
   - platform: template
     value_template: '{{ is_state(''person.eric'', ''not_home'') and is_state(''person.caro'',
@@ -119,7 +122,7 @@
           entity_id: cover.curtains
     default: []
 - id: '1608127387393'
-  alias: 'Everything: Turn off when putting my phone on the charger'
+  alias: 'Everything: Turn off when putting my phone on the charger ✔️'
   description: ''
   trigger:
   - platform: state
@@ -259,7 +262,7 @@
       brightness: 255
   mode: single
 - id: '1643768034083'
-  alias: 'Entrance: Button 1 disables motion'
+  alias: 'Entrance: Button 1 disables motion ✔️'
   description: ''
   trigger:
   - platform: state
@@ -685,9 +688,19 @@
     entity_id: binary_sensor.macbook
     from: 'on'
     to: 'off'
+    id: mbp_ping
   condition:
   - condition: template
     value_template: '{{ trigger.to_state.state != trigger.from_state.state }}'
+  - condition: not
+    conditions:
+    - condition: and
+      conditions:
+      - condition: trigger
+        id: mbp_ping
+      - condition: state
+        entity_id: binary_sensor.eric_mbp_active
+        state: 'off'
   action:
   - choose:
     - conditions:
@@ -812,55 +825,6 @@
         target:
           entity_id: climate.bedroom_thermostat
     default: []
-  mode: restart
-- id: '1647045425743'
-  alias: 'Thermostats: Sync outdoor temperature ✔️'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: weather.home
-    attribute: temperature
-  - platform: state
-    entity_id: automation.thermostats_sync_outdoor_temperature
-    attribute: last_triggered
-    for:
-      hours: 3
-      minutes: 0
-      seconds: 0
-  condition: []
-  action:
-  - service: mqtt.publish
-    data:
-      topic: zwave/_CLIENTS/ZWAVE_GATEWAY-mosquitto/api/sendCommand/set
-      payload: '{"args":[{"nodeId":12,"commandClass":49,"endpoint":0,"property":"Air
-        temperature"},"sendReport",[1, 0, {{ state_attr(''weather.home'', ''temperature'')
-        | round(2, default=0) }}]]}
-
-        '
-  - service: mqtt.publish
-    data:
-      topic: zwave/_CLIENTS/ZWAVE_GATEWAY-mosquitto/api/sendCommand/set
-      payload: '{"args":[{"nodeId":13,"commandClass":49,"endpoint":0,"property":"Air
-        temperature"},"sendReport",[1, 0, {{ state_attr(''weather.home'', ''temperature'')
-        | round(2, default=0) }}]]}
-
-        '
-  - service: mqtt.publish
-    data:
-      topic: zwave/_CLIENTS/ZWAVE_GATEWAY-mosquitto/api/sendCommand/set
-      payload: '{"args":[{"nodeId":14,"commandClass":49,"endpoint":0,"property":"Air
-        temperature"},"sendReport",[1, 0, {{ state_attr(''weather.home'', ''temperature'')
-        | round(2, default=0) }}]]}
-
-        '
-  - service: mqtt.publish
-    data:
-      topic: zwave/_CLIENTS/ZWAVE_GATEWAY-mosquitto/api/sendCommand/set
-      payload: '{"args":[{"nodeId":11,"commandClass":49,"endpoint":0,"property":"Air
-        temperature"},"sendReport",[1, 0, {{ state_attr(''weather.home'', ''temperature'')
-        | round(2, default=0) }}]]}
-
-        '
   mode: single
 - id: '1648313126065'
   alias: 'Office: Desktop flux ✔️'
@@ -886,8 +850,55 @@
     input:
       time_low_2: 00:30:00
       climate_target:
-        entity_id: climate.bedroom_thermostat
+        entity_id:
+        - climate.bedroom_thermostat
+        - climate.small_bathroom_thermostat
       time_low_1: 09:00:00
       time_high_2: '22:00:00'
       time_high_1: 06:45:00
       low_temp: 18.5
+- id: '1648324723671'
+  alias: 'Thermostats: Sync outdoor temperature ✔️'
+  description: ''
+  use_blueprint:
+    path: ericmatte/climate_outdoor_temperature.yaml
+    input:
+      device_id_1: 11
+      device_id_2: 12
+      device_id_3: 13
+      device_id_4: 14
+      temperature_input: weather.home
+- id: '1648330845926'
+  alias: 'Thermostats: Away/Eco mode'
+  description: ''
+  use_blueprint:
+    path: ericmatte/heat_away_eco_mode.yaml
+    input:
+      eco_mode_boolean: input_boolean.heat_eco_mode
+      outside_temp: weather.home
+      climate_target:
+        entity_id:
+        - climate.small_bathroom_thermostat
+        - climate.living_room_thermostat
+        - climate.bedroom_thermostat
+        - climate.office_thermostat
+      automations:
+        entity_id:
+        - automation.bedroom_heats
+        - automation.living_room_heat_on
+      person_1: person.eric
+      person_2: person.caro
+- id: '1648331331944'
+  alias: 'Living room: Heat on ✔️'
+  description: ''
+  trigger:
+  - platform: time
+    at: 08:00:00
+  condition: []
+  action:
+  - service: climate.set_temperature
+    data:
+      temperature: 20
+    target:
+      entity_id: climate.living_room_thermostat
+  mode: single

@@ -1,0 +1,86 @@
+blueprint:
+  name: Climate outdoor temperature
+  description: |
+    Allow synchronizing temperature sensor onto multiple Stelpro Z-Wave thermostats.
+
+    Note: Z-Wave JS to MQTT must be enabled for this blueprint to work.
+
+    Based on: https://community.home-assistant.io/t/stzw402-display-outdoor-temperature/151989/9
+  domain: automation
+  input:
+    temperature_input:
+      name: Temperature input
+      selector:
+        entity:
+          domain: weather
+    device_id_1:
+      name: Z-Wave Device ID 1
+      description: The nodeId associated to the thermostat
+      selector:
+        number:
+          min: 0
+          max: 255
+          step: 1
+    device_id_2:
+      name: Z-Wave Device ID 2
+      description: The nodeId associated to the thermostat
+      selector:
+        number:
+          min: 0
+          max: 255
+          step: 1
+    device_id_3:
+      name: Z-Wave Device ID 3
+      description: The nodeId associated to the thermostat
+      selector:
+        number:
+          min: 0
+          max: 255
+          step: 1
+    device_id_4:
+      name: Z-Wave Device ID 4
+      description: The nodeId associated to the thermostat
+      selector:
+        number:
+          min: 0
+          max: 255
+          step: 1
+
+variables:
+  temperature_input: !input temperature_input
+  device_id_1: !input device_id_1
+  device_id_2: !input device_id_2
+  device_id_3: !input device_id_3
+  device_id_4: !input device_id_4
+  payload: >
+    {
+      "args": [
+        { "nodeId": $NODE_ID, "commandClass": 49, "endpoint": 0, "property": "Air temperature" },
+        "sendReport", [1, 0, {{ state_attr(temperature_input, 'temperature') | round(2, default=0) }}]
+      ]
+    }
+
+trigger:
+  - platform: state
+    entity_id: !input temperature_input
+    attribute: temperature
+  - platform: time_pattern
+    hours: "/3"
+action:
+  - service: mqtt.publish
+    data:
+      topic: zwave/_CLIENTS/ZWAVE_GATEWAY-mosquitto/api/sendCommand/set
+      payload: "{{ payload | replace('$NODE_ID', device_id_1) }}"
+  - service: mqtt.publish
+    data:
+      topic: zwave/_CLIENTS/ZWAVE_GATEWAY-mosquitto/api/sendCommand/set
+      payload: "{{ payload | replace('$NODE_ID', device_id_2) }}"
+  - service: mqtt.publish
+    data:
+      topic: zwave/_CLIENTS/ZWAVE_GATEWAY-mosquitto/api/sendCommand/set
+      payload: "{{ payload | replace('$NODE_ID', device_id_3) }}"
+  - service: mqtt.publish
+    data:
+      topic: zwave/_CLIENTS/ZWAVE_GATEWAY-mosquitto/api/sendCommand/set
+      payload: "{{ payload | replace('$NODE_ID', device_id_4) }}"
+mode: single

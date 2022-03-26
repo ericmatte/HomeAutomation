@@ -73,5 +73,9 @@ action:
             data:
               temperature: !input low_temp
             target: !input climate_target
-    default: []
+    default:
+      - service: climate.set_temperature
+        data:
+          temperature: !input low_temp
+        target: !input climate_target
 mode: single

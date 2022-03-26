@@ -1,0 +1,116 @@
+blueprint:
+  name: Heat away/eco mode
+  description: |
+    This blueprint reduces home heating to a minimum when:
+      - nobody is home
+      - a specific input_boolean is enabled
+      - outside temperature is above a the minimum value
+
+    It will also disables every other heat automations when entering eco mode.
+
+  domain: automation
+  input:
+    person_1:
+      name: Person 1
+      description: First person to listen for home/not_home changes
+      selector:
+        entity:
+          domain: person
+    person_2:
+      name: Person 2
+      description: Second person to listen for home/not_home changes
+      selector:
+        entity:
+          domain: person
+    eco_mode_boolean:
+      name: Eco mode toggle
+      description: An input_boolean to toggle the eco mode
+      selector:
+        entity:
+          domain: input_boolean
+    outside_temp:
+      name: Outside temperature
+      selector:
+        entity:
+          domain: weather
+    low_temp_target:
+      name: Eco temperature target
+      default: 18
+      selector:
+        number:
+          min: 10
+          max: 25
+          step: 0.5
+          unit_of_measurement: °C
+    climate_target:
+      name: Climate
+      description: The thermostat(s) to control
+      selector:
+        target:
+          entity:
+            domain: climate
+    automations:
+      name: Heat automations
+      description: Other heat automations to toggle depending on the eco mode
+      selector:
+        target:
+          entity:
+            domain: automation
+
+trigger_variables:
+  person_1: !input person_1
+  person_2: !input person_2
+  low_temp_target: !input low_temp_target
+  outside_temp: !input outside_temp
+
+trigger:
+  - platform: template
+    id: people_home
+    value_template: '{{ is_state(person_1, "home") or is_state(person_2, "home") }}'
+  - platform: template
+    id: people_not_home
+    value_template: '{{ is_state(person_1, "not_home") and is_state(person_2, "not_home") }}'
+  - platform: state
+    entity_id: !input eco_mode_boolean
+  - platform: template
+    id: hot_outside
+    value_template: '{{ state_attr(outside_temp, "temperature") > low_temp_target }}'
+  - platform: template
+    id: cool_outside
+    value_template: '{{ state_attr(outside_temp, "temperature") <= low_temp_target }}'
+
+action:
+  - choose:
+      - conditions:
+          - condition: or
+            conditions:
+              - condition: trigger
+                id: people_not_home
+              - condition: state
+                entity_id: !input eco_mode_boolean
+                state: "on"
+              - condition: trigger
+                id: hot_outside
+        sequence:
+          - service: climate.set_temperature
+            data:
+              temperature: !input low_temp_target
+            target: !input climate_target
+          - service: automation.turn_off
+            target: !input automations
+      - conditions:
+          - condition: or
+            conditions:
+              - condition: trigger
+                id: people_home
+              - condition: state
+                entity_id: !input eco_mode_boolean
+                state: "off"
+              - condition: trigger
+                id: cool_outside
+        sequence:
+          - service: automation.turn_on
+            target: !input automations
+          - service: automation.trigger
+            target: !input automations
+mode: single
