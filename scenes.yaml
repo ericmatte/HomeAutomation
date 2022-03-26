@@ -14,33 +14,6 @@
       assumed_state: false
       icon: mdi:ceiling-light
       state: 'off'
-    light.theatre:
-      min_mireds: 153
-      max_mireds: 500
-      supported_color_modes:
-      - color_temp
-      - xy
-      is_hue_group: true
-      hue_scenes:
-      - Arctic aurora
-      - Mountain breeze
-      - Cozy candel
-      - Ibiza
-      - Blue lagoon
-      - Nebula
-      - Sundown
-      - Fairfax
-      - Soho
-      hue_type: room
-      lights:
-      - Left theatre
-      - Right theatre
-      dynamics: false
-      icon: mdi:lightbulb-group
-      friendly_name: Theatre
-      supported_features: 40
-      assumed_state: false
-      state: 'off'
     light.desktop:
       min_mireds: 153
       max_mireds: 500
@@ -49,6 +22,7 @@
       - xy
       mode: normal
       dynamics: none
+      icon: mdi:desk-lamp
       friendly_name: Desktop
       supported_features: 40
       assumed_state: false
@@ -106,16 +80,12 @@
     select.rgbw_dimmer_local_protection_state:
       options:
       - Unprotected
-      - ProtectedBySequence
       - NoOperationPossible
       friendly_name: 'RGBW Dimmer: Local protection state'
       state: Unprotected
     light.under_cabinet:
-      min_mireds: 153
-      max_mireds: 370
       supported_color_modes:
-      - color_temp
-      - hs
+      - rgbw
       icon: mdi:led-strip-variant
       friendly_name: Cabinets
       supported_features: 32
@@ -181,6 +151,56 @@
       supported_features: 33
       assumed_state: false
       state: 'off'
+    light.metal_lamp:
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      mode: normal
+      dynamics: none
+      icon: mdi:light-flood-up
+      friendly_name: Metal lamp
+      supported_features: 40
+      assumed_state: false
+      state: 'off'
+    light.left_theatre:
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      mode: normal
+      dynamics: none
+      friendly_name: Left theatre
+      supported_features: 40
+      assumed_state: false
+      state: 'off'
+    light.right_theatre:
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      mode: normal
+      dynamics: none
+      friendly_name: Right theatre
+      supported_features: 40
+      assumed_state: false
+      state: 'off'
+    light.wood_lamp:
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      mode: normal
+      dynamics: none
+      icon: mdi:floor-lamp-torchiere-variant
+      friendly_name: Wood lamp
+      supported_features: 40
+      assumed_state: false
+      state: 'off'
 - id: '1643770284841'
   name: Bedtime
   entities:
@@ -218,19 +238,20 @@
       - xy
       is_hue_group: true
       hue_scenes:
-      - Blue lagoon
+      - Promise
+      - Tropical twilight
+      - City of love
+      - Blood moon
       - Mountain breeze
-      - Arctic aurora
-      - Nebula
-      - Fairfax
-      - Sundown
-      - Ibiza
-      - Soho
-      - Cozy candel
+      - Blue lagoon
+      - Cozy neutral
+      - Savanna sunset
       hue_type: room
       lights:
+      - Metal lamp
       - Left theatre
       - Right theatre
+      - Wood lamp
       dynamics: false
       icon: mdi:lightbulb-group
       friendly_name: Theatre
@@ -245,6 +266,7 @@
       - xy
       mode: normal
       dynamics: none
+      icon: mdi:desk-lamp
       friendly_name: Desktop
       supported_features: 40
       assumed_state: false
@@ -260,12 +282,10 @@
     light.rgbw_dimmer_r:
       supported_color_modes:
       - brightness
-      color_mode: brightness
-      brightness: 255
       friendly_name: RGBW Dimmer R
       supported_features: 32
       assumed_state: false
-      state: 'on'
+      state: 'off'
     light.rgbw_dimmer_w:
       supported_color_modes:
       - brightness
@@ -290,16 +310,12 @@
     select.rgbw_dimmer_local_protection_state:
       options:
       - Unprotected
-      - ProtectedBySequence
       - NoOperationPossible
       friendly_name: 'RGBW Dimmer: Local protection state'
       state: Unprotected
     light.under_cabinet:
-      min_mireds: 153
-      max_mireds: 370
       supported_color_modes:
-      - color_temp
-      - hs
+      - rgbw
       icon: mdi:led-strip-variant
       friendly_name: Cabinets
       supported_features: 32

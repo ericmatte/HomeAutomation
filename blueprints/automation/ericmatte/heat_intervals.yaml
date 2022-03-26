@@ -1,0 +1,77 @@
+blueprint:
+  name: Heat intervals
+  description: Create scheduled time intervals where the heat is increased
+  domain: automation
+  input:
+    climate_target:
+      name: Climate
+      description: "The thermostat(s) to control"
+      selector:
+        target:
+          entity:
+            domain: climate
+    high_temp:
+      name: High temperature target
+      default: 21
+      selector:
+        number:
+          min: 10
+          max: 25
+          step: 0.5
+          unit_of_measurement: °C
+    low_temp:
+      name: Low temperature target
+      default: 19
+      selector:
+        number:
+          min: 10
+          max: 25
+          step: 0.5
+          unit_of_measurement: °C
+    time_high_1:
+      name: First high heat trigger
+      selector:
+        time:
+    time_low_1:
+      name: First low heat trigger
+      selector:
+        time:
+    time_high_2:
+      name: Second high heat trigger
+      selector:
+        time:
+    time_low_2:
+      name: Second low heat trigger
+      selector:
+        time:
+trigger:
+  - platform: time
+    id: time_high
+    at:
+      - !input time_high_1
+      - !input time_high_2
+  - platform: time
+    id: time_low
+    at:
+      - !input time_low_1
+      - !input time_low_2
+action:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: time_high
+        sequence:
+          - service: climate.set_temperature
+            data:
+              temperature: !input high_temp
+            target: !input climate_target
+      - conditions:
+          - condition: trigger
+            id: time_low
+        sequence:
+          - service: climate.set_temperature
+            data:
+              temperature: !input low_temp
+            target: !input climate_target
+    default: []
+mode: single

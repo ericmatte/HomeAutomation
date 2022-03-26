@@ -1,5 +1,5 @@
 - id: 2a197cb06cf7
-  alias: 'Theme: Change automatically'
+  alias: 'Theme: Change automatically ✔️'
   trigger:
   - event: start
     platform: homeassistant
@@ -14,59 +14,21 @@
       name: "{% if states.sun.sun.state == \"above_horizon\" %}\n  My Light UI\n{%\
         \ else %}\n  My Dark UI\n{% endif %}\n"
     service_template: frontend.set_theme
-- id: fd62eaf9a362
-  alias: 'Flux: On when no color in dining light.'
-  trigger:
-  - platform: template
-    value_template: '{{ not not state_attr(''light.desktop'', ''color_temp'') }}'
-  action:
-  - entity_id: switch.flux
-    service: switch.turn_on
-- id: 4ad87d87a42e
-  alias: 'Flux: Off when color'
-  trigger:
-  - platform: template
-    value_template: '{{ not state_attr(''light.desktop'', ''color_temp'') }}'
-  action:
-  - entity_id: switch.flux
-    service: switch.turn_off
 - id: 28c90f5faaa5
-  alias: 'Entrance: Turn on when coming home'
-  trigger:
-  - entity_id: person.eric
-    platform: state
-    to: home
-  - entity_id: person.caro
-    platform: state
-    to: home
-  condition: []
-  action:
-  - service: homeassistant.turn_on
-    data: {}
-    target:
-      entity_id:
-      - light.hall
-      - switch.closet
-  - service: automation.turn_on
-    data: {}
-    target:
-      entity_id:
-      - automation.bathroom_motion_2
-      - automation.closet_motion
-      - automation.entrance_motion
-      - automation.office_turn_on_desktop_while_arriving
-  mode: single
-- id: badd1ec9d152
-  alias: 'Everything: Turn off when away'
+  alias: 'Person: Home/Away'
   trigger:
   - platform: template
     value_template: '{{ is_state(''person.eric'', ''not_home'') and is_state(''person.caro'',
       ''not_home'') }}'
+    id: away
+  - platform: template
+    value_template: '{{ is_state(''person.eric'', ''home'') }}'
+  - platform: template
+    value_template: '{{ is_state(''person.caro'', ''home'') }}'
   condition: []
   action:
-  - entity_id: scene.turn_off_everything
-    service: scene.turn_on
-  - service: automation.turn_off
+  - service: "{% if is_state('person.eric', 'home') or is_state('person.caro', 'home')\
+      \ %}\n  automation.turn_on\n{% else %}\n  automation.turn_off\n{% endif %}\n"
     data: {}
     target:
       entity_id:
@@ -74,8 +36,42 @@
       - automation.closet_motion
       - automation.entrance_motion
       - automation.office_turn_on_desktop_while_arriving
+      - automation.thermostats_sync_outdoor_temperature
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: away
+      sequence:
+      - entity_id: scene.turn_off_everything
+        service: scene.turn_on
+    default:
+    - service: homeassistant.turn_on
+      data: {}
+      target:
+        entity_id:
+        - light.hall
+        - switch.closet
+    - delay:
+        hours: 0
+        minutes: 5
+        seconds: 0
+        milliseconds: 0
+    - condition: state
+      entity_id: binary_sensor.motion_entrance
+      state: 'off'
+      for:
+        hours: 0
+        minutes: 5
+        seconds: 0
+    - service: homeassistant.turn_off
+      data: {}
+      target:
+        entity_id:
+        - light.hall
+        - switch.closet
+  mode: restart
 - id: c9f3148d9539
-  alias: 'Bedroom light: Turn off everything in low light'
+  alias: 'Bedroom light: Turn off everything in low light ✔️'
   trigger:
   - platform: state
     entity_id: light.bedroom
@@ -89,6 +85,7 @@
   - service: scene.turn_on
     target:
       entity_id: scene.turn_off_everything
+    data: {}
   mode: single
 - id: '1586909791957'
   alias: 'Bedroom: Curtains'
@@ -122,7 +119,7 @@
           entity_id: cover.curtains
     default: []
 - id: '1608127387393'
-  alias: 'Everything: Turn off when putting my phone on the charger at night'
+  alias: 'Everything: Turn off when putting my phone on the charger'
   description: ''
   trigger:
   - platform: state
@@ -135,28 +132,8 @@
   action:
   - scene: scene.bedtime
   mode: single
-- id: '1614129881005'
-  alias: 'Plants: Turn off at 5 PM'
-  description: ''
-  trigger:
-  - platform: time
-    at: '17:00:00'
-  condition: []
-  action:
-  - service: switch.turn_off
-    data: {}
-    entity_id: switch.humidifier
-  - service: light.turn_on
-    target:
-      entity_id: light.plants
-    data:
-      brightness_pct: 25
-  - service: light.turn_off
-    target:
-      entity_id: light.plants
-  mode: single
 - id: '1620346496383'
-  alias: 'Bedroom: Sync under_bed with ceiling light'
+  alias: 'Bedroom: Sync under_bed with ceiling light ✔️'
   description: ''
   trigger:
   - platform: state
@@ -177,40 +154,41 @@
         \ #}\n{% endif %}\n"
   mode: restart
 - id: '1623326884562'
-  alias: 'Plants: Turn grow lights on at sunrise'
+  alias: 'Plants: Turn grow lights on at sunrise and off at 5pm ✔️'
   description: ''
   trigger:
   - platform: state
     entity_id: sun.sun
     to: above_horizon
-  condition:
-  - condition: time
-    weekday:
-    - mon
-    - tue
-    - wed
-    - thu
-    - fri
-    - sat
-    - sun
+    id: sun
+  - platform: time
+    at: '17:00:00'
+    id: time
+  condition: []
   action:
-  - service: light.turn_on
-    target:
-      entity_id: light.plants
-    data:
-      brightness: 255
-      color_temp: 158
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: sun
+      sequence:
+      - service: light.turn_on
+        target:
+          entity_id: light.plants
+        data:
+          brightness: 255
+          color_temp: 158
+    - conditions:
+      - condition: trigger
+        id: time
+      sequence:
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.plants
+    default: []
   mode: single
-- id: '1634488309210'
-  alias: 'Default color: Plants'
-  description: ''
-  use_blueprint:
-    path: Noblewolf/default-turn-on-brightness-color-temperature-for-lights.yaml
-    input:
-      target_lights: light.plants
-      light_color_temperature: 154
 - id: '1643482972962'
-  alias: 'Closet: motion'
+  alias: 'Closet: motion ✔️'
   description: ''
   use_blueprint:
     path: freakshock88/motion_illuminance_activated_entity.yaml
@@ -221,14 +199,14 @@
       time_limit_after: input_datetime.motion_on
       time_limit_before: input_datetime.motion_off
 - id: '1643521875134'
-  alias: 'Theatre: Turn on when TV is on'
+  alias: 'Theatre: Turn on when TV is on ✔️'
   description: ''
   trigger:
   - platform: device
     device_id: 1c05c6a0aaa4f4be1645832535abfd7d
     domain: media_player
     entity_id: media_player.tv
-    type: playing
+    type: turned_on
   condition:
   - condition: time
     before: 01:00:00
@@ -241,7 +219,7 @@
       brightness: 255
   mode: single
 - id: '1643594926751'
-  alias: 'Entrance: Button 3 turn off all'
+  alias: 'Entrance: Button 3 turn off all ✔️'
   description: ''
   trigger:
   - platform: state
@@ -253,9 +231,10 @@
   - service: scene.turn_on
     target:
       entity_id: scene.turn_off_everything
+    data: {}
   mode: single
 - id: '1643595025000'
-  alias: 'Office: Turn on desktop while arriving'
+  alias: 'Office: Turn on desktop while arriving ✔️'
   description: ''
   trigger:
   - platform: state
@@ -278,27 +257,6 @@
     data:
       color_temp: 251
       brightness: 255
-  mode: single
-- id: '1643660425100'
-  alias: 'Office: Turn off desktop while quitting'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.motion_entrance
-    to: 'on'
-  condition:
-  - condition: time
-    after: '18:00:00'
-    before: '20:00:00'
-  - condition: state
-    entity_id: binary_sensor.gaming_pc
-    state: 'off'
-  action:
-  - service: light.turn_off
-    target:
-      entity_id: light.desktop
-    data:
-      transition: 3
   mode: single
 - id: '1643768034083'
   alias: 'Entrance: Button 1 disables motion'
@@ -351,18 +309,16 @@
       entity_id: automation.closet_motion
   mode: restart
 - id: '1643860305249'
-  alias: 'Dining table: Sync with Kitchen island'
+  alias: 'Dining table: Sync with Kitchen island ✔️'
   description: ''
   trigger:
   - platform: state
     entity_id: light.kitchen_island
   condition:
-  - condition: and
-    conditions:
-    - condition: template
-      value_template: '{{ trigger.to_state.context.parent_id == none }}'
-    - condition: template
-      value_template: '{{ trigger.to_state.context.user_id == none }}'
+  - condition: template
+    value_template: '{{ trigger.to_state.context.parent_id == none }}'
+  - condition: template
+    value_template: '{{ trigger.to_state.context.user_id == none }}'
   action:
   - choose:
     - conditions:
@@ -386,7 +342,7 @@
   mode: parallel
   max: 10
 - id: '1643899203409'
-  alias: 'Bathroom: Motion'
+  alias: 'Bathroom: Motion ✔️'
   description: ''
   trigger:
   - platform: state
@@ -411,8 +367,8 @@
     data:
       brightness: '{% if state_attr("light.small_bathroom", "brightness") != None
         %}{{ state_attr("light.small_bathroom", "brightness") }}{% elif now().hour
-        > 22 %}50{% elif now().hour > 20 %}100{% elif now().hour < 8 %}100{% else
-        %}255{% endif %}
+        > 22 %}200{% elif now().hour > 20 %}180{% elif now().hour < 2 %}1{% elif now().hour
+        < 8 %}200{% else %}255{% endif %}
 
         '
     target:
@@ -434,7 +390,7 @@
       entity_id: light.small_bathroom
   mode: restart
 - id: '1644094148476'
-  alias: 'Entrance: Motion'
+  alias: 'Entrance: Motion ✔️'
   description: ''
   trigger:
   - platform: state
@@ -449,7 +405,7 @@
   - service: light.turn_on
     data:
       brightness: '{% if state_attr("light.hall", "brightness") != None %}{{ state_attr("light.hall",
-        "brightness") }}{% elif now().hour > 22 %}50{% elif now().hour > 20 %}100{%
+        "brightness") }}{% elif now().hour > 22 %}80{% elif now().hour > 20 %}100{%
         elif now().hour < 8 %}100{% else %}255{% endif %}
 
         '
@@ -473,7 +429,7 @@
       entity_id: light.hall
   mode: restart
 - id: '1645234889986'
-  alias: 'Bathroom: Sync cabinets with Hall/Kitchen lights'
+  alias: 'Bathroom: Sync cabinets with Hall/Kitchen lights ✔️'
   description: ''
   trigger:
   - platform: state
@@ -518,7 +474,7 @@
     default: []
   mode: single
 - id: '1645530868434'
-  alias: 'Closet: Turn off light reset motion'
+  alias: 'Closet: Turn off light reset motion ✔️'
   description: ''
   trigger:
   - platform: state
@@ -544,37 +500,6 @@
       entity_id:
       - automation.entrance_button_3_turn_off_all_duplicate
       - automation.closet_motion
-  mode: single
-- id: '1645757455109'
-  alias: 'Office: Turn on Gamer mode'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.gaming_pc
-    from: 'off'
-    to: 'on'
-  condition: []
-  action:
-  - service: scene.turn_on
-    data: {}
-    target:
-      entity_id: scene.gamer_mode
-  mode: single
-- id: '1645757496159'
-  alias: 'Office: Turn off Gamer mode'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.gaming_pc
-    from: 'on'
-    to: 'off'
-  condition: []
-  action:
-  - service: light.turn_off
-    data:
-      transition: 3
-    target:
-      entity_id: light.desktop
   mode: single
 - id: '1646591760545'
   alias: 'Office: Heat high'
@@ -655,40 +580,6 @@
       temperature: 19.5
     target:
       entity_id: climate.office_thermostat
-  mode: single
-- id: '1646591943644'
-  alias: 'Bedroom: Heat low'
-  description: ''
-  trigger:
-  - platform: time
-    at: 00:30:00
-  - platform: time
-    at: '10:00:00'
-  condition: []
-  action:
-  - service: climate.set_temperature
-    data:
-      temperature: 19.5
-    target:
-      entity_id: climate.bedroom_thermostat
-  mode: single
-- id: '1646592004352'
-  alias: 'Bedroom: Heat high'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: sensor.time
-    to: '21:30'
-  - platform: state
-    entity_id: sensor.time
-    to: 06:45
-  condition: []
-  action:
-  - service: climate.set_temperature
-    data:
-      temperature: 21.5
-    target:
-      entity_id: climate.bedroom_thermostat
   mode: single
 - id: '1646592307267'
   alias: 'Office: Heat high weekend'
@@ -783,23 +674,20 @@
       entity_id: climate.office_thermostat
   mode: single
 - id: '1646710305446'
-  alias: 'Office: Desktop light sync with PC'
+  alias: 'Office: Desktop light sync with PC ✔️'
   description: ''
   trigger:
   - platform: state
     entity_id: binary_sensor.eric_mbp_active
-    to: 'on'
-  - platform: state
-    entity_id: binary_sensor.eric_mbp_active
-    to: 'off'
-    from: 'on'
-    for:
-      hours: 0
-      minutes: 1
-      seconds: 0
   - platform: state
     entity_id: binary_sensor.gaming_pc
-  condition: []
+  - platform: state
+    entity_id: binary_sensor.macbook
+    from: 'on'
+    to: 'off'
+  condition:
+  - condition: template
+    value_template: '{{ trigger.to_state.state != trigger.from_state.state }}'
   action:
   - choose:
     - conditions:
@@ -815,6 +703,11 @@
       - condition: state
         entity_id: binary_sensor.eric_mbp_active
         state: 'on'
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: binary_sensor.macbook
+          state: 'off'
       sequence:
       - service: light.turn_on
         data:
@@ -823,13 +716,14 @@
         target:
           entity_id: light.desktop
     default:
-    - service: light.turn_off
+    - service: homeassistant.turn_off
       data: {}
       target:
-        entity_id: light.desktop
+        entity_id:
+        - light.desktop
   mode: single
 - id: '1646710431195'
-  alias: 'Office: Wardrobe light from sensor'
+  alias: 'Office: Wardrobe light from sensor ✔️'
   description: ''
   trigger:
   - platform: state
@@ -853,7 +747,7 @@
         entity_id: switch.office_wardrobe
   mode: single
 - id: '1646710542220'
-  alias: 'Plants: Wardrobe light from sensor'
+  alias: 'Plants: Wardrobe light from sensor ✔️'
   description: ''
   trigger:
   - platform: state
@@ -877,7 +771,7 @@
         entity_id: switch.caro_wardrobe
   mode: single
 - id: '1646933996426'
-  alias: 'Bedroom: Sync climate'
+  alias: 'Bedroom: Sync climate ✔️'
   description: ''
   trigger:
   - platform: state
@@ -888,7 +782,9 @@
     entity_id: climate.small_bathroom_thermostat
     attribute: temperature
     id: bathroom
-  condition: []
+  condition:
+  - condition: template
+    value_template: '{{ trigger.to_state.context.parent_id == none }}'
   action:
   - choose:
     - conditions:
@@ -916,4 +812,82 @@
         target:
           entity_id: climate.bedroom_thermostat
     default: []
+  mode: restart
+- id: '1647045425743'
+  alias: 'Thermostats: Sync outdoor temperature ✔️'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: weather.home
+    attribute: temperature
+  - platform: state
+    entity_id: automation.thermostats_sync_outdoor_temperature
+    attribute: last_triggered
+    for:
+      hours: 3
+      minutes: 0
+      seconds: 0
+  condition: []
+  action:
+  - service: mqtt.publish
+    data:
+      topic: zwave/_CLIENTS/ZWAVE_GATEWAY-mosquitto/api/sendCommand/set
+      payload: '{"args":[{"nodeId":12,"commandClass":49,"endpoint":0,"property":"Air
+        temperature"},"sendReport",[1, 0, {{ state_attr(''weather.home'', ''temperature'')
+        | round(2, default=0) }}]]}
+
+        '
+  - service: mqtt.publish
+    data:
+      topic: zwave/_CLIENTS/ZWAVE_GATEWAY-mosquitto/api/sendCommand/set
+      payload: '{"args":[{"nodeId":13,"commandClass":49,"endpoint":0,"property":"Air
+        temperature"},"sendReport",[1, 0, {{ state_attr(''weather.home'', ''temperature'')
+        | round(2, default=0) }}]]}
+
+        '
+  - service: mqtt.publish
+    data:
+      topic: zwave/_CLIENTS/ZWAVE_GATEWAY-mosquitto/api/sendCommand/set
+      payload: '{"args":[{"nodeId":14,"commandClass":49,"endpoint":0,"property":"Air
+        temperature"},"sendReport",[1, 0, {{ state_attr(''weather.home'', ''temperature'')
+        | round(2, default=0) }}]]}
+
+        '
+  - service: mqtt.publish
+    data:
+      topic: zwave/_CLIENTS/ZWAVE_GATEWAY-mosquitto/api/sendCommand/set
+      payload: '{"args":[{"nodeId":11,"commandClass":49,"endpoint":0,"property":"Air
+        temperature"},"sendReport",[1, 0, {{ state_attr(''weather.home'', ''temperature'')
+        | round(2, default=0) }}]]}
+
+        '
   mode: single
+- id: '1648313126065'
+  alias: 'Office: Desktop flux ✔️'
+  description: ''
+  use_blueprint:
+    path: ericmatte/flux_light.yaml
+    input:
+      light_target: light.desktop
+      flux_switch: switch.desktop_flux
+- id: '1648313564753'
+  alias: 'Dining table: Flux ✔️'
+  description: ''
+  use_blueprint:
+    path: ericmatte/flux_light.yaml
+    input:
+      light_target: light.dining_table
+      flux_switch: switch.dining_table_flux
+- id: '1648320672728'
+  alias: 'Bedroom: Heat intervals ✔️'
+  description: ''
+  use_blueprint:
+    path: ericmatte/heat_intervals.yaml
+    input:
+      time_low_2: 00:30:00
+      climate_target:
+        entity_id: climate.bedroom_thermostat
+      time_low_1: 09:00:00
+      time_high_2: '22:00:00'
+      time_high_1: 06:45:00
+      low_temp: 18.5

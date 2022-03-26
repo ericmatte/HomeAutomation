@@ -1,0 +1,37 @@
+blueprint:
+  name: Control light temperature with Flux
+  description: Synchronize a Flux switch to only be enabled when the targeted light is "on" and using color_temp mode.
+  domain: automation
+  input:
+    light_target:
+      name: Light
+      description: "The light you want to be controlled by Flux"
+      selector:
+        entity:
+          domain: light
+    flux_switch:
+      name: Flux switch
+      selector:
+        entity:
+          domain: switch
+trigger:
+  - platform: state
+    entity_id: !input "light_target"
+variables:
+  light_target: !input "light_target"
+action:
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ not not state_attr(light_target, 'color_temp') }}"
+        sequence:
+          - service: switch.turn_on
+            data: {}
+            target:
+              entity_id: !input "flux_switch"
+    default:
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: !input "flux_switch"
+mode: restart

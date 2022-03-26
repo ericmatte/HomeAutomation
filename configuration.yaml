@@ -60,7 +60,7 @@ device_tracker:
       eric_ping: 192.168.0.100
       caro_ping: 192.168.0.101
   - platform: bluetooth_tracker
-    interval_seconds: 10
+    interval_seconds: 8
     consider_home: 300
     new_device_defaults:
       track_new_devices: false
@@ -91,11 +91,11 @@ logbook:
 sun:
 
 binary_sensor:
-  # - platform: ping
-  #   name: Macbook
-  #   host: 192.168.0.102
-  #   count: 2
-  #   scan_interval: 45
+  - platform: ping
+    name: Macbook
+    host: 192.168.0.102
+    count: 2
+    scan_interval: 45
   - platform: ping
     name: Gaming PC
     host: 192.168.0.103
@@ -133,15 +133,22 @@ switch:
     mode: mired
     disable_brightness_adjust: True
     stop_colortemp: 2700 # https://www.tanguayphotomag.biz/colour-temperature/mireds.html
+    name: Desktop flux
+    lights:
+      - light.desktop
+  - platform: flux
+    mode: mired
+    disable_brightness_adjust: True
+    stop_colortemp: 2700 # https://www.tanguayphotomag.biz/colour-temperature/mireds.html
+    name: Dining table flux
     lights:
       - light.dining_table
-      - light.desktop
 
 input_boolean:
   sync_tv_lights:
     name: Sync lights with Chromecast
     initial: on
-    icon: mdi:flash-circle
+    icon: mdi:television-ambient-light
 
 automation: !include automations.yaml
 script: !include scripts.yaml

@@ -19,6 +19,8 @@ media_lights_sync:
   lights:
     - light.left_theatre
     - light.right_theatre
+    - light.wood_lamp
+    - light.metal_lamp
 
 media_lights_sync_spotify:
   module: media_lights_sync
@@ -35,6 +37,8 @@ media_lights_sync_spotify:
   lights:
     - light.left_theatre
     - light.right_theatre
+    - light.wood_lamp
+    - light.metal_lamp
 #
 # zooz_rgbw_light:
 #   module: zooz_rgbw_light
