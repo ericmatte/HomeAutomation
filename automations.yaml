@@ -748,3 +748,13 @@
       macbook_active: binary_sensor.eric_mbp_active
       macbook_ping: binary_sensor.macbook
       macbook_displays: sensor.eric_mbp_displays
+- id: '1648356190886'
+  alias: Litter box reminder ✔️
+  description: ''
+  use_blueprint:
+    path: ericmatte/litter_box.yaml
+    input:
+      notification_time: '18:00:00'
+      days_since_last_cleanup: input_number.litter_box_day_since_last_changed
+      person_select: input_select.litter_box_assigned_person
+      days_threshold: 2

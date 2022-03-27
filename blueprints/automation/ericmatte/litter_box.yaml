@@ -1,0 +1,95 @@
+blueprint:
+  name: Litter box reminder
+  description: Send a notification to the assigned person to clean the litter box.
+  domain: automation
+  input:
+    days_since_last_cleanup:
+      name: Days since last cleanup input number
+      selector:
+        entity:
+          domain: input_number
+    person_select:
+      name: Person selector
+      selector:
+        entity:
+          domain: input_select
+    notification_time:
+      name: Time to send notification
+      selector:
+        time:
+    days_threshold:
+      name: Days threshold before sending a notification
+      default: 3
+      selector:
+        number:
+          min: 1
+          max: 10
+          step: 1
+          unit_of_measurement: days
+
+trigger_variables:
+  person_select: !input person_select
+
+variables:
+  person: "{{ states(person_select) }}"
+  days_since_last_cleanup: !input days_since_last_cleanup
+  days_threshold: !input days_threshold
+
+trigger:
+  - platform: state
+    id: input_number
+    entity_id: !input days_since_last_cleanup
+  - platform: template
+    value_template: '{{ is_state("person." + states(person_select), "home") }}'
+  - platform: time
+    id: time
+    at:
+      - !input notification_time
+action:
+  # - service: notify.persistent_notification
+  #   data:
+  #     message: "yoyo {{ days_since_last_cleanup }}, {{ int(days_since_last_cleanup) }}"
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: time
+        sequence:
+          - service: input_number.increment
+            target:
+              entity_id: !input days_since_last_cleanup
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ float(states(days_since_last_cleanup)) >= float(days_threshold) }}"
+          - condition: template
+            value_template: '{{ is_state("person." + person, "home") }}'
+        sequence:
+          - service: "notify.mobile_app_{{ person }}_phone"
+            data:
+              title: Cat litter box 🐈
+              message: "It's been {{ int(states(days_since_last_cleanup)) }} days since last cleanup. Time to do it!"
+              data:
+                tag: litter_box
+                actions:
+                  - action: "LITTER_CONFIRM"
+                    title: I cleaned it up!
+                  - action: "DISMISS"
+                    title: Do tomorrow
+  - alias: "Awaiting response"
+    wait_for_trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+  - choose:
+      - conditions: "{{ wait.trigger.event.data.action == 'LITTER_CONFIRM' }}"
+        sequence:
+          - service: input_number.set_value
+            data:
+              value: 0
+            target:
+              entity_id: input_number.litter_box_day_since_last_changed
+          - service: input_select.select_next
+            target:
+              entity_id: input_select.litter_box_assigned_person
+      # - conditions: "{{ wait.trigger.event.data.action == 'LITTER_DISMISS' }}"
+      #   sequence: !input dismiss_action
+mode: restart
