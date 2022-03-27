@@ -1,0 +1,168 @@
+blueprint:
+  name: Heat office custom
+  description: |
+    Custom blueprint to control heating in my office.
+
+    This blueprint increases/decrease temperature based on connected devices and time triggers.
+  domain: automation
+  input:
+    person:
+      name: Person to track
+      description: If not_home, will default to low temperature.
+      selector:
+        entity:
+          domain: person
+    climate_target:
+      name: Climate
+      description: "The thermostat(s) to control"
+      selector:
+        target:
+          entity:
+            domain: climate
+    high_temp:
+      name: High temperature target
+      default: 21
+      selector:
+        number:
+          min: 10
+          max: 25
+          step: 0.5
+          unit_of_measurement: °C
+    low_temp:
+      name: Low temperature target
+      default: 19
+      selector:
+        number:
+          min: 10
+          max: 25
+          step: 0.5
+          unit_of_measurement: °C
+    time_high:
+      name: High heat time trigger
+      selector:
+        time:
+    time_low:
+      name: Low heat time trigger
+      selector:
+        time:
+    gaming_pc:
+      name: Gaming PC
+      selector:
+        entity:
+          domain: binary_sensor
+    macbook_active:
+      name: Macbook active sensor
+      selector:
+        entity:
+          domain: binary_sensor
+    macbook_ping:
+      name: Macbook ping
+      description: |
+        Additionnal sensor to support Macbook active sensor not turning off when shutting down.
+        https://github.com/home-assistant/iOS/issues/1501#issuecomment-1079724992
+      selector:
+        entity:
+          domain: binary_sensor
+    macbook_displays:
+      name: Macbook displays count
+      description: Will only increase heat if connected to multiple displays
+      selector:
+        entity:
+          domain: sensor
+
+trigger:
+  - platform: state
+    entity_id: !input person
+    to: ~
+  - platform: state
+    entity_id: !input gaming_pc
+    to: ~
+  - platform: state
+    id: macbook_active
+    entity_id: !input macbook_active
+    to: ~
+  - platform: state
+    entity_id: !input macbook_ping
+    from: "on"
+    to: "off"
+    id: mbp_ping
+  - platform: state
+    entity_id: !input macbook_displays
+    to: ~
+  - platform: time
+    id: time_high
+    at:
+      - !input time_high
+  - platform: time
+    id: time_low
+    at:
+      - !input time_low
+condition:
+  - condition: not
+    conditions:
+      - condition: and
+        conditions:
+          - condition: trigger
+            id: mbp_ping
+          - condition: state
+            entity_id: !input macbook_active
+            state: "off"
+action:
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: !input person
+            state: "not_home"
+        sequence:
+          - service: climate.set_temperature
+            data:
+              temperature: !input low_temp
+            target: !input climate_target
+      - conditions:
+          - condition: or
+            conditions:
+              - condition: trigger
+                id: time_high
+              - condition: state
+                entity_id: !input gaming_pc
+                state: "on"
+              - condition: and
+                conditions:
+                  - condition: state
+                    entity_id: !input macbook_active
+                    state: "on"
+                  - condition: numeric_state
+                    entity_id: !input macbook_displays
+                    above: "1"
+                  - condition: or
+                    conditions:
+                      - condition: trigger
+                        id: macbook_active
+                      - condition: state
+                        entity_id: !input macbook_ping
+                        state: "on"
+        sequence:
+          - service: climate.set_temperature
+            data:
+              temperature: !input high_temp
+            target: !input climate_target
+      - conditions:
+          - condition: state
+            entity_id: !input gaming_pc
+            state: "off"
+          - condition: or
+            conditions:
+              - condition: state
+                entity_id: !input macbook_active
+                state: "off"
+              - condition: trigger
+                id: mbp_ping
+              - condition: state
+                entity_id: !input macbook_displays
+                state: "1"
+        sequence:
+          - service: climate.set_temperature
+            data:
+              temperature: !input low_temp
+            target: !input climate_target
+mode: single

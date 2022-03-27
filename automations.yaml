@@ -15,7 +15,7 @@
         \ else %}\n  My Dark UI\n{% endif %}\n"
     service: frontend.set_theme
 - id: 28c90f5faaa5
-  alias: 'Home: Away mode'
+  alias: 'Home: Away mode ✔️'
   description: 'Disable home automations while away.
 
     Turn entrance lights on when arriving.'
@@ -35,11 +35,10 @@
     data: {}
     target:
       entity_id:
-      - automation.bathroom_motion_2
+      - automation.bathroom_motion
       - automation.closet_motion
       - automation.entrance_motion
       - automation.office_turn_on_desktop_while_arriving
-      - automation.thermostats_sync_outdoor_temperature
   - choose:
     - conditions:
       - condition: trigger
@@ -74,7 +73,7 @@
         - switch.closet
   mode: restart
 - id: c9f3148d9539
-  alias: 'Bedroom light: Turn off everything in low light ✔️'
+  alias: 'Bedroom: Turn off everything in low light ✔️'
   trigger:
   - platform: state
     entity_id: light.bedroom
@@ -122,7 +121,7 @@
           entity_id: cover.curtains
     default: []
 - id: '1608127387393'
-  alias: 'Everything: Turn off when putting my phone on the charger ✔️'
+  alias: 'Everything: Turn off with phone charger ✔️'
   description: ''
   trigger:
   - platform: state
@@ -157,7 +156,7 @@
         \ #}\n{% endif %}\n"
   mode: restart
 - id: '1623326884562'
-  alias: 'Plants: Turn grow lights on at sunrise and off at 5pm ✔️'
+  alias: 'Plants: Grow lights ✔️'
   description: ''
   trigger:
   - platform: state
@@ -504,178 +503,6 @@
       - automation.entrance_button_3_turn_off_all_duplicate
       - automation.closet_motion
   mode: single
-- id: '1646591760545'
-  alias: 'Office: Heat high'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: sensor.time
-    to: 08:30
-  condition:
-  - condition: time
-    before: 00:00:00
-    weekday:
-    - mon
-    - tue
-    - wed
-    - thu
-    - fri
-    after: 00:00:00
-  action:
-  - service: climate.set_temperature
-    data:
-      temperature: 22
-    target:
-      entity_id: climate.office_thermostat
-  - delay:
-      hours: 3
-      minutes: 0
-      seconds: 0
-      milliseconds: 0
-  - choose:
-    - conditions:
-      - condition: state
-        entity_id: binary_sensor.eric_mbp_active
-        state: 'off'
-        for:
-          hours: 3
-          minutes: 0
-          seconds: 0
-      - condition: state
-        entity_id: binary_sensor.gaming_pc
-        for:
-          hours: 3
-          minutes: 0
-          seconds: 0
-        state: 'off'
-      sequence:
-      - service: climate.set_temperature
-        data:
-          temperature: 19.5
-        target:
-          entity_id: climate.office_thermostat
-    default: []
-  mode: restart
-- id: '1646591800062'
-  alias: 'Office: Heat low'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.eric_mbp_active
-    to: 'off'
-    from: 'on'
-  - platform: state
-    entity_id: binary_sensor.gaming_pc
-    from: 'on'
-    to: 'off'
-  - platform: time
-    at: '23:45:00'
-  condition:
-  - condition: state
-    entity_id: binary_sensor.eric_mbp_active
-    state: 'off'
-  - condition: state
-    entity_id: binary_sensor.gaming_pc
-    state: 'off'
-  action:
-  - service: climate.set_temperature
-    data:
-      temperature: 19.5
-    target:
-      entity_id: climate.office_thermostat
-  mode: single
-- id: '1646592307267'
-  alias: 'Office: Heat high weekend'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: sensor.time
-    to: '11:30'
-  condition:
-  - condition: time
-    before: 00:00:00
-    weekday:
-    - sat
-    - sun
-    after: 00:00:00
-  action:
-  - service: climate.set_temperature
-    data:
-      temperature: 21.5
-    target:
-      entity_id: climate.office_thermostat
-  mode: single
-- id: '1646592576276'
-  alias: 'Heat: Low when away'
-  description: ''
-  trigger:
-  - platform: template
-    value_template: '{{ is_state(''person.eric'', ''not_home'') and is_state(''person.caro'',
-      ''not_home'') }}'
-  condition: []
-  action:
-  - service: automation.turn_off
-    data: {}
-    target:
-      entity_id:
-      - automation.office_heat_on
-      - automation.office_heat_high_weekend
-      - automation.bedroom_heat_high
-  - service: climate.set_temperature
-    data:
-      temperature: 19.5
-    target:
-      entity_id:
-      - climate.bedroom_thermostat
-      - climate.living_room_thermostat
-      - climate.office_thermostat
-  mode: single
-- id: '1646592700362'
-  alias: 'Heat: High when home'
-  description: ''
-  trigger:
-  - platform: template
-    value_template: '{{ is_state(''person.eric'', ''home'') or is_state(''person.caro'',
-      ''home'') }}'
-  condition:
-  - condition: template
-    value_template: '{{ state_attr(''automation.heat_high_when_home'', ''last_triggered'')
-      < state_attr(''automation.heat_low_when_away'', ''last_triggered'') }}'
-  action:
-  - service: automation.turn_on
-    data: {}
-    target:
-      entity_id:
-      - automation.office_heat_high_weekend
-      - automation.bedroom_heat_high
-      - automation.office_heat_on
-  - service: climate.set_temperature
-    data:
-      temperature: 20
-    target:
-      entity_id:
-      - climate.living_room_thermostat
-  mode: single
-- id: '1646680887309'
-  alias: 'Office: Heat high PC on'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.eric_mbp_active
-    to: 'on'
-    from: 'off'
-  - platform: state
-    entity_id: binary_sensor.gaming_pc
-    from: 'off'
-    to: 'on'
-  condition: []
-  action:
-  - service: climate.set_temperature
-    data:
-      temperature: 22
-    target:
-      entity_id: climate.office_thermostat
-  mode: single
 - id: '1646710305446'
   alias: 'Office: Desktop light sync with PC ✔️'
   description: ''
@@ -869,7 +696,7 @@
       device_id_4: 14
       temperature_input: weather.home
 - id: '1648330845926'
-  alias: 'Thermostats: Away/Eco mode'
+  alias: 'Thermostats: Away/Eco heat mode ✔️'
   description: ''
   use_blueprint:
     path: ericmatte/heat_away_eco_mode.yaml
@@ -886,8 +713,10 @@
         entity_id:
         - automation.bedroom_heats
         - automation.living_room_heat_on
+        - automation.office_heat_sync
       person_1: person.eric
       person_2: person.caro
+      low_temp_target: 18
 - id: '1648331331944'
   alias: 'Living room: Heat on ✔️'
   description: ''
@@ -902,3 +731,20 @@
     target:
       entity_id: climate.living_room_thermostat
   mode: single
+- id: '1648352164561'
+  alias: 'Office: Heat sync ✔️'
+  description: ''
+  use_blueprint:
+    path: ericmatte/heat_office_custom.yaml
+    input:
+      time_low: '16:00:00'
+      person: person.eric
+      climate_target:
+        entity_id: climate.office_thermostat
+      high_temp: 21.5
+      low_temp: 19.5
+      time_high: 08:30:00
+      gaming_pc: binary_sensor.gaming_pc
+      macbook_active: binary_sensor.eric_mbp_active
+      macbook_ping: binary_sensor.macbook
+      macbook_displays: sensor.eric_mbp_displays

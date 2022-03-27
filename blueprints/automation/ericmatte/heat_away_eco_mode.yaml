@@ -7,7 +7,6 @@ blueprint:
       - outside temperature is above a the minimum value
 
     It will also disables every other heat automations when entering eco mode.
-
   domain: automation
   input:
     person_1:
