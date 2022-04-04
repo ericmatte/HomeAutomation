@@ -14,8 +14,8 @@ media_lights_sync:
   reset_lights_after: true
   # transition: 8
   condition:
-    entity: input_boolean.sync_tv_lights
-    state: "on"
+    entity: sun.sun
+    state: "below_horizon"
   lights:
     - light.left_theatre
     - light.right_theatre

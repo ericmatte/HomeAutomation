@@ -144,12 +144,6 @@ switch:
     lights:
       - light.dining_table
 
-input_boolean:
-  sync_tv_lights:
-    name: Sync lights with Chromecast
-    initial: on
-    icon: mdi:television-ambient-light
-
 automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
