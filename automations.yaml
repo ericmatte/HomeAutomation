@@ -15,10 +15,13 @@
         \ else %}\n  My Dark UI\n{% endif %}\n"
     service: frontend.set_theme
 - id: 28c90f5faaa5
-  alias: 'Home: Away mode ✔️'
+  alias: 'Home: Away mode -'
   description: 'Disable home automations while away.
 
-    Turn entrance lights on when arriving.'
+    Turn entrance lights on when arriving.
+
+
+    *Entrance not turning off'
   trigger:
   - platform: template
     value_template: '{{ is_state(''person.eric'', ''not_home'') and is_state(''person.caro'',
@@ -208,7 +211,7 @@
     device_id: 1c05c6a0aaa4f4be1645832535abfd7d
     domain: media_player
     entity_id: media_player.tv
-    type: turned_on
+    type: playing
   condition:
   - condition: time
     before: 01:00:00
@@ -369,8 +372,8 @@
     data:
       brightness: '{% if state_attr("light.small_bathroom", "brightness") != None
         %}{{ state_attr("light.small_bathroom", "brightness") }}{% elif now().hour
-        > 22 %}200{% elif now().hour > 20 %}180{% elif now().hour < 2 %}1{% elif now().hour
-        < 8 %}200{% else %}255{% endif %}
+        > 22 %}200{% elif now().hour > 20 %}180{% elif now().hour < 3 %}60{% elif
+        now().hour < 8 %}200{% else %}255{% endif %}
 
         '
     target:
@@ -509,8 +512,10 @@
   trigger:
   - platform: state
     entity_id: binary_sensor.eric_mbp_active
+    to:
   - platform: state
     entity_id: binary_sensor.gaming_pc
+    to:
   - platform: state
     entity_id: binary_sensor.macbook
     from: 'on'
@@ -675,15 +680,16 @@
   use_blueprint:
     path: ericmatte/heat_intervals.yaml
     input:
-      time_low_2: 00:30:00
+      time_low_2: 08:46:00
       climate_target:
         entity_id:
         - climate.bedroom_thermostat
         - climate.small_bathroom_thermostat
-      time_low_1: 09:00:00
-      time_high_2: '22:00:00'
+      time_low_1: 08:45:00
+      time_high_2: 06:46:00
       time_high_1: 06:45:00
-      low_temp: 18.5
+      low_temp: 20
+      high_temp: 22
 - id: '1648324723671'
   alias: 'Thermostats: Sync outdoor temperature ✔️'
   description: ''
@@ -727,7 +733,7 @@
   action:
   - service: climate.set_temperature
     data:
-      temperature: 20
+      temperature: 21
     target:
       entity_id: climate.living_room_thermostat
   mode: single
@@ -741,8 +747,8 @@
       person: person.eric
       climate_target:
         entity_id: climate.office_thermostat
-      high_temp: 21.5
-      low_temp: 19.5
+      high_temp: 22
+      low_temp: 20
       time_high: 08:30:00
       gaming_pc: binary_sensor.gaming_pc
       macbook_active: binary_sensor.eric_mbp_active
@@ -758,3 +764,15 @@
       days_since_last_cleanup: input_number.litter_box_day_since_last_changed
       person_select: input_select.litter_box_assigned_person
       days_threshold: 2
+- id: '1648361041950'
+  alias: Robot cleaning reminder
+  description: ''
+  use_blueprint:
+    path: ericmatte/robot_cleaning_reminder.yaml
+    input:
+      notification_time: '15:00:00'
+      person: person.eric
+      notify_device: 3686cb423a16d87a70372d483b9b591e
+      vacuum: vacuum.roby
+      vacuum_last_clean: sensor.roby_last_clean_start
+      days_threshold: 3

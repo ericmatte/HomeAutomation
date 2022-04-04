@@ -75,8 +75,7 @@ action:
                     title: I cleaned it up!
                   - action: "DISMISS"
                     title: Do tomorrow
-  - alias: "Awaiting response"
-    wait_for_trigger:
+  - wait_for_trigger:
       - platform: event
         event_type: mobile_app_notification_action
   - choose:

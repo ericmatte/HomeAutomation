@@ -1,0 +1,81 @@
+blueprint:
+  name: Robot cleaning reminder
+  description: Send a notification to ask wether to start cleaning with the robot vacuum.
+  domain: automation
+  input:
+    person:
+      name: Person to notify while at home
+      selector:
+        entity:
+          domain: person
+    notify_device:
+      name: Device to notify
+      selector:
+        device:
+          integration: mobile_app
+    vacuum:
+      name: The vacuum
+      selector:
+        entity:
+          domain: vacuum
+    vacuum_last_clean:
+      name: The vacuum last clean sensor
+      selector:
+        entity:
+          domain: sensor
+    notification_time:
+      name: Time to send notification
+      selector:
+        time:
+    days_threshold:
+      name: Days threshold before sending a notification
+      default: 4
+      selector:
+        number:
+          min: 1
+          max: 20
+          step: 1
+          unit_of_measurement: days
+
+variables:
+  vacuum_last_clean: !input vacuum_last_clean
+  days_threshold: !input days_threshold
+  datetime_format: "%Y-%m-%dT%H:%M:%S%z"
+  days_ago: "{{ (now() - strptime(states(vacuum_last_clean), datetime_format)).days }}"
+
+trigger:
+  - platform: time
+    at:
+      - !input notification_time
+condition:
+  - condition: state
+    entity_id: !input person
+    state: "home"
+  - condition: template
+    value_template: "{{ now() > strptime(states(vacuum_last_clean), datetime_format) + timedelta(days=days_threshold) }}"
+action:
+  - domain: mobile_app
+    type: notify
+    device_id: !input notify_device
+    title: Start cleaning? 🤖
+    message: "Last cleaning was {{ days_ago }} days ago."
+    data:
+      tag: robot_vacuum
+      actions:
+        - action: "ROBOT_CONFIRM"
+          title: Start
+        - action: "ROBOT_DISMISS"
+          title: Not today
+  - wait_for_trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+  - choose:
+      - conditions: "{{ wait.trigger.event.data.action == 'ROBOT_CONFIRM' }}"
+        sequence:
+          - service: vacuum.start
+            target:
+              entity_id: !input vacuum
+      # - conditions: "{{ wait.trigger.event.data.action == 'ROBOT_DISMISS' }}"
+      #   sequence: !input dismiss_action
+
+mode: restart
