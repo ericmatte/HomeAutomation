@@ -717,9 +717,9 @@
         - climate.office_thermostat
       automations:
         entity_id:
-        - automation.bedroom_heats
         - automation.living_room_heat_on
         - automation.office_heat_sync
+        - automation.bedroom_heats
       person_1: person.eric
       person_2: person.caro
       low_temp_target: 18
@@ -763,6 +763,7 @@
       notification_time: '18:00:00'
       days_since_last_cleanup: input_number.litter_box_day_since_last_changed
       person_select: input_select.litter_box_assigned_person
+      clean_button: input_button.clean_litter_box
       days_threshold: 2
 - id: '1648361041950'
   alias: Robot cleaning reminder

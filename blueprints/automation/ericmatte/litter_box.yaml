@@ -13,6 +13,12 @@ blueprint:
       selector:
         entity:
           domain: input_select
+    clean_button:
+      name: Clean button
+      description: Reset counter and change assignee
+      selector:
+        entity:
+          domain: input_button
     notification_time:
       name: Time to send notification
       selector:
@@ -45,10 +51,11 @@ trigger:
     id: time
     at:
       - !input notification_time
+  - platform: state
+    id: clean_button
+    entity_id: !input clean_button
+
 action:
-  # - service: notify.persistent_notification
-  #   data:
-  #     message: "yoyo {{ days_since_last_cleanup }}, {{ int(days_since_last_cleanup) }}"
   - choose:
       - conditions:
           - condition: trigger
@@ -57,7 +64,25 @@ action:
           - service: input_number.increment
             target:
               entity_id: !input days_since_last_cleanup
-  - choose:
+      - conditions:
+          - condition: trigger
+            id: clean_button
+        sequence:
+          - service: "notify.mobile_app_{{ person }}_phone"
+            data:
+              message: clear_notification
+              data:
+                tag: litter_box
+          - &RESET_COUNT
+            service: input_number.set_value
+            data:
+              value: 0
+            target:
+              entity_id: !input days_since_last_cleanup
+          - &RESET_SELECT
+            service: input_select.select_next
+            target:
+              entity_id: !input person_select
       - conditions:
           - condition: template
             value_template: "{{ float(states(days_since_last_cleanup)) >= float(days_threshold) }}"
@@ -70,6 +95,7 @@ action:
               message: "It's been {{ int(states(days_since_last_cleanup)) }} days since last cleanup. Time to do it!"
               data:
                 tag: litter_box
+                persistent: true
                 actions:
                   - action: "LITTER_CONFIRM"
                     title: I cleaned it up!
@@ -81,14 +107,6 @@ action:
   - choose:
       - conditions: "{{ wait.trigger.event.data.action == 'LITTER_CONFIRM' }}"
         sequence:
-          - service: input_number.set_value
-            data:
-              value: 0
-            target:
-              entity_id: input_number.litter_box_day_since_last_changed
-          - service: input_select.select_next
-            target:
-              entity_id: input_select.litter_box_assigned_person
-      # - conditions: "{{ wait.trigger.event.data.action == 'LITTER_DISMISS' }}"
-      #   sequence: !input dismiss_action
+          - <<: *RESET_COUNT
+          - <<: *RESET_SELECT
 mode: restart
