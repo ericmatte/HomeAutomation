@@ -15,13 +15,8 @@
         \ else %}\n  My Dark UI\n{% endif %}\n"
     service: frontend.set_theme
 - id: 28c90f5faaa5
-  alias: 'Home: Away mode -'
-  description: 'Disable home automations while away.
-
-    Turn entrance lights on when arriving.
-
-
-    *Entrance not turning off'
+  alias: 'Home: Away mode ✔️'
+  description: Disable home automations while away.
   trigger:
   - platform: template
     value_template: '{{ is_state(''person.eric'', ''not_home'') and is_state(''person.caro'',
@@ -49,31 +44,7 @@
       sequence:
       - entity_id: scene.turn_off_everything
         service: scene.turn_on
-    default:
-    - service: homeassistant.turn_on
-      data: {}
-      target:
-        entity_id:
-        - light.hall
-        - switch.closet
-    - delay:
-        hours: 0
-        minutes: 5
-        seconds: 0
-        milliseconds: 0
-    - condition: state
-      entity_id: binary_sensor.motion_entrance
-      state: 'off'
-      for:
-        hours: 0
-        minutes: 5
-        seconds: 0
-    - service: homeassistant.turn_off
-      data: {}
-      target:
-        entity_id:
-        - light.hall
-        - switch.closet
+    default: []
   mode: restart
 - id: c9f3148d9539
   alias: 'Bedroom: Turn off everything in low light ✔️'
@@ -372,8 +343,8 @@
     data:
       brightness: '{% if state_attr("light.small_bathroom", "brightness") != None
         %}{{ state_attr("light.small_bathroom", "brightness") }}{% elif now().hour
-        > 22 %}200{% elif now().hour > 20 %}180{% elif now().hour < 3 %}60{% elif
-        now().hour < 8 %}200{% else %}255{% endif %}
+        > 22 %}80{% elif now().hour > 20 %}180{% elif now().hour < 6 %}60{% elif now().hour
+        < 8 %}200{% else %}255{% endif %}
 
         '
     target:
@@ -630,6 +601,9 @@
   condition:
   - condition: template
     value_template: '{{ trigger.to_state.context.parent_id == none }}'
+  - condition: template
+    value_template: '{{ now() > state_attr(this.entity_id, ''last_triggered'') + timedelta(seconds=2)
+      }}'
   action:
   - choose:
     - conditions:
@@ -680,7 +654,7 @@
   use_blueprint:
     path: ericmatte/heat_intervals.yaml
     input:
-      time_low_2: 08:46:00
+      time_low_2: 00:00:00
       climate_target:
         entity_id:
         - climate.bedroom_thermostat
@@ -688,7 +662,7 @@
       time_low_1: 08:45:00
       time_high_2: 06:46:00
       time_high_1: 06:45:00
-      low_temp: 20
+      low_temp: 19.5
       high_temp: 22
 - id: '1648324723671'
   alias: 'Thermostats: Sync outdoor temperature ✔️'
@@ -733,7 +707,7 @@
   action:
   - service: climate.set_temperature
     data:
-      temperature: 21
+      temperature: 20
     target:
       entity_id: climate.living_room_thermostat
   mode: single
@@ -747,7 +721,7 @@
       person: person.eric
       climate_target:
         entity_id: climate.office_thermostat
-      high_temp: 22
+      high_temp: 21.5
       low_temp: 20
       time_high: 08:30:00
       gaming_pc: binary_sensor.gaming_pc
@@ -755,7 +729,7 @@
       macbook_ping: binary_sensor.macbook
       macbook_displays: sensor.eric_mbp_displays
 - id: '1648356190886'
-  alias: Litter box reminder ✔️
+  alias: 'Cat: Litter box reminder ✔️'
   description: ''
   use_blueprint:
     path: ericmatte/litter_box.yaml
@@ -767,7 +741,7 @@
       days_threshold: 2
 - id: '1648361041950'
   alias: Robot cleaning reminder
-  description: ''
+  description: ❌ Validate template variables
   use_blueprint:
     path: ericmatte/robot_cleaning_reminder.yaml
     input:
@@ -777,3 +751,37 @@
       vacuum: vacuum.roby
       vacuum_last_clean: sensor.roby_last_clean_start
       days_threshold: 3
+- id: '1649100465676'
+  alias: 'Entrance: Toggle lights with door sensor ✔️'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.entrance_door
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: homeassistant.turn_on
+    data: {}
+    target:
+      entity_id:
+      - light.hall
+      - switch.closet
+  - delay:
+      hours: 0
+      minutes: 5
+      seconds: 0
+      milliseconds: 0
+  - service: switch.turn_off
+    data: {}
+    target:
+      entity_id: switch.closet
+  mode: restart
+- id: '1649163877698'
+  alias: 'Cat: pill ✔️'
+  description: ''
+  use_blueprint:
+    path: ericmatte/cat_pill.yaml
+    input:
+      evening_time: '19:30:00'
+      morning_time: 07:30:00

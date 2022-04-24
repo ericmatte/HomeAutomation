@@ -1,0 +1,75 @@
+blueprint:
+  name: Cat pill notifier
+  description: Send a notification when it's time to give the cat a pill
+  domain: automation
+  input:
+    morning_time:
+      name: Morning time to send notification
+      selector:
+        time:
+    evening_time:
+      name: Evening time to send notification
+      selector:
+        time:
+
+trigger:
+  - platform: time
+    id: morning
+    at:
+      - !input morning_time
+  - platform: time
+    id: evening
+    at:
+      - !input evening_time
+
+action:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: morning
+        sequence:
+          - service: "notify.mobile_app_eric_phone"
+            data: &MORNING_DATA
+              title: Cat pill time 💊 🐈
+              message: "It's time for the morning pill."
+              data:
+                tag: cat_pill
+                persistent: true
+                actions:
+                  - action: "CAT_PILL_CONFIRM"
+                    title: I've done it!
+          - service: "notify.mobile_app_caro_phone"
+            data: *MORNING_DATA
+      - conditions:
+          - condition: trigger
+            id: evening
+        sequence:
+          - service: "notify.mobile_app_eric_phone"
+            data: &EVENING_DATA
+              title: Cat pill time 💊 🐈
+              message: "It's time for the evening pill."
+              data:
+                tag: cat_pill
+                persistent: true
+                actions:
+                  - action: "CAT_PILL_CONFIRM"
+                    title: I've done it!
+          - service: "notify.mobile_app_caro_phone"
+            data: *EVENING_DATA
+  - wait_for_trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+  - choose:
+      - conditions: "{{ wait.trigger.event.data.action == 'CAT_PILL_CONFIRM' }}"
+        sequence:
+          - service: "notify.mobile_app_eric_phone"
+            data:
+              message: clear_notification
+              data:
+                tag: cat_pill
+          - service: "notify.mobile_app_caro_phone"
+            data:
+              message: clear_notification
+              data:
+                tag: cat_pill
+mode: restart

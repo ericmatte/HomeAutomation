@@ -96,9 +96,23 @@
                                 },
                                 {
                                     "type": "state-icon",
+                                    "entity": "cover.bot_curtains",
+                                    "style": {
+                                        "left": "88%",
+                                        "top": "16%",
+                                        "border-radius": "50%",
+                                        "transform": "scale(1.35) translate(-50%, -50%)",
+                                        "background-color": "rgba(255, 255, 255, 0.3)"
+                                    },
+                                    "tap_action": {
+                                        "action": "more-info"
+                                    }
+                                },
+                                {
+                                    "type": "state-icon",
                                     "entity": "climate.bedroom_thermostat",
                                     "style": {
-                                        "left": "81%",
+                                        "left": "75%",
                                         "top": "15%",
                                         "border-radius": "999px",
                                         "transform": "scale(1) translate(-50%, -50%)",
@@ -114,7 +128,7 @@
                                     "entity": "climate.bedroom_thermostat",
                                     "attribute": "temperature",
                                     "style": {
-                                        "left": "81%",
+                                        "left": "75%",
                                         "top": "15%",
                                         "border-radius": "50%",
                                         "transform": "scale(0.8) translate(-65%, -100%)"
@@ -464,6 +478,23 @@
                                 },
                                 {
                                     "type": "state-icon",
+                                    "entity": "light.walk_in",
+                                    "style": {
+                                        "left": "80%",
+                                        "top": "41%",
+                                        "border-radius": "50%",
+                                        "transform": "scale(1.35) translate(-50%, -50%)",
+                                        "background-color": "rgba(255, 255, 255, 0.3)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    },
+                                    "double_tap_action": {
+                                        "action": "more-info"
+                                    }
+                                },
+                                {
+                                    "type": "state-icon",
                                     "entity": "light.under_bed",
                                     "style": {
                                         "left": "92%",
@@ -703,13 +734,27 @@
                                     "type": "state-badge"
                                 },
                                 {
+                                    "entity": "cover.bot_curtains",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "85%",
+                                        "top": "88%",
+                                        "transform": "scale(1.35) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "more-info"
+                                    },
+                                    "type": "state-icon"
+                                },
+                                {
                                     "entity": "climate.bedroom_thermostat",
                                     "style": {
                                         "background-color": "rgba(255, 255, 255, 0.3)",
                                         "border-radius": "999px",
                                         "left": "86%",
                                         "padding-top": "10px",
-                                        "top": "81%",
+                                        "top": "75%",
                                         "transform": "scale(1) translate(-50%, -50%)"
                                     },
                                     "tap_action": {
@@ -723,7 +768,7 @@
                                     "style": {
                                         "border-radius": "50%",
                                         "left": "86%",
-                                        "top": "81%",
+                                        "top": "75%",
                                         "transform": "scale(0.8) translate(-65%, -100%)"
                                     },
                                     "type": "state-label"
@@ -1062,6 +1107,23 @@
                                         "background-color": "rgba(255, 255, 255, 0.3)",
                                         "border-radius": "50%",
                                         "left": "51%",
+                                        "top": "80%",
+                                        "transform": "scale(1.35) translate(-50%, -50%)"
+                                    },
+                                    "tap_action": {
+                                        "action": "toggle"
+                                    },
+                                    "type": "state-icon"
+                                },
+                                {
+                                    "double_tap_action": {
+                                        "action": "more-info"
+                                    },
+                                    "entity": "light.walk_in",
+                                    "style": {
+                                        "background-color": "rgba(255, 255, 255, 0.3)",
+                                        "border-radius": "50%",
+                                        "left": "60%",
                                         "top": "80%",
                                         "transform": "scale(1.35) translate(-50%, -50%)"
                                     },

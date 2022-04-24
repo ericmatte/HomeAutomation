@@ -61,6 +61,7 @@ action:
     message: "Last cleaning was {{ days_ago }} days ago."
     data:
       tag: robot_vacuum
+      sticky: true
       actions:
         - action: "ROBOT_CONFIRM"
           title: Start
@@ -75,7 +76,5 @@ action:
           - service: vacuum.start
             target:
               entity_id: !input vacuum
-      # - conditions: "{{ wait.trigger.event.data.action == 'ROBOT_DISMISS' }}"
-      #   sequence: !input dismiss_action
 
 mode: restart
