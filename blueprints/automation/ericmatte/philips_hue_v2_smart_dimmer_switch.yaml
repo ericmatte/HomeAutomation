@@ -1,0 +1,143 @@
+blueprint:
+  domain: automation
+  name: Philips Hue v2 Smart Dimmer Switch
+  description: Automation for the Hue v2 Dimmer Switch Buttons
+  input:
+    hue_device:
+      name: Philips Hue v2 Smart Dimmer Switch and Remote
+      description:
+        List of available Philips Hue v2 Smart Dimmer Switch and Remote
+        devices
+      selector:
+        device:
+          integration: hue
+          multiple: false
+    Power_Press:
+      name: Power Press
+      default: []
+      selector:
+        action: {}
+    Power_Repeat:
+      name: Power Repeat
+      default: []
+      selector:
+        action: {}
+    Power_Short_Release:
+      name: Power Short Release
+      default: []
+      selector:
+        action: {}
+    Power_Long_Release:
+      name: Power Long Release
+      default: []
+      selector:
+        action: {}
+    Up_Press:
+      name: Up Press
+      default: []
+      selector:
+        action: {}
+    Up_Repeat:
+      name: Up Repeat
+      default: []
+      selector:
+        action: {}
+    Up_Short_Release:
+      name: Up Short Release
+      default: []
+      selector:
+        action: {}
+    Up_Long_Release:
+      name: Up Long Release
+      default: []
+      selector:
+        action: {}
+    Down_Press:
+      name: Down Press
+      default: []
+      selector:
+        action: {}
+    Down_Repeat:
+      name: Down Repeat
+      default: []
+      selector:
+        action: {}
+    Down_Short_Release:
+      name: Down Short Release
+      default: []
+      selector:
+        action: {}
+    Down_Long_Release:
+      name: Down Long Release
+      default: []
+      selector:
+        action: {}
+    Hue_Press:
+      name: Hue Press
+      default: []
+      selector:
+        action: {}
+    Hue_Repeat:
+      name: Hue Repeat
+      default: []
+      selector:
+        action: {}
+    Hue_Short_Release:
+      name: Hue Short Release
+      default: []
+      selector:
+        action: {}
+    Hue_Long_Release:
+      name: Hue Long Release
+      default: []
+      selector:
+        action: {}
+  source_url: https://community.home-assistant.io/t/zha-philips-hue-v2-smart-dimmer-switch-and-remote-rwl022/353143
+mode: single
+max_exceeded: silent
+variables:
+  device_id: !input hue_device
+trigger:
+  - platform: event
+    event_type: hue_event
+condition: "{{ trigger.event.data.device_id == device_id }}"
+action:
+  - variables:
+      button: "{{ trigger.event.data.subtype }}"
+      type: "{{ trigger.event.data.type }}"
+  - choose:
+      - conditions: '{{ button == 1 and type == "initial_press" }}'
+        sequence: !input Power_Press
+      - conditions: '{{ button == 1 and type == "repeat" }}'
+        sequence: !input Power_Repeat
+      - conditions: '{{ button == 1 and type == "short_release" }}'
+        sequence: !input Power_Short_Release
+      - conditions: '{{ button == 1 and type == "long_release" }}'
+        sequence: !input Power_Long_Release
+
+      - conditions: '{{ button == 2 and type == "initial_press" }}'
+        sequence: !input Up_Press
+      - conditions: '{{ button == 2 and type == "repeat" }}'
+        sequence: !input Up_Repeat
+      - conditions: '{{ button == 2 and type == "short_release" }}'
+        sequence: !input Up_Short_Release
+      - conditions: '{{ button == 2 and type == "long_release" }}'
+        sequence: !input Up_Long_Release
+
+      - conditions: '{{ button == 3 and type == "initial_press" }}'
+        sequence: !input Down_Press
+      - conditions: '{{ button == 3 and type == "repeat" }}'
+        sequence: !input Down_Repeat
+      - conditions: '{{ button == 3 and type == "short_release" }}'
+        sequence: !input Down_Short_Release
+      - conditions: '{{ button == 3 and type == "long_release" }}'
+        sequence: !input Down_Long_Release
+
+      - conditions: '{{ button == 4 and type == "initial_press" }}'
+        sequence: !input Hue_Press
+      - conditions: '{{ button == 4 and type == "repeat" }}'
+        sequence: !input Hue_Repeat
+      - conditions: '{{ button == 4 and type == "short_release" }}'
+        sequence: !input Hue_Short_Release
+      - conditions: '{{ button == 4 and type == "long_release" }}'
+        sequence: !input Hue_Long_Release

@@ -59,7 +59,7 @@ elements:
       action: more-info
   - type: state-label
     entity: climate.bedroom_thermostat
-    attribute: temperature
+    attribute: current_temperature
     style:
       left: 75%
       top: 15%
@@ -78,7 +78,7 @@ elements:
       action: more-info
   - type: state-label
     entity: climate.small_bathroom_thermostat
-    attribute: temperature
+    attribute: current_temperature
     style:
       left: 93%
       top: 49%
@@ -97,7 +97,7 @@ elements:
       action: more-info
   - type: state-label
     entity: climate.living_room_thermostat
-    attribute: temperature
+    attribute: current_temperature
     style:
       left: 9%
       top: 30%
@@ -116,7 +116,7 @@ elements:
       action: more-info
   - type: state-label
     entity: climate.office_thermostat
-    attribute: temperature
+    attribute: current_temperature
     style:
       left: 9%
       top: 90%

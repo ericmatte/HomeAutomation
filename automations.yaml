@@ -11,8 +11,8 @@
     to: below_horizon
   action:
   - data:
-      name: "{% if states.sun.sun.state == \"above_horizon\" %}\n  My Light UI\n{%\
-        \ else %}\n  My Dark UI\n{% endif %}\n"
+      name: "{% if states.sun.sun.state == \"above_horizon\" %}\n  My Light UI\n{%
+        else %}\n  My Dark UI\n{% endif %}\n"
     service: frontend.set_theme
 - id: 28c90f5faaa5
   alias: 'Home: Away mode ✔️'
@@ -28,8 +28,8 @@
     value_template: '{{ is_state(''person.caro'', ''home'') }}'
   condition: []
   action:
-  - service: "{% if is_state('person.eric', 'home') or is_state('person.caro', 'home')\
-      \ %}\n  automation.turn_on\n{% else %}\n  automation.turn_off\n{% endif %}\n"
+  - service: "{% if is_state('person.eric', 'home') or is_state('person.caro', 'home')
+      %}\n  automation.turn_on\n{% else %}\n  automation.turn_off\n{% endif %}\n"
     data: {}
     target:
       entity_id:
@@ -55,8 +55,8 @@
     to: 'off'
   condition:
   - condition: template
-    value_template: "{{ trigger.from_state and \n   trigger.from_state.attributes.brightness\
-      \ == 2 }}\n"
+    value_template: "{{ trigger.from_state and \n   trigger.from_state.attributes.brightness
+      == 2 }}\n"
   action:
   - service: scene.turn_on
     target:
@@ -120,14 +120,14 @@
     target:
       entity_id: light.under_bed
     data:
-      rgb_color: "{% set ambiance = [255, 71, 71] %}\n{% set low_light = [255, 117,\
-        \ 71] %}\n{% if (state_attr('light.bedroom', 'brightness') or 0) < 5 %}\n\
-        \  {{ low_light }}\n{% else %}\n  {{ ambiance }}\n{% endif %}\n"
-      brightness: "{% set threshold = 200 %}\n{% if states('light.bedroom') == 'off'\
-        \ or state_attr('light.bedroom', 'brightness') > threshold %}\n  0\n{% elif\
-        \ (state_attr('light.bedroom', 'brightness') or 0) < 5 %}\n  90\n{% else %}\n\
-        \  200\n  {# threshold - min(state_attr('light.bedroom', 'brightness'), threshold)\
-        \ #}\n{% endif %}\n"
+      rgb_color: "{% set ambiance = [255, 71, 71] %}\n{% set low_light = [255, 117,
+        71] %}\n{% if (state_attr('light.bedroom', 'brightness') or 0) < 5 %}\n  {{
+        low_light }}\n{% else %}\n  {{ ambiance }}\n{% endif %}\n"
+      brightness: "{% set threshold = 200 %}\n{% if states('light.bedroom') == 'off'
+        or state_attr('light.bedroom', 'brightness') > threshold %}\n  0\n{% elif
+        (state_attr('light.bedroom', 'brightness') or 0) < 5 %}\n  90\n{% else %}\n
+        \ 200\n  {# threshold - min(state_attr('light.bedroom', 'brightness'), threshold)
+        #}\n{% endif %}\n"
   mode: restart
 - id: '1623326884562'
   alias: 'Plants: Grow lights ✔️'
@@ -336,8 +336,8 @@
     state: 'off'
     for:
       hours: 0
-      minutes: 1
-      seconds: 0
+      minutes: 0
+      seconds: 45
   action:
   - service: light.turn_on
     data:
@@ -351,14 +351,15 @@
       entity_id: light.small_bathroom
   - wait_for_trigger:
     - platform: state
-      entity_id: binary_sensor.motion_bathroom
+      entity_id:
+      - binary_sensor.motion_bathroom
       to: 'off'
       for:
-        hours: 0
+        hours: 1
         minutes: 30
         seconds: 0
       from: 'on'
-    timeout: 00:35:00
+    timeout: 01:30:00
   - service: light.turn_off
     data:
       transition: 3
@@ -511,10 +512,19 @@
         entity_id: binary_sensor.gaming_pc
         state: 'on'
       sequence:
-      - service: scene.turn_on
+      - service: homeassistant.turn_off
         data: {}
         target:
-          entity_id: scene.gamer_mode
+          entity_id: switch.desktop_flux
+      - service: light.turn_on
+        data:
+          rgb_color:
+          - 255
+          - 110
+          - 254
+          brightness: 178
+        target:
+          entity_id: light.desktop
     - conditions:
       - condition: state
         entity_id: binary_sensor.eric_mbp_active
@@ -785,3 +795,96 @@
     input:
       evening_time: '19:30:00'
       morning_time: 07:30:00
+- id: '1650826951281'
+  alias: 'Bathroom: Sync with walk-in ✔️'
+  description: ''
+  use_blueprint:
+    path: ericmatte/sync_lights.yaml
+    input:
+      light_1: light.small_bathroom
+      light_2: light.walk_in
+      before: 00:30:00
+      after: 06:00:00
+- id: '1663460627355'
+  alias: 'Living room: User toggles RGB lights ✔️'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - light.living_room
+  condition:
+  - condition: template
+    value_template: '{{ trigger.to_state.context.parent_id == none }}'
+  - condition: template
+    value_template: '{{ trigger.to_state.context.user_id == none }}'
+  action:
+  - service: light.turn_{{ trigger.to_state.state }}
+    target:
+      entity_id:
+      - light.left_theatre
+      - light.right_theatre
+      - light.metal_lamp
+      - light.wood_lamp
+  mode: restart
+- id: '1663881882173'
+  alias: 'Hue Remote: Living room'
+  description: ''
+  use_blueprint:
+    path: ericmatte/philips_hue_v2_smart_dimmer_switch.yaml
+    input:
+      hue_device: eba9d8b4257ce13c892979b9e850a7fb
+      Power_Press:
+      - service: scene.turn_on
+        data: {}
+        target:
+          entity_id: scene.main_all_up
+      Up_Press:
+      - service: scene.turn_on
+        data: {}
+        target:
+          entity_id: scene.movies_and_eat
+      Down_Press:
+      - service: scene.turn_on
+        data: {}
+        target:
+          entity_id: scene.main_movies
+      Hue_Press:
+      - service: light.turn_off
+        data: {}
+        target:
+          area_id:
+          - 3819a3b2650b481b91e3f0c306c056df
+          - dining
+          - entrance
+          - f14230912df149a39e30c5bd5c08e3c9
+- id: '1663895419097'
+  alias: 'Hue Remote: Kitchen'
+  description: ''
+  use_blueprint:
+    path: ericmatte/philips_hue_v2_smart_dimmer_switch.yaml
+    input:
+      hue_device: e94cf02d004ef2682f3d97632158391f
+      Power_Press:
+      - service: scene.turn_on
+        data: {}
+        target:
+          entity_id: scene.main_all_up
+      Up_Press:
+      - service: scene.turn_on
+        data: {}
+        target:
+          entity_id: scene.main_kitchen
+      Down_Press:
+      - service: scene.turn_on
+        data: {}
+        target:
+          entity_id: scene.main_dining_table
+      Hue_Press:
+      - service: light.turn_off
+        data: {}
+        target:
+          area_id:
+          - 3819a3b2650b481b91e3f0c306c056df
+          - dining
+          - entrance
+          - f14230912df149a39e30c5bd5c08e3c9

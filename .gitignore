@@ -24,6 +24,7 @@ secrets.py
 pyozw.sqlite
 zwcfg_0xdd825656.xml
 zwscene.xml
+acme_reg.json
 *.pyc
 
 /.storage/**
