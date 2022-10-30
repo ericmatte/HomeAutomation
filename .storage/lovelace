@@ -110,6 +110,56 @@
                 },
                 {
                   "type": "state-icon",
+                  "entity": "climate.heat_pump",
+                  "style": {
+                    "left": "57%",
+                    "top": "48%",
+                    "border-radius": "999px",
+                    "transform": "scale(1) translate(-50%, -50%)",
+                    "background-color": "rgba(255, 255, 255, 0.3)",
+                    "padding-top": "30px"
+                  },
+                  "tap_action": {
+                    "action": "more-info"
+                  }
+                },
+                {
+                  "type": "state-label",
+                  "entity": "sensor.rounded_humidity",
+                  "style": {
+                    "left": "57%",
+                    "top": "48%",
+                    "border-radius": "50%",
+                    "transform": "scale(0.65) translate(-78%, -79%)",
+                    "opacity": 0.8,
+                    "pointer-events": "none"
+                  }
+                },
+                {
+                  "type": "state-label",
+                  "entity": "climate.heat_pump",
+                  "attribute": "temperature",
+                  "style": {
+                    "left": "57%",
+                    "top": "48%",
+                    "border-radius": "50%",
+                    "transform": "scale(0.8) translate(-63.5%, -140%)"
+                  }
+                },
+                {
+                  "type": "state-label",
+                  "entity": "climate.heat_pump",
+                  "attribute": "current_temperature",
+                  "style": {
+                    "left": "57%",
+                    "top": "48%",
+                    "border-radius": "50%",
+                    "transform": "scale(0.65) translate(-80%, -124%)",
+                    "opacity": 0.8
+                  }
+                },
+                {
+                  "type": "state-icon",
                   "entity": "climate.bedroom_thermostat",
                   "style": {
                     "left": "75%",
@@ -816,6 +866,56 @@
                     "action": "more-info"
                   },
                   "type": "state-icon"
+                },
+                {
+                  "entity": "climate.heat_pump",
+                  "style": {
+                    "background-color": "rgba(255, 255, 255, 0.3)",
+                    "border-radius": "999px",
+                    "left": "53%",
+                    "padding-top": "30px",
+                    "top": "57%",
+                    "transform": "scale(1) translate(-50%, -50%)"
+                  },
+                  "tap_action": {
+                    "action": "more-info"
+                  },
+                  "type": "state-icon"
+                },
+                {
+                  "entity": "sensor.rounded_humidity",
+                  "style": {
+                    "border-radius": "50%",
+                    "left": "53%",
+                    "opacity": 0.8,
+                    "top": "57%",
+                    "transform": "scale(0.65) translate(-78%, -79%)",
+                    "pointer-events": "none"
+                  },
+                  "type": "state-label"
+                },
+                {
+                  "attribute": "temperature",
+                  "entity": "climate.heat_pump",
+                  "style": {
+                    "border-radius": "50%",
+                    "left": "53%",
+                    "top": "57%",
+                    "transform": "scale(0.8) translate(-63.5%, -140%)"
+                  },
+                  "type": "state-label"
+                },
+                {
+                  "attribute": "current_temperature",
+                  "entity": "climate.heat_pump",
+                  "style": {
+                    "border-radius": "50%",
+                    "left": "53%",
+                    "opacity": 0.8,
+                    "top": "57%",
+                    "transform": "scale(0.65) translate(-80%, -124%)"
+                  },
+                  "type": "state-label"
                 },
                 {
                   "entity": "climate.bedroom_thermostat",

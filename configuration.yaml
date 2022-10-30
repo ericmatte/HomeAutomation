@@ -84,6 +84,25 @@ logbook:
 
 sun:
 
+smartir:
+  check_updates: false
+
+climate:
+  - platform: smartir
+    name: Heat pump
+    unique_id: heat_pump
+    device_code: 22201 # elios-heat-pump-smartir-codes.json
+    controller_data: remote.rm4
+    temperature_sensor: sensor.rm4_temperature
+    humidity_sensor: sensor.rm4_humidity
+
+template:
+  - sensor:
+      - name: "Rounded humidity"
+        unit_of_measurement: "%"
+        state: >
+          {{ state_attr('climate.heat_pump', 'current_humidity') | round }}
+
 binary_sensor:
   - platform: ping
     name: Macbook
