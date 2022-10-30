@@ -18,7 +18,19 @@ blueprint:
       description: Reset counter and change assignee
       selector:
         entity:
-          domain: input_button
+          multiple: true
+          domain:
+            - input_button
+            - binary_sensor
+    who_is_button:
+      name: Who is button
+      description: Tell which person is next for the litter
+      selector:
+        entity:
+          multiple: true
+          domain:
+            - input_button
+            - binary_sensor
     notification_time:
       name: Time to send notification
       selector:
@@ -42,11 +54,8 @@ variables:
   days_threshold: !input days_threshold
 
 trigger:
-  - platform: state
-    id: input_number
-    entity_id: !input days_since_last_cleanup
-  - platform: template
-    value_template: '{{ is_state("person." + states(person_select), "home") }}'
+  # - platform: template
+  #   value_template: '{{ is_state("person." + states(person_select), "home") }}'
   - platform: time
     id: time
     at:
@@ -54,6 +63,9 @@ trigger:
   - platform: state
     id: clean_button
     entity_id: !input clean_button
+  - platform: state
+    id: who_is_button
+    entity_id: !input who_is_button
 
 action:
   - choose:
@@ -64,6 +76,17 @@ action:
           - service: input_number.increment
             target:
               entity_id: !input days_since_last_cleanup
+      - conditions:
+          - condition: trigger
+            id: who_is_button
+        sequence:
+          - service: tts.cloud_say
+            data:
+              entity_id: media_player.kitchen_speaker
+              message: "Hi, it is {{person}}'s turn to clean the litter box."
+              language: en-CA
+              options:
+                gender: female
       - conditions:
           - condition: trigger
             id: clean_button
@@ -79,6 +102,14 @@ action:
               value: 0
             target:
               entity_id: !input days_since_last_cleanup
+          - &PING_GOOGLE_HOME
+            service: tts.cloud_say
+            data:
+              entity_id: media_player.kitchen_speaker
+              message: "Hi, {{person}} has cleaned the litter box."
+              language: en-CA
+              options:
+                gender: female
           - &RESET_SELECT
             service: input_select.select_next
             target:
@@ -108,5 +139,6 @@ action:
       - conditions: "{{ wait.trigger.event.data.action == 'LITTER_CONFIRM' }}"
         sequence:
           - <<: *RESET_COUNT
+          - <<: *PING_GOOGLE_HOME
           - <<: *RESET_SELECT
 mode: restart

@@ -64,7 +64,16 @@ elements:
       left: 75%
       top: 15%
       border-radius: 50%
-      transform: scale(0.8) translate(-65%, -100%)
+      transform: scale(0.8) translate(-63.5%, -105%)
+  - type: state-label
+    entity: climate.bedroom_thermostat
+    attribute: temperature
+    style:
+      left: 75%
+      top: 15%
+      border-radius: 50%
+      transform: scale(0.65) translate(-80%, -79%)
+      opacity: 0.8
   - type: state-icon
     entity: climate.small_bathroom_thermostat
     style:
@@ -83,7 +92,16 @@ elements:
       left: 93%
       top: 49%
       border-radius: 50%
-      transform: scale(0.8) translate(-65%, -100%)
+      transform: scale(0.8) translate(-63.5%, -105%)
+  - type: state-label
+    entity: climate.small_bathroom_thermostat
+    attribute: temperature
+    style:
+      left: 93%
+      top: 49%
+      border-radius: 50%
+      transform: scale(0.65) translate(-80%, -79%)
+      opacity: 0.8
   - type: state-icon
     entity: climate.living_room_thermostat
     style:
@@ -102,12 +120,21 @@ elements:
       left: 9%
       top: 30%
       border-radius: 50%
-      transform: scale(0.8) translate(-65%, -100%)
+      transform: scale(0.8) translate(-63.5%, -105%)
+  - type: state-label
+    entity: climate.living_room_thermostat
+    attribute: temperature
+    style:
+      left: 9%
+      top: 30%
+      border-radius: 50%
+      transform: scale(0.65) translate(-80%, -79%)
+      opacity: 0.8
   - type: state-icon
     entity: climate.office_thermostat
     style:
-      left: 9%
-      top: 90%
+      left: 34%
+      top: 97%
       border-radius: 999px
       transform: scale(1) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -118,10 +145,19 @@ elements:
     entity: climate.office_thermostat
     attribute: current_temperature
     style:
-      left: 9%
-      top: 90%
+      left: 34%
+      top: 97%
       border-radius: 50%
-      transform: scale(0.8) translate(-65%, -100%)
+      transform: scale(0.8) translate(-63.5%, -105%)
+  - type: state-label
+    entity: climate.office_thermostat
+    attribute: temperature
+    style:
+      left: 34%
+      top: 97%
+      border-radius: 50%
+      transform: scale(0.65) translate(-80%, -79%)
+      opacity: 0.8
   - type: state-icon
     entity: input_button.clean_litter_box
     style:
@@ -188,6 +224,16 @@ elements:
     tap_action:
       action: toggle
     double_tap_action:
+      action: more-info
+  - type: state-icon
+    entity: cover.office_curtain
+    style:
+      left: 10%
+      top: 90%
+      border-radius: 50%
+      transform: scale(1.35) translate(-50%, -50%)
+      background-color: rgba(255, 255, 255, 0.3)
+    tap_action:
       action: more-info
   - type: state-icon
     entity: switch.office_wardrobe

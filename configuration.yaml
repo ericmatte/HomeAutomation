@@ -101,7 +101,6 @@ sensor:
     display_options:
       - "time"
       - "date"
-  - platform: moon
   - platform: systemmonitor
     resources:
       - type: memory_free

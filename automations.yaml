@@ -22,6 +22,8 @@
     value_template: '{{ is_state(''person.eric'', ''not_home'') and is_state(''person.caro'',
       ''not_home'') }}'
     id: away
+    for:
+      minutes: 2
   - platform: template
     value_template: '{{ is_state(''person.eric'', ''home'') }}'
   - platform: template
@@ -103,7 +105,7 @@
     to: wireless
   condition:
   - condition: time
-    after: '22:00:00'
+    after: '21:30:00'
     before: 04:00:00
   action:
   - scene: scene.bedtime
@@ -234,56 +236,6 @@
       color_temp: 251
       brightness: 255
   mode: single
-- id: '1643768034083'
-  alias: 'Entrance: Button 1 disables motion ✔️'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.entrance_button_1
-    from: 'off'
-    to: 'on'
-  condition: []
-  action:
-  - service: automation.turn_off
-    data: {}
-    target:
-      entity_id: automation.closet_motion
-  - service: switch.turn_on
-    target:
-      entity_id: switch.closet
-    data: {}
-  - delay:
-      hours: 0
-      minutes: 0
-      seconds: 0
-      milliseconds: 500
-  - service: switch.turn_off
-    target:
-      entity_id: switch.closet
-    data: {}
-  - delay:
-      hours: 0
-      minutes: 0
-      seconds: 0
-      milliseconds: 500
-  - service: switch.turn_on
-    target:
-      entity_id: switch.closet
-    data: {}
-  - delay:
-      hours: 0
-      minutes: 15
-      seconds: 0
-      milliseconds: 0
-  - service: switch.turn_off
-    target:
-      entity_id: switch.closet
-    data: {}
-  - service: automation.turn_on
-    data: {}
-    target:
-      entity_id: automation.closet_motion
-  mode: restart
 - id: '1643860305249'
   alias: 'Dining table: Sync with Kitchen island ✔️'
   description: ''
@@ -449,34 +401,6 @@
         target:
           entity_id: light.under_cabinet
     default: []
-  mode: single
-- id: '1645530868434'
-  alias: 'Closet: Turn off light reset motion ✔️'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: switch.closet
-    from: 'on'
-    to: 'off'
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 2
-  condition:
-  - condition: state
-    entity_id: automation.closet_motion
-    state: 'off'
-  action:
-  - service: automation.turn_off
-    data: {}
-    target:
-      entity_id: automation.entrance_button_3_turn_off_all_duplicate
-  - service: automation.turn_on
-    data: {}
-    target:
-      entity_id:
-      - automation.entrance_button_3_turn_off_all_duplicate
-      - automation.closet_motion
   mode: single
 - id: '1646710305446'
   alias: 'Office: Desktop light sync with PC ✔️'
@@ -664,13 +588,13 @@
   use_blueprint:
     path: ericmatte/heat_intervals.yaml
     input:
-      time_low_2: 00:00:00
+      time_low_2: '23:30:00'
       climate_target:
         entity_id:
         - climate.bedroom_thermostat
         - climate.small_bathroom_thermostat
       time_low_1: 08:45:00
-      time_high_2: 06:46:00
+      time_high_2: '21:30:00'
       time_high_1: 06:45:00
       low_temp: 19.5
       high_temp: 22
@@ -738,20 +662,9 @@
       macbook_active: binary_sensor.eric_mbp_active
       macbook_ping: binary_sensor.macbook
       macbook_displays: sensor.eric_mbp_displays
-- id: '1648356190886'
-  alias: 'Cat: Litter box reminder ✔️'
-  description: ''
-  use_blueprint:
-    path: ericmatte/litter_box.yaml
-    input:
-      notification_time: '18:00:00'
-      days_since_last_cleanup: input_number.litter_box_day_since_last_changed
-      person_select: input_select.litter_box_assigned_person
-      clean_button: input_button.clean_litter_box
-      days_threshold: 2
 - id: '1648361041950'
   alias: Robot cleaning reminder
-  description: ❌ Validate template variables
+  description: ''
   use_blueprint:
     path: ericmatte/robot_cleaning_reminder.yaml
     input:
@@ -760,7 +673,7 @@
       notify_device: 3686cb423a16d87a70372d483b9b591e
       vacuum: vacuum.roby
       vacuum_last_clean: sensor.roby_last_clean_start
-      days_threshold: 3
+      days_threshold: 6
 - id: '1649100465676'
   alias: 'Entrance: Toggle lights with door sensor ✔️'
   description: ''
@@ -834,10 +747,10 @@
     input:
       hue_device: eba9d8b4257ce13c892979b9e850a7fb
       Power_Press:
-      - service: scene.turn_on
+      - service: light.turn_on
         data: {}
         target:
-          entity_id: scene.main_all_up
+          entity_id: light.living_room
       Up_Press:
       - service: scene.turn_on
         data: {}
@@ -857,6 +770,11 @@
           - dining
           - entrance
           - f14230912df149a39e30c5bd5c08e3c9
+      Power_Long_Release:
+      - service: scene.turn_on
+        data: {}
+        target:
+          entity_id: scene.main_all_up
 - id: '1663895419097'
   alias: 'Hue Remote: Kitchen'
   description: ''
@@ -868,7 +786,7 @@
       - service: scene.turn_on
         data: {}
         target:
-          entity_id: scene.main_all_up
+          entity_id: scene.main_dining_table
       Up_Press:
       - service: scene.turn_on
         data: {}
@@ -878,7 +796,7 @@
       - service: scene.turn_on
         data: {}
         target:
-          entity_id: scene.main_dining_table
+          entity_id: scene.morning_light
       Hue_Press:
       - service: light.turn_off
         data: {}
@@ -888,3 +806,66 @@
           - dining
           - entrance
           - f14230912df149a39e30c5bd5c08e3c9
+- id: '1663970460750'
+  alias: 'Cat: Litter box reminder ✔️'
+  description: ''
+  use_blueprint:
+    path: ericmatte/litter_box.yaml
+    input:
+      notification_time: '18:00:00'
+      clean_button:
+      - binary_sensor.entrance_button_1
+      - input_button.clean_litter_box
+      days_threshold: 2
+      days_since_last_cleanup: input_number.litter_box_day_since_last_changed
+      person_select: input_select.litter_box_assigned_person
+      who_is_button:
+      - binary_sensor.entrance_button_2
+- id: '1665580545291'
+  alias: 'Office: Close curtain while in meeting'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.eric_mbp_camera_in_use
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 6
+    id: camera
+  - platform: state
+    entity_id:
+    - binary_sensor.eric_mbp_audio_input_in_use
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: person.eric
+    state: home
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: binary_sensor.eric_mbp_camera_in_use
+        state: 'on'
+      - condition: trigger
+        id: camera
+      sequence:
+      - service: cover.close_cover
+        data: {}
+        target:
+          entity_id: cover.office_curtain
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: state
+          entity_id: binary_sensor.eric_mbp_camera_in_use
+          state: 'off'
+        - condition: state
+          entity_id: binary_sensor.eric_mbp_audio_input_in_use
+          state: 'off'
+      sequence:
+      - service: cover.open_cover
+        data: {}
+        target:
+          entity_id: cover.office_curtain
+  mode: single
