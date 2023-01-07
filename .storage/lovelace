@@ -319,7 +319,7 @@
                     "border-radius": "999px",
                     "transform": "scale(1) translate(-50%, -50%)",
                     "background-color": "rgba(255, 255, 255, 0.3)",
-                    "padding-top": "10px"
+                    "padding-top": "25px"
                   },
                   "tap_action": {
                     "action": "toggle"
@@ -332,7 +332,22 @@
                     "left": "89%",
                     "top": "85%",
                     "border-radius": "50%",
-                    "transform": "scale(0.8) translate(-65%, -100%)",
+                    "transform": "scale(0.8) translate(-65%, -125%)",
+                    "pointer-events": "none"
+                  },
+                  "tap_action": {
+                    "action": "none"
+                  }
+                },
+                {
+                  "type": "state-label",
+                  "entity": "input_number.litter_box_day_since_last_changed",
+                  "style": {
+                    "left": "89%",
+                    "top": "85%",
+                    "border-radius": "50%",
+                    "transform": "scale(0.7) translate(-72%, -90%)",
+                    "opacity": 0.8,
                     "pointer-events": "none"
                   },
                   "tap_action": {
@@ -888,9 +903,9 @@
                     "border-radius": "50%",
                     "left": "53%",
                     "opacity": 0.8,
+                    "pointer-events": "none",
                     "top": "57%",
-                    "transform": "scale(0.65) translate(-78%, -79%)",
-                    "pointer-events": "none"
+                    "transform": "scale(0.65) translate(-78%, -79%)"
                   },
                   "type": "state-label"
                 },
@@ -1075,7 +1090,7 @@
                     "background-color": "rgba(255, 255, 255, 0.3)",
                     "border-radius": "999px",
                     "left": "16%",
-                    "padding-top": "10px",
+                    "padding-top": "25px",
                     "top": "89%",
                     "transform": "scale(1) translate(-50%, -50%)"
                   },
@@ -1091,7 +1106,22 @@
                     "left": "16%",
                     "pointer-events": "none",
                     "top": "89%",
-                    "transform": "scale(0.8) translate(-65%, -100%)"
+                    "transform": "scale(0.8) translate(-65%, -125%)"
+                  },
+                  "tap_action": {
+                    "action": "none"
+                  },
+                  "type": "state-label"
+                },
+                {
+                  "entity": "input_number.litter_box_day_since_last_changed",
+                  "style": {
+                    "border-radius": "50%",
+                    "left": "16%",
+                    "opacity": 0.8,
+                    "pointer-events": "none",
+                    "top": "89%",
+                    "transform": "scale(0.7) translate(-72%, -90%)"
                   },
                   "tap_action": {
                     "action": "none"

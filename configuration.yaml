@@ -5,6 +5,7 @@ homeassistant:
   elevation: !secret elevation
   unit_system: metric
   time_zone: America/Toronto
+  country: "CA"
   # external_url: !secret external_url
   internal_url: !secret internal_url
   customize: !include customize.yaml

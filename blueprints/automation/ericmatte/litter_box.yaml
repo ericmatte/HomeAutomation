@@ -114,6 +114,7 @@ action:
             service: input_select.select_next
             target:
               entity_id: !input person_select
+  - choose:
       - conditions:
           - condition: template
             value_template: "{{ float(states(days_since_last_cleanup)) >= float(days_threshold) }}"
@@ -128,16 +129,15 @@ action:
                 tag: litter_box
                 persistent: true
                 actions:
-                  - action: "LITTER_CONFIRM"
+                  - action: LITTER_CONFIRM
                     title: I cleaned it up!
-                  - action: "DISMISS"
+                  - action: DISMISS
                     title: Do tomorrow
-  - wait_for_trigger:
-      - platform: event
-        event_type: mobile_app_notification_action
-  - choose:
-      - conditions: "{{ wait.trigger.event.data.action == 'LITTER_CONFIRM' }}"
-        sequence:
+          - wait_for_trigger:
+              - platform: event
+                event_type: mobile_app_notification_action
+                event_data:
+                  action: LITTER_CONFIRM
           - <<: *RESET_COUNT
           - <<: *PING_GOOGLE_HOME
           - <<: *RESET_SELECT

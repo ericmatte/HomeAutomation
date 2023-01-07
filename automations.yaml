@@ -101,7 +101,8 @@
   description: ''
   trigger:
   - platform: state
-    entity_id: sensor.eric_phone_charger_type
+    entity_id:
+    - sensor.eric_phone_charger_type
     to: wireless
   condition:
   - condition: time
@@ -588,15 +589,15 @@
   use_blueprint:
     path: ericmatte/heat_intervals.yaml
     input:
-      time_low_2: '23:30:00'
+      time_low_2: 08:44:00
       climate_target:
         entity_id:
         - climate.bedroom_thermostat
         - climate.small_bathroom_thermostat
       time_low_1: 08:45:00
-      time_high_2: '21:30:00'
+      time_high_2: 06:46:00
       time_high_1: 06:45:00
-      low_temp: 19.5
+      low_temp: 20.5
       high_temp: 22
 - id: '1648324723671'
   alias: 'Thermostats: Sync outdoor temperature ✔️'
@@ -630,7 +631,7 @@
         - automation.bedroom_heats
       person_1: person.eric
       person_2: person.caro
-      low_temp_target: 18
+      low_temp_target: 19.5
 - id: '1648331331944'
   alias: 'Living room: Heat on ✔️'
   description: ''
@@ -655,8 +656,8 @@
       person: person.eric
       climate_target:
         entity_id: climate.office_thermostat
-      high_temp: 21.5
-      low_temp: 20
+      high_temp: 22.5
+      low_temp: 21
       time_high: 08:30:00
       gaming_pc: binary_sensor.gaming_pc
       macbook_active: binary_sensor.eric_mbp_active
@@ -670,7 +671,7 @@
     input:
       notification_time: '15:00:00'
       person: person.eric
-      notify_device: 3686cb423a16d87a70372d483b9b591e
+      notify_device: 0392bfe3ca5e1a7ce067065214927018
       vacuum: vacuum.roby
       vacuum_last_clean: sensor.roby_last_clean_start
       days_threshold: 6
@@ -841,6 +842,8 @@
   - condition: state
     entity_id: person.eric
     state: home
+  - condition: time
+    before: '18:00:00'
   action:
   - choose:
     - conditions:
@@ -868,4 +871,106 @@
         data: {}
         target:
           entity_id: cover.office_curtain
+  mode: single
+- id: '1670216159205'
+  alias: 'Heat: Pump'
+  description: ''
+  trigger:
+  - platform: time
+    at: 07:00:00
+    id: High
+  - platform: time
+    at: '23:30:00'
+    id: Low
+  condition:
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: climate.heat_pump
+      state: 'off'
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: High
+      sequence:
+      - service: climate.set_temperature
+        data:
+          temperature: 23
+        target:
+          entity_id: climate.heat_pump
+    - conditions:
+      - condition: trigger
+        id: Low
+      sequence:
+      - service: climate.set_temperature
+        data:
+          temperature: 21
+        target:
+          entity_id: climate.heat_pump
+  mode: single
+- id: '1670285018851'
+  alias: 'TV: Fireplace scene'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - media_player.tv
+    attribute: media_title
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 1
+  condition:
+  - condition: template
+    value_template: '{{ "fireplace" in state_attr(''media_player.tv'', ''media_title'').lower()
+      }}'
+  action:
+  - service: scene.turn_on
+    data:
+      transition: 3
+    target:
+      entity_id: scene.fireplace
+  mode: single
+- id: '1673010589798'
+  alias: 'Office: Sync curtains for gaming'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.gaming_pc
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 6
+    id: pc
+    to: 'on'
+    from: 'off'
+  - platform: time
+    at: 04:00:00
+    id: time
+  condition:
+  - condition: state
+    entity_id: person.eric
+    state: home
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: pc
+      - condition: time
+        before: 00:00:00
+        after: '18:00:00'
+      sequence:
+      - service: cover.close_cover
+        data: {}
+    - conditions:
+      - condition: trigger
+        id: time
+      - condition: state
+        entity_id: cover.office_curtain
+        state: closed
+      sequence:
+      - service: cover.open_cover
+        data: {}
   mode: single

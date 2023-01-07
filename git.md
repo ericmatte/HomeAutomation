@@ -3,6 +3,6 @@
 ```bash
 
 git config --global user.name "Eric Matte"
-git config --global user.email "eric.matte@hotmail.ca"
+git config --global user.email "eric_matte@outlook.com"
 
 ```

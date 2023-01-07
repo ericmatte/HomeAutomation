@@ -45,8 +45,13 @@ variables:
 
 trigger:
   - platform: time
+    id: time
     at:
       - !input notification_time
+  - platform: state
+    id: robot_is_cleaning
+    entity_id: !input vacuum
+    to: cleaning
 condition:
   - condition: state
     entity_id: !input person
@@ -54,27 +59,39 @@ condition:
   - condition: template
     value_template: "{{ now() > strptime(states(vacuum_last_clean), datetime_format) + timedelta(days=days_threshold) }}"
 action:
-  - domain: mobile_app
-    type: notify
-    device_id: !input notify_device
-    title: Start cleaning? 🤖
-    message: "Last cleaning was {{ days_ago }} days ago."
-    data:
-      tag: robot_vacuum
-      sticky: true
-      actions:
-        - action: "ROBOT_CONFIRM"
-          title: Start
-        - action: "ROBOT_DISMISS"
-          title: Not today
-  - wait_for_trigger:
-      - platform: event
-        event_type: mobile_app_notification_action
   - choose:
-      - conditions: "{{ wait.trigger.event.data.action == 'ROBOT_CONFIRM' }}"
+      - conditions:
+          - condition: trigger
+            id: robot_is_cleaning
         sequence:
-          - service: vacuum.start
-            target:
-              entity_id: !input vacuum
+          - domain: mobile_app
+            type: notify
+            device_id: !input notify_device
+            message: clear_notification
+            data:
+              tag: robot_vacuum
+    default:
+      - domain: mobile_app
+        type: notify
+        device_id: !input notify_device
+        title: Start cleaning? 🤖
+        message: "Last cleaning was {{ days_ago }} days ago."
+        data:
+          tag: robot_vacuum
+          sticky: true
+          # persistent: true
+          actions:
+            - action: ROBOT_CONFIRM
+              title: Start
+            - action: ROBOT_DISMISS
+              title: Not today
+      - wait_for_trigger:
+          - platform: event
+            event_type: mobile_app_notification_action
+            event_data:
+              action: ROBOT_CONFIRM
+      - service: vacuum.start
+        target:
+          entity_id: !input vacuum
 
 mode: restart

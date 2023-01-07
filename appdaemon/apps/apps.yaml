@@ -34,6 +34,7 @@ media_lights_sync_spotify:
   condition:
     entity: media_player.tv
     state: "playing"
+    # value_template: "{{ 'hello' == 'hello' and is_state('sun.sun', 'below_horizon') }}"
   lights:
     - light.left_theatre
     - light.right_theatre
