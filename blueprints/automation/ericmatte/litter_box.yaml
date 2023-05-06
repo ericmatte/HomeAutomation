@@ -123,7 +123,7 @@ action:
         sequence:
           - service: "notify.mobile_app_{{ person }}_phone"
             data:
-              title: Cat litter box 🐈
+              title: 🐈 Cat litter box
               message: "It's been {{ int(states(days_since_last_cleanup)) }} days since last cleanup. Time to do it!"
               data:
                 tag: litter_box

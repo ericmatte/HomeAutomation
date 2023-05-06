@@ -296,7 +296,7 @@
     data:
       brightness: '{% if state_attr("light.small_bathroom", "brightness") != None
         %}{{ state_attr("light.small_bathroom", "brightness") }}{% elif now().hour
-        > 22 %}80{% elif now().hour > 20 %}180{% elif now().hour < 6 %}60{% elif now().hour
+        > 22 %}2{% elif now().hour > 20 %}180{% elif now().hour < 6 %}2{% elif now().hour
         < 8 %}200{% else %}255{% endif %}
 
         '
@@ -597,8 +597,8 @@
       time_low_1: 08:45:00
       time_high_2: 06:46:00
       time_high_1: 06:45:00
-      low_temp: 20.5
-      high_temp: 22
+      low_temp: 19.5
+      high_temp: 21
 - id: '1648324723671'
   alias: 'Thermostats: Sync outdoor temperature ✔️'
   description: ''
@@ -606,7 +606,7 @@
     path: ericmatte/climate_outdoor_temperature.yaml
     input:
       device_id_1: 11
-      device_id_2: 12
+      device_id_2: 17
       device_id_3: 13
       device_id_4: 14
       temperature_input: weather.home
@@ -642,7 +642,7 @@
   action:
   - service: climate.set_temperature
     data:
-      temperature: 20
+      temperature: 19
     target:
       entity_id: climate.living_room_thermostat
   mode: single
@@ -757,11 +757,13 @@
         data: {}
         target:
           entity_id: scene.movies_and_eat
+        enabled: false
       Down_Press:
       - service: scene.turn_on
         data: {}
         target:
           entity_id: scene.main_movies
+        enabled: false
       Hue_Press:
       - service: light.turn_off
         data: {}
@@ -776,6 +778,28 @@
         data: {}
         target:
           entity_id: scene.main_all_up
+      Up_Short_Release:
+      - service: scene.turn_on
+        data: {}
+        target:
+          entity_id: scene.movies_and_eat
+        enabled: true
+      Up_Long_Release: []
+      Up_Repeat:
+      - service: media_player.volume_up
+        data: {}
+        target:
+          entity_id: media_player.kitchen_speaker
+      Down_Short_Release:
+      - service: scene.turn_on
+        data: {}
+        target:
+          entity_id: scene.main_movies
+      Down_Repeat:
+      - service: media_player.volume_down
+        data: {}
+        target:
+          entity_id: media_player.kitchen_speaker
 - id: '1663895419097'
   alias: 'Hue Remote: Kitchen'
   description: ''
@@ -793,11 +817,13 @@
         data: {}
         target:
           entity_id: scene.main_kitchen
+        enabled: false
       Down_Press:
       - service: scene.turn_on
         data: {}
         target:
           entity_id: scene.morning_light
+        enabled: false
       Hue_Press:
       - service: light.turn_off
         data: {}
@@ -807,6 +833,26 @@
           - dining
           - entrance
           - f14230912df149a39e30c5bd5c08e3c9
+      Down_Short_Release:
+      - service: scene.turn_on
+        data: {}
+        target:
+          entity_id: scene.morning_light
+      Down_Repeat:
+      - service: media_player.volume_down
+        data: {}
+        target:
+          entity_id: media_player.kitchen_speaker
+      Up_Short_Release:
+      - service: scene.turn_on
+        data: {}
+        target:
+          entity_id: scene.main_kitchen
+      Up_Repeat:
+      - service: media_player.volume_up
+        data: {}
+        target:
+          entity_id: media_player.kitchen_speaker
 - id: '1663970460750'
   alias: 'Cat: Litter box reminder ✔️'
   description: ''
@@ -896,7 +942,7 @@
       sequence:
       - service: climate.set_temperature
         data:
-          temperature: 23
+          temperature: 22
         target:
           entity_id: climate.heat_pump
     - conditions:
@@ -905,7 +951,7 @@
       sequence:
       - service: climate.set_temperature
         data:
-          temperature: 21
+          temperature: 20
         target:
           entity_id: climate.heat_pump
   mode: single
@@ -964,6 +1010,8 @@
       sequence:
       - service: cover.close_cover
         data: {}
+        target:
+          entity_id: cover.office_curtain
     - conditions:
       - condition: trigger
         id: time
@@ -973,4 +1021,75 @@
       sequence:
       - service: cover.open_cover
         data: {}
+        target:
+          entity_id: cover.office_curtain
+  mode: single
+- id: '1673307423313'
+  alias: 'Cat: Claws reminder'
+  description: ''
+  trigger:
+  - platform: time
+    at: 00:00:00
+    id: time
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: time
+      sequence:
+      - service: counter.increment
+        data: {}
+        target:
+          entity_id: counter.cat_claws_days_since_last_cut
+    default:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ states(''counter.cat_claws_days_since_last_cut'') | int
+          >= 14 }}'
+      sequence:
+      - service: notify.notify
+        data:
+          title: "\U0001F408 Cat claws ❗"
+          message: It's been {{ states('counter.cat_claws_days_since_last_cut') }}
+            days. Time cut the nails!
+          data:
+            tag: cat_claws
+            persistent: true
+            actions:
+            - action: CLAWS_CONFIRM
+              title: Done!
+            - action: DISMISS
+              title: Do tomorrow
+      - wait_for_trigger:
+        - platform: event
+          event_type: mobile_app_notification_action
+          event_data:
+            action: CLAWS_CONFIRM
+      - service: counter.reset
+        data: {}
+        target:
+          entity_id: counter.cat_claws_days_since_last_cut
+      - service: notify.notify
+        data:
+          data:
+            tag: cat_claws
+          message: clear_notification
+  mode: restart
+- id: '1680784352901'
+  alias: 'Kitchen: Speaker reset when playing'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - media_player.kitchen_speaker
+    to: playing
+  condition: []
+  action:
+  - service: media_player.volume_set
+    data:
+      volume_level: 0.4
+    target:
+      entity_id: media_player.kitchen_speaker
   mode: single

@@ -168,34 +168,6 @@ elements:
       transform: scale(0.65) translate(-80%, -79%)
       opacity: 0.8
   - type: state-icon
-    entity: climate.office_thermostat
-    style:
-      left: 34%
-      top: 97%
-      border-radius: 999px
-      transform: scale(1) translate(-50%, -50%)
-      background-color: rgba(255, 255, 255, 0.3)
-      padding-top: 10px
-    tap_action:
-      action: more-info
-  - type: state-label
-    entity: climate.office_thermostat
-    attribute: current_temperature
-    style:
-      left: 34%
-      top: 97%
-      border-radius: 50%
-      transform: scale(0.8) translate(-63.5%, -105%)
-  - type: state-label
-    entity: climate.office_thermostat
-    attribute: temperature
-    style:
-      left: 34%
-      top: 97%
-      border-radius: 50%
-      transform: scale(0.65) translate(-80%, -79%)
-      opacity: 0.8
-  - type: state-icon
     entity: input_button.clean_litter_box
     style:
       left: 89%
@@ -236,9 +208,9 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: toggle
-    double_tap_action:
       action: more-info
+    double_tap_action:
+      action: toggle
   - type: state-icon
     entity: vacuum.roby
     style:
@@ -258,9 +230,9 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: toggle
-    double_tap_action:
       action: more-info
+    double_tap_action:
+      action: toggle
   - type: state-icon
     entity: light.desktop
     style:
@@ -270,9 +242,9 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: toggle
-    double_tap_action:
       action: more-info
+    double_tap_action:
+      action: toggle
   - type: state-icon
     entity: cover.office_curtain
     style:
@@ -292,9 +264,9 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: toggle
-    double_tap_action:
       action: more-info
+    double_tap_action:
+      action: toggle
   - type: state-icon
     entity: light.plants
     style:
@@ -304,9 +276,9 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: toggle
-    double_tap_action:
       action: more-info
+    double_tap_action:
+      action: toggle
   - type: state-icon
     entity: light.right_theatre
     style:
@@ -316,9 +288,9 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: toggle
-    double_tap_action:
       action: more-info
+    double_tap_action:
+      action: toggle
   - type: state-icon
     entity: light.left_theatre
     style:
@@ -328,9 +300,9 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: toggle
-    double_tap_action:
       action: more-info
+    double_tap_action:
+      action: toggle
   - type: state-icon
     entity: light.metal_lamp
     style:
@@ -340,9 +312,9 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: toggle
-    double_tap_action:
       action: more-info
+    double_tap_action:
+      action: toggle
   - type: state-icon
     entity: light.wood_lamp
     style:
@@ -352,9 +324,9 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: toggle
-    double_tap_action:
       action: more-info
+    double_tap_action:
+      action: toggle
   - type: state-icon
     entity: switch.closet
     style:
@@ -364,9 +336,9 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: toggle
-    double_tap_action:
       action: more-info
+    double_tap_action:
+      action: toggle
   - type: state-icon
     entity: light.under_cabinet
     style:
@@ -376,9 +348,9 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: toggle
-    double_tap_action:
       action: more-info
+    double_tap_action:
+      action: toggle
   - type: state-icon
     entity: light.bedroom
     style:
@@ -388,9 +360,9 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: toggle
-    double_tap_action:
       action: more-info
+    double_tap_action:
+      action: toggle
   - type: state-icon
     entity: light.small_bathroom
     style:
@@ -400,9 +372,9 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: toggle
-    double_tap_action:
       action: more-info
+    double_tap_action:
+      action: toggle
   - type: state-icon
     entity: light.walk_in
     style:
@@ -412,9 +384,9 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: toggle
-    double_tap_action:
       action: more-info
+    double_tap_action:
+      action: toggle
   - type: state-icon
     entity: light.under_bed
     style:
@@ -424,9 +396,9 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: toggle
-    double_tap_action:
       action: more-info
+    double_tap_action:
+      action: toggle
   - type: state-icon
     entity: light.dining_table
     style:
@@ -436,9 +408,9 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: toggle
-    double_tap_action:
       action: more-info
+    double_tap_action:
+      action: toggle
   - type: state-icon
     entity: light.kitchen_island
     style:
@@ -448,9 +420,9 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: toggle
-    double_tap_action:
       action: more-info
+    double_tap_action:
+      action: toggle
   - type: state-icon
     entity: light.kitchen
     style:
@@ -460,9 +432,9 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: toggle
-    double_tap_action:
       action: more-info
+    double_tap_action:
+      action: toggle
   - type: state-icon
     entity: light.living_room
     style:
@@ -472,9 +444,9 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: toggle
-    double_tap_action:
       action: more-info
+    double_tap_action:
+      action: toggle
 image: /local/floorplan/floorplan-90.png
 view_layout:
   position: main

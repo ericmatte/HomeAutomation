@@ -274,44 +274,6 @@
                 },
                 {
                   "type": "state-icon",
-                  "entity": "climate.office_thermostat",
-                  "style": {
-                    "left": "34%",
-                    "top": "97%",
-                    "border-radius": "999px",
-                    "transform": "scale(1) translate(-50%, -50%)",
-                    "background-color": "rgba(255, 255, 255, 0.3)",
-                    "padding-top": "10px"
-                  },
-                  "tap_action": {
-                    "action": "more-info"
-                  }
-                },
-                {
-                  "type": "state-label",
-                  "entity": "climate.office_thermostat",
-                  "attribute": "current_temperature",
-                  "style": {
-                    "left": "34%",
-                    "top": "97%",
-                    "border-radius": "50%",
-                    "transform": "scale(0.8) translate(-63.5%, -105%)"
-                  }
-                },
-                {
-                  "type": "state-label",
-                  "entity": "climate.office_thermostat",
-                  "attribute": "temperature",
-                  "style": {
-                    "left": "34%",
-                    "top": "97%",
-                    "border-radius": "50%",
-                    "transform": "scale(0.65) translate(-80%, -79%)",
-                    "opacity": 0.8
-                  }
-                },
-                {
-                  "type": "state-icon",
                   "entity": "input_button.clean_litter_box",
                   "style": {
                     "left": "89%",
@@ -365,10 +327,10 @@
                     "background-color": "rgba(255, 255, 255, 0.3)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   }
                 },
                 {
@@ -396,10 +358,10 @@
                     "background-color": "rgba(255, 255, 255, 0.3)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   }
                 },
                 {
@@ -413,10 +375,10 @@
                     "background-color": "rgba(255, 255, 255, 0.3)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   }
                 },
                 {
@@ -444,10 +406,10 @@
                     "background-color": "rgba(255, 255, 255, 0.3)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   }
                 },
                 {
@@ -461,10 +423,10 @@
                     "background-color": "rgba(255, 255, 255, 0.3)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   }
                 },
                 {
@@ -478,10 +440,10 @@
                     "background-color": "rgba(255, 255, 255, 0.3)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   }
                 },
                 {
@@ -495,10 +457,10 @@
                     "background-color": "rgba(255, 255, 255, 0.3)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   }
                 },
                 {
@@ -512,10 +474,10 @@
                     "background-color": "rgba(255, 255, 255, 0.3)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   }
                 },
                 {
@@ -529,10 +491,10 @@
                     "background-color": "rgba(255, 255, 255, 0.3)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   }
                 },
                 {
@@ -546,10 +508,10 @@
                     "background-color": "rgba(255, 255, 255, 0.3)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   }
                 },
                 {
@@ -563,10 +525,10 @@
                     "background-color": "rgba(255, 255, 255, 0.3)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   }
                 },
                 {
@@ -580,10 +542,10 @@
                     "background-color": "rgba(255, 255, 255, 0.3)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   }
                 },
                 {
@@ -597,10 +559,10 @@
                     "background-color": "rgba(255, 255, 255, 0.3)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   }
                 },
                 {
@@ -614,10 +576,10 @@
                     "background-color": "rgba(255, 255, 255, 0.3)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   }
                 },
                 {
@@ -631,10 +593,10 @@
                     "background-color": "rgba(255, 255, 255, 0.3)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   }
                 },
                 {
@@ -648,10 +610,10 @@
                     "background-color": "rgba(255, 255, 255, 0.3)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   }
                 },
                 {
@@ -665,10 +627,10 @@
                     "background-color": "rgba(255, 255, 255, 0.3)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   }
                 },
                 {
@@ -682,10 +644,10 @@
                     "background-color": "rgba(255, 255, 255, 0.3)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   }
                 },
                 {
@@ -699,10 +661,10 @@
                     "background-color": "rgba(255, 255, 255, 0.3)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   }
                 }
               ],
@@ -771,6 +733,10 @@
                   "entity": "input_boolean.heat_eco_mode"
                 }
               ]
+            },
+            {
+              "type": "media-control",
+              "entity": "media_player.kitchen_speaker"
             }
           ]
         },
@@ -1047,44 +1013,6 @@
                   "type": "state-label"
                 },
                 {
-                  "entity": "climate.office_thermostat",
-                  "style": {
-                    "background-color": "rgba(255, 255, 255, 0.3)",
-                    "border-radius": "999px",
-                    "left": "4%",
-                    "padding-top": "10px",
-                    "top": "34%",
-                    "transform": "scale(1) translate(-50%, -50%)"
-                  },
-                  "tap_action": {
-                    "action": "more-info"
-                  },
-                  "type": "state-icon"
-                },
-                {
-                  "attribute": "current_temperature",
-                  "entity": "climate.office_thermostat",
-                  "style": {
-                    "border-radius": "50%",
-                    "left": "4%",
-                    "top": "34%",
-                    "transform": "scale(0.8) translate(-63.5%, -105%)"
-                  },
-                  "type": "state-label"
-                },
-                {
-                  "attribute": "temperature",
-                  "entity": "climate.office_thermostat",
-                  "style": {
-                    "border-radius": "50%",
-                    "left": "4%",
-                    "opacity": 0.8,
-                    "top": "34%",
-                    "transform": "scale(0.65) translate(-80%, -79%)"
-                  },
-                  "type": "state-label"
-                },
-                {
                   "entity": "input_button.clean_litter_box",
                   "style": {
                     "background-color": "rgba(255, 255, 255, 0.3)",
@@ -1130,7 +1058,7 @@
                 },
                 {
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   },
                   "entity": "switch.caro_wardrobe",
                   "style": {
@@ -1141,7 +1069,7 @@
                     "transform": "scale(1.35) translate(-50%, -50%)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "type": "state-icon"
                 },
@@ -1161,7 +1089,7 @@
                 },
                 {
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   },
                   "entity": "light.hall",
                   "style": {
@@ -1172,13 +1100,13 @@
                     "transform": "scale(1.35) translate(-50%, -50%)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "type": "state-icon"
                 },
                 {
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   },
                   "entity": "light.desktop",
                   "style": {
@@ -1189,7 +1117,7 @@
                     "transform": "scale(1.35) translate(-50%, -50%)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "type": "state-icon"
                 },
@@ -1209,7 +1137,7 @@
                 },
                 {
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   },
                   "entity": "switch.office_wardrobe",
                   "style": {
@@ -1220,13 +1148,13 @@
                     "transform": "scale(1.35) translate(-50%, -50%)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "type": "state-icon"
                 },
                 {
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   },
                   "entity": "light.plants",
                   "style": {
@@ -1237,13 +1165,13 @@
                     "transform": "scale(1.35) translate(-50%, -50%)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "type": "state-icon"
                 },
                 {
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   },
                   "entity": "light.right_theatre",
                   "style": {
@@ -1254,13 +1182,13 @@
                     "transform": "scale(1.35) translate(-50%, -50%)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "type": "state-icon"
                 },
                 {
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   },
                   "entity": "light.left_theatre",
                   "style": {
@@ -1271,13 +1199,13 @@
                     "transform": "scale(1.35) translate(-50%, -50%)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "type": "state-icon"
                 },
                 {
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   },
                   "entity": "light.metal_lamp",
                   "style": {
@@ -1288,13 +1216,13 @@
                     "transform": "scale(1.35) translate(-50%, -50%)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "type": "state-icon"
                 },
                 {
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   },
                   "entity": "light.wood_lamp",
                   "style": {
@@ -1305,13 +1233,13 @@
                     "transform": "scale(1.35) translate(-50%, -50%)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "type": "state-icon"
                 },
                 {
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   },
                   "entity": "switch.closet",
                   "style": {
@@ -1322,13 +1250,13 @@
                     "transform": "scale(1.35) translate(-50%, -50%)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "type": "state-icon"
                 },
                 {
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   },
                   "entity": "light.under_cabinet",
                   "style": {
@@ -1339,13 +1267,13 @@
                     "transform": "scale(1.35) translate(-50%, -50%)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "type": "state-icon"
                 },
                 {
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   },
                   "entity": "light.bedroom",
                   "style": {
@@ -1356,13 +1284,13 @@
                     "transform": "scale(1.35) translate(-50%, -50%)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "type": "state-icon"
                 },
                 {
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   },
                   "entity": "light.small_bathroom",
                   "style": {
@@ -1373,13 +1301,13 @@
                     "transform": "scale(1.35) translate(-50%, -50%)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "type": "state-icon"
                 },
                 {
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   },
                   "entity": "light.walk_in",
                   "style": {
@@ -1390,13 +1318,13 @@
                     "transform": "scale(1.35) translate(-50%, -50%)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "type": "state-icon"
                 },
                 {
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   },
                   "entity": "light.under_bed",
                   "style": {
@@ -1407,13 +1335,13 @@
                     "transform": "scale(1.35) translate(-50%, -50%)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "type": "state-icon"
                 },
                 {
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   },
                   "entity": "light.dining_table",
                   "style": {
@@ -1424,13 +1352,13 @@
                     "transform": "scale(1.35) translate(-50%, -50%)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "type": "state-icon"
                 },
                 {
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   },
                   "entity": "light.kitchen_island",
                   "style": {
@@ -1441,13 +1369,13 @@
                     "transform": "scale(1.35) translate(-50%, -50%)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "type": "state-icon"
                 },
                 {
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   },
                   "entity": "light.kitchen",
                   "style": {
@@ -1458,13 +1386,13 @@
                     "transform": "scale(1.35) translate(-50%, -50%)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "type": "state-icon"
                 },
                 {
                   "double_tap_action": {
-                    "action": "more-info"
+                    "action": "toggle"
                   },
                   "entity": "light.living_room",
                   "style": {
@@ -1475,7 +1403,7 @@
                     "transform": "scale(1.35) translate(-50%, -50%)"
                   },
                   "tap_action": {
-                    "action": "toggle"
+                    "action": "more-info"
                   },
                   "type": "state-icon"
                 }
