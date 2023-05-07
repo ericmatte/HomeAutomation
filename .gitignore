@@ -32,6 +32,7 @@ acme_reg.json
 
 /themes/*
 !/themes/my-themes
+!/themes/minimalist-desktop/minimalist-desktop.yaml
 
 /appdaemon/*
 !/appdaemon/appdaemon.yaml

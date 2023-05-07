@@ -9,8 +9,10 @@
         {
           "icon": "mdi:floor-plan",
           "title": "Floorplan",
-          "path": "90",
+          "path": "floorplan",
           "type": "sidebar",
+          "theme": "My Dark UI",
+          "subview": false,
           "badges": [],
           "cards": [
             {
@@ -672,93 +674,7 @@
               "view_layout": {
                 "position": "main"
               }
-            }
-          ]
-        },
-        {
-          "icon": "mdi:weather-partly-cloudy",
-          "path": "all_lights_and_switches",
-          "theme": "default",
-          "title": "All Lights and Switches",
-          "badges": [],
-          "cards": [
-            {
-              "entity": "weather.home",
-              "type": "weather-forecast",
-              "show_forecast": true,
-              "secondary_info_attribute": "humidity"
             },
-            {
-              "type": "custom:sun-card"
-            },
-            {
-              "card": {
-                "title": "Lights On",
-                "type": "entities"
-              },
-              "filter": {
-                "include": [
-                  {
-                    "domain": "light",
-                    "state": "on"
-                  },
-                  {
-                    "domain": "switch",
-                    "state": "on"
-                  }
-                ]
-              },
-              "show_empty": false,
-              "type": "custom:auto-entities"
-            },
-            {
-              "type": "custom:auto-entities",
-              "card": {
-                "type": "entities"
-              },
-              "filter": {
-                "include": [
-                  {
-                    "domain": "scene",
-                    "name": "Theatre *"
-                  }
-                ],
-                "exclude": []
-              }
-            },
-            {
-              "type": "entities",
-              "entities": [
-                {
-                  "entity": "input_boolean.heat_eco_mode"
-                }
-              ]
-            },
-            {
-              "type": "media-control",
-              "entity": "media_player.kitchen_speaker"
-            }
-          ]
-        },
-        {
-          "type": "sidebar",
-          "icon": "mdi:tablet-dashboard",
-          "theme": "",
-          "visible": [
-            {
-              "user": "69a925601798477bb75f5126a0081b3b"
-            },
-            {
-              "user": "62143df1a9aa4127a4847f9eeb3dbb3c"
-            },
-            {
-              "user": "e464da0d2d1d4c5099243127042dba9f"
-            }
-          ],
-          "path": "180",
-          "title": "Tablet",
-          "badges": [],
-          "cards": [
             {
               "type": "custom:paper-buttons-row",
               "buttons": [
@@ -1413,6 +1329,71 @@
               "view_layout": {
                 "position": "main"
               }
+            }
+          ]
+        },
+        {
+          "icon": "mdi:weather-partly-cloudy",
+          "path": "all_lights_and_switches",
+          "theme": "default",
+          "title": "All Lights and Switches",
+          "badges": [],
+          "cards": [
+            {
+              "entity": "weather.home",
+              "type": "weather-forecast",
+              "show_forecast": true,
+              "secondary_info_attribute": "humidity"
+            },
+            {
+              "type": "custom:sun-card"
+            },
+            {
+              "card": {
+                "title": "Lights On",
+                "type": "entities"
+              },
+              "filter": {
+                "include": [
+                  {
+                    "domain": "light",
+                    "state": "on"
+                  },
+                  {
+                    "domain": "switch",
+                    "state": "on"
+                  }
+                ]
+              },
+              "show_empty": false,
+              "type": "custom:auto-entities"
+            },
+            {
+              "type": "custom:auto-entities",
+              "card": {
+                "type": "entities"
+              },
+              "filter": {
+                "include": [
+                  {
+                    "domain": "scene",
+                    "name": "Theatre *"
+                  }
+                ],
+                "exclude": []
+              }
+            },
+            {
+              "type": "entities",
+              "entities": [
+                {
+                  "entity": "input_boolean.heat_eco_mode"
+                }
+              ]
+            },
+            {
+              "type": "media-control",
+              "entity": "media_player.kitchen_speaker"
             }
           ]
         }

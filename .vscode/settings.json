@@ -1,4 +1,6 @@
 {
   "editor.formatOnSave": true,
-  "files.autoSave": "onFocusChange"
+  "files.autoSave": "onFocusChange",
+  "editor.rulers": [120],
+  "prettier.printWidth": 120
 }

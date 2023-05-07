@@ -1,4 +1,5 @@
 const setBackground = () => {
+  // Not working right now
   const haAppLayout = document
     .querySelector("home-assistant")
     ?.shadowRoot.querySelector("home-assistant-main")
@@ -9,8 +10,8 @@ const setBackground = () => {
   if (haAppLayout) {
     haAppLayout.style.background = "var(--background-image)";
     const huiView = haAppLayout.querySelector("hui-view");
+    console.log(huiView);
     if (huiView) {
-      huiView.style.background = "none";
     }
   }
 };

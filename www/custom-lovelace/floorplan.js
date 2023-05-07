@@ -1,8 +1,6 @@
 function normalizeSelector(e) {
   function t() {
-    l &&
-      (u.length > 0 && /^[~+>]$/.test(u[u.length - 1]) && u.push(" "),
-      u.push(l));
+    l && (u.length > 0 && /^[~+>]$/.test(u[u.length - 1]) && u.push(" "), u.push(l));
   }
   var n,
     l,
@@ -13,25 +11,13 @@ function normalizeSelector(e) {
     c = 0,
     h = /(?:[^\\]|(?:^|[^\\])(?:\\\\)+)$/,
     a = /^\s+$/,
-    i = [
-      /\s+|\/\*|["'>~+[(]/g,
-      /\s+|\/\*|["'[\]()]/g,
-      /\s+|\/\*|["'[\]()]/g,
-      null,
-      /\*\//g,
-    ];
+    i = [/\s+|\/\*|["'>~+[(]/g, /\s+|\/\*|["'[\]()]/g, /\s+|\/\*|["'[\]()]/g, null, /\*\//g];
   for (e = e.trim(); ; ) {
-    if (
-      ((l = ""), ((r = i[s[s.length - 1]]).lastIndex = c), !(n = r.exec(e)))
-    ) {
+    if (((l = ""), ((r = i[s[s.length - 1]]).lastIndex = c), !(n = r.exec(e)))) {
       (l = e.substr(c)), t();
       break;
     }
-    if (
-      ((o = c) < (c = r.lastIndex) - n[0].length &&
-        (l = e.substring(o, c - n[0].length)),
-      s[s.length - 1] < 3)
-    ) {
+    if (((o = c) < (c = r.lastIndex) - n[0].length && (l = e.substring(o, c - n[0].length)), s[s.length - 1] < 3)) {
       if ((t(), "[" === n[0])) s.push(1);
       else if ("(" === n[0]) s.push(2);
       else if (/^["']$/.test(n[0])) s.push(3), (i[3] = new RegExp(n[0], "g"));
@@ -39,14 +25,8 @@ function normalizeSelector(e) {
       else if (/^[\])]$/.test(n[0]) && s.length > 0) s.pop();
       else if (
         /^(?:\s+|[~+>])$/.test(n[0]) &&
-        (u.length > 0 &&
-          !a.test(u[u.length - 1]) &&
-          0 === s[s.length - 1] &&
-          u.push(" "),
-        1 === s[s.length - 1] &&
-          5 === u.length &&
-          "=" === u[2].charAt(u[2].length - 1) &&
-          (u[4] = " " + u[4]),
+        (u.length > 0 && !a.test(u[u.length - 1]) && 0 === s[s.length - 1] && u.push(" "),
+        1 === s[s.length - 1] && 5 === u.length && "=" === u[2].charAt(u[2].length - 1) && (u[4] = " " + u[4]),
         a.test(n[0]))
       )
         continue;
@@ -55,10 +35,7 @@ function normalizeSelector(e) {
       (u[u.length - 1] += l),
         h.test(u[u.length - 1]) &&
           (4 === s[s.length - 1] &&
-            (u.length < 2 || a.test(u[u.length - 2])
-              ? u.pop()
-              : (u[u.length - 1] = " "),
-            (n[0] = "")),
+            (u.length < 2 || a.test(u[u.length - 2]) ? u.pop() : (u[u.length - 1] = " "), (n[0] = "")),
           s.pop()),
         (u[u.length - 1] += n[0]);
   }
@@ -78,10 +55,7 @@ function _querySelectorDeep(e, t, n, l = null) {
     return splitByCharacterUnlessQuoted(e, ",").reduce(
       (e, r) => {
         if (!t && e) return e;
-        const o = splitByCharacterUnlessQuoted(
-            r.replace(/^\s+/g, "").replace(/\s*([>+~]+)\s*/g, "$1"),
-            " "
-          )
+        const o = splitByCharacterUnlessQuoted(r.replace(/^\s+/g, "").replace(/\s*([>+~]+)\s*/g, "$1"), " ")
             .filter((e) => !!e)
             .map((e) => splitByCharacterUnlessQuoted(e, ">")),
           u = o.length - 1,
@@ -140,10 +114,7 @@ function splitByCharacterUnlessQuoted(e, t) {
     ).a;
 }
 function isDocumentNode(e) {
-  return (
-    e.nodeType === Node.DOCUMENT_FRAGMENT_NODE ||
-    e.nodeType === Node.DOCUMENT_NODE
-  );
+  return e.nodeType === Node.DOCUMENT_FRAGMENT_NODE || e.nodeType === Node.DOCUMENT_NODE;
 }
 function findParentOrHost(e, t) {
   const n = e.parentNode;
@@ -159,72 +130,50 @@ function collectAllElementsDeep(e = null, t, n = null) {
         l.push(r), r.shadowRoot && e(r.shadowRoot.querySelectorAll("*"));
       }
     };
-    t.shadowRoot && e(t.shadowRoot.querySelectorAll("*")),
-      e(t.querySelectorAll("*"));
+    t.shadowRoot && e(t.shadowRoot.querySelectorAll("*")), e(t.querySelectorAll("*"));
   }
   return e ? l.filter((t) => t.matches(e)) : l;
 }
-(window.querySelectorDeep = querySelectorDeep),
-  (window.querySelectorAllDeep = querySelectorAllDeep);
+(window.querySelectorDeep = querySelectorDeep), (window.querySelectorAllDeep = querySelectorAllDeep);
 
 /****************************/
 /** ACTUAL CODE STARTS HERE */
 
-let disableCheckPageTransition = false;
 let currentUrl = location.href;
 let interval;
 
-const waitForRedirectionButton = (path, callback) => {
-  const check = () => {
-    if (window.location.pathname !== path) {
-      return clearInterval(interval);
-    }
+const getFloorplanHeader = (floorplanElement) => {
+  const viewElements = [...floorplanElement.parentElement.childNodes];
+  const index = viewElements.indexOf(floorplanElement);
+  return viewElements[index - 1];
+};
 
-    const redirectionButton = querySelectorDeep("hui-icon-element ha-icon");
-    if (redirectionButton && !redirectionButton.getAttribute("title").includes(path)) {
-      callback({ redirectionButton });
-      return clearInterval(interval);
-    }
-  }
+const toggleElement = (element, visible) => {
+  element.style.display = visible ? "" : "none";
+};
 
-  check();
-  interval = setInterval(check, 50);
-}
+const toggleFloorplan = (floorplanElement, visible) => {
+  toggleElement(floorplanElement, visible);
+  toggleElement(getFloorplanHeader(floorplanElement), visible);
+};
 
 const selectRotation = () => {
-  const callback = ({ redirectionButton }) => {
-    disableCheckPageTransition = true;
-    const appDrawer = querySelectorDeep("app-drawer");
-    const width = document.body.clientWidth - (appDrawer ? appDrawer.clientWidth : 0);
-    const height = document.body.clientHeight;
-  
-    switch (window.location.pathname) {
-      case "/lovelace/90":
-        if (width > height) {
-          redirectionButton.click();
-        }
-        break;
-      case "/lovelace/180":
-        if (width <= height) {
-          redirectionButton.click();
-        }
-        break;
-    }
-    currentUrl = location.href;
-    disableCheckPageTransition = false;
-  }
+  const [flooplan90, floorplan360] = querySelectorAllDeep("hui-picture-elements-card");
+  if (!flooplan90?.___config?.image?.includes("floorplan-90")) return;
+  if (!floorplan360?.___config?.image?.includes("floorplan-360")) return;
 
-  clearInterval(interval);
-  waitForRedirectionButton(window.location.pathname, callback)
+  const appDrawer = querySelectorDeep("app-drawer");
+  const width = document.body.clientWidth - (appDrawer ? appDrawer.clientWidth : 0);
+  const height = document.body.clientHeight;
+  const useVerticalPlan = height > width;
+
+  toggleFloorplan(flooplan90, useVerticalPlan);
+  toggleFloorplan(floorplan360, !useVerticalPlan);
 };
 
 const checkPageTransition = () => {
-  if (disableCheckPageTransition) return;
   requestAnimationFrame(() => {
-    if (currentUrl !== location.href) {
-      selectRotation()
-      currentUrl = location.href;
-    }
+    selectRotation();
   }, true);
 };
 
