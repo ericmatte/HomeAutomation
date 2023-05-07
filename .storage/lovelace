@@ -5,9 +5,12 @@
   "data": {
     "config": {
       "title": "Home",
+      "swipe_nav": {
+        "animate": "swipe"
+      },
       "views": [
         {
-          "icon": "mdi:floor-plan",
+          "icon": "",
           "title": "Floorplan",
           "path": "floorplan",
           "type": "sidebar",
@@ -51,7 +54,7 @@
                   },
                   "tap_action": {
                     "action": "navigate",
-                    "navigation_path": "/lovelace/180"
+                    "navigation_path": "/floorplan"
                   }
                 },
                 {

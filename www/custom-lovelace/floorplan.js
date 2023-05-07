@@ -139,8 +139,20 @@ function collectAllElementsDeep(e = null, t, n = null) {
 /****************************/
 /** ACTUAL CODE STARTS HERE */
 
-let currentUrl = location.href;
 let interval;
+
+const waitForRedirectionButton = (callback) => {
+  const check = () => {
+    const redirectionButton = querySelectorDeep("hui-icon-element ha-icon");
+    if (redirectionButton?.getAttribute("title").includes("floorplan")) {
+      callback();
+      return clearInterval(interval);
+    }
+  };
+
+  check();
+  interval = setInterval(check, 50);
+};
 
 const getFloorplanHeader = (floorplanElement) => {
   const viewElements = [...floorplanElement.parentElement.childNodes];
@@ -158,17 +170,22 @@ const toggleFloorplan = (floorplanElement, visible) => {
 };
 
 const selectRotation = () => {
-  const [flooplan90, floorplan360] = querySelectorAllDeep("hui-picture-elements-card");
-  if (!flooplan90?.___config?.image?.includes("floorplan-90")) return;
-  if (!floorplan360?.___config?.image?.includes("floorplan-360")) return;
+  const callback = () => {
+    const [flooplan90, floorplan360] = querySelectorAllDeep("hui-picture-elements-card");
+    if (!flooplan90?.___config?.image?.includes("floorplan-90")) return;
+    if (!floorplan360?.___config?.image?.includes("floorplan-360")) return;
 
-  const appDrawer = querySelectorDeep("app-drawer");
-  const width = document.body.clientWidth - (appDrawer ? appDrawer.clientWidth : 0);
-  const height = document.body.clientHeight;
-  const useVerticalPlan = height > width;
+    const appDrawer = querySelectorDeep("app-drawer");
+    const width = document.body.clientWidth - (appDrawer ? appDrawer.clientWidth : 0);
+    const height = document.body.clientHeight;
+    const useVerticalPlan = height > width;
 
-  toggleFloorplan(flooplan90, useVerticalPlan);
-  toggleFloorplan(floorplan360, !useVerticalPlan);
+    toggleFloorplan(flooplan90, useVerticalPlan);
+    toggleFloorplan(floorplan360, !useVerticalPlan);
+  };
+
+  clearInterval(interval);
+  waitForRedirectionButton(callback);
 };
 
 const checkPageTransition = () => {
