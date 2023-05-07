@@ -23,7 +23,6 @@ logger:
 
 # Enable Home Assistant API
 api:
-  # password: !secret esp_motion_closet_password
   encryption:
     key: !secret esp_motion_closet_encryption_key
 

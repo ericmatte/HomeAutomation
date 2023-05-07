@@ -23,7 +23,8 @@ logger:
 
 # Enable Home Assistant API
 api:
-  password: !secret esp_rgb_lights_password
+  encryption:
+    key: !secret esp_rgb_lights_encryption_key
 
 # Enable over-the-air updates
 ota:

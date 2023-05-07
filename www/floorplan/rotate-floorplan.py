@@ -3,7 +3,7 @@ import yaml
 DIR = "/config/www/floorplan"
 
 def invert_percent(str, offset = 0):
-    return "{}%".format(100 - int(str.strip('%')) + offset)
+    return "{}%".format(100 - float(str.strip('%')) + offset)
 
 def rotate(element):
     if element["type"] == "icon":
