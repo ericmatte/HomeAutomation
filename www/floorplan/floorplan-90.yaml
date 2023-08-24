@@ -6,41 +6,22 @@ elements:
       display: none
     tap_action:
       action: navigate
-      navigation_path: /lovelace/180
-  - type: state-label
-    entity: weather.home
-    attribute: temperature
-    suffix: °C
-    style:
-      top: 6%
-      left: 15%
-      border-radius: 10px
-      background-color: rgba(255, 255, 255, 0.3)
+      navigation_path: /floorplan
   - type: service-button
     service: scene.turn_on
     service_data:
       entity_id: scene.turn_off_everything
     style:
       left: 91%
-      top: 77%
+      top: 72%
       background-color: rgba(255, 255, 255, 0.3)
       border-radius: 20px
       line-height: 50px
-  - type: state-badge
-    entity: person.eric
-    style:
-      left: 43%
-      top: 9%
-  - type: state-badge
-    entity: person.caro
-    style:
-      left: 70%
-      top: 9%
   - type: state-icon
     entity: cover.bot_curtains
     style:
       left: 84.5%
-      top: 16%
+      top: 5%
       border-radius: 50%
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -50,7 +31,7 @@ elements:
     entity: climate.heat_pump
     style:
       left: 57%
-      top: 48%
+      top: 37%
       border-radius: 999px
       transform: scale(1) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -61,7 +42,7 @@ elements:
     entity: sensor.rounded_humidity
     style:
       left: 57%
-      top: 48%
+      top: 37%
       border-radius: 50%
       transform: scale(0.65) translate(-78%, -79%)
       opacity: 0.8
@@ -71,7 +52,7 @@ elements:
     attribute: temperature
     style:
       left: 57%
-      top: 48%
+      top: 37%
       border-radius: 50%
       transform: scale(0.8) translate(-63.5%, -140%)
   - type: state-label
@@ -79,7 +60,7 @@ elements:
     attribute: current_temperature
     style:
       left: 57%
-      top: 48%
+      top: 37%
       border-radius: 50%
       transform: scale(0.65) translate(-80%, -124%)
       opacity: 0.8
@@ -87,7 +68,7 @@ elements:
     entity: climate.bedroom_thermostat
     style:
       left: 72%
-      top: 17%
+      top: 5%
       border-radius: 999px
       transform: scale(1) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -99,7 +80,7 @@ elements:
     attribute: current_temperature
     style:
       left: 72%
-      top: 17%
+      top: 5%
       border-radius: 50%
       transform: scale(0.8) translate(-63.5%, -105%)
   - type: state-label
@@ -107,7 +88,7 @@ elements:
     attribute: temperature
     style:
       left: 72%
-      top: 17%
+      top: 5%
       border-radius: 50%
       transform: scale(0.65) translate(-80%, -79%)
       opacity: 0.8
@@ -115,7 +96,7 @@ elements:
     entity: climate.small_bathroom_thermostat
     style:
       left: 93%
-      top: 49%
+      top: 42%
       border-radius: 999px
       transform: scale(1) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -127,7 +108,7 @@ elements:
     attribute: current_temperature
     style:
       left: 93%
-      top: 49%
+      top: 42%
       border-radius: 50%
       transform: scale(0.8) translate(-63.5%, -105%)
   - type: state-label
@@ -135,15 +116,15 @@ elements:
     attribute: temperature
     style:
       left: 93%
-      top: 49%
+      top: 42%
       border-radius: 50%
       transform: scale(0.65) translate(-80%, -79%)
       opacity: 0.8
   - type: state-icon
     entity: climate.living_room_thermostat
     style:
-      left: 9%
-      top: 39%
+      left: 8%
+      top: 30%
       border-radius: 999px
       transform: scale(1) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -154,24 +135,24 @@ elements:
     entity: climate.living_room_thermostat
     attribute: current_temperature
     style:
-      left: 9%
-      top: 39%
+      left: 8%
+      top: 30%
       border-radius: 50%
       transform: scale(0.8) translate(-63.5%, -105%)
   - type: state-label
     entity: climate.living_room_thermostat
     attribute: temperature
     style:
-      left: 9%
-      top: 39%
+      left: 8%
+      top: 30%
       border-radius: 50%
       transform: scale(0.65) translate(-80%, -79%)
       opacity: 0.8
   - type: state-icon
     entity: input_button.clean_litter_box
     style:
-      left: 89%
-      top: 85%
+      left: 90%
+      top: 82%
       border-radius: 999px
       transform: scale(1) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -181,8 +162,8 @@ elements:
   - type: state-label
     entity: input_select.litter_box_assigned_person
     style:
-      left: 89%
-      top: 85%
+      left: 90%
+      top: 82%
       border-radius: 50%
       transform: scale(0.8) translate(-65%, -125%)
       pointer-events: none
@@ -191,8 +172,8 @@ elements:
   - type: state-label
     entity: input_number.litter_box_day_since_last_changed
     style:
-      left: 89%
-      top: 85%
+      left: 90%
+      top: 82%
       border-radius: 50%
       transform: scale(0.7) translate(-72%, -90%)
       opacity: 0.8
@@ -202,8 +183,8 @@ elements:
   - type: state-icon
     entity: switch.caro_wardrobe
     style:
-      left: 17.2%
-      top: 80%
+      left: 16.6%
+      top: 77.2%
       border-radius: 50%
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -215,7 +196,7 @@ elements:
     entity: vacuum.roby
     style:
       left: 67%
-      top: 58%
+      top: 52%
       border-radius: 50%
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -225,7 +206,7 @@ elements:
     entity: light.hall
     style:
       left: 68%
-      top: 77%
+      top: 74.3%
       border-radius: 50%
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -236,8 +217,8 @@ elements:
   - type: state-icon
     entity: light.desktop
     style:
-      left: 12%
-      top: 84%
+      left: 10%
+      top: 81.5%
       border-radius: 50%
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -248,8 +229,8 @@ elements:
   - type: state-icon
     entity: cover.office_curtain
     style:
-      left: 10%
-      top: 90%
+      left: 9%
+      top: 89%
       border-radius: 50%
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -258,8 +239,8 @@ elements:
   - type: state-icon
     entity: switch.office_wardrobe
     style:
-      left: 38.2%
-      top: 80%
+      left: 37.8%
+      top: 77.2%
       border-radius: 50%
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -270,8 +251,8 @@ elements:
   - type: state-icon
     entity: light.plants
     style:
-      left: 20%
-      top: 65%
+      left: 19%
+      top: 59%
       border-radius: 50%
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -282,8 +263,8 @@ elements:
   - type: state-icon
     entity: light.right_theatre
     style:
-      left: 26%
-      top: 16%
+      left: 25%
+      top: 5%
       border-radius: 50%
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -294,8 +275,8 @@ elements:
   - type: state-icon
     entity: light.left_theatre
     style:
-      left: 16%
-      top: 16%
+      left: 14%
+      top: 5%
       border-radius: 50%
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -306,8 +287,8 @@ elements:
   - type: state-icon
     entity: light.metal_lamp
     style:
-      left: 60%
-      top: 29%
+      left: 59.5%
+      top: 18%
       border-radius: 50%
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -318,8 +299,8 @@ elements:
   - type: state-icon
     entity: light.wood_lamp
     style:
-      left: 59.2%
-      top: 17.8%
+      left: 59%
+      top: 6%
       border-radius: 50%
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -330,8 +311,8 @@ elements:
   - type: state-icon
     entity: switch.closet
     style:
-      left: 78%
-      top: 90%
+      left: 78.5%
+      top: 89.5%
       border-radius: 50%
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -342,8 +323,8 @@ elements:
   - type: state-icon
     entity: light.under_cabinet
     style:
-      left: 80%
-      top: 58%
+      left: 79%
+      top: 52%
       border-radius: 50%
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -355,7 +336,7 @@ elements:
     entity: light.bedroom
     style:
       left: 78%
-      top: 26%
+      top: 16%
       border-radius: 50%
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -367,7 +348,7 @@ elements:
     entity: light.small_bathroom
     style:
       left: 80%
-      top: 50%
+      top: 44%
       border-radius: 50%
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -379,7 +360,7 @@ elements:
     entity: light.walk_in
     style:
       left: 80%
-      top: 41%
+      top: 33.6%
       border-radius: 50%
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -391,7 +372,7 @@ elements:
     entity: light.under_bed
     style:
       left: 92%
-      top: 24.5%
+      top: 13.5%
       border-radius: 50%
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -402,8 +383,8 @@ elements:
   - type: state-icon
     entity: light.dining_table
     style:
-      left: 32.8%
-      top: 38.2%
+      left: 32%
+      top: 29.5%
       border-radius: 50%
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -414,8 +395,8 @@ elements:
   - type: state-icon
     entity: light.kitchen_island
     style:
-      left: 32.8%
-      top: 50%
+      left: 31.8%
+      top: 43.3%
       border-radius: 50%
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -426,8 +407,8 @@ elements:
   - type: state-icon
     entity: light.kitchen
     style:
-      left: 32.8%
-      top: 55.5%
+      left: 31.8%
+      top: 49.5%
       border-radius: 50%
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -438,8 +419,8 @@ elements:
   - type: state-icon
     entity: light.living_room
     style:
-      left: 35.5%
-      top: 25.6%
+      left: 35%
+      top: 15%
       border-radius: 50%
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
@@ -447,6 +428,6 @@ elements:
       action: more-info
     double_tap_action:
       action: toggle
-image: /local/floorplan/floorplan-90.png?v=2.3
+image: /local/floorplan/floorplan-90.png?v=2.5
 view_layout:
   position: main

@@ -438,15 +438,15 @@
     light.kitchen_island:
       supported_color_modes:
       - brightness
-      color_mode: brightness
-      brightness: 2
       device_id: '7'
       zone_id: '5'
       friendly_name: Kitchen island
       supported_features: 32
       assumed_state: false
-      state: 'on'
+      state: 'off'
     light.dining_table:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
       min_mireds: 153
       max_mireds: 500
       supported_color_modes:
@@ -469,65 +469,65 @@
       assumed_state: false
       state: 'off'
     light.left_theatre:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
       min_mireds: 153
       max_mireds: 500
       supported_color_modes:
       - color_temp
       - xy
+      color_mode: xy
+      brightness: 153
+      hs_color:
+      - 278.4
+      - 58.824
+      rgb_color:
+      - 201
+      - 105
+      - 255
+      xy_color:
+      - 0.305
+      - 0.162
       mode: normal
       dynamics: none
       friendly_name: Left theatre
       supported_features: 40
       assumed_state: false
-      color_mode: xy
-      brightness: 255
-      hs_color:
-      - 210.417
-      - 56.471
-      rgb_color:
-      - 111
-      - 182
-      - 255
-      xy_color:
-      - 0.191
-      - 0.229
       state: 'on'
     light.right_theatre:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
       min_mireds: 153
       max_mireds: 500
       supported_color_modes:
       - color_temp
       - xy
+      color_mode: xy
+      brightness: 153
+      hs_color:
+      - 20.11
+      - 71.373
+      rgb_color:
+      - 255
+      - 134
+      - 73
+      xy_color:
+      - 0.577
+      - 0.359
       mode: normal
       dynamics: none
       friendly_name: Right theatre
       supported_features: 40
       assumed_state: false
-      color_mode: xy
-      brightness: 255
-      hs_color:
-      - 164.69
-      - 56.863
-      rgb_color:
-      - 110
-      - 255
-      - 218
-      xy_color:
-      - 0.197
-      - 0.397
       state: 'on'
     light.metal_lamp:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
       min_mireds: 153
       max_mireds: 500
       supported_color_modes:
       - color_temp
       - xy
-      mode: normal
-      dynamics: none
-      icon: mdi:light-flood-up
-      friendly_name: Metal lamp
-      supported_features: 40
-      assumed_state: false
       color_mode: xy
       brightness: 255
       hs_color:
@@ -540,31 +540,39 @@
       xy_color:
       - 0.434
       - 0.5017
+      mode: normal
+      dynamics: none
+      icon: mdi:light-flood-up
+      friendly_name: Metal lamp
+      supported_features: 40
+      assumed_state: false
       state: 'on'
     light.wood_lamp:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
       min_mireds: 153
       max_mireds: 500
       supported_color_modes:
       - color_temp
       - xy
+      color_mode: xy
+      brightness: 255
+      hs_color:
+      - 350.66
+      - 83.137
+      rgb_color:
+      - 255
+      - 43
+      - 76
+      xy_color:
+      - 0.6492
+      - 0.2878
       mode: normal
       dynamics: none
       icon: mdi:floor-lamp-torchiere-variant
       friendly_name: Wood lamp
       supported_features: 40
       assumed_state: false
-      color_mode: xy
-      brightness: 255
-      hs_color:
-      - 12.289
-      - 65.098
-      rgb_color:
-      - 255
-      - 123
-      - 89
-      xy_color:
-      - 0.575
-      - 0.338
       state: 'on'
   icon: mdi:television
   metadata: {}

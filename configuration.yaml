@@ -56,14 +56,12 @@ device_tracker:
     hosts:
       eric_ping: 192.168.0.100
       caro_ping: 192.168.0.101
-  - platform: bluetooth_tracker
-    interval_seconds: 8
-    consider_home: 300
-    new_device_defaults:
-      track_new_devices: false
-
-# ifttt:
-#   key: !secret ifttt_key
+  # As of 2023.8, it is now unsupported: Requirements for bluetooth_tracker not found: ['PyBluez==0.22'].
+  # - platform: bluetooth_tracker
+  #   interval_seconds: 8
+  #   consider_home: 300
+  #   new_device_defaults:
+  #     track_new_devices: false
 
 notify:
   - name: html5
@@ -76,8 +74,6 @@ notify:
 #   usb_path: /dev/ttyACM1 # /dev/ttyACM0
 
 default_config:
-
-discovery:
 
 history:
 
@@ -130,16 +126,18 @@ sensor:
         arg: /home
       - type: disk_free
         arg: /
-  - platform: command_line
-    name: CPU temperature
-    command: "cat /sys/class/thermal/thermal_zone0/temp"
-    unit_of_measurement: "°C"
-    value_template: "{{ value | multiply(0.001) | round(1) }}"
-  - platform: command_line
-    name: Database filesize
-    command: "du -m /config/home-assistant_v2.db | cut -f1"
-    unit_of_measurement: "MB"
-    value_template: "{{ value | int - 1 }}"
+
+command_line:
+  - sensor:
+      name: CPU temperature
+      command: "cat /sys/class/thermal/thermal_zone0/temp"
+      unit_of_measurement: "°C"
+      value_template: "{{ value | multiply(0.001) | round(1) }}"
+  - sensor:
+      name: Database filesize
+      command: "du -m /config/home-assistant_v2.db | cut -f1"
+      unit_of_measurement: "MB"
+      value_template: "{{ value | int - 1 }}"
 
 switch:
   - platform: flux

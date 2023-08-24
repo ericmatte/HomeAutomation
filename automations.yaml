@@ -701,14 +701,6 @@
     target:
       entity_id: switch.closet
   mode: restart
-- id: '1649163877698'
-  alias: 'Cat: pill ✔️'
-  description: ''
-  use_blueprint:
-    path: ericmatte/cat_pill.yaml
-    input:
-      evening_time: '19:30:00'
-      morning_time: 07:30:00
 - id: '1650826951281'
   alias: 'Bathroom: Sync with walk-in ✔️'
   description: ''
@@ -731,6 +723,14 @@
     value_template: '{{ trigger.to_state.context.parent_id == none }}'
   - condition: template
     value_template: '{{ trigger.to_state.context.user_id == none }}'
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: light.living_room
+      state: 'on'
+    - condition: state
+      entity_id: light.living_room
+      state: 'off'
   action:
   - service: light.turn_{{ trigger.to_state.state }}
     target:
@@ -889,7 +889,7 @@
     entity_id: person.eric
     state: home
   - condition: time
-    before: '18:00:00'
+    before: '13:00:00'
   action:
   - choose:
     - conditions:
@@ -924,10 +924,10 @@
   trigger:
   - platform: time
     at: 07:00:00
-    id: High
+    id: morning
   - platform: time
     at: '23:30:00'
-    id: Low
+    id: night
   condition:
   - condition: not
     conditions:
@@ -938,20 +938,22 @@
   - choose:
     - conditions:
       - condition: trigger
-        id: High
+        id: morning
       sequence:
       - service: climate.set_temperature
         data:
           temperature: 22
+          hvac_mode: cool
         target:
           entity_id: climate.heat_pump
     - conditions:
       - condition: trigger
-        id: Low
+        id: night
       sequence:
       - service: climate.set_temperature
         data:
-          temperature: 20
+          temperature: 25
+          hvac_mode: cool
         target:
           entity_id: climate.heat_pump
   mode: single
@@ -1084,12 +1086,61 @@
   - platform: state
     entity_id:
     - media_player.kitchen_speaker
-    to: playing
+    id: speaker
+    to: 'off'
+  - platform: state
+    entity_id:
+    - media_player.kitchen_speaker
+    to: 'on'
+  - platform: state
+    entity_id:
+    - media_player.kitchen_speaker
+    to: idle
+  - platform: state
+    entity_id:
+    - media_player.kitchen_speaker
+    to: standby
   condition: []
   action:
   - service: media_player.volume_set
     data:
-      volume_level: 0.4
+      volume_level: 0.35
     target:
       entity_id: media_player.kitchen_speaker
+  mode: single
+- id: '1689213834930'
+  alias: Guest mode ✔️
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - input_boolean.guest_mode
+  condition: []
+  action:
+  - service: automation.turn_{{ "off" if states('input_boolean.guest_mode') == "on"
+      else "on" }}
+    target:
+      entity_id:
+      - automation.bathroom_motion
+      - automation.bathroom_sync_cabinets_with_hall_kitchen_lights
+      - automation.small_bathroom_sync_with_walk_in
+      - automation.bedroom_sync_climate
+      - automation.bedroom_reverse_sync_under_bed_with_ceiling_light
+      - automation.closet_motion
+      - automation.dining_table_sync_with_kitchen_island
+      - automation.entrance_button_3_turn_off_all
+      - automation.entrance_motion
+      - automation.entrance_toggle_lights_with_door_sensor
+      - automation.everything_turn_off_when_putting_my_phone_on_the_charger_at_night
+      - automation.heat_pump
+      - automation.office_close_curtain_while_in_meeting
+      - automation.turn_on_entrance_lights_when_coming_home
+      - automation.office_sync_curtains_for_gaming
+      - automation.office_wardrobe_light_from_sensor
+      - automation.office_turn_on_desktop_while_arriving
+      - automation.plants_wardrobe_light_from_sensor
+      - automation.new_automation_2
+      - automation.theatre_turn_on_when_tv_is_on
+      - automation.living_room_user_toggles_rgb_lights
+      - automation.toggle_bedroom_light
   mode: single
