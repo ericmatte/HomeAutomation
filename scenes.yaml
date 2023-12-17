@@ -449,13 +449,18 @@
       max_color_temp_kelvin: 6535
       min_mireds: 153
       max_mireds: 500
+      effect_list:
+      - None
+      - candle
+      - fire
+      - unknown
       supported_color_modes:
       - color_temp
       - xy
       mode: normal
       dynamics: none
       friendly_name: Dining table
-      supported_features: 40
+      supported_features: 44
       assumed_state: false
       icon: mdi:ceiling-light
       state: 'off'
@@ -477,7 +482,7 @@
       - color_temp
       - xy
       color_mode: xy
-      brightness: 153
+      brightness: 255
       hs_color:
       - 278.4
       - 58.824
@@ -499,6 +504,11 @@
       max_color_temp_kelvin: 6535
       min_mireds: 153
       max_mireds: 500
+      effect_list:
+      - None
+      - candle
+      - fire
+      - unknown
       supported_color_modes:
       - color_temp
       - xy
@@ -514,10 +524,11 @@
       xy_color:
       - 0.577
       - 0.359
+      effect: None
       mode: normal
       dynamics: none
       friendly_name: Right theatre
-      supported_features: 40
+      supported_features: 44
       assumed_state: false
       state: 'on'
     light.metal_lamp:
@@ -525,26 +536,32 @@
       max_color_temp_kelvin: 6535
       min_mireds: 153
       max_mireds: 500
+      effect_list:
+      - None
+      - candle
+      - fire
+      - unknown
       supported_color_modes:
       - color_temp
       - xy
       color_mode: xy
       brightness: 255
       hs_color:
-      - 60.313
-      - 75.294
+      - 175.89
+      - 57.255
       rgb_color:
-      - 254
+      - 109
       - 255
-      - 63
+      - 245
       xy_color:
-      - 0.434
-      - 0.5017
+      - 0.189
+      - 0.354
+      effect: None
       mode: normal
       dynamics: none
       icon: mdi:light-flood-up
       friendly_name: Metal lamp
-      supported_features: 40
+      supported_features: 44
       assumed_state: false
       state: 'on'
     light.wood_lamp:
@@ -552,26 +569,32 @@
       max_color_temp_kelvin: 6535
       min_mireds: 153
       max_mireds: 500
+      effect_list:
+      - None
+      - candle
+      - fire
+      - unknown
       supported_color_modes:
       - color_temp
       - xy
       color_mode: xy
       brightness: 255
       hs_color:
-      - 350.66
-      - 83.137
+      - 304.463
+      - 47.451
       rgb_color:
       - 255
-      - 43
-      - 76
+      - 134
+      - 246
       xy_color:
-      - 0.6492
-      - 0.2878
+      - 0.376
+      - 0.214
+      effect: None
       mode: normal
       dynamics: none
       icon: mdi:floor-lamp-torchiere-variant
       friendly_name: Wood lamp
-      supported_features: 40
+      supported_features: 44
       assumed_state: false
       state: 'on'
   icon: mdi:television
@@ -767,6 +790,8 @@
   name: Movies and eat
   entities:
     light.left_theatre:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
       min_mireds: 153
       max_mireds: 500
       supported_color_modes:
@@ -786,14 +811,20 @@
       - 0.2356
       mode: normal
       dynamics: none
-      icon: mdi:television-ambient-light
       friendly_name: Left theatre
       supported_features: 40
       assumed_state: false
       state: 'on'
     light.right_theatre:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
       min_mireds: 153
       max_mireds: 500
+      effect_list:
+      - None
+      - candle
+      - fire
+      - unknown
       supported_color_modes:
       - color_temp
       - xy
@@ -809,23 +840,23 @@
       xy_color:
       - 0.2221
       - 0.0827
+      effect: None
       mode: normal
       dynamics: none
-      icon: mdi:television-ambient-light
       friendly_name: Right theatre
-      supported_features: 40
+      supported_features: 44
       assumed_state: false
       state: 'on'
     light.living_room:
       supported_color_modes:
       - brightness
-      color_mode: brightness
-      brightness: 17
       device_id: '5'
       zone_id: '3'
       friendly_name: Living room
-      supported_features: 33
+      supported_features: 32
       assumed_state: false
+      color_mode: brightness
+      brightness: 89
       state: 'on'
     light.kitchen:
       supported_color_modes:
@@ -833,7 +864,7 @@
       device_id: '6'
       zone_id: '4'
       friendly_name: Kitchen
-      supported_features: 33
+      supported_features: 32
       assumed_state: false
       state: 'off'
     light.kitchen_island:
@@ -844,23 +875,31 @@
       device_id: '7'
       zone_id: '5'
       friendly_name: Kitchen island
-      supported_features: 33
+      supported_features: 32
       assumed_state: false
       state: 'on'
     light.dining_table:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
       min_mireds: 153
       max_mireds: 500
+      effect_list:
+      - None
+      - candle
+      - fire
+      - unknown
       supported_color_modes:
       - color_temp
       - xy
       mode: normal
       dynamics: none
       friendly_name: Dining table
-      supported_features: 40
+      supported_features: 44
       assumed_state: false
       icon: mdi:ceiling-light
       state: 'off'
   icon: mdi:television
+  metadata: {}
 - id: '1665748321752'
   name: Morning light
   entities:
@@ -937,11 +976,18 @@
       max_color_temp_kelvin: 6535
       min_mireds: 153
       max_mireds: 500
+      effect_list:
+      - None
+      - candle
+      - fire
+      - prism
       supported_color_modes:
       - color_temp
       - xy
       color_mode: xy
       brightness: 255
+      color_temp_kelvin:
+      color_temp:
       hs_color:
       - 17.189
       - 72.549
@@ -952,11 +998,12 @@
       xy_color:
       - 0.5917
       - 0.3497
+      effect: None
       mode: normal
       dynamics: none
       icon: mdi:floor-lamp-torchiere-variant
       friendly_name: Wood lamp
-      supported_features: 40
+      supported_features: 44
       assumed_state: false
       state: 'on'
     light.metal_lamp:
@@ -964,11 +1011,18 @@
       max_color_temp_kelvin: 6535
       min_mireds: 153
       max_mireds: 500
+      effect_list:
+      - None
+      - candle
+      - fire
+      - prism
       supported_color_modes:
       - color_temp
       - xy
       color_mode: xy
       brightness: 255
+      color_temp_kelvin:
+      color_temp:
       hs_color:
       - 23.81
       - 74.118
@@ -979,11 +1033,12 @@
       xy_color:
       - 0.5737
       - 0.371
+      effect: None
       mode: normal
       dynamics: none
       icon: mdi:light-flood-up
       friendly_name: Metal lamp
-      supported_features: 40
+      supported_features: 44
       assumed_state: false
       state: 'on'
     light.left_theatre:
@@ -991,11 +1046,18 @@
       max_color_temp_kelvin: 6535
       min_mireds: 153
       max_mireds: 500
+      effect_list:
+      - None
+      - candle
+      - fire
+      - prism
       supported_color_modes:
       - color_temp
       - xy
       color_mode: xy
       brightness: 255
+      color_temp_kelvin:
+      color_temp:
       hs_color:
       - 0.282
       - 83.529
@@ -1006,10 +1068,11 @@
       xy_color:
       - 0.6778
       - 0.3017
+      effect: None
       mode: normal
       dynamics: none
       friendly_name: Left theatre
-      supported_features: 40
+      supported_features: 44
       assumed_state: false
       state: 'on'
     light.right_theatre:
@@ -1017,11 +1080,18 @@
       max_color_temp_kelvin: 6535
       min_mireds: 153
       max_mireds: 500
+      effect_list:
+      - None
+      - candle
+      - fire
+      - prism
       supported_color_modes:
       - color_temp
       - xy
       color_mode: xy
       brightness: 255
+      color_temp_kelvin:
+      color_temp:
       hs_color:
       - 20.25
       - 94.118
@@ -1032,17 +1102,18 @@
       xy_color:
       - 0.6487
       - 0.3404
+      effect: None
       mode: normal
       dynamics: none
       friendly_name: Right theatre
-      supported_features: 40
+      supported_features: 44
       assumed_state: false
       state: 'on'
     light.living_room:
       supported_color_modes:
       - brightness
       color_mode: brightness
-      brightness: 2
+      brightness: 255
       device_id: '5'
       zone_id: '3'
       friendly_name: Living room
@@ -1079,10 +1150,6 @@
     light.under_cabinet:
       supported_color_modes:
       - rgbw
-      icon: mdi:led-strip-variant
-      friendly_name: Cabinets
-      supported_features: 32
-      assumed_state: false
       color_mode: rgbw
       brightness: 255
       hs_color:
@@ -1092,14 +1159,18 @@
       - 108
       - 255
       - 108
+      xy_color:
+      - 0.229
+      - 0.59
       rgbw_color:
       - 0
       - 255
       - 0
       - 187
-      xy_color:
-      - 0.229
-      - 0.59
+      icon: mdi:led-strip-variant
+      friendly_name: Cabinets
+      supported_features: 32
+      assumed_state: false
       state: 'on'
     light.plants:
       min_color_temp_kelvin: 2020
@@ -1111,6 +1182,8 @@
       - xy
       color_mode: xy
       brightness: 255
+      color_temp_kelvin:
+      color_temp:
       hs_color:
       - 120
       - 100

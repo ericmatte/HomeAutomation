@@ -421,15 +421,6 @@
   condition:
   - condition: template
     value_template: '{{ trigger.to_state.state != trigger.from_state.state }}'
-  - condition: not
-    conditions:
-    - condition: and
-      conditions:
-      - condition: trigger
-        id: mbp_ping
-      - condition: state
-        entity_id: binary_sensor.eric_mbp_active
-        state: 'off'
   action:
   - choose:
     - conditions:
@@ -454,11 +445,6 @@
       - condition: state
         entity_id: binary_sensor.eric_mbp_active
         state: 'on'
-      - condition: not
-        conditions:
-        - condition: state
-          entity_id: binary_sensor.macbook
-          state: 'off'
       sequence:
       - service: light.turn_on
         data:
@@ -589,13 +575,13 @@
   use_blueprint:
     path: ericmatte/heat_intervals.yaml
     input:
-      time_low_2: 08:44:00
+      time_low_2: 00:15:00
       climate_target:
         entity_id:
         - climate.bedroom_thermostat
         - climate.small_bathroom_thermostat
       time_low_1: 08:45:00
-      time_high_2: 06:46:00
+      time_high_2: '21:30:00'
       time_high_1: 06:45:00
       low_temp: 19.5
       high_temp: 21
@@ -863,7 +849,7 @@
       clean_button:
       - binary_sensor.entrance_button_1
       - input_button.clean_litter_box
-      days_threshold: 2
+      days_threshold: 1
       days_since_last_cleanup: input_number.litter_box_day_since_last_changed
       person_select: input_select.litter_box_assigned_person
       who_is_button:
@@ -942,8 +928,8 @@
       sequence:
       - service: climate.set_temperature
         data:
-          temperature: 22
-          hvac_mode: cool
+          temperature: 23
+          hvac_mode: heat
         target:
           entity_id: climate.heat_pump
     - conditions:
@@ -952,8 +938,8 @@
       sequence:
       - service: climate.set_temperature
         data:
-          temperature: 25
-          hvac_mode: cool
+          temperature: 21
+          hvac_mode: heat
         target:
           entity_id: climate.heat_pump
   mode: single
@@ -1143,4 +1129,64 @@
       - automation.theatre_turn_on_when_tv_is_on
       - automation.living_room_user_toggles_rgb_lights
       - automation.toggle_bedroom_light
+  mode: single
+- id: '1701885779164'
+  alias: 'Heat pump: Turn off when too cold outside'
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id:
+    - weather.home
+    attribute: temperature
+    below: -14
+    id: too_cold
+  - platform: numeric_state
+    entity_id:
+    - weather.home
+    attribute: temperature
+    above: -12
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - too_cold
+      sequence:
+      - service: climate.turn_off
+        data: {}
+        target:
+          entity_id: climate.heat_pump
+    default:
+    - service: climate.turn_on
+      data: {}
+      target:
+        entity_id: climate.heat_pump
+  mode: single
+- id: '1702846936010'
+  alias: 'Outdoor: Ligths timer'
+  description: ''
+  trigger:
+  - platform: time
+    at: '16:00:00'
+    id: start
+  - platform: time
+    at: '23:30:00'
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - start
+      sequence:
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: switch.outdoor_outlet
+    default:
+    - service: switch.turn_off
+      data: {}
+      target:
+        entity_id: switch.outdoor_outlet
   mode: single

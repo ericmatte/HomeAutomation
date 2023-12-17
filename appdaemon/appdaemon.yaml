@@ -1,4 +1,4 @@
-secrets: /config/secrets.yaml
+secrets: /homeassistant/secrets.yaml
 appdaemon:
   latitude: !secret latitude
   longitude: !secret longitude

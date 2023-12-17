@@ -26,7 +26,7 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: more-info
+      action: toggle
   - type: state-icon
     entity: climate.heat_pump
     style:
@@ -37,7 +37,7 @@ elements:
       background-color: rgba(255, 255, 255, 0.3)
       padding-top: 30px
     tap_action:
-      action: more-info
+      action: toggle
   - type: state-label
     entity: sensor.rounded_humidity
     style:
@@ -55,6 +55,8 @@ elements:
       top: 37%
       border-radius: 50%
       transform: scale(0.8) translate(-63.5%, -140%)
+    tap_action:
+      action: toggle
   - type: state-label
     entity: climate.heat_pump
     attribute: current_temperature
@@ -64,6 +66,8 @@ elements:
       border-radius: 50%
       transform: scale(0.65) translate(-80%, -124%)
       opacity: 0.8
+    tap_action:
+      action: toggle
   - type: state-icon
     entity: climate.bedroom_thermostat
     style:
@@ -73,8 +77,6 @@ elements:
       transform: scale(1) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
       padding-top: 10px
-    tap_action:
-      action: more-info
   - type: state-label
     entity: climate.bedroom_thermostat
     attribute: current_temperature
@@ -101,8 +103,6 @@ elements:
       transform: scale(1) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
       padding-top: 10px
-    tap_action:
-      action: more-info
   - type: state-label
     entity: climate.small_bathroom_thermostat
     attribute: current_temperature
@@ -129,8 +129,6 @@ elements:
       transform: scale(1) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
       padding-top: 10px
-    tap_action:
-      action: more-info
   - type: state-label
     entity: climate.living_room_thermostat
     attribute: current_temperature
@@ -189,8 +187,6 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: more-info
-    double_tap_action:
       action: toggle
   - type: state-icon
     entity: vacuum.roby
@@ -211,8 +207,6 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: more-info
-    double_tap_action:
       action: toggle
   - type: state-icon
     entity: light.desktop
@@ -223,8 +217,6 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: more-info
-    double_tap_action:
       action: toggle
   - type: state-icon
     entity: cover.office_curtain
@@ -235,7 +227,7 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: more-info
+      action: toggle
   - type: state-icon
     entity: switch.office_wardrobe
     style:
@@ -245,8 +237,6 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: more-info
-    double_tap_action:
       action: toggle
   - type: state-icon
     entity: light.plants
@@ -257,8 +247,6 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: more-info
-    double_tap_action:
       action: toggle
   - type: state-icon
     entity: light.right_theatre
@@ -269,8 +257,6 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: more-info
-    double_tap_action:
       action: toggle
   - type: state-icon
     entity: light.left_theatre
@@ -281,8 +267,6 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: more-info
-    double_tap_action:
       action: toggle
   - type: state-icon
     entity: light.metal_lamp
@@ -293,8 +277,6 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: more-info
-    double_tap_action:
       action: toggle
   - type: state-icon
     entity: light.wood_lamp
@@ -305,8 +287,16 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: more-info
-    double_tap_action:
+      action: toggle
+  - type: state-icon
+    entity: switch.outdoor_outlet
+    style:
+      left: 46%
+      top: 5%
+      border-radius: 50%
+      transform: scale(1.35) translate(-50%, -50%)
+      background-color: rgba(255, 255, 255, 0.3)
+    tap_action:
       action: toggle
   - type: state-icon
     entity: switch.closet
@@ -317,8 +307,6 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: more-info
-    double_tap_action:
       action: toggle
   - type: state-icon
     entity: light.under_cabinet
@@ -329,8 +317,6 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: more-info
-    double_tap_action:
       action: toggle
   - type: state-icon
     entity: light.bedroom
@@ -341,8 +327,6 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: more-info
-    double_tap_action:
       action: toggle
   - type: state-icon
     entity: light.small_bathroom
@@ -353,8 +337,6 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: more-info
-    double_tap_action:
       action: toggle
   - type: state-icon
     entity: light.walk_in
@@ -365,8 +347,6 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: more-info
-    double_tap_action:
       action: toggle
   - type: state-icon
     entity: light.under_bed
@@ -377,8 +357,6 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: more-info
-    double_tap_action:
       action: toggle
   - type: state-icon
     entity: light.dining_table
@@ -389,8 +367,6 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: more-info
-    double_tap_action:
       action: toggle
   - type: state-icon
     entity: light.kitchen_island
@@ -401,8 +377,6 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: more-info
-    double_tap_action:
       action: toggle
   - type: state-icon
     entity: light.kitchen
@@ -413,8 +387,6 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: more-info
-    double_tap_action:
       action: toggle
   - type: state-icon
     entity: light.living_room
@@ -425,8 +397,6 @@ elements:
       transform: scale(1.35) translate(-50%, -50%)
       background-color: rgba(255, 255, 255, 0.3)
     tap_action:
-      action: more-info
-    double_tap_action:
       action: toggle
 image: /local/floorplan/floorplan-90.png?v=2.5
 view_layout:
