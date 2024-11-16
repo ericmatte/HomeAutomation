@@ -31,10 +31,10 @@ blueprint:
           domain:
             - input_button
             - binary_sensor
-    notification_time:
-      name: Time to send notification
-      selector:
-        time:
+    # notification_time:
+    #   name: Time to send notification
+    #   selector:
+    #     time:
     days_threshold:
       name: Days threshold before sending a notification
       default: 3
@@ -47,6 +47,7 @@ blueprint:
 
 trigger_variables:
   person_select: !input person_select
+  # days_since_last_change: "{{ ((as_timestamp(now()) - as_timestamp(states[person_select].last_updated)) / (60 * 60)) | int }}"
 
 variables:
   person: "{{ states(person_select) }}"
@@ -56,10 +57,16 @@ variables:
 trigger:
   # - platform: template
   #   value_template: '{{ is_state("person." + states(person_select), "home") }}'
-  - platform: time
+  # - platform: time
+  #   id: time
+  #   at:
+  #     - !input notification_time
+  - platform: template
     id: time
-    at:
-      - !input notification_time
+    value_template: "{{ ((as_timestamp(now()) - as_timestamp(states[person_select].last_updated)) / (60 * 60)) | int > 0 and ((as_timestamp(now()) - as_timestamp(states[person_select].last_updated)) / (60 * 60)) | int % 24 < 1 }}"
+    # value_template: "{{ (utcnow() - states.input_select.litter_box_assigned_person.last_updated).days >= int(days_threshold) }}"
+    # 86400 is the number of seconds in a day
+    # value_template: "{{ ((as_timestamp(now()) - as_timestamp(states[person_select].last_updated)) / (60 * 60)) | int % 24 < 1 }}"
   - platform: state
     id: clean_button
     entity_id: !input clean_button
@@ -117,6 +124,7 @@ action:
   - choose:
       - conditions:
           - condition: template
+            # value_template: "{{ (utcnow() - states.input_select.litter_box_assigned_person.last_updated).days >= int(days_threshold) }}"
             value_template: "{{ float(states(days_since_last_cleanup)) >= float(days_threshold) }}"
           - condition: template
             value_template: '{{ is_state("person." + person, "home") }}'
