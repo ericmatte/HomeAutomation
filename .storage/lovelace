@@ -10,9 +10,9 @@
       },
       "views": [
         {
-          "icon": "",
-          "title": "Floorplan",
-          "path": "floorplan",
+          "icon": "mdi:cellphone",
+          "title": "Portrait",
+          "path": "portrait",
           "theme": "My Dark UI",
           "subview": false,
           "type": "sidebar",
@@ -603,7 +603,102 @@
               "view_layout": {
                 "position": "main"
               }
+            }
+          ],
+          "background": {
+            "image": "/local/homekit-bg-blue-red.jpg"
+          }
+        },
+        {
+          "icon": "mdi:floor-plan",
+          "path": "tiles",
+          "theme": "default",
+          "title": "Tiles",
+          "type": "custom:vertical-layout",
+          "badges": [],
+          "cards": [
+            {
+              "type": "tile",
+              "show_entity_picture": false,
+              "entity": "climate.heat_pump",
+              "features": [
+                {
+                  "type": "climate-hvac-modes",
+                  "hvac_modes": [
+                    "off",
+                    "auto",
+                    "cool",
+                    "heat",
+                    "dry",
+                    "fan_only"
+                  ]
+                },
+                {
+                  "type": "target-temperature"
+                }
+              ]
             },
+            {
+              "type": "tile",
+              "entity": "cover.office_curtain",
+              "features": [
+                {
+                  "type": "cover-open-close"
+                },
+                {
+                  "type": "cover-position"
+                }
+              ]
+            },
+            {
+              "type": "vertical-stack",
+              "cards": [
+                {
+                  "type": "horizontal-stack",
+                  "cards": [
+                    {
+                      "type": "tile",
+                      "entity": "person.eric",
+                      "color": "deep-purple"
+                    },
+                    {
+                      "type": "tile",
+                      "entity": "person.caro",
+                      "color": "teal"
+                    }
+                  ]
+                },
+                {
+                  "type": "entities",
+                  "entities": [
+                    {
+                      "entity": "input_boolean.heat_eco_mode"
+                    },
+                    {
+                      "entity": "input_boolean.guest_mode"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "custom:sun-card"
+            },
+            {
+              "entity": "weather.home",
+              "type": "weather-forecast",
+              "show_forecast": true,
+              "secondary_info_attribute": "humidity"
+            }
+          ]
+        },
+        {
+          "type": "sidebar",
+          "path": "landscape",
+          "title": "Landscape",
+          "icon": "mdi:laptop",
+          "theme": "My Dark UI",
+          "cards": [
             {
               "type": "custom:paper-buttons-row",
               "buttons": [
@@ -1185,90 +1280,10 @@
                 "position": "main"
               }
             }
-          ]
-        },
-        {
-          "icon": "",
-          "path": "tiles",
-          "theme": "default",
-          "title": "Tiles",
-          "type": "custom:vertical-layout",
-          "badges": [],
-          "cards": [
-            {
-              "type": "tile",
-              "show_entity_picture": false,
-              "entity": "climate.heat_pump",
-              "features": [
-                {
-                  "type": "climate-hvac-modes",
-                  "hvac_modes": [
-                    "off",
-                    "auto",
-                    "cool",
-                    "heat",
-                    "dry",
-                    "fan_only"
-                  ]
-                },
-                {
-                  "type": "target-temperature"
-                }
-              ]
-            },
-            {
-              "type": "tile",
-              "entity": "cover.office_curtain",
-              "features": [
-                {
-                  "type": "cover-open-close"
-                },
-                {
-                  "type": "cover-position"
-                }
-              ]
-            },
-            {
-              "type": "vertical-stack",
-              "cards": [
-                {
-                  "type": "horizontal-stack",
-                  "cards": [
-                    {
-                      "type": "tile",
-                      "entity": "person.eric",
-                      "color": "deep-purple"
-                    },
-                    {
-                      "type": "tile",
-                      "entity": "person.caro",
-                      "color": "teal"
-                    }
-                  ]
-                },
-                {
-                  "type": "entities",
-                  "entities": [
-                    {
-                      "entity": "input_boolean.heat_eco_mode"
-                    },
-                    {
-                      "entity": "input_boolean.guest_mode"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "type": "custom:sun-card"
-            },
-            {
-              "entity": "weather.home",
-              "type": "weather-forecast",
-              "show_forecast": true,
-              "secondary_info_attribute": "humidity"
-            }
-          ]
+          ],
+          "background": {
+            "image": "/local/homekit-bg-blue-red.jpg"
+          }
         }
       ]
     }

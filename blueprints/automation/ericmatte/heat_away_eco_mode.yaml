@@ -73,10 +73,10 @@ trigger:
     entity_id: !input eco_mode_boolean
   - platform: template
     id: hot_outside
-    value_template: '{{ state_attr(outside_temp, "temperature") > low_temp_target }}'
+    value_template: '{{ state_attr(outside_temp, "temperature") and state_attr(outside_temp, "temperature") > low_temp_target }}'
   - platform: template
     id: cool_outside
-    value_template: '{{ state_attr(outside_temp, "temperature") <= low_temp_target }}'
+    value_template: '{{ state_attr(outside_temp, "temperature") and state_attr(outside_temp, "temperature") <= low_temp_target }}'
 
 action:
   - choose:

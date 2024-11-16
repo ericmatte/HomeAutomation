@@ -56,19 +56,6 @@ device_tracker:
     hosts:
       eric_ping: 192.168.0.100
       caro_ping: 192.168.0.101
-  # As of 2023.8, it is now unsupported: Requirements for bluetooth_tracker not found: ['PyBluez==0.22'].
-  # - platform: bluetooth_tracker
-  #   interval_seconds: 8
-  #   consider_home: 300
-  #   new_device_defaults:
-  #     track_new_devices: false
-
-notify:
-  - name: html5
-    platform: html5
-    vapid_pub_key: !secret vapid_public_key
-    vapid_prv_key: !secret vapid_private_key
-    vapid_email: !secret vapid_email
 
 # zwave:
 #   usb_path: /dev/ttyACM1 # /dev/ttyACM0
@@ -100,32 +87,11 @@ template:
         state: >
           {{ state_attr('climate.heat_pump', 'current_humidity') | round }}
 
-binary_sensor:
-  - platform: ping
-    name: Macbook
-    host: 192.168.0.102
-    count: 2
-    scan_interval: 45
-  - platform: ping
-    name: Gaming PC
-    host: 192.168.0.103
-    count: 2
-    scan_interval: 30
-
 sensor:
   - platform: time_date
     display_options:
       - "time"
       - "date"
-  - platform: systemmonitor
-    resources:
-      - type: memory_free
-      - type: processor_use
-      - type: last_boot
-      - type: disk_use_percent
-        arg: /home
-      - type: disk_free
-        arg: /
 
 command_line:
   - sensor:

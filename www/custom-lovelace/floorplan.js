@@ -194,10 +194,12 @@ const checkPageTransition = () => {
   }, true);
 };
 
-document.body.addEventListener("click", checkPageTransition);
-document.body.addEventListener("keyup", (e) => {
-  if (e.code === "Enter" || e.code === "Space") checkPageTransition();
-});
+const setupListeners = () => {
+  document.body.addEventListener("click", checkPageTransition);
+  document.body.addEventListener("keyup", (e) => {
+    if (e.code === "Enter" || e.code === "Space") checkPageTransition();
+  });
 
-window.addEventListener("resize", () => selectRotation());
-selectRotation();
+  window.addEventListener("resize", () => selectRotation());
+  selectRotation();
+};

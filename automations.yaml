@@ -36,8 +36,8 @@
     target:
       entity_id:
       - automation.bathroom_motion
-      - automation.closet_motion
       - automation.entrance_motion
+      - automation.closet_motion
       - automation.office_turn_on_desktop_while_arriving
   - choose:
     - conditions:
@@ -408,16 +408,8 @@
   description: ''
   trigger:
   - platform: state
-    entity_id: binary_sensor.eric_mbp_active
-    to:
-  - platform: state
     entity_id: binary_sensor.gaming_pc
     to:
-  - platform: state
-    entity_id: binary_sensor.macbook
-    from: 'on'
-    to: 'off'
-    id: mbp_ping
   condition:
   - condition: template
     value_template: '{{ trigger.to_state.state != trigger.from_state.state }}'
@@ -609,15 +601,13 @@
         - climate.small_bathroom_thermostat
         - climate.living_room_thermostat
         - climate.bedroom_thermostat
-        - climate.office_thermostat
       automations:
         entity_id:
         - automation.living_room_heat_on
-        - automation.office_heat_sync
         - automation.bedroom_heats
       person_1: person.eric
       person_2: person.caro
-      low_temp_target: 19.5
+      low_temp_target: 17
 - id: '1648331331944'
   alias: 'Living room: Heat on ✔️'
   description: ''
@@ -628,7 +618,7 @@
   action:
   - service: climate.set_temperature
     data:
-      temperature: 19
+      temperature: 21
     target:
       entity_id: climate.living_room_thermostat
   mode: single
@@ -938,13 +928,13 @@
       sequence:
       - service: climate.set_temperature
         data:
-          temperature: 21
+          temperature: 23
           hvac_mode: heat
         target:
           entity_id: climate.heat_pump
   mode: single
 - id: '1670285018851'
-  alias: 'TV: Fireplace scene'
+  alias: 'TV: Fireplace scene ✔️'
   description: ''
   trigger:
   - platform: state
@@ -957,8 +947,8 @@
       seconds: 1
   condition:
   - condition: template
-    value_template: '{{ "fireplace" in state_attr(''media_player.tv'', ''media_title'').lower()
-      }}'
+    value_template: '{{ state_attr(''media_player.tv'', ''media_title'') and "fireplace"
+      in state_attr(''media_player.tv'', ''media_title'').lower() }}'
   action:
   - service: scene.turn_on
     data:
@@ -1068,31 +1058,31 @@
 - id: '1680784352901'
   alias: 'Kitchen: Speaker reset when playing'
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - media_player.kitchen_speaker
     id: speaker
     to: 'off'
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
     - media_player.kitchen_speaker
     to: 'on'
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
     - media_player.kitchen_speaker
     to: idle
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
     - media_player.kitchen_speaker
     to: standby
-  condition: []
-  action:
-  - service: media_player.volume_set
-    data:
-      volume_level: 0.35
+    trigger: state
+  conditions: []
+  actions:
+  - data:
+      volume_level: 0.75
     target:
       entity_id: media_player.kitchen_speaker
+    action: media_player.volume_set
   mode: single
 - id: '1689213834930'
   alias: Guest mode ✔️
@@ -1189,4 +1179,33 @@
       data: {}
       target:
         entity_id: switch.outdoor_outlet
+  mode: single
+- id: '1716503080310'
+  alias: 'Heat pump: turn AC off in the morning'
+  description: ''
+  trigger:
+  - platform: time
+    at: 01:00:00
+    id: morning
+  - platform: time
+    at: '23:30:00'
+    id: night
+    enabled: false
+  condition:
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: climate.heat_pump
+      state: 'off'
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: morning
+      sequence:
+      - service: climate.turn_off
+        target:
+          entity_id:
+          - climate.heat_pump
+        data: {}
   mode: single
