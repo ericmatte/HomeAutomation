@@ -99,16 +99,16 @@
 - id: '1608127387393'
   alias: 'Everything: Turn off with phone charger ✔️'
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - sensor.eric_phone_charger_type
-    to: wireless
-  condition:
+  triggers:
+  - entity_id:
+    - sensor.eric_phone_battery_state
+    to: Charging
+    trigger: state
+  conditions:
   - condition: time
     after: '21:30:00'
     before: 04:00:00
-  action:
+  actions:
   - scene: scene.bedtime
   mode: single
 - id: '1620346496383'
@@ -575,7 +575,7 @@
       time_low_1: 08:45:00
       time_high_2: '21:30:00'
       time_high_1: 06:45:00
-      low_temp: 19.5
+      low_temp: 20
       high_temp: 21
 - id: '1648324723671'
   alias: 'Thermostats: Sync outdoor temperature ✔️'
@@ -607,7 +607,7 @@
         - automation.bedroom_heats
       person_1: person.eric
       person_2: person.caro
-      low_temp_target: 17
+      low_temp_target: 18
 - id: '1648331331944'
   alias: 'Living room: Heat on ✔️'
   description: ''
@@ -647,7 +647,7 @@
     input:
       notification_time: '15:00:00'
       person: person.eric
-      notify_device: 0392bfe3ca5e1a7ce067065214927018
+      notify_device: b391854077f25fa6b3e74662c9d9f70c
       vacuum: vacuum.roby
       vacuum_last_clean: sensor.roby_last_clean_start
       days_threshold: 6
@@ -1056,7 +1056,7 @@
           message: clear_notification
   mode: restart
 - id: '1680784352901'
-  alias: 'Kitchen: Speaker reset when playing'
+  alias: 'Kitchen: Speaker reset volume when playing'
   description: ''
   triggers:
   - entity_id:
@@ -1079,7 +1079,7 @@
   conditions: []
   actions:
   - data:
-      volume_level: 0.75
+      volume_level: 0.5
     target:
       entity_id: media_player.kitchen_speaker
     action: media_player.volume_set
@@ -1123,35 +1123,35 @@
 - id: '1701885779164'
   alias: 'Heat pump: Turn off when too cold outside'
   description: ''
-  trigger:
-  - platform: numeric_state
-    entity_id:
+  triggers:
+  - entity_id:
     - weather.home
     attribute: temperature
-    below: -14
+    below: -16
     id: too_cold
-  - platform: numeric_state
-    entity_id:
+    trigger: numeric_state
+  - entity_id:
     - weather.home
     attribute: temperature
-    above: -12
-  condition: []
-  action:
+    above: -14
+    trigger: numeric_state
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: trigger
         id:
         - too_cold
       sequence:
-      - service: climate.turn_off
-        data: {}
+      - data: {}
         target:
           entity_id: climate.heat_pump
+        action: climate.turn_off
     default:
-    - service: climate.turn_on
-      data: {}
+    - data: {}
       target:
         entity_id: climate.heat_pump
+      action: climate.turn_on
   mode: single
 - id: '1702846936010'
   alias: 'Outdoor: Ligths timer'
@@ -1208,4 +1208,50 @@
           entity_id:
           - climate.heat_pump
         data: {}
+  mode: single
+- id: '1731795360344'
+  alias: TV remote volume buttons
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - input_button.tv_volume_up
+    id: up
+  - trigger: state
+    entity_id:
+    - input_button.tv_volume_down
+    id: down
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - up
+      sequence:
+      - action: remote.send_command
+        metadata: {}
+        data:
+          num_repeats: 1
+          delay_secs: 0.4
+          hold_secs: 0
+          command: tv.volume_up
+          device: remote.rm4
+        target:
+          device_id: 1ba369818cfe08ca048b3a97b7c312ca
+    - conditions:
+      - condition: trigger
+        id:
+        - down
+      sequence:
+      - action: remote.send_command
+        metadata: {}
+        data:
+          num_repeats: 1
+          delay_secs: 0.4
+          hold_secs: 0
+          command: tv.volume_down
+          device: remote.rm4
+        target:
+          device_id: 1ba369818cfe08ca048b3a97b7c312ca
   mode: single

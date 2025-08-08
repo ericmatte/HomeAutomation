@@ -214,11 +214,20 @@
   name: Bedtime
   entities:
     light.plants:
+      min_color_temp_kelvin: 2020
+      max_color_temp_kelvin: 6329
       min_mireds: 158
       max_mireds: 495
       supported_color_modes:
       - color_temp
       - xy
+      color_mode:
+      brightness:
+      color_temp_kelvin:
+      color_temp:
+      hs_color:
+      rgb_color:
+      xy_color:
       mode: normal
       dynamics: none
       icon: mdi:flower-tulip
@@ -227,40 +236,72 @@
       assumed_state: false
       state: 'off'
     light.dining_table:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
       min_mireds: 153
       max_mireds: 500
+      effect_list:
+      - None
+      - candle
+      - fire
+      - prism
+      - sparkle
+      - opal
+      - glisten
       supported_color_modes:
       - color_temp
       - xy
+      effect:
+      color_mode:
+      brightness:
+      color_temp_kelvin:
+      color_temp:
+      hs_color:
+      rgb_color:
+      xy_color:
       mode: normal
       dynamics: none
       friendly_name: Dining table
-      supported_features: 40
+      supported_features: 44
       assumed_state: false
       icon: mdi:ceiling-light
       state: 'off'
     light.theatre:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
       min_mireds: 153
       max_mireds: 500
       supported_color_modes:
       - color_temp
       - xy
+      color_mode:
+      brightness:
+      color_temp_kelvin:
+      color_temp:
+      hs_color:
+      rgb_color:
+      xy_color:
       is_hue_group: true
       hue_scenes:
-      - Promise
-      - Tropical twilight
+      - Mountain breeze
       - City of love
       - Blood moon
-      - Mountain breeze
-      - Blue lagoon
-      - Cozy neutral
       - Savanna sunset
+      - Blue lagoon
+      - Tropical twilight
+      - Promise
+      - Cozy neutral
       hue_type: room
       lights:
       - Metal lamp
+      - Wood lamp
       - Left theatre
       - Right theatre
-      - Wood lamp
+      entity_id:
+      - light.left_theatre
+      - light.metal_lamp
+      - light.right_theatre
+      - light.wood_lamp
       dynamics: false
       icon: mdi:lightbulb-group
       friendly_name: Theatre
@@ -268,16 +309,34 @@
       assumed_state: false
       state: 'off'
     light.desktop:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
       min_mireds: 153
       max_mireds: 500
+      effect_list:
+      - None
+      - candle
+      - fire
+      - prism
+      - sparkle
+      - opal
+      - glisten
       supported_color_modes:
       - color_temp
       - xy
+      effect:
+      color_mode:
+      brightness:
+      color_temp_kelvin:
+      color_temp:
+      hs_color:
+      rgb_color:
+      xy_color:
       mode: normal
       dynamics: none
       icon: mdi:desk-lamp
       friendly_name: Desktop
-      supported_features: 40
+      supported_features: 44
       assumed_state: false
       state: 'off'
     switch.office_wardrobe:
@@ -291,6 +350,8 @@
     light.rgbw_dimmer_r:
       supported_color_modes:
       - brightness
+      color_mode:
+      brightness:
       friendly_name: RGBW Dimmer R
       supported_features: 32
       assumed_state: false
@@ -298,6 +359,8 @@
     light.rgbw_dimmer_w:
       supported_color_modes:
       - brightness
+      color_mode:
+      brightness:
       friendly_name: RGBW Dimmer W
       supported_features: 32
       assumed_state: false
@@ -305,6 +368,8 @@
     light.rgbw_dimmer_g:
       supported_color_modes:
       - brightness
+      color_mode:
+      brightness:
       friendly_name: RGBW Dimmer G
       supported_features: 32
       assumed_state: false
@@ -312,6 +377,8 @@
     light.rgbw_dimmer_b:
       supported_color_modes:
       - brightness
+      color_mode:
+      brightness:
       friendly_name: RGBW Dimmer B
       supported_features: 32
       assumed_state: false
@@ -320,11 +387,17 @@
       options:
       - Unprotected
       - NoOperationPossible
-      friendly_name: 'RGBW Dimmer: Local protection state'
+      friendly_name: RGBW Dimmer local
       state: Unprotected
     light.under_cabinet:
       supported_color_modes:
       - rgbw
+      color_mode:
+      brightness:
+      hs_color:
+      rgb_color:
+      xy_color:
+      rgbw_color:
       icon: mdi:led-strip-variant
       friendly_name: Cabinets
       supported_features: 32
@@ -339,40 +412,55 @@
     light.living_room:
       supported_color_modes:
       - brightness
+      color_mode:
+      brightness:
       device_id: '5'
       zone_id: '3'
       friendly_name: Living room
-      supported_features: 33
+      supported_features: 32
       assumed_state: false
       state: 'off'
     light.kitchen:
       supported_color_modes:
       - brightness
+      color_mode:
+      brightness:
       device_id: '6'
       zone_id: '4'
       friendly_name: Kitchen
-      supported_features: 33
+      supported_features: 32
       assumed_state: false
       state: 'off'
     light.kitchen_island:
       supported_color_modes:
       - brightness
+      color_mode:
+      brightness:
       device_id: '7'
       zone_id: '5'
       friendly_name: Kitchen island
-      supported_features: 33
+      supported_features: 32
       assumed_state: false
       state: 'off'
     light.hall:
       supported_color_modes:
       - brightness
+      color_mode:
+      brightness:
       device_id: '9'
       zone_id: '7'
       friendly_name: Hall
-      supported_features: 33
+      supported_features: 32
       assumed_state: false
       state: 'off'
+    switch.outdoor_outlet:
+      icon: mdi:string-lights
+      friendly_name: Christmas lights
+      state: 'off'
   icon: mdi:bed
+  metadata:
+    switch.outdoor_outlet:
+      entity_only: true
 - id: '1643857476363'
   name: All dimmed
   entities:

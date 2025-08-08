@@ -40,6 +40,34 @@
                 {
                   "entity": "scene.movies_and_eat",
                   "layout": "icon"
+                },
+                {
+                  "entity": "input_button.tv_volume_down",
+                  "layout": "icon",
+                  "tap_action": {
+                    "action": "call-service",
+                    "service": "remote.send_command",
+                    "service_data": {
+                      "entity_id": "remote.rm4",
+                      "device": "remote.rm4",
+                      "command": "tv.volume_down",
+                      "num_repeats": 3
+                    }
+                  }
+                },
+                {
+                  "entity": "input_button.tv_volume_up",
+                  "layout": "icon",
+                  "tap_action": {
+                    "action": "call-service",
+                    "service": "remote.send_command",
+                    "service_data": {
+                      "entity_id": "remote.rm4",
+                      "device": "remote.rm4",
+                      "command": "tv.volume_up",
+                      "num_repeats": 3
+                    }
+                  }
                 }
               ]
             },
@@ -716,6 +744,34 @@
                 },
                 {
                   "entity": "scene.main_movies"
+                },
+                {
+                  "entity": "input_button.tv_volume_down",
+                  "layout": "icon",
+                  "tap_action": {
+                    "action": "call-service",
+                    "service": "remote.send_command",
+                    "service_data": {
+                      "entity_id": "remote.rm4",
+                      "device": "remote.rm4",
+                      "command": "tv.volume_down",
+                      "num_repeats": 3
+                    }
+                  }
+                },
+                {
+                  "entity": "input_button.tv_volume_up",
+                  "layout": "icon",
+                  "tap_action": {
+                    "action": "call-service",
+                    "service": "remote.send_command",
+                    "service_data": {
+                      "entity_id": "remote.rm4",
+                      "device": "remote.rm4",
+                      "command": "tv.volume_up",
+                      "num_repeats": 3
+                    }
+                  }
                 }
               ]
             },
