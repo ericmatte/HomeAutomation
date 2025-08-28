@@ -1,1 +1,17 @@
-{}
+turn_off_all_lights:
+  sequence:
+  - action: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      floor_id:
+      - basement
+      - first_floor
+  - action: media_player.turn_off
+    metadata: {}
+    data: {}
+    target:
+      device_id: 67ea5e07670054e7478713b887ed5895
+  alias: Turn off all lights
+  description: ''
+  icon: mdi:lightbulb-off

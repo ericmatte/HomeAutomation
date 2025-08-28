@@ -6,67 +6,37 @@ homeassistant:
   unit_system: metric
   time_zone: America/Toronto
   country: "CA"
-  # external_url: !secret external_url
   internal_url: !secret internal_url
-  customize: !include customize.yaml
-
-  # Fix for Zooz RGBW mqtt light styling
-  customize_domain:
-    light:
-      assumed_state: false
+  # external_url: !secret external_url
+  # customize: !include customize.yaml
 
 frontend:
   themes: !include_dir_merge_named themes
 
+recorder:
+  auto_purge: true
+  purge_keep_days: 90
+
 my:
+mobile_app:
+config:
+system_health:
+default_config:
+history:
+logbook:
+sun:
 
 http:
-  # # For https
-  # ssl_certificate: /ssl/fullchain.pem
-  # ssl_key: /ssl/privkey.pem
-  #ip_ban_enabled: True
   login_attempts_threshold: 5
+  #ip_ban_enabled: True
 
 # logger:
 #   default: warning
 #   logs:
 #     homeassistant.components.switch.command_line: critical
 
-recorder:
-  auto_purge: true
-  purge_keep_days: 90
-
-mobile_app:
-
-config:
-
-system_health:
-
-rest_command:
-  assistant_relay:
-    url: http://127.0.0.1:3000/assistant
-    method: POST
-    content_type: "application/json"
-    payload: '{"command":"{{ command }}"}'
-
-device_tracker:
-  - platform: ping
-    interval_seconds: 60
-    consider_home: 300
-    hosts:
-      eric_ping: 192.168.0.100
-      caro_ping: 192.168.0.101
-
 # zwave:
 #   usb_path: /dev/ttyACM1 # /dev/ttyACM0
-
-default_config:
-
-history:
-
-logbook:
-
-sun:
 
 smartir:
   check_updates: false
@@ -75,23 +45,10 @@ climate:
   - platform: smartir
     name: Heat pump
     unique_id: heat_pump
-    device_code: 22201 # elios-heat-pump-smartir-codes.json
+    device_code: 1281 # elios-heat-pump-smartir-codes.json
     controller_data: remote.rm4
     temperature_sensor: sensor.rm4_temperature
     humidity_sensor: sensor.rm4_humidity
-
-template:
-  - sensor:
-      - name: "Rounded humidity"
-        unit_of_measurement: "%"
-        state: >
-          {{ state_attr('climate.heat_pump', 'current_humidity') | round }}
-
-sensor:
-  - platform: time_date
-    display_options:
-      - "time"
-      - "date"
 
 command_line:
   - sensor:
@@ -104,22 +61,6 @@ command_line:
       command: "du -m /config/home-assistant_v2.db | cut -f1"
       unit_of_measurement: "MB"
       value_template: "{{ value | int - 1 }}"
-
-switch:
-  - platform: flux
-    mode: mired
-    disable_brightness_adjust: True
-    stop_colortemp: 2700 # https://www.tanguayphotomag.biz/colour-temperature/mireds.html
-    name: Desktop flux
-    lights:
-      - light.desktop
-  - platform: flux
-    mode: mired
-    disable_brightness_adjust: True
-    stop_colortemp: 2700 # https://www.tanguayphotomag.biz/colour-temperature/mireds.html
-    name: Dining table flux
-    lights:
-      - light.dining_table
 
 automation: !include automations.yaml
 script: !include scripts.yaml
