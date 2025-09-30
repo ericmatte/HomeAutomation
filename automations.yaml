@@ -6,50 +6,52 @@
     input:
       hue_device: eba9d8b4257ce13c892979b9e850a7fb
       Power_Press:
-      - action: hue.activate_scene
+      - choose:
+        - conditions:
+          - condition: state
+            entity_id: light.bedroom_2
+            state: 'off'
+          sequence:
+          - action: hue.activate_scene
+            metadata: {}
+            data:
+              transition: 1
+              dynamic: true
+            target:
+              entity_id: scene.bedroom_natural_light
+        default:
+        - action: light.turn_off
+          metadata: {}
+          data:
+            transition: 2
+          target:
+            entity_id: light.bedroom_2
+      Up_Press:
+      - action: light.turn_on
         metadata: {}
         data:
           transition: 1
-          dynamic: true
+          brightness_step_pct: 25
         target:
-          entity_id: scene.bedroom_natural_light
-      Up_Press: []
-      Down_Press: []
+          area_id: bedroom
+      Down_Press:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          transition: 1
+          brightness_step_pct: -25
+        target:
+          area_id: bedroom
       Hue_Press:
-      - action: light.turn_off
-        metadata: {}
-        data:
-          transition: 2
-        target:
-          area_id: bedroom
-      Down_Short_Release:
-      - action: cover.close_cover
+      - action: cover.toggle
         metadata: {}
         data: {}
         target:
           area_id: bedroom
-      Down_Repeat:
-      - action: light.turn_on
-        metadata: {}
-        data:
-          transition: 1
-          brightness_step_pct: -15
-        target:
-          area_id: bedroom
-      Up_Short_Release:
-      - action: cover.open_cover
-        metadata: {}
-        data: {}
-        target:
-          area_id: bedroom
-      Up_Repeat:
-      - action: light.turn_on
-        metadata: {}
-        data:
-          brightness_step_pct: 15
-          transition: 1
-        target:
-          area_id: bedroom
+      Down_Short_Release: []
+      Down_Repeat: []
+      Up_Short_Release: []
+      Up_Repeat: []
 - id: '1754669505325'
   alias: Hue remote
   description: ''
@@ -91,17 +93,36 @@
         target:
           area_id: theatre
 - id: '1754713870026'
-  alias: Turn off all before going to bed
+  alias: Turn off all when going to bed
   description: ''
   triggers:
   - trigger: state
     entity_id:
     - sensor.eric_phone_battery_state
     to: charging
+    id: charger
+  - trigger: state
+    entity_id:
+    - light.bedroom_2
+    to: 'off'
+    id: lights_off
   conditions:
   - condition: time
     after: '22:00:00'
     before: 02:00:00
+  - condition: state
+    entity_id: sensor.eric_phone_battery_state
+    state: charging
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: light.bedroom_2
+      state: 'off'
+    - condition: numeric_state
+      entity_id: light.eric_bedside_table
+      attribute: brightness
+      above: 0
+      below: 5
   actions:
   - action: script.turn_on
     metadata: {}
@@ -110,7 +131,7 @@
       entity_id: script.turn_off_all_lights
   mode: single
 - id: '1755658280925'
-  alias: Sync TV with lights
+  alias: Sync TV and heat with lights
   description: ''
   triggers:
   - trigger: state
@@ -125,7 +146,9 @@
     from: 'on'
     to: 'off'
     id: turn_off
-  conditions: []
+  conditions:
+  - condition: sun
+    after: sunset
   actions:
   - choose:
     - conditions:
@@ -138,6 +161,19 @@
         data: {}
         target:
           device_id: 67ea5e07670054e7478713b887ed5895
+      - if:
+        - condition: state
+          entity_id: climate.theatre_thermostat
+          attribute: preset_mode
+          state: none
+        then:
+        - action: climate.set_temperature
+          metadata: {}
+          data:
+            temperature: 21.5
+          target:
+            area_id: theatre
+        alias: Crank up heat
     - conditions:
       - condition: trigger
         id:
@@ -148,6 +184,19 @@
         data: {}
         target:
           device_id: 67ea5e07670054e7478713b887ed5895
+      - alias: Turn down heat
+        if:
+        - condition: state
+          entity_id: climate.theatre_thermostat
+          attribute: preset_mode
+          state: none
+        then:
+        - action: climate.set_temperature
+          metadata: {}
+          data:
+            temperature: 20
+          target:
+            area_id: theatre
   mode: single
 - id: '1755658699501'
   alias: Motion
@@ -158,33 +207,100 @@
     - binary_sensor.motion_remote
     to: 'on'
     from: 'off'
+    id: motion
+  - trigger: state
+    entity_id:
+    - light.bedroom_2
+    to: 'on'
+    id: lights_on
   conditions:
   - condition: time
-    before: '21:30:00'
-    after: '10:00:00'
-  - condition: state
-    entity_id: light.bedroom_2
-    state: 'off'
-    for:
-      hours: 0
-      minutes: 15
-      seconds: 0
+    before: 02:00:00
+    after: 08:00:00
+  - condition: or
+    conditions:
+    - condition: trigger
+      id:
+      - lights_on
+    - condition: state
+      entity_id: light.bedroom_2
+      state: 'off'
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 30
+    - condition: state
+      entity_id: light.bedroom_2
+      state: 'on'
   actions:
-  - action: hue.activate_scene
-    metadata: {}
-    data:
-      dynamic: true
-      transition: 1
-    target:
-      entity_id: scene.bedroom_natural_light
-  mode: single
+  - if:
+    - condition: time
+      after: '21:00:00'
+      before: 02:00:00
+    - condition: state
+      entity_id: sensor.caro_phone_battery_state
+      state: charging
+    then:
+    - if:
+      - condition: state
+        entity_id: light.bedroom_2
+        state: 'off'
+      then:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          transition: 5
+          brightness_pct: 1
+        target:
+          entity_id: light.eric_bedside_table
+    else:
+    - sequence:
+      - if:
+        - condition: trigger
+          id:
+          - motion
+        - condition: state
+          entity_id: light.bedroom_2
+          state: 'off'
+        then:
+        - action: hue.activate_scene
+          metadata: {}
+          data:
+            dynamic: true
+            transition: 1
+          target:
+            entity_id: scene.bedroom_natural_light
+      - choose:
+        - conditions:
+          - condition: sun
+            before: sunset
+            after: sunrise
+          sequence:
+          - delay:
+              hours: 0
+              minutes: 5
+              seconds: 0
+              milliseconds: 0
+        default:
+        - delay:
+            hours: 1
+            minutes: 0
+            seconds: 0
+            milliseconds: 0
+      - action: light.turn_off
+        metadata: {}
+        data:
+          transition: 5
+        target:
+          area_id: bedroom
+  mode: restart
 - id: '1755663821309'
   alias: Motion on
   description: ''
   triggers:
   - trigger: state
     entity_id:
-    - binary_sensor.zooz_motion
+    - binary_sensor.theatre_motion_sensor
     to: 'on'
     from: 'off'
   conditions:
@@ -207,6 +323,7 @@
   - trigger: state
     entity_id:
     - binary_sensor.anybody
+    to:
   conditions: []
   actions:
   - choose:
@@ -219,7 +336,7 @@
         metadata: {}
         data: {}
         target:
-          label_id: motion
+          entity_id: '{{ label_entities(''motions'') }}'
     - conditions:
       - condition: state
         entity_id: binary_sensor.anybody
@@ -230,7 +347,7 @@
         data:
           stop_actions: true
         target:
-          label_id: motion
+          entity_id: '{{ label_entities(''motions'') }}'
       - action: script.turn_on
         metadata: {}
         data: {}
@@ -274,13 +391,25 @@
         id:
         - middle_button
       sequence:
-      - action: light.turn_on
-        metadata: {}
-        data:
-          brightness_step_pct: 20
-          transition: 1
-        target:
-          area_id: bedroom
+      - if:
+        - condition: state
+          entity_id: light.bedroom_2
+          state: 'on'
+        then:
+        - action: light.turn_off
+          metadata: {}
+          data:
+            transition: 2
+          target:
+            area_id: bedroom
+        else:
+        - action: hue.activate_scene
+          metadata: {}
+          data:
+            transition: 1
+            dynamic: true
+          target:
+            entity_id: scene.bedroom_natural_light
     - conditions:
       - condition: trigger
         id:
@@ -289,16 +418,24 @@
       - action: light.turn_on
         metadata: {}
         data:
-          brightness_step_pct: -20
-          transition: 1
+          transition: 5
+          brightness_pct: 1
         target:
-          area_id: bedroom
+          entity_id: light.eric_bedside_table
   mode: parallel
   max: 10
 - id: '1756351726973'
-  alias: Motion off
+  alias: Motion off after 45min
   description: ''
   triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.theatre_motion_sensor
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 45
+      seconds: 0
   - trigger: state
     entity_id:
     - light.theatre
@@ -307,11 +444,309 @@
       hours: 0
       minutes: 45
       seconds: 0
-  conditions: []
+  - trigger: state
+    entity_id:
+    - media_player.cast_tv
+    from: playing
+  conditions:
+  - condition: state
+    entity_id: binary_sensor.zooz_motion
+    state: 'off'
+    for:
+      hours: 0
+      minutes: 45
+      seconds: 0
+  - condition: state
+    entity_id: light.theatre
+    state: 'off'
+    for:
+      hours: 0
+      minutes: 45
+      seconds: 0
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: media_player.cast_tv
+      state: playing
   actions:
   - action: light.turn_off
     metadata: {}
-    data: {}
+    data:
+      transition: 5
     target:
       area_id: theatre
   mode: single
+- id: '1757204962690'
+  alias: Show outside temperature on thermostats
+  description: ''
+  use_blueprint:
+    path: ericmatte/climate_outdoor_temperature.yaml
+    input:
+      temperature_input: weather.home
+      thermostats:
+      - 6cac62494ac9c1f73ab0bab89f83e3d2
+      - 83eb981d39bcce2114b24b1630994074
+      - ae632394cc0506da5e99eed1e5885bc0
+      - 54e5c6a92f5b996aeb4875a3fce1f411
+      - b0f91e9fca55faafdfaa7d489d4794fd
+- id: '1757464460111'
+  alias: Motion
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.motion
+    to: 'on'
+    from: 'off'
+  conditions:
+  - condition: state
+    entity_id: person.eric
+    state: home
+  - condition: state
+    entity_id: light.office
+    state: 'off'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 30
+  - condition: time
+    after: 06:00:00
+    before: '23:00:00'
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      transition: 1
+    target:
+      entity_id: light.office
+  - action: hue.activate_scene
+    metadata: {}
+    data:
+      transition: 1
+    target:
+      entity_id: scene.eric_office_cool_bright
+  mode: single
+- id: '1757464873639'
+  alias: Sync auxiliary light with main light
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - light.office
+    to:
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: light.office
+        state: 'on'
+      sequence:
+      - action: hue.activate_scene
+        metadata: {}
+        data:
+          transition: 1
+        target:
+          entity_id: scene.eric_office_cool_bright
+    default:
+    - action: light.turn_off
+      metadata: {}
+      data:
+        transition: 1
+      target:
+        entity_id: light.auxiliary_lamp
+  mode: single
+- id: '1758113303096'
+  alias: Sync box toggle
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - input_select.sync_box_settings
+    to:
+  - trigger: state
+    entity_id:
+    - media_player.cast_tv
+    to:
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: and
+          conditions:
+          - condition: state
+            entity_id: input_select.sync_box_settings
+            state: On while playing TV
+          - condition: state
+            entity_id: media_player.cast_tv
+            state: playing
+        - condition: state
+          entity_id: input_select.sync_box_settings
+          state: 'On'
+      sequence:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          brightness_pct: 75
+        target:
+          device_id: 2f225ff797c407bfea4562dba25d4d8c
+    default:
+    - action: light.turn_off
+      metadata: {}
+      data: {}
+      target:
+        device_id: 2f225ff797c407bfea4562dba25d4d8c
+  mode: single
+- id: '1758600795981'
+  alias: Sync box reset
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - media_player.cast_tv
+    to: 'off'
+  conditions:
+  - condition: state
+    entity_id: input_select.sync_box_settings
+    state: 'On'
+  actions:
+  - action: input_select.select_option
+    metadata: {}
+    data:
+      option: On while playing TV
+    target:
+      entity_id: input_select.sync_box_settings
+  mode: single
+- id: '1758678147252'
+  alias: Sump leak alarm notification
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.sump_water_leak_detector
+    to: 'on'
+  conditions: []
+  actions:
+  - action: notify.notify
+    metadata: {}
+    data:
+      title: "⚠️ Fuite détecté! \U0001F4A6"
+      message: Au puisard
+      data:
+        ttl: 0
+        priority: high
+  mode: single
+- id: '1758678867687'
+  alias: Dishwasher leak alarm notification
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.dishwasher_leak_detector
+    to: 'on'
+  conditions: []
+  actions:
+  - action: notify.notify
+    metadata: {}
+    data:
+      title: "⚠️ Fuite a été détecté! \U0001F4A6"
+      message: Au lave-vaisselle
+      data:
+        ttl: 0
+        priority: high
+  mode: single
+- id: '1759028691915'
+  alias: Light on when door opens
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.laundry_door
+    to:
+  conditions: []
+  actions:
+  - if:
+    - condition: state
+      entity_id: binary_sensor.laundry_door
+      state: 'on'
+    then:
+    - action: light.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: light.laundry
+    else:
+    - action: light.turn_off
+      metadata: {}
+      data: {}
+      target:
+        entity_id: light.laundry
+  mode: single
+- id: '1759029939032'
+  alias: Lights on when arriving or opening the door
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.front_door
+    to: 'on'
+    id: door
+  - trigger: state
+    entity_id:
+    - person.eric
+    - person.caro
+    to: home
+    id: a person
+  conditions:
+  - condition: sun
+    before: sunrise
+    after: sunset
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      transition: 1
+    target:
+      entity_id: light.entrance_lights
+  - delay:
+      hours: 0
+      minutes: 5
+      seconds: 0
+      milliseconds: 0
+  - action: light.turn_off
+    metadata: {}
+    data:
+      transition: 2
+    target:
+      entity_id: light.entrance_lights
+  mode: restart
+- id: '1759083438717'
+  alias: Warn when below 0°C
+  description: ''
+  triggers:
+  - trigger: numeric_state
+    entity_id:
+    - sensor.workshop_temperature
+    below: 0
+  conditions: []
+  actions:
+  - action: notify.notify
+    metadata: {}
+    data:
+      message: La température dans l'établie est en dessous de 0°C. Il est temps de
+        rentrer du stock.
+      title: "\U0001F321️ Avertissement de temperature \U0001F976"
+  mode: single
+- id: '1759255356717'
+  alias: High humidity alert
+  description: ''
+  use_blueprint:
+    path: ericmatte/humidity_high_alert.yaml
+    input:
+      humidity_sensors:
+      - sensor.rm4_humidity
+      - sensor.motion_humidity
+      - sensor.workshop_humidity
+      threshold: 55

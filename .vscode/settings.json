@@ -2,5 +2,10 @@
   "editor.formatOnSave": true,
   "files.autoSave": "onFocusChange",
   "editor.rulers": [120],
-  "prettier.printWidth": 120
+  "prettier.printWidth": 120,
+  "files.exclude": {
+    "lutron_caseta-*.pem": true,
+    "zw*.xml": true,
+    "options.xml": true
+  }
 }

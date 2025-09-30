@@ -5,7 +5,14 @@
   "data": {
     "config": {
       "strategy": {
-        "type": "areas"
+        "type": "areas",
+        "floors_display": {
+          "order": [
+            "first_floor",
+            "basement",
+            "__unassigned__"
+          ]
+        }
       }
     }
   }

@@ -1,0 +1,40 @@
+blueprint:
+  name: High Humidity Alert
+  description: >
+    Sends a notification if one or more humidity sensors go above a defined threshold.
+  domain: automation
+  input:
+    humidity_sensors:
+      name: Humidity Sensors
+      description: List of humidity sensors to monitor
+      selector:
+        entity:
+          domain: sensor
+          device_class: humidity
+          multiple: true
+    threshold:
+      name: Humidity Threshold
+      description: Humidity level (%) above which the alert is triggered
+      default: 70
+      selector:
+        number:
+          min: 0
+          max: 100
+          unit_of_measurement: "%"
+          mode: slider
+
+trigger:
+  - platform: numeric_state
+    entity_id: !input humidity_sensors
+    above: !input threshold
+
+action:
+  - service: notify.notify
+    data:
+      title: "⚠️ Taux d'humidité élevé 💦"
+      message: >-
+        {% set sensor = trigger.entity_id %}
+        Le capteur {{ state_attr(sensor, 'friendly_name') or sensor }}
+        a détecté un taux plus haut que le seuil de {{ inputs.threshold }}%: {{ states(sensor) }}%.
+
+mode: single

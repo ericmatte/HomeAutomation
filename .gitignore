@@ -39,3 +39,6 @@ acme_reg.json
 !/appdaemon/apps
 /appdaemon/apps/*
 !/appdaemon/apps/apps.yaml
+
+image/
+zigbee.*
