@@ -23,6 +23,9 @@ blueprint:
           unit_of_measurement: "%"
           mode: slider
 
+variables:
+  threshold_value: !input threshold
+
 trigger:
   - platform: numeric_state
     entity_id: !input humidity_sensors
@@ -34,7 +37,7 @@ action:
       title: "⚠️ Taux d'humidité élevé 💦"
       message: >-
         {% set sensor = trigger.entity_id %}
-        Le capteur {{ state_attr(sensor, 'friendly_name') or sensor }}
-        a détecté un taux plus haut que le seuil de {{ inputs.threshold }}%: {{ states(sensor) }}%.
+        L'humidité dans la pièce '{{ area_name(sensor) }}' est à {{ states(sensor) }}%
+        (seuil accepté: {{ threshold_value }}%).
 
 mode: single

@@ -12,6 +12,11 @@ turn_off_all_lights:
     data: {}
     target:
       device_id: 67ea5e07670054e7478713b887ed5895
+  - action: climate.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: climate.heat_pump
   alias: Turn off all
   description: ''
   icon: mdi:lightbulb-off

@@ -146,21 +146,21 @@
     from: 'on'
     to: 'off'
     id: turn_off
-  conditions:
-  - condition: sun
-    after: sunset
+  conditions: []
   actions:
   - choose:
     - conditions:
       - condition: trigger
         id:
         - turn_on
+      - condition: sun
+        after: sunset
       sequence:
       - action: media_player.turn_on
         metadata: {}
         data: {}
         target:
-          device_id: 67ea5e07670054e7478713b887ed5895
+          device_id: 8fa059d1f0a19a1b353185271abfcb1f
       - if:
         - condition: state
           entity_id: climate.theatre_thermostat
@@ -183,7 +183,7 @@
         metadata: {}
         data: {}
         target:
-          device_id: 67ea5e07670054e7478713b887ed5895
+          device_id: 8fa059d1f0a19a1b353185271abfcb1f
       - alias: Turn down heat
         if:
         - condition: state
@@ -199,7 +199,7 @@
             area_id: theatre
   mode: single
 - id: '1755658699501'
-  alias: Motion
+  alias: Motion (5 min before sunset, 1h after)
   description: ''
   triggers:
   - trigger: state
@@ -232,10 +232,21 @@
     - condition: state
       entity_id: light.bedroom_2
       state: 'on'
+  - alias: If not everybody is sleeping
+    condition: not
+    conditions:
+    - condition: and
+      conditions:
+      - condition: state
+        entity_id: sensor.eric_phone_battery_state
+        state: charging
+      - condition: state
+        entity_id: sensor.caro_phone_battery_state
+        state: charging
   actions:
   - if:
     - condition: time
-      after: '21:00:00'
+      after: '18:00:00'
       before: 02:00:00
     - condition: state
       entity_id: sensor.caro_phone_battery_state
@@ -250,7 +261,7 @@
         metadata: {}
         data:
           transition: 5
-          brightness_pct: 1
+          brightness_pct: 22
         target:
           entity_id: light.eric_bedside_table
     else:
@@ -307,6 +318,9 @@
   - condition: time
     before: '23:30:00'
     after: 07:30:00
+  - condition: state
+    entity_id: light.theatre
+    state: 'off'
   actions:
   - action: hue.activate_scene
     metadata: {}
@@ -418,8 +432,8 @@
       - action: light.turn_on
         metadata: {}
         data:
-          transition: 5
           brightness_pct: 1
+          transition: 2
         target:
           entity_id: light.eric_bedside_table
   mode: parallel
@@ -749,4 +763,198 @@
       - sensor.rm4_humidity
       - sensor.motion_humidity
       - sensor.workshop_humidity
-      threshold: 55
+      threshold: 68
+- id: '1759267988873'
+  alias: Sync covers with time and sun
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - sun.sun
+    to: below_horizon
+    id: Sun below horizon
+  - trigger: time
+    at: 09:30:00
+    id: Time in the morning
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - Time in the morning
+      sequence:
+      - action: cover.open_cover
+        metadata: {}
+        data: {}
+        target:
+          area_id: dining_room
+    - conditions:
+      - condition: trigger
+        id:
+        - Sun below horizon
+      sequence:
+      - action: cover.close_cover
+        metadata: {}
+        data: {}
+        target:
+          floor_id: first_floor
+  mode: single
+- id: '1759287649594'
+  alias: Sync kitchen lights
+  description: ''
+  use_blueprint:
+    path: ericmatte/lights_sync.yaml
+    input:
+      lights:
+      - light.kitchen_island_lights
+      - light.kitchen_sink_lights
+      - light.kitchen_middle_light
+      - light.left_floor_lamp
+- id: '1759336603445'
+  alias: Turn off light after 30min before sunset
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - light.kitchen_island_lights
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 30
+      seconds: 0
+  conditions:
+  - condition: time
+    before: 04:00:00
+  actions:
+  - action: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      area_id: kitchen
+  mode: single
+- id: '1759450285307'
+  alias: Lights off after 1h30am
+  description: ''
+  triggers:
+  - trigger: time
+    at: 01:30:00
+  conditions:
+  - condition: state
+    entity_id: light.outside_outlet
+    state: 'on'
+  actions:
+  - action: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.outside_outlet
+  mode: single
+- id: '1759495948382'
+  alias: Open curtains when lights are turned on in the morning
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - light.kitchen_middle_light
+    to: 'on'
+  conditions:
+  - condition: time
+    after: 07:00:00
+    before: '10:00:00'
+  actions:
+  - action: cover.open_cover
+    metadata: {}
+    data: {}
+    target:
+      area_id: dining_room
+  mode: single
+- id: '1759638483935'
+  alias: Turn up heat while lights are on
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - light.office
+    from: 'off'
+    to: 'on'
+    id: Turn on
+  - trigger: state
+    entity_id:
+    - light.office
+    from: 'on'
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 15
+      seconds: 0
+    id: Off for 15 min
+  conditions:
+  - condition: state
+    entity_id: person.eric
+    state: home
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - Turn on
+      sequence:
+      - action: climate.set_temperature
+        metadata: {}
+        data:
+          temperature: 21.5
+        target:
+          area_id: eric_office
+    - conditions:
+      - condition: trigger
+        id:
+        - Off for 15 min
+      sequence:
+      - action: climate.set_temperature
+        metadata: {}
+        data:
+          temperature: 19.5
+        target:
+          area_id: eric_office
+  mode: single
+- id: '1759639348244'
+  alias: Warm morning with heat pump
+  description: ''
+  triggers:
+  - trigger: time
+    at: 07:00:00
+  conditions:
+  - condition: state
+    entity_id: binary_sensor.anybody
+    state: 'on'
+  actions:
+  - action: climate.set_temperature
+    metadata: {}
+    data:
+      temperature: 21
+      hvac_mode: heat
+    target:
+      entity_id: climate.heat_pump
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 2
+      milliseconds: 0
+  - action: climate.set_fan_mode
+    metadata: {}
+    data:
+      fan_mode: auto
+    target:
+      entity_id: climate.heat_pump
+  - delay:
+      hours: 3
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+  - action: climate.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: climate.heat_pump
+  mode: single

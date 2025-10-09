@@ -1,0 +1,40 @@
+blueprint:
+  name: Keep lights in sync (on/off & brightness, simple)
+  description: >
+    Synchronize on/off and brightness between multiple lights.
+  domain: automation
+  input:
+    lights:
+      name: Lights
+      description: Select all lights to keep synchronized
+      selector:
+        entity:
+          domain: light
+          multiple: true
+
+mode: restart
+max_exceeded: silent
+
+trigger:
+  - platform: state
+    entity_id: !input lights
+
+condition:
+  # Only react to physical actions (ignoring automation and in-app changes)
+  - condition: template
+    value_template: "{{ trigger.to_state.context.parent_id == none and trigger.to_state.context.user_id == none }}"
+
+variables:
+  changed_light: "{{ trigger.entity_id }}"
+  all_lights: !input lights
+  brightness: "{{ trigger.to_state.attributes.brightness | int(0) }}"
+  target_entity_ids: >
+    {{ all_lights | reject('eq', changed_light) | list }}
+
+action:
+  - service: light.turn_on
+    target:
+      entity_id: "{{ target_entity_ids }}"
+    data:
+      brightness: "{{ brightness }}"
+      color_temp_kelvin: 3000
