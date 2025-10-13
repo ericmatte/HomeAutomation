@@ -1,0 +1,177 @@
+blueprint:
+  name: Smart Heating Controller
+  description: >
+    Control heat pump and auxiliary thermostats based on occupancy, outside temperature,
+    and time of day. The auxiliary thermostats run 2°C lower to act as backup.
+    Automatically switches to auxiliary heat when it's too cold.
+
+  domain: automation
+  input:
+    heat_pump:
+      name: Heat Pump
+      description: The main heat pump entity
+      selector:
+        entity:
+          domain: climate
+
+    aux_thermostats:
+      name: Auxiliary Thermostats
+      description: Select one or more auxiliary thermostats
+      selector:
+        entity:
+          domain: climate
+          multiple: true
+
+    outside_temp_sensor:
+      name: Outside Temperature Sensor
+      selector:
+        entity:
+          domain: sensor
+
+    min_outside_temp:
+      name: Minimum Outside Temperature for Heat Pump
+      description: >
+        Below this temperature, the heat pump will be turned off and auxiliary thermostats will take over.
+      default: -10
+      selector:
+        number:
+          min: -30
+          max: 10
+          unit_of_measurement: "°C"
+          mode: box
+
+    target_temp:
+      name: Target Temperature
+      description: Normal comfort temperature
+      selector:
+        number:
+          min: 15
+          max: 25
+          unit_of_measurement: "°C"
+          mode: slider
+
+    away_night_temp:
+      name: Away/Night Target Temperature
+      description: Temperature to use when everyone is away or sleeping
+      selector:
+        number:
+          min: 10
+          max: 22
+          unit_of_measurement: "°C"
+          mode: slider
+
+    anybody_home:
+      name: Anybody Home Sensor
+      selector:
+        entity:
+          domain: binary_sensor
+
+    everybody_sleeping:
+      name: Everybody Sleeping Sensor
+      selector:
+        entity:
+          domain: binary_sensor
+
+mode: single
+
+trigger:
+  - platform: state
+    entity_id:
+      - !input anybody_home
+      - !input everybody_sleeping
+
+  - platform: template
+    value_template: >
+      {{ (states(outside_temp_sensor) | float(0)) < (min_outside_temp | float) }}
+
+  - platform: state
+    entity_id: !input heat_pump
+    attribute: temperature
+    id: heat_pump_temp_change
+
+variables:
+  heat_pump: !input heat_pump
+  aux_thermostats: !input aux_thermostats
+  outside_temp_sensor: !input outside_temp_sensor
+  min_outside_temp: !input min_outside_temp
+  target_temp: !input target_temp
+  away_night_temp: !input away_night_temp
+  anybody_home: !input anybody_home
+  everybody_sleeping: !input everybody_sleeping
+
+  # Determine which target temperature to use
+  effective_target_temp: >
+    {% if is_state(anybody_home, 'off') or is_state(everybody_sleeping, 'on') %}
+      {{ away_night_temp }}
+    {% else %}
+      {{ target_temp }}
+    {% endif %}
+
+action:
+  - variables:
+      outside_temp: "{{ states(outside_temp_sensor) | float(0) }}"
+      triggered_by_heat_pump: "{{ trigger.id == 'heat_pump_temp_change' }}"
+      heat_pump_state: "{{ state_attr(heat_pump, 'hvac_action') }}"
+      heat_pump_temp: "{{ state_attr(heat_pump, 'temperature') | float(effective_target_temp) }}"
+
+  - choose:
+      # CASE 1: Too cold for heat pump
+      - conditions:
+          - condition: template
+            value_template: "{{ outside_temp < min_outside_temp }}"
+          - condition: template
+            value_template: "{{ not triggered_by_heat_pump }}"
+        sequence:
+          - service: climate.turn_off
+            target:
+              entity_id: "{{ heat_pump }}"
+          - service: climate.set_temperature
+            target:
+              entity_id: "{{ aux_thermostats }}"
+            data:
+              temperature: "{{ effective_target_temp }}"
+
+      # CASE 2: Normal operation (heat pump active)
+      - conditions:
+          - condition: template
+            value_template: "{{ outside_temp >= min_outside_temp }}"
+        sequence:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ not triggered_by_heat_pump }}"
+                sequence:
+                  - service: climate.set_temperature
+                    data:
+                      temperature: "{{ effective_target_temp }}"
+                      hvac_mode: heat
+                    target:
+                      entity_id: "{{ heat_pump }}"
+                  - delay:
+                      seconds: 2
+                  - service: climate.set_fan_mode
+                    data:
+                      fan_mode: auto
+                    target:
+                      entity_id: "{{ heat_pump }}"
+
+          # Aux thermostats follow heat pump temp - 2 if heating
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ heat_pump_state == 'heating' }}"
+                sequence:
+                  - service: climate.set_temperature
+                    target:
+                      entity_id: "{{ aux_thermostats }}"
+                    data:
+                      temperature: "{{ heat_pump_temp - 2 }}"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ heat_pump_state != 'heating' }}"
+                sequence:
+                  - service: climate.set_temperature
+                    target:
+                      entity_id: "{{ aux_thermostats }}"
+                    data:
+                      temperature: "{{ (state_attr(heat_pump, 'temperature') | float(effective_target_temp)) - 2 }}"

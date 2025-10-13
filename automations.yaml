@@ -509,9 +509,14 @@
   triggers:
   - trigger: state
     entity_id:
-    - binary_sensor.motion
-    to: 'on'
-    from: 'off'
+    - sensor.office_door_motion_direction
+    to: Entering
+    id: Entering
+  - trigger: state
+    entity_id:
+    - sensor.office_door_motion_direction
+    to: Exiting
+    id: Exiting
   conditions:
   - condition: state
     entity_id: person.eric
@@ -523,22 +528,46 @@
       hours: 0
       minutes: 0
       seconds: 30
+    enabled: false
   - condition: time
     after: 06:00:00
-    before: '23:00:00'
+    before: '23:30:00'
   actions:
-  - action: light.turn_on
-    metadata: {}
-    data:
-      transition: 1
-    target:
-      entity_id: light.office
-  - action: hue.activate_scene
-    metadata: {}
-    data:
-      transition: 1
-    target:
-      entity_id: scene.eric_office_cool_bright
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - Entering
+      sequence:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          transition: 1
+        target:
+          entity_id: light.office
+      - action: hue.activate_scene
+        metadata: {}
+        data:
+          transition: 1
+        target:
+          entity_id: scene.eric_office_cool_bright
+    - conditions:
+      - condition: trigger
+        id:
+        - Exiting
+      sequence:
+      - delay:
+          hours: 0
+          minutes: 5
+          seconds: 0
+          milliseconds: 0
+        enabled: false
+      - action: light.turn_off
+        metadata: {}
+        data:
+          transition: 2
+        target:
+          area_id: eric_office
   mode: single
 - id: '1757464873639'
   alias: Sync auxiliary light with main light
@@ -639,7 +668,7 @@
   triggers:
   - trigger: state
     entity_id:
-    - binary_sensor.sump_water_leak_detector
+    - binary_sensor.sump_water_leak_detector_water_leak
     to: 'on'
   conditions: []
   actions:
@@ -658,7 +687,7 @@
   triggers:
   - trigger: state
     entity_id:
-    - binary_sensor.dishwasher_leak_detector
+    - binary_sensor.dishwasher_leak_detector_water_leak
     to: 'on'
   conditions: []
   actions:
@@ -724,6 +753,17 @@
       transition: 1
     target:
       entity_id: light.entrance_lights
+  - if:
+    - condition: trigger
+      id:
+      - a person
+    then:
+    - action: light.turn_on
+      metadata: {}
+      data:
+        transition: 2
+      target:
+        area_id: living_room
   - delay:
       hours: 0
       minutes: 5
@@ -742,7 +782,7 @@
   triggers:
   - trigger: numeric_state
     entity_id:
-    - sensor.workshop_temperature
+    - sensor.workshop_temperature_humidity_temperature
     below: 0
   conditions: []
   actions:
@@ -762,7 +802,7 @@
       humidity_sensors:
       - sensor.rm4_humidity
       - sensor.motion_humidity
-      - sensor.workshop_humidity
+      - sensor.workshop_temperature_humidity_humidity
       threshold: 68
 - id: '1759267988873'
   alias: Sync covers with time and sun
@@ -810,7 +850,6 @@
       - light.kitchen_island_lights
       - light.kitchen_sink_lights
       - light.kitchen_middle_light
-      - light.left_floor_lamp
 - id: '1759336603445'
   alias: Turn off light after 30min before sunset
   description: ''
@@ -958,3 +997,49 @@
     target:
       entity_id: climate.heat_pump
   mode: single
+- id: '1760051363836'
+  alias: Smart heat controller
+  description: ''
+  use_blueprint:
+    path: ericmatte/smart_heating_controller.yaml
+    input:
+      heat_pump: climate.heat_pump
+      aux_thermostats:
+      - climate.dining_room_thermostat
+      - climate.living_room_thermostat
+      outside_temp_sensor: sensor.outside_temperature
+      min_outside_temp: -12
+      target_temp: 20
+      away_night_temp: 17
+      anybody_home: binary_sensor.anybody
+      everybody_sleeping: binary_sensor.everybody_is_sleeping
+- id: '1760325051545'
+  alias: Night light with motion
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.motion_light_occupancy
+  conditions:
+  - condition: sun
+    before: sunrise
+    after: sunset
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      transition: 1
+    target:
+      entity_id: light.motion_light
+  - delay:
+      hours: 0
+      minutes: 2
+      seconds: 0
+      milliseconds: 0
+  - action: light.turn_off
+    metadata: {}
+    data:
+      transition: 1
+    target:
+      entity_id: light.motion_light
+  mode: restart
