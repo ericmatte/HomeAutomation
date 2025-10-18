@@ -17,6 +17,28 @@ turn_off_all_lights:
     data: {}
     target:
       entity_id: climate.heat_pump
+    enabled: false
   alias: Turn off all
+  description: ''
+  icon: mdi:lightbulb-off
+turn_off_things_before_sleeping:
+  sequence:
+  - action: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      floor_id:
+      - basement
+      area_id:
+      - entrance
+      - kitchen
+      - living_room
+      - hallway
+  - action: media_player.turn_off
+    metadata: {}
+    data: {}
+    target:
+      device_id: 67ea5e07670054e7478713b887ed5895
+  alias: Turn off almost every thing before sleeping
   description: ''
   icon: mdi:lightbulb-off

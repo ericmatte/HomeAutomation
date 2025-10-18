@@ -160,7 +160,7 @@
         metadata: {}
         data: {}
         target:
-          device_id: 8fa059d1f0a19a1b353185271abfcb1f
+          entity_id: media_player.android_tv
       - if:
         - condition: state
           entity_id: climate.theatre_thermostat
@@ -183,7 +183,7 @@
         metadata: {}
         data: {}
         target:
-          device_id: 8fa059d1f0a19a1b353185271abfcb1f
+          entity_id: media_player.android_tv
       - alias: Turn down heat
         if:
         - condition: state
@@ -439,7 +439,7 @@
   mode: parallel
   max: 10
 - id: '1756351726973'
-  alias: Motion off after 45min
+  alias: Motion off after 45min after sunset
   description: ''
   triggers:
   - trigger: state
@@ -452,26 +452,14 @@
       seconds: 0
   - trigger: state
     entity_id:
-    - light.theatre
-    to: 'on'
-    for:
-      hours: 0
-      minutes: 45
-      seconds: 0
-  - trigger: state
-    entity_id:
     - media_player.cast_tv
     from: playing
   conditions:
+  - condition: sun
+    after: sunset
+    before: sunrise
   - condition: state
-    entity_id: binary_sensor.zooz_motion
-    state: 'off'
-    for:
-      hours: 0
-      minutes: 45
-      seconds: 0
-  - condition: state
-    entity_id: light.theatre
+    entity_id: binary_sensor.theatre_motion_sensor
     state: 'off'
     for:
       hours: 0
@@ -509,14 +497,8 @@
   triggers:
   - trigger: state
     entity_id:
-    - sensor.office_door_motion_direction
-    to: Entering
-    id: Entering
-  - trigger: state
-    entity_id:
-    - sensor.office_door_motion_direction
-    to: Exiting
-    id: Exiting
+    - binary_sensor.motion_presence
+    to: 'on'
   conditions:
   - condition: state
     entity_id: person.eric
@@ -528,46 +510,17 @@
       hours: 0
       minutes: 0
       seconds: 30
-    enabled: false
+    enabled: true
   - condition: time
     after: 06:00:00
     before: '23:30:00'
   actions:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id:
-        - Entering
-      sequence:
-      - action: light.turn_on
-        metadata: {}
-        data:
-          transition: 1
-        target:
-          entity_id: light.office
-      - action: hue.activate_scene
-        metadata: {}
-        data:
-          transition: 1
-        target:
-          entity_id: scene.eric_office_cool_bright
-    - conditions:
-      - condition: trigger
-        id:
-        - Exiting
-      sequence:
-      - delay:
-          hours: 0
-          minutes: 5
-          seconds: 0
-          milliseconds: 0
-        enabled: false
-      - action: light.turn_off
-        metadata: {}
-        data:
-          transition: 2
-        target:
-          area_id: eric_office
+  - action: light.turn_on
+    metadata: {}
+    data:
+      transition: 1
+    target:
+      entity_id: light.office
   mode: single
 - id: '1757464873639'
   alias: Sync auxiliary light with main light
@@ -701,7 +654,7 @@
         priority: high
   mode: single
 - id: '1759028691915'
-  alias: Light on when door opens
+  alias: Laundry light on when door opens
   description: ''
   triggers:
   - trigger: state
@@ -746,13 +699,16 @@
   - condition: sun
     before: sunrise
     after: sunset
+    after_offset: -01:00:00
   actions:
   - action: light.turn_on
     metadata: {}
     data:
-      transition: 1
+      transition: 2
     target:
-      entity_id: light.entrance_lights
+      entity_id:
+      - light.entrance_lights
+      - light.driveway_lantern
   - if:
     - condition: trigger
       id:
@@ -763,7 +719,9 @@
       data:
         transition: 2
       target:
-        area_id: living_room
+        area_id:
+        - entrance
+        - downstairs_hallway
   - delay:
       hours: 0
       minutes: 5
@@ -774,7 +732,9 @@
     data:
       transition: 2
     target:
-      entity_id: light.entrance_lights
+      entity_id:
+      - light.entrance_lights
+      - light.driveway_lantern
   mode: restart
 - id: '1759083438717'
   alias: Warn when below 0°C
@@ -957,89 +917,210 @@
         target:
           area_id: eric_office
   mode: single
-- id: '1759639348244'
-  alias: Warm morning with heat pump
-  description: ''
-  triggers:
-  - trigger: time
-    at: 07:00:00
-  conditions:
-  - condition: state
-    entity_id: binary_sensor.anybody
-    state: 'on'
-  actions:
-  - action: climate.set_temperature
-    metadata: {}
-    data:
-      temperature: 21
-      hvac_mode: heat
-    target:
-      entity_id: climate.heat_pump
-  - delay:
-      hours: 0
-      minutes: 0
-      seconds: 2
-      milliseconds: 0
-  - action: climate.set_fan_mode
-    metadata: {}
-    data:
-      fan_mode: auto
-    target:
-      entity_id: climate.heat_pump
-  - delay:
-      hours: 3
-      minutes: 0
-      seconds: 0
-      milliseconds: 0
-  - action: climate.turn_off
-    metadata: {}
-    data: {}
-    target:
-      entity_id: climate.heat_pump
-  mode: single
-- id: '1760051363836'
+- id: '1760366605928'
   alias: Smart heat controller
   description: ''
   use_blueprint:
     path: ericmatte/smart_heating_controller.yaml
     input:
+      use_target_until: '23:59:59'
       heat_pump: climate.heat_pump
       aux_thermostats:
-      - climate.dining_room_thermostat
       - climate.living_room_thermostat
+      - climate.dining_room_thermostat
       outside_temp_sensor: sensor.outside_temperature
       min_outside_temp: -12
-      target_temp: 20
-      away_night_temp: 17
+      target_temp: 19
+      away_night_temp: 16
       anybody_home: binary_sensor.anybody
-      everybody_sleeping: binary_sensor.everybody_is_sleeping
-- id: '1760325051545'
-  alias: Night light with motion
+      use_target_from: 06:30:00
+      fan_mode: quiet
+- id: '1760485855717'
+  alias: Light on when opening workshop door
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.door_sensor_contact
+    to: 'on'
+  conditions: []
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.office
+  mode: single
+- id: '1760535371073'
+  alias: Motion off after 5min before sunset
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.theatre_motion_sensor
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+  - trigger: state
+    entity_id:
+    - media_player.cast_tv
+    from: playing
+  conditions:
+  - condition: sun
+    after: sunrise
+    before: sunset
+  - condition: state
+    entity_id: binary_sensor.theatre_motion_sensor
+    state: 'off'
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: media_player.cast_tv
+      state: playing
+  actions:
+  - action: light.turn_off
+    metadata: {}
+    data:
+      transition: 5
+    target:
+      area_id: theatre
+  mode: single
+- id: '1760560959850'
+  alias: Send notification if a door opens when away
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.front_door
+    - binary_sensor.door_sensor_contact
+    to: 'on'
+  conditions:
+  - condition: state
+    entity_id: binary_sensor.anybody
+    state: 'off'
+  actions:
+  - action: notify.notify
+    metadata: {}
+    data:
+      title: "⚠️ Fuite détecté! \U0001F4A6"
+      message: Au puisard
+      data:
+        ttl: 0
+        priority: high
+  mode: single
+- id: '1760581910388'
+  alias: Turn off almost every thing before going to bed
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.eric_phone_battery_state
+    to: charging
+    id: charger
+  conditions:
+  - condition: time
+    after: '22:00:00'
+    before: 02:00:00
+  actions:
+  - action: script.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: script.turn_off_things_before_sleeping
+  mode: single
+- id: '1760614449167'
+  alias: Morning heat
+  description: ''
+  triggers:
+  - trigger: time
+    at: 06:30:00
+    id: Morning starts
+  - trigger: time
+    at: 09:45:00
+    id: Morning ends
+  conditions:
+  - condition: state
+    entity_id: binary_sensor.anybody
+    state: 'on'
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - Morning starts
+      sequence:
+      - action: climate.set_temperature
+        metadata: {}
+        data:
+          temperature: 20.5
+        target:
+          area_id: bedroom
+    - conditions:
+      - condition: trigger
+        id:
+        - Morning ends
+      sequence:
+      - action: climate.set_temperature
+        metadata: {}
+        data:
+          temperature: 18.5
+        target:
+          area_id: bedroom
+  mode: single
+- id: '1760675329567'
+  alias: Motion
   description: ''
   triggers:
   - trigger: state
     entity_id:
     - binary_sensor.motion_light_occupancy
-  conditions:
-  - condition: sun
-    before: sunrise
-    after: sunset
+    to: 'on'
+  conditions: []
   actions:
-  - action: light.turn_on
-    metadata: {}
-    data:
-      transition: 1
-    target:
-      entity_id: light.motion_light
+  - if:
+    - condition: sun
+      before: sunset
+      after: sunrise
+    then:
+    - action: light.turn_on
+      metadata: {}
+      data:
+        transition: 1
+        brightness_pct: 100
+      target:
+        entity_id: light.hallway_lights
+    else:
+    - action: light.turn_on
+      metadata: {}
+      data:
+        transition: 1
+        brightness_pct: 70
+      target:
+        entity_id: light.hallway_lights
+    - action: light.turn_on
+      metadata: {}
+      data:
+        transition: 1
+        color_temp_kelvin: 2700
+      target:
+        entity_id: light.motion_light
   - delay:
       hours: 0
-      minutes: 2
+      minutes: 5
       seconds: 0
       milliseconds: 0
   - action: light.turn_off
     metadata: {}
     data:
-      transition: 1
+      transition: 3
     target:
-      entity_id: light.motion_light
+      entity_id:
+      - light.hallway_lights
+      - light.motion_light
   mode: restart
