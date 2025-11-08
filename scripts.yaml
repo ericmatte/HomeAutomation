@@ -7,6 +7,7 @@ turn_off_all_lights:
       floor_id:
       - basement
       - first_floor
+      area_id: outside
   - action: media_player.turn_off
     metadata: {}
     data: {}
@@ -34,6 +35,9 @@ turn_off_things_before_sleeping:
       - kitchen
       - living_room
       - hallway
+      - outside
+      - upstairs_bathroom
+      - dining_room
   - action: media_player.turn_off
     metadata: {}
     data: {}
@@ -42,3 +46,43 @@ turn_off_things_before_sleeping:
   alias: Turn off almost every thing before sleeping
   description: ''
   icon: mdi:lightbulb-off
+halloween_lights:
+  sequence:
+  - action: scene.turn_on
+    metadata: {}
+    data:
+      transition: 2
+    target:
+      entity_id: scene.halloween
+  - repeat:
+      until:
+      - condition: state
+        state: 'off'
+        entity_id: light.rgbw_dimmer
+      sequence:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          brightness_pct: 25
+          transition: 4
+        target:
+          entity_id: light.entrance_lights
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 4
+          milliseconds: 0
+      - action: light.turn_on
+        metadata: {}
+        data:
+          brightness_pct: 5
+          transition: 4
+        target:
+          entity_id: light.entrance_lights
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 4
+          milliseconds: 0
+  alias: Halloween lights
+  description: ''

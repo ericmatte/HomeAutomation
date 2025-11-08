@@ -1,1 +1,295 @@
-[]
+- id: '1761785254162'
+  name: Halloween
+  entities:
+    light.entrance_lights:
+      supported_color_modes:
+      - brightness
+      color_mode: brightness
+      brightness: 12
+      device_id: '8'
+      zone_id: '6'
+      icon: mdi:coach-lamp-variant
+      friendly_name: Front porch lights
+      supported_features: 32
+      state: 'on'
+    light.dining_table:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - 'off'
+      - candle
+      - fire
+      - prism
+      - sparkle
+      - opal
+      - glisten
+      supported_color_modes:
+      - color_temp
+      - xy
+      effect: 'off'
+      color_mode: color_temp
+      brightness: 255
+      color_temp_kelvin: 4347
+      color_temp: 230
+      hs_color:
+      - 26.722
+      - 28.925
+      rgb_color:
+      - 255
+      - 214
+      - 181
+      xy_color:
+      - 0.401
+      - 0.359
+      mode: normal
+      dynamics: none
+      icon: mdi:floor-lamp-torchiere-variant
+      friendly_name: Wooden lamp
+      supported_features: 44
+      state: 'on'
+    light.rgbw_dimmer:
+      supported_color_modes:
+      - rgbw
+      color_mode: rgbw
+      brightness: 39
+      hs_color:
+      - 8.941
+      - 100
+      rgb_color:
+      - 255
+      - 38
+      - 0
+      xy_color:
+      - 0.691
+      - 0.307
+      rgbw_color:
+      - 255
+      - 38
+      - 0
+      - 0
+      friendly_name: 'RGBW Dimmer '
+      supported_features: 32
+      state: 'on'
+    light.eric_office_hue_group:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode:
+      brightness:
+      color_temp_kelvin:
+      color_temp:
+      hs_color:
+      rgb_color:
+      xy_color:
+      is_hue_group: true
+      hue_scenes:
+      - Cool bright
+      hue_type: room
+      lights:
+      - Auxiliary lamp
+      entity_id:
+      - light.auxiliary_lamp
+      dynamics: false
+      icon: mdi:lightbulb-group
+      friendly_name: Eric Office
+      supported_features: 40
+      state: 'off'
+    light.auxiliary_lamp:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - 'off'
+      - candle
+      - fire
+      - prism
+      - sparkle
+      - opal
+      - glisten
+      supported_color_modes:
+      - color_temp
+      - xy
+      effect:
+      color_mode:
+      brightness:
+      color_temp_kelvin:
+      color_temp:
+      hs_color:
+      rgb_color:
+      xy_color:
+      mode: normal
+      dynamics: none
+      icon: mdi:desk-lamp
+      friendly_name: Auxiliary lamp
+      supported_features: 44
+      state: 'off'
+    light.metal_lamp:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - 'off'
+      - candle
+      - fire
+      - prism
+      - sparkle
+      - opal
+      - glisten
+      supported_color_modes:
+      - color_temp
+      - xy
+      effect: 'off'
+      color_mode: color_temp
+      brightness: 255
+      color_temp_kelvin: 4347
+      color_temp: 230
+      hs_color:
+      - 26.722
+      - 28.925
+      rgb_color:
+      - 255
+      - 214
+      - 181
+      xy_color:
+      - 0.401
+      - 0.359
+      mode: normal
+      dynamics: none
+      icon: mdi:light-flood-up
+      friendly_name: Metal lamp
+      supported_features: 44
+      state: 'on'
+    light.bad_light:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - 'off'
+      - candle
+      - fire
+      - prism
+      - sparkle
+      - opal
+      - glisten
+      supported_color_modes:
+      - color_temp
+      - xy
+      effect: 'off'
+      color_mode: color_temp
+      brightness: 255
+      color_temp_kelvin: 4347
+      color_temp: 230
+      hs_color:
+      - 26.722
+      - 28.925
+      rgb_color:
+      - 255
+      - 214
+      - 181
+      xy_color:
+      - 0.401
+      - 0.359
+      mode: normal
+      dynamics: none
+      icon: mdi:light-flood-up
+      friendly_name: Bad light
+      supported_features: 44
+      state: 'on'
+    switch.closet:
+      device_id: '3'
+      zone_id: '2'
+      icon: mdi:wall-sconce-flat
+      friendly_name: Office light
+      state: 'off'
+    light.kitchen_island_lights:
+      supported_color_modes:
+      - brightness
+      color_mode:
+      brightness:
+      device_id: '2'
+      zone_id: '1'
+      icon: mdi:light-recessed
+      friendly_name: Kitchen island lights
+      supported_features: 32
+      state: 'off'
+    light.kitchen_middle_light:
+      supported_color_modes:
+      - brightness
+      color_mode:
+      brightness:
+      device_id: '5'
+      zone_id: '3'
+      icon: mdi:light-recessed
+      friendly_name: Kitchen middle light
+      supported_features: 32
+      state: 'off'
+    light.kitchen_sink_lights:
+      supported_color_modes:
+      - brightness
+      color_mode:
+      brightness:
+      device_id: '7'
+      zone_id: '5'
+      icon: mdi:light-recessed
+      friendly_name: Kitchen sink lights
+      supported_features: 32
+      state: 'off'
+    light.downstairs_hallway_light:
+      supported_color_modes:
+      - brightness
+      color_mode: brightness
+      brightness: 30
+      device_id: '9'
+      zone_id: '7'
+      icon: mdi:wall-sconce-flat
+      friendly_name: Downstairs hallway light
+      supported_features: 32
+      state: 'on'
+    light.chandelier:
+      supported_color_modes:
+      - brightness
+      color_mode:
+      brightness:
+      device_id: '6'
+      zone_id: '4'
+      icon: mdi:chandelier
+      friendly_name: Chandelier
+      supported_features: 32
+      state: 'off'
+  icon: mdi:halloween
+  metadata:
+    light.entrance_lights:
+      entity_only: true
+    light.dining_table:
+      entity_only: true
+    light.rgbw_dimmer:
+      entity_only: true
+    light.eric_office_hue_group:
+      entity_only: true
+    light.auxiliary_lamp:
+      entity_only: true
+    light.metal_lamp:
+      entity_only: true
+    light.bad_light:
+      entity_only: true
+    switch.closet:
+      entity_only: true
+    light.kitchen_island_lights:
+      entity_only: true
+    light.kitchen_middle_light:
+      entity_only: true
+    light.kitchen_sink_lights:
+      entity_only: true
+    light.downstairs_hallway_light:
+      entity_only: true
+    light.chandelier:
+      entity_only: true

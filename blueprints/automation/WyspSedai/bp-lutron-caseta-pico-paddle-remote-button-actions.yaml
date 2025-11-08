@@ -1,0 +1,161 @@
+blueprint:
+  name: BP - Lutron Caseta Pico Paddle Remote Button Actions
+  description: Different Actions on Short, Long, and Double Click button presses.
+  domain: automation
+  input:
+    pico_id:
+      name: Lutron Pico
+      description: The Lutron Pico used to trigger the automations
+      selector:
+        device:
+          model: PJ2-1P-GXX (PaddleSwitchPico)
+          multiple: false
+    short_click_action_on:
+      name: On Button Short Click
+      description: The action(s) to launch for a single short click
+      default: []
+      selector:
+        action: {}
+    short_click_action_off:
+      name: Off Button Short Click
+      description: The action(s) to launch for a single short click
+      default: []
+      selector:
+        action: {}
+    long_click_action_on:
+      name: On Button Long Click
+      description: The action(s) to launch for a long click
+      default: []
+      selector:
+        action: {}
+    long_click_action_off:
+      name: Off Button Long Click
+      description: The action(s) to launch for a long click
+      default: []
+      selector:
+        action: {}
+    double_click_action_on:
+      name: On Button Double Click
+      description: The action(s) to launch for a double click
+      default: []
+      selector:
+        action: {}
+    double_click_action_off:
+      name: Off Button Double Click
+      description: The action(s) to launch for a double click
+      default: []
+      selector:
+        action: {}
+    delay_click:
+      name: Double Click Delay
+      description: The time in milliseconds used for the double click detection
+      default: 250
+      selector:
+        number:
+          min: 100.0
+          max: 1000.0
+          unit_of_measurement: milliseconds
+          step: 1.0
+          mode: slider
+    delay_hold:
+      name: Hold Delay
+      description: The time in milliseconds used for the hold detection
+      default: 1000
+      selector:
+        number:
+          min: 1000.0
+          max: 4000.0
+          unit_of_measurement: milliseconds
+          step: 1.0
+          mode: slider
+  source_url: https://community.home-assistant.io/t/bp-lutron-caseta-pico-paddle-remote-button-actions/719285
+trigger:
+- platform: event
+  event_type: lutron_caseta_button_event
+  event_data:
+    device_id: !input pico_id
+    leap_button_number: 0
+    action: press
+  id: on_pressed
+- platform: event
+  event_type: lutron_caseta_button_event
+  event_data:
+    device_id: !input pico_id
+    leap_button_number: 2
+    action: press
+  id: off_pressed
+action:
+- variables:
+    hold_ms: !input delay_hold
+    tap_ms: !input delay_click
+    pico_id: '{{ trigger.event.data.device_id }}'
+- choose:
+  - conditions:
+    - condition: trigger
+      id: on_pressed
+    sequence:
+    - wait_for_trigger:
+      - platform: event
+        event_type: lutron_caseta_button_event
+        event_data:
+          device_id: !input pico_id
+          leap_button_number: 0
+          action: release
+      timeout:
+        milliseconds: '{{ hold_ms }}'
+    - choose:
+      - conditions:
+        - condition: template
+          value_template: '{{ wait.trigger == none }}'
+        sequence: !input long_click_action_on
+      default:
+      - wait_for_trigger:
+        - platform: event
+          event_type: lutron_caseta_button_event
+          event_data:
+            device_id: !input pico_id
+            leap_button_number: 0
+            action: press
+        timeout:
+          milliseconds: '{{ tap_ms }}'
+      - choose:
+        - conditions:
+          - condition: template
+            value_template: '{{ wait.trigger == none }}'
+          sequence: !input short_click_action_on
+        default: !input double_click_action_on
+  - conditions:
+    - condition: trigger
+      id: off_pressed
+    sequence:
+    - wait_for_trigger:
+      - platform: event
+        event_type: lutron_caseta_button_event
+        event_data:
+          device_id: !input pico_id
+          leap_button_number: 2
+          action: release
+      timeout:
+        milliseconds: '{{ hold_ms }}'
+    - choose:
+      - conditions:
+        - condition: template
+          value_template: '{{ wait.trigger == none }}'
+        sequence: !input long_click_action_off
+      default:
+      - wait_for_trigger:
+        - platform: event
+          event_type: lutron_caseta_button_event
+          event_data:
+            device_id: !input pico_id
+            leap_button_number: 2
+            action: press
+        timeout:
+          milliseconds: '{{ tap_ms }}'
+      - choose:
+        - conditions:
+          - condition: template
+            value_template: '{{ wait.trigger == none }}'
+          sequence: !input short_click_action_off
+        default: !input double_click_action_off
+mode: single

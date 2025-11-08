@@ -31,7 +31,7 @@
         metadata: {}
         data:
           transition: 1
-          brightness_step_pct: 25
+          brightness_pct: 100
         target:
           area_id: bedroom
       Down_Press:
@@ -161,6 +161,7 @@
         data: {}
         target:
           entity_id: media_player.android_tv
+        enabled: false
       - if:
         - condition: state
           entity_id: climate.theatre_thermostat
@@ -184,6 +185,7 @@
         data: {}
         target:
           entity_id: media_player.android_tv
+        enabled: false
       - alias: Turn down heat
         if:
         - condition: state
@@ -465,11 +467,14 @@
       hours: 0
       minutes: 45
       seconds: 0
-  - condition: not
+  - condition: or
     conditions:
     - condition: state
       entity_id: media_player.cast_tv
-      state: playing
+      state: 'off'
+    - condition: state
+      entity_id: media_player.cast_tv
+      state: idle
   actions:
   - action: light.turn_off
     metadata: {}
@@ -628,8 +633,8 @@
   - action: notify.notify
     metadata: {}
     data:
-      title: "⚠️ Fuite détecté! \U0001F4A6"
-      message: Au puisard
+      title: "⚠️ Augmentation du niveau d'eau! \U0001F4A6"
+      message: Dans le puisard
       data:
         ttl: 0
         priority: high
@@ -721,7 +726,6 @@
       target:
         area_id:
         - entrance
-        - downstairs_hallway
   - delay:
       hours: 0
       minutes: 5
@@ -763,7 +767,7 @@
       - sensor.rm4_humidity
       - sensor.motion_humidity
       - sensor.workshop_temperature_humidity_humidity
-      threshold: 68
+      threshold: 74
 - id: '1759267988873'
   alias: Sync covers with time and sun
   description: ''
@@ -788,7 +792,9 @@
         metadata: {}
         data: {}
         target:
-          area_id: dining_room
+          area_id:
+          - dining_room
+          - guest_room
     - conditions:
       - condition: trigger
         id:
@@ -798,7 +804,9 @@
         metadata: {}
         data: {}
         target:
-          floor_id: first_floor
+          floor_id:
+          - first_floor
+          - basement
   mode: single
 - id: '1759287649594'
   alias: Sync kitchen lights
@@ -892,6 +900,13 @@
   - condition: state
     entity_id: person.eric
     state: home
+  - condition: time
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
   actions:
   - choose:
     - conditions:
@@ -902,7 +917,7 @@
       - action: climate.set_temperature
         metadata: {}
         data:
-          temperature: 21.5
+          temperature: 21
         target:
           area_id: eric_office
     - conditions:
@@ -930,11 +945,11 @@
       - climate.dining_room_thermostat
       outside_temp_sensor: sensor.outside_temperature
       min_outside_temp: -12
-      target_temp: 19
-      away_night_temp: 16
+      target_temp: 20
+      away_night_temp: 17
       anybody_home: binary_sensor.anybody
-      use_target_from: 06:30:00
-      fan_mode: quiet
+      use_target_from: 06:00:00
+      fan_mode: auto
 - id: '1760485855717'
   alias: Light on when opening workshop door
   description: ''
@@ -1008,11 +1023,11 @@
   - action: notify.notify
     metadata: {}
     data:
-      title: "⚠️ Fuite détecté! \U0001F4A6"
-      message: Au puisard
+      message: Une porte a été ouverte pendant notre absence
       data:
         ttl: 0
         priority: high
+      title: "\U0001F6AA Door opened"
   mode: single
 - id: '1760581910388'
   alias: Turn off almost every thing before going to bed
@@ -1058,7 +1073,7 @@
       - action: climate.set_temperature
         metadata: {}
         data:
-          temperature: 20.5
+          temperature: 22
         target:
           area_id: bedroom
     - conditions:
@@ -1069,7 +1084,7 @@
       - action: climate.set_temperature
         metadata: {}
         data:
-          temperature: 18.5
+          temperature: 19.5
         target:
           area_id: bedroom
   mode: single
@@ -1081,7 +1096,10 @@
     entity_id:
     - binary_sensor.motion_light_occupancy
     to: 'on'
-  conditions: []
+  conditions:
+  - condition: state
+    entity_id: binary_sensor.everybody_is_sleeping
+    state: 'off'
   actions:
   - if:
     - condition: sun
@@ -1122,5 +1140,270 @@
     target:
       entity_id:
       - light.hallway_lights
+  - delay:
+      hours: 0
+      minutes: 2
+      seconds: 0
+      milliseconds: 0
+  - action: light.turn_off
+    metadata: {}
+    data:
+      transition: 3
+    target:
+      entity_id:
       - light.motion_light
+  mode: restart
+- id: '1761237786458'
+  alias: Button
+  description: ''
+  triggers:
+  - domain: mqtt
+    device_id: 8317fbc3ea314ec40186f0d8ec39998d
+    type: action
+    subtype: single
+    trigger: device
+    id: single press
+  - domain: mqtt
+    device_id: 8317fbc3ea314ec40186f0d8ec39998d
+    type: action
+    subtype: double
+    trigger: device
+    id: double press
+  - domain: mqtt
+    device_id: 8317fbc3ea314ec40186f0d8ec39998d
+    type: action
+    subtype: long
+    trigger: device
+    id: long press
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - single press
+      sequence:
+      - action: light.toggle
+        metadata: {}
+        data:
+          brightness_pct: 100
+          transition: 1
+        target:
+          area_id: kitchen
+        enabled: false
+      - alias: Tell a story
+        sequence:
+        - action: media_player.volume_set
+          metadata: {}
+          data:
+            volume_level: 0.75
+          target:
+            entity_id: media_player.sonos
+        - action: tts.speak
+          metadata: {}
+          data:
+            cache: true
+            media_player_entity_id: media_player.sonos
+            message: Il était une fois l'histoire d'une personne très spécial qui
+              pèsa sur le mystérieux bouton. Cette personne se trouvait dans l'entrée
+              de la maison, à jaser avec ses amis, lorsque tout à coup, elle aperceva
+              ce mystérieux bouton. Rempli de curiosité, la personne cliqua sur le
+              bouton, et entendu son histoire se dérouler devant elle. C'était, il
+              faut se le dire, toute qu'une histoire! Et maintenant, et oui, c'est
+              déjà la fin de cette magnifique histoire. Fin!
+            language: fr-CA
+          target:
+            entity_id: tts.home_assistant_cloud
+        enabled: true
+    - conditions:
+      - condition: trigger
+        id:
+        - double press
+      sequence:
+      - action: script.turn_off_all_lights
+        metadata: {}
+        data: {}
+    - conditions:
+      - condition: trigger
+        id:
+        - long press
+      sequence:
+      - action: light.toggle
+        metadata: {}
+        data: {}
+        target:
+          area_id:
+          - entrance
+          - downstairs_hallway
+  mode: single
+- id: '1761456373751'
+  alias: Sync front yard lights
+  description: ''
+  use_blueprint:
+    path: ericmatte/lights_sync.yaml
+    input:
+      lights:
+      - light.entrance_lights
+      - light.driveway_lantern
+- id: '1762133592920'
+  alias: Diva pico remote
+  description: ''
+  use_blueprint:
+    path: ericmatte/lutron-diva-pico.yaml
+    input:
+      pico_id: 903e93bc8a512f17c3c5959bd5f879c5
+      short_click_action_on:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          brightness_pct: 100
+        target:
+          area_id: kitchen
+      short_click_action_off:
+      - action: light.turn_off
+        metadata: {}
+        data: {}
+        target:
+          area_id: kitchen
+      long_click_action_on:
+      - action: cover.open_cover
+        metadata: {}
+        data: {}
+        target:
+          area_id: dining_room
+      long_click_action_off:
+      - action: cover.close_cover
+        metadata: {}
+        data: {}
+        target:
+          area_id: dining_room
+      delay_hold: 500
+- id: '1762225891240'
+  alias: Diva remote
+  description: ''
+  triggers:
+  - device_id: 903e93bc8a512f17c3c5959bd5f879c5
+    domain: lutron_caseta
+    type: press
+    subtype: 'on'
+    trigger: device
+    id: 'On'
+  - device_id: 903e93bc8a512f17c3c5959bd5f879c5
+    domain: lutron_caseta
+    type: press
+    subtype: 'off'
+    trigger: device
+    id: 'Off'
+  conditions: []
+  actions:
+  - if:
+    - condition: state
+      entity_id: light.rgbw_dimmer
+      state: 'off'
+    then:
+    - sequence:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          brightness_pct: 100
+          rgbw_color:
+          - 130
+          - 59
+          - 0
+          - 255
+          transition: 1
+        target:
+          area_id: upstairs_bathroom
+      - delay:
+          hours: 1
+          minutes: 0
+          seconds: 0
+          milliseconds: 0
+      - action: light.turn_off
+        metadata: {}
+        data:
+          transition: 4
+        target:
+          area_id: upstairs_bathroom
+    else:
+    - action: light.turn_off
+      metadata: {}
+      data:
+        transition: 1
+      target:
+        area_id: upstairs_bathroom
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - 'On'
+      sequence:
+      - sequence:
+        - action: light.turn_on
+          metadata: {}
+          data:
+            brightness_pct: 100
+            rgbw_color:
+            - 255
+            - 180
+            - 180
+            - 255
+            transition: 1
+          target:
+            area_id: upstairs_bathroom
+        - delay:
+            hours: 1
+            minutes: 0
+            seconds: 0
+            milliseconds: 0
+        - action: light.turn_off
+          metadata: {}
+          data:
+            transition: 4
+          target:
+            area_id: upstairs_bathroom
+    - conditions:
+      - condition: trigger
+        id:
+        - 'Off'
+      sequence:
+      - action: light.turn_off
+        metadata: {}
+        data:
+          transition: 1
+        target:
+          area_id: upstairs_bathroom
+    enabled: false
+  mode: restart
+- id: '1762286686732'
+  alias: Motion
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.motion_presence
+    to: 'on'
+  conditions:
+  - condition: state
+    entity_id: binary_sensor.everybody_is_sleeping
+    state: 'off'
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      transition: 1
+      brightness_pct: 100
+    target:
+      area_id: downstairs_hallway
+  - delay:
+      hours: 0
+      minutes: 1
+      seconds: 30
+      milliseconds: 0
+  - action: light.turn_off
+    metadata: {}
+    data:
+      transition: 3
+    target:
+      area_id: downstairs_hallway
   mode: restart
