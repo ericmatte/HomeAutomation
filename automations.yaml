@@ -397,11 +397,33 @@
         id:
         - left_button
       sequence:
-      - action: cover.toggle
-        metadata: {}
-        data: {}
-        target:
-          area_id: bedroom
+      - wait_for_trigger:
+        - trigger: state
+          entity_id:
+          - binary_sensor.motion_remote_left_button
+          to:
+          - 'off'
+        timeout:
+          hours: 0
+          minutes: 0
+          seconds: 0
+          milliseconds: 700
+        continue_on_timeout: true
+      - if:
+        - condition: template
+          value_template: '{{ wait.completed }}'
+        then:
+        - action: script.turn_on
+          metadata: {}
+          data: {}
+          target:
+            entity_id: script.turn_off_things_before_sleeping
+        else:
+        - action: script.turn_on
+          metadata: {}
+          data: {}
+          target:
+            entity_id: script.turn_off_all_lights
     - conditions:
       - condition: trigger
         id:
@@ -409,16 +431,36 @@
       sequence:
       - if:
         - condition: state
-          entity_id: light.bedroom_2
-          state: 'on'
+          entity_id: light.eric_bedside_table
+          state:
+          - 'off'
         then:
-        - action: light.turn_off
+        - action: light.turn_on
           metadata: {}
           data:
-            transition: 2
+            brightness_pct: 1
+            transition: 1
           target:
-            area_id: bedroom
+            entity_id: light.eric_bedside_table
         else:
+        - action: light.turn_on
+          metadata: {}
+          data:
+            brightness_pct: 100
+            transition: 1
+          target:
+            entity_id: light.eric_bedside_table
+    - conditions:
+      - condition: trigger
+        id:
+        - right_button
+      sequence:
+      - if:
+        - condition: state
+          entity_id: light.bedroom_2
+          state:
+          - 'off'
+        then:
         - action: hue.activate_scene
           metadata: {}
           data:
@@ -426,18 +468,14 @@
             dynamic: true
           target:
             entity_id: scene.bedroom_natural_light
-    - conditions:
-      - condition: trigger
-        id:
-        - right_button
-      sequence:
-      - action: light.turn_on
-        metadata: {}
-        data:
-          brightness_pct: 1
-          transition: 2
-        target:
-          entity_id: light.eric_bedside_table
+        else:
+        - action: light.turn_on
+          metadata: {}
+          data:
+            transition: 1
+            brightness_pct: 100
+          target:
+            area_id: bedroom
   mode: parallel
   max: 10
 - id: '1756351726973'
@@ -455,7 +493,12 @@
   - trigger: state
     entity_id:
     - media_player.cast_tv
-    from: playing
+    from:
+    - playing
+    for:
+      hours: 0
+      minutes: 45
+      seconds: 0
   conditions:
   - condition: sun
     after: sunset
@@ -592,13 +635,13 @@
         data:
           brightness_pct: 75
         target:
-          device_id: 2f225ff797c407bfea4562dba25d4d8c
+          entity_id: light.sync_box
     default:
     - action: light.turn_off
       metadata: {}
       data: {}
       target:
-        device_id: 2f225ff797c407bfea4562dba25d4d8c
+        entity_id: light.sync_box
   mode: single
 - id: '1758600795981'
   alias: Sync box reset
@@ -767,7 +810,7 @@
       - sensor.rm4_humidity
       - sensor.motion_humidity
       - sensor.workshop_temperature_humidity_humidity
-      threshold: 74
+      threshold: 65
 - id: '1759267988873'
   alias: Sync covers with time and sun
   description: ''
@@ -794,7 +837,18 @@
         target:
           area_id:
           - dining_room
-          - guest_room
+      - if:
+        - condition: state
+          entity_id: input_boolean.guest_mode
+          state:
+          - 'off'
+        then:
+        - action: cover.open_cover
+          metadata: {}
+          data: {}
+          target:
+            area_id:
+            - guest_room
     - conditions:
       - condition: trigger
         id:
@@ -945,8 +999,8 @@
       - climate.dining_room_thermostat
       outside_temp_sensor: sensor.outside_temperature
       min_outside_temp: -12
-      target_temp: 20
-      away_night_temp: 17
+      target_temp: 21
+      away_night_temp: 18
       anybody_home: binary_sensor.anybody
       use_target_from: 06:00:00
       fan_mode: auto
@@ -981,7 +1035,12 @@
   - trigger: state
     entity_id:
     - media_player.cast_tv
-    from: playing
+    from:
+    - playing
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
   conditions:
   - condition: sun
     after: sunrise
@@ -1183,14 +1242,12 @@
         id:
         - single press
       sequence:
-      - action: light.toggle
+      - action: scene.turn_on
         metadata: {}
         data:
-          brightness_pct: 100
-          transition: 1
+          transition: 0
         target:
-          area_id: kitchen
-        enabled: false
+          entity_id: scene.red_warning
       - alias: Tell a story
         sequence:
         - action: media_player.volume_set
@@ -1199,6 +1256,27 @@
             volume_level: 0.75
           target:
             entity_id: media_player.sonos
+        - action: tts.speak
+          metadata: {}
+          data:
+            cache: true
+            media_player_entity_id: media_player.sonos
+            message: 'Warning: self-destruct feature enabled. Please exit the perimeter
+              before countdown. 5, 4, 3, 2, 1, bam!'
+            language: en-US
+          target:
+            entity_id: tts.home_assistant_cloud
+        - action: tts.speak
+          metadata: {}
+          data:
+            cache: true
+            media_player_entity_id: media_player.sonos
+            language: fr-CA
+            message: Vous avez enclenché le mode d'auto destruction. Auto destruction
+              dans 5, 4, 3, 2, 1
+          target:
+            entity_id: tts.home_assistant_cloud
+          enabled: false
         - action: tts.speak
           metadata: {}
           data:
@@ -1214,7 +1292,47 @@
             language: fr-CA
           target:
             entity_id: tts.home_assistant_cloud
+          enabled: false
         enabled: true
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 5
+          milliseconds: 500
+      - action: light.turn_on
+        metadata: {}
+        data:
+          transition: 4
+          brightness_pct: 100
+        target:
+          area_id: entrance
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 4
+          milliseconds: 0
+      - repeat:
+          count: 3
+          sequence:
+          - action: light.toggle
+            metadata: {}
+            data:
+              brightness_pct: 100
+              transition: 0
+            enabled: true
+            target:
+              area_id: entrance
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 0
+              milliseconds: 500
+      - action: scene.turn_on
+        metadata: {}
+        data:
+          transition: 2
+        target:
+          entity_id: scene.living_lights
     - conditions:
       - condition: trigger
         id:
@@ -1245,39 +1363,6 @@
       lights:
       - light.entrance_lights
       - light.driveway_lantern
-- id: '1762133592920'
-  alias: Diva pico remote
-  description: ''
-  use_blueprint:
-    path: ericmatte/lutron-diva-pico.yaml
-    input:
-      pico_id: 903e93bc8a512f17c3c5959bd5f879c5
-      short_click_action_on:
-      - action: light.turn_on
-        metadata: {}
-        data:
-          brightness_pct: 100
-        target:
-          area_id: kitchen
-      short_click_action_off:
-      - action: light.turn_off
-        metadata: {}
-        data: {}
-        target:
-          area_id: kitchen
-      long_click_action_on:
-      - action: cover.open_cover
-        metadata: {}
-        data: {}
-        target:
-          area_id: dining_room
-      long_click_action_off:
-      - action: cover.close_cover
-        metadata: {}
-        data: {}
-        target:
-          area_id: dining_room
-      delay_hold: 500
 - id: '1762225891240'
   alias: Diva remote
   description: ''
@@ -1395,6 +1480,13 @@
       brightness_pct: 100
     target:
       area_id: downstairs_hallway
+  - wait_for_trigger:
+    - trigger: state
+      entity_id:
+      - binary_sensor.motion_presence
+      from:
+      - 'on'
+    continue_on_timeout: true
   - delay:
       hours: 0
       minutes: 1
@@ -1407,3 +1499,153 @@
     target:
       area_id: downstairs_hallway
   mode: restart
+- id: '1762781357660'
+  alias: Lights on in the morning
+  description: ''
+  triggers:
+  - type: turned_on
+    device_id: c4fef1df9188b781a5a2676d3db745ed
+    entity_id: d305f15d3ad2a8e3538438c86e3cf451
+    domain: light
+    trigger: device
+  conditions:
+  - condition: time
+    after: 07:30:00
+    before: 09:30:00
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data: {}
+    target:
+      area_id:
+      - living_room
+      - kitchen
+      - entrance
+  mode: single
+- id: '1763751075796'
+  alias: Toggle curtains
+  description: ''
+  triggers:
+  - domain: mqtt
+    device_id: 0342a9d7194bbed06bb7b85d9e19d8e1
+    type: action
+    subtype: single
+    trigger: device
+  - domain: mqtt
+    device_id: 0342a9d7194bbed06bb7b85d9e19d8e1
+    type: action
+    subtype: hold
+    trigger: device
+  - domain: mqtt
+    device_id: 0342a9d7194bbed06bb7b85d9e19d8e1
+    type: action
+    subtype: double
+    trigger: device
+  conditions: []
+  actions:
+  - action: cover.toggle
+    metadata: {}
+    data: {}
+    target:
+      area_id: guest_room
+  mode: single
+- id: '1763752383288'
+  alias: Motion
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.bathroom_motion
+    to:
+    - 'on'
+  conditions:
+  - condition: state
+    entity_id: binary_sensor.everybody_is_sleeping
+    state: 'off'
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      transition: 1
+      brightness_pct: 100
+    target:
+      area_id: upstairs_bathroom
+  - delay:
+      hours: 0
+      minutes: 45
+      seconds: 0
+      milliseconds: 0
+  - action: light.turn_off
+    metadata: {}
+    data:
+      transition: 3
+    target:
+      area_id:
+      - upstairs_bathroom
+  mode: restart
+- id: '1763753055069'
+  alias: Shower leak detector
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.shower_leak_detector_water_leak
+    to:
+    - 'on'
+  conditions: []
+  actions:
+  - action: notify.notify
+    metadata: {}
+    data:
+      title: "⚠️ Douche: Fuite détecté! \U0001F4A6"
+      message: La douche en bas coule sur le côté. À vérifier.
+      data:
+        ttl: 0
+        priority: high
+  mode: single
+- id: '1763754630684'
+  alias: Lights on when making coffee
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.kitchen_door_sensor_contact
+    to:
+    - 'on'
+  conditions: []
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      transition: 1
+      brightness_pct: 100
+    target:
+      area_id: kitchen
+  mode: single
+- id: '1763756468607'
+  alias: In vibration turn on lights
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.vibration_sensor_vibration
+    to:
+    - 'on'
+  conditions:
+  - condition: state
+    entity_id: binary_sensor.everybody_is_sleeping
+    state:
+    - 'off'
+  - condition: time
+    after: '15:00:00'
+    before: '23:30:00'
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      brightness_pct: 100
+    target:
+      area_id:
+      - dining_room
+      - living_room
+  mode: single

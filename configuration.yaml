@@ -62,6 +62,19 @@ command_line:
       unit_of_measurement: "MB"
       value_template: "{{ value | int - 1 }}"
 
+sensor:
+  - platform: template
+    sensors:
+      rainville_propane_tank:
+        friendly_name: "Propane Tank Level"
+        unit_of_measurement: "%"
+        device_class: battery
+        unique_id: rainville_propane_tank
+        value_template: "{{ states('sensor.rainville_propane_raw') }}"
+        attribute_templates:
+          last_update: "{{ state_attr('sensor.rainville_propane_raw', 'last_update') }}"
+          next_estimated_delivery: "{{ state_attr('sensor.rainville_propane_raw', 'next_estimated_delivery') }}"
+
 automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
