@@ -2,6 +2,8 @@ const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1);
 
 const nameWithoutAreaPrefix = (name, area) => capitalize(name.replace(`${area.name} `, ""));
 
+const nameWithoutStairs = (name) => capitalize(name.replace("Upstairs", "").replace("Downstairs", ""));
+
 class AreaBubbleAutoCard extends HTMLElement {
   constructor() {
     super();
@@ -9,8 +11,9 @@ class AreaBubbleAutoCard extends HTMLElement {
   }
 
   setConfig(config) {
-    this.floor_id = config.floor;
-    if (this.floor_id === undefined) throw new Error("Floor is required");
+    this.floorId = config.floor;
+    if (this.floorId === undefined) throw new Error("Floor is required");
+    this.customCards = config.custom_cards || {};
   }
 
   set hass(hass) {
@@ -18,15 +21,11 @@ class AreaBubbleAutoCard extends HTMLElement {
     this.updateCard();
   }
 
-  /** File all hass entities where their area_id or their device's area_id is the same as the area_id */
+  /** Find all hass entities where their area_id or their device's area_id matches the area_id */
   getEntities(area) {
-    const entities = [];
-    for (const entity of Object.values(this.ha.entities)) {
-      if ((entity.area_id || this.ha.devices[entity.device_id]?.area_id) === area.area_id) {
-        entities.push(entity);
-      }
-    }
-    return entities;
+    return Object.values(this.ha.entities).filter(
+      (entity) => (entity.area_id || this.ha.devices[entity.device_id]?.area_id) === area.area_id
+    );
   }
 
   getEntityName(entity) {
@@ -38,130 +37,132 @@ class AreaBubbleAutoCard extends HTMLElement {
     return entity.entity_id.split(".").pop().replace(/_/g, " ");
   }
 
+  createCard(parent, helpers, params) {
+    const card = helpers.createCardElement(params);
+    card.hass = this.ha;
+    parent.appendChild(card);
+    return card;
+  }
+
+  createSubButtons(entities, area) {
+    const subButtons = [];
+    const { temperature_entity_id: temperatureId, humidity_entity_id: humidityId } = area;
+
+    entities.forEach((sensor) => {
+      if (!sensor.entity_id.startsWith("binary_sensor.") || sensor.hidden) return;
+
+      subButtons.push({ entity: sensor.entity_id });
+    });
+
+    if (humidityId) {
+      subButtons.push({
+        entity: humidityId,
+        show_state: true,
+        show_background: false,
+      });
+    }
+
+    if (temperatureId) {
+      const temperatureEntity = this.ha.entities[temperatureId];
+      const relatedClimate = entities.find(
+        (e) => e.entity_id.startsWith("climate.") && e.device_id && e.device_id === temperatureEntity?.device_id
+      );
+
+      subButtons.push(
+        relatedClimate
+          ? {
+              entity: relatedClimate.entity_id,
+              show_attribute: true,
+              attribute: "current_temperature",
+              show_icon: false,
+              state_background: false,
+              show_background: false,
+            }
+          : {
+              entity: temperatureId,
+              show_icon: false,
+              show_state: true,
+              show_background: false,
+            }
+      );
+    }
+
+    entities.forEach((cover) => {
+      if (!cover.entity_id.startsWith("cover.") || cover.hidden) return;
+
+      subButtons.push({
+        entity: cover.entity_id,
+        tap_action: { action: "toggle" },
+        hold_action: { action: "more-info" },
+      });
+    });
+
+    return subButtons;
+  }
+
+  createHeaderCard(areaWrapper, helpers, area, entities) {
+    const subButtons = this.createSubButtons(entities, area);
+    const header = {
+      type: "custom:bubble-card",
+      card_type: "separator",
+      name: nameWithoutStairs(area.name),
+      icon: area.icon,
+      ...(subButtons.length > 0 && { sub_button: subButtons }),
+    };
+    this.createCard(areaWrapper, helpers, header);
+  }
+
+  createContent(areaWrapper, helpers, entities, area) {
+    const container = document.createElement("div");
+    container.style.cssText = "display: flex; gap: 8px; flex-wrap: wrap";
+
+    this.customCards[area.area_id]?.forEach((card) => {
+      const cardElement = this.createCard(container, helpers, card);
+      cardElement.style.width = "100%";
+    });
+
+    entities.forEach((light) => {
+      if (!light.entity_id.startsWith("light.") || light.hidden) return;
+
+      const lightCard = this.createCard(container, helpers, {
+        type: "custom:bubble-card",
+        card_type: "button",
+        button_type: "slider",
+        entity: light.entity_id,
+        name: nameWithoutAreaPrefix(this.getEntityName(light), area),
+        rows: "1",
+        card_layout: "large",
+      });
+      lightCard.style.width = "calc(50% - 4px)";
+    });
+
+    if (container.children.length > 0) {
+      areaWrapper.appendChild(container);
+    }
+  }
+
   async updateCard() {
     if (!this.ha?.floors || !this.ha?.areas) return;
 
-    const items = [];
-
     try {
       const helpers = await window.loadCardHelpers();
+      const fragment = document.createDocumentFragment();
 
-      // Loop through each area in the floor
       Object.values(this.ha.areas).forEach((area) => {
-        if (area.floor_id !== this.floor_id) return;
-
-        const temperatureId = area.temperature_entity_id;
-        const humidityId = area.humidity_entity_id;
-
-        const entities = this.getEntities(area);
-        const subButtons = [];
-
-        entities.forEach((sensor) => {
-          if (!sensor.entity_id.startsWith("binary_sensor.") || sensor.hidden) return;
-
-          subButtons.push({
-            entity: sensor.entity_id,
-            show_state: false,
-            show_background: false,
-          });
-        });
-
-        if (humidityId) {
-          subButtons.push({
-            entity: humidityId,
-            show_state: true,
-            show_background: false,
-          });
-        }
-
-        if (temperatureId) {
-          const relatedClimate = entities.find((e) => {
-            if (!e.entity_id.startsWith("climate.")) return false;
-            if (e.device_id && e.device_id === this.ha.entities[temperatureId]?.device_id) return true;
-            return false;
-          });
-          subButtons.push(
-            relatedClimate
-              ? {
-                  entity: relatedClimate.entity_id,
-                  show_attribute: true,
-                  attribute: "current_temperature",
-                  show_icon: false,
-                  state_background: false,
-                  show_background: false,
-                }
-              : {
-                  entity: temperatureId,
-                  show_icon: false,
-                  show_state: true,
-                  show_background: false,
-                }
-          );
-        }
-
-        entities.forEach((cover) => {
-          if (!cover.entity_id.startsWith("cover.") || cover.hidden) return;
-
-          subButtons.push({
-            entity: cover.entity_id,
-            tap_action: { action: "toggle" },
-            hold_action: { action: "more-info" },
-          });
-        });
+        if (area.floor_id !== this.floorId) return;
 
         const areaWrapper = document.createElement("div");
         areaWrapper.style.marginBottom = "32px";
 
-        const header = helpers.createCardElement({
-          type: "custom:bubble-card",
-          card_type: "separator",
-          name: area.name,
-          icon: area.icon,
-          ...(subButtons.length > 0 && { sub_button: subButtons }),
-        });
-        header.hass = this.ha;
-        areaWrapper.appendChild(header);
+        const entities = this.getEntities(area);
+        this.createHeaderCard(areaWrapper, helpers, area, entities);
+        this.createContent(areaWrapper, helpers, entities, area);
 
-        // Create separate bubble cards for each light in the area
-        const lightCards = [];
-        entities.forEach((light) => {
-          if (!light.entity_id.startsWith("light.") || light.hidden) return;
-
-          lightCards.push({
-            type: "custom:bubble-card",
-            card_type: "button",
-            button_type: "slider",
-            entity: light.entity_id,
-            name: nameWithoutAreaPrefix(this.getEntityName(light), area),
-            rows: "1",
-            card_layout: "large",
-          });
-        });
-
-        if (lightCards.length > 0) {
-          const lightsContainer = document.createElement("div");
-          lightsContainer.style.display = "flex";
-          lightsContainer.style.gap = "8px";
-          lightsContainer.style.flexWrap = "wrap";
-
-          lightCards.forEach((lightConfig) => {
-            const lightCard = helpers.createCardElement(lightConfig);
-            lightCard.hass = this.ha;
-            lightCard.style.width = "calc(50% - 4px)";
-            lightsContainer.appendChild(lightCard);
-          });
-
-          areaWrapper.appendChild(lightsContainer);
-        }
-
-        items.push(areaWrapper);
+        fragment.appendChild(areaWrapper);
       });
 
-      // Create and render bubble cards directly
       this.innerHTML = "";
-      items.forEach((item) => {
-        this.appendChild(item);
-      });
+      this.appendChild(fragment);
     } catch (error) {
       console.error("Error creating Bubble Card:", error);
       this.innerHTML = `<hui-error-card error="Error creating card: ${error.message}"></hui-error-card>`;

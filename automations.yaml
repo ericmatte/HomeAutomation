@@ -1623,7 +1623,7 @@
       area_id: kitchen
   mode: single
 - id: '1763756468607'
-  alias: In vibration turn on lights
+  alias: On vibration turn on TV
   description: ''
   triggers:
   - trigger: state
@@ -1636,16 +1636,10 @@
     entity_id: binary_sensor.everybody_is_sleeping
     state:
     - 'off'
-  - condition: time
-    after: '15:00:00'
-    before: '23:30:00'
   actions:
-  - action: light.turn_on
+  - action: media_player.turn_on
     metadata: {}
-    data:
-      brightness_pct: 100
+    data: {}
     target:
-      area_id:
-      - dining_room
-      - living_room
+      entity_id: media_player.android_tv
   mode: single
