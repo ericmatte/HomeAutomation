@@ -376,22 +376,65 @@
   triggers:
   - trigger: state
     entity_id:
-    - binary_sensor.motion_remote_left_button
+    - binary_sensor.esp_motion_remote_eric_left_button
     id: left_button
-    to: 'on'
+    to:
+    - 'on'
   - trigger: state
     entity_id:
-    - binary_sensor.motion_remote_middle_button
-    to: 'on'
+    - binary_sensor.esp_motion_remote_eric_middle_button
+    to:
+    - 'on'
     id: middle_button
   - trigger: state
     entity_id:
-    - binary_sensor.motion_remote_right_button
-    to: 'on'
+    - binary_sensor.esp_motion_remote_eric_right_button
+    to:
+    - 'on'
     id: right_button
+  - trigger: state
+    entity_id:
+    - binary_sensor.esp_motion_remote_caro_button
+    to:
+    - 'on'
+    id: caro_button
   conditions: []
   actions:
   - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - caro_button
+      sequence:
+      - wait_for_trigger:
+        - trigger: state
+          entity_id:
+          - binary_sensor.esp_motion_remote_caro_button
+          to:
+          - 'off'
+        timeout:
+          hours: 0
+          minutes: 0
+          seconds: 0
+          milliseconds: 700
+        continue_on_timeout: true
+      - if:
+        - condition: template
+          value_template: '{{ wait.completed }}'
+          alias: Quick click
+        then:
+        - action: light.toggle
+          metadata: {}
+          data:
+            transition: 1
+          target:
+            area_id: bedroom
+        else:
+        - action: script.turn_on
+          metadata: {}
+          data: {}
+          target:
+            entity_id: script.turn_off_all_lights
     - conditions:
       - condition: trigger
         id:
@@ -400,7 +443,7 @@
       - wait_for_trigger:
         - trigger: state
           entity_id:
-          - binary_sensor.motion_remote_left_button
+          - binary_sensor.esp_motion_remote_eric_left_button
           to:
           - 'off'
         timeout:

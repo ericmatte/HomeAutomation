@@ -1,55 +1,63 @@
 esphome:
   name: esp-motion-remote
-  platform: ESP8266
+
+esp8266:
   board: nodemcuv2
 
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
   manual_ip:
-    static_ip: 192.168.0.211
+    static_ip: 192.168.0.21
     gateway: 192.168.0.1
     subnet: 255.255.255.0
 
-  # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
     ssid: "Esp-MotionRemote Hotspot"
     password: !secret wifi_password
 
 captive_portal:
 
-# Enable logging
 logger:
 
-# Enable Home Assistant API
 api:
   encryption:
     key: !secret esp_motion_remote_encryption_key
 
-# Enable over-the-air updates
 ota:
-  password: !secret esp_motion_remote_password
+  - platform: esphome
+    password: !secret esp_motion_remote_password
 
 binary_sensor:
   - platform: gpio
+    name: "Eric left button"
     pin:
       number: D1
-      inverted: True
       mode: INPUT_PULLUP
-    name: "Entrance button 1"
+      inverted: true
+
   - platform: gpio
+    name: "Eric middle button"
     pin:
       number: D2
-      inverted: True
       mode: INPUT_PULLUP
-    name: "Entrance button 2"
+      inverted: true
+
   - platform: gpio
+    name: "Eric right button"
     pin:
       number: D3
-      inverted: True
       mode: INPUT_PULLUP
-    name: "Entrance button 3"
+      inverted: true
+
   - platform: gpio
-    pin: D6
-    device_class: motion
+    name: "Caro button"
+    pin:
+      number: D7
+      mode: INPUT_PULLUP
+      inverted: true
+
+  - platform: gpio
     name: Motion entrance
+    device_class: motion
+    pin: D6
