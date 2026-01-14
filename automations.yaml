@@ -52,46 +52,12 @@
       Down_Repeat: []
       Up_Short_Release: []
       Up_Repeat: []
-- id: '1754669505325'
-  alias: Hue remote
-  description: ''
-  use_blueprint:
-    path: ericmatte/philips_hue_v2_smart_dimmer_switch.yaml
-    input:
-      hue_device: e94cf02d004ef2682f3d97632158391f
-      Power_Press:
-      - action: light.turn_on
+      Hue_Long_Release:
+      - action: cover.toggle
         metadata: {}
         data: {}
         target:
-          area_id:
-          - theatre
-      Up_Press: []
-      Down_Press: []
-      Hue_Press:
-      - action: light.turn_off
-        metadata: {}
-        data: {}
-        target:
-          area_id:
-          - theatre
-      Down_Short_Release: []
-      Down_Repeat:
-      - action: light.turn_on
-        metadata: {}
-        data:
-          brightness_step_pct: -5
-        target:
-          area_id:
-          - theatre
-      Up_Short_Release: []
-      Up_Repeat:
-      - action: light.turn_on
-        metadata: {}
-        data:
-          brightness_step_pct: 5
-        target:
-          area_id: theatre
+          area_id: dining_room
 - id: '1754713870026'
   alias: Turn off all when going to bed
   description: ''
@@ -131,7 +97,7 @@
       entity_id: script.turn_off_all_lights
   mode: single
 - id: '1755658280925'
-  alias: Sync TV and heat with lights
+  alias: Sync heat with lights
   description: ''
   triggers:
   - trigger: state
@@ -156,12 +122,6 @@
       - condition: sun
         after: sunset
       sequence:
-      - action: media_player.turn_on
-        metadata: {}
-        data: {}
-        target:
-          entity_id: media_player.android_tv
-        enabled: false
       - if:
         - condition: state
           entity_id: climate.theatre_thermostat
@@ -180,12 +140,6 @@
         id:
         - turn_off
       sequence:
-      - action: media_player.turn_off
-        metadata: {}
-        data: {}
-        target:
-          entity_id: media_player.android_tv
-        enabled: false
       - alias: Turn down heat
         if:
         - condition: state
@@ -350,25 +304,38 @@
       sequence:
       - action: automation.turn_on
         metadata: {}
-        data: {}
         target:
-          entity_id: '{{ label_entities(''motions'') }}'
+          entity_id: '{{ label_entities(''motions'') + label_entities(''when_at_home'')
+            }}'
+        enabled: true
+        data: {}
     - conditions:
       - condition: state
         entity_id: binary_sensor.anybody
         state: 'off'
       sequence:
-      - action: automation.turn_off
-        metadata: {}
-        data:
-          stop_actions: true
-        target:
-          entity_id: '{{ label_entities(''motions'') }}'
       - action: script.turn_on
         metadata: {}
         data: {}
         target:
           entity_id: script.turn_off_all_lights
+      - action: automation.turn_off
+        metadata: {}
+        data:
+          stop_actions: true
+        target:
+          entity_id: '{{ label_entities(''motions'') + label_entities(''when_at_home'')
+            }}'
+        enabled: true
+      - action: climate.set_temperature
+        metadata: {}
+        target:
+          entity_id:
+          - climate.bedroom_thermostat
+          - climate.eric_s_office_thermostat
+          - climate.theatre_thermostat
+        data:
+          temperature: 19
   mode: single
 - id: '1755723366418'
   alias: Hidden 3-buttons remote
@@ -430,11 +397,24 @@
           target:
             area_id: bedroom
         else:
-        - action: script.turn_on
-          metadata: {}
-          data: {}
-          target:
-            entity_id: script.turn_off_all_lights
+        - if:
+          - condition: state
+            entity_id: person.eric
+            state:
+            - home
+          then:
+          - action: light.toggle
+            metadata: {}
+            target:
+              entity_id: light.caro_bedside_table
+            data:
+              transition: 1
+          else:
+          - action: script.turn_on
+            metadata: {}
+            data: {}
+            target:
+              entity_id: script.turn_off_all_lights
     - conditions:
       - condition: trigger
         id:
@@ -535,7 +515,7 @@
       seconds: 0
   - trigger: state
     entity_id:
-    - media_player.cast_tv
+    - media_player.theatre_tv
     from:
     - playing
     for:
@@ -556,11 +536,13 @@
   - condition: or
     conditions:
     - condition: state
-      entity_id: media_player.cast_tv
-      state: 'off'
+      entity_id: media_player.theatre_tv
+      state:
+      - 'off'
     - condition: state
-      entity_id: media_player.cast_tv
-      state: idle
+      entity_id: media_player.theatre_tv
+      state:
+      - idle
   actions:
   - action: light.turn_off
     metadata: {}
@@ -653,25 +635,32 @@
     to:
   - trigger: state
     entity_id:
-    - media_player.cast_tv
+    - media_player.theatre_tv
     to:
   conditions: []
   actions:
   - choose:
     - conditions:
-      - condition: or
+      - condition: state
+        entity_id: input_select.sync_box_settings
+        state: 'On'
+      sequence:
+      - action: light.turn_on
+        metadata: {}
+        data:
+          brightness_pct: 75
+        target:
+          entity_id: light.sync_box
+    - conditions:
+      - condition: and
         conditions:
-        - condition: and
-          conditions:
-          - condition: state
-            entity_id: input_select.sync_box_settings
-            state: On while playing TV
-          - condition: state
-            entity_id: media_player.cast_tv
-            state: playing
         - condition: state
           entity_id: input_select.sync_box_settings
-          state: 'On'
+          state: On while playing TV
+        - condition: state
+          entity_id: media_player.theatre_tv
+          state:
+          - playing
       sequence:
       - action: light.turn_on
         metadata: {}
@@ -692,8 +681,9 @@
   triggers:
   - trigger: state
     entity_id:
-    - media_player.cast_tv
-    to: 'off'
+    - media_player.theatre_tv
+    to:
+    - 'off'
   conditions:
   - condition: state
     entity_id: input_select.sync_box_settings
@@ -1041,8 +1031,8 @@
       - climate.living_room_thermostat
       - climate.dining_room_thermostat
       outside_temp_sensor: sensor.outside_temperature
-      min_outside_temp: -12
-      target_temp: 21
+      min_outside_temp: -13
+      target_temp: 20
       away_night_temp: 18
       anybody_home: binary_sensor.anybody
       use_target_from: 06:00:00
@@ -1077,7 +1067,7 @@
       seconds: 0
   - trigger: state
     entity_id:
-    - media_player.cast_tv
+    - media_player.theatre_tv
     from:
     - playing
     for:
@@ -1098,8 +1088,9 @@
   - condition: not
     conditions:
     - condition: state
-      entity_id: media_player.cast_tv
-      state: playing
+      entity_id: media_player.theatre_tv
+      state:
+      - playing
   actions:
   - action: light.turn_off
     metadata: {}
@@ -1150,45 +1141,6 @@
     data: {}
     target:
       entity_id: script.turn_off_things_before_sleeping
-  mode: single
-- id: '1760614449167'
-  alias: Morning heat
-  description: ''
-  triggers:
-  - trigger: time
-    at: 06:30:00
-    id: Morning starts
-  - trigger: time
-    at: 09:45:00
-    id: Morning ends
-  conditions:
-  - condition: state
-    entity_id: binary_sensor.anybody
-    state: 'on'
-  actions:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id:
-        - Morning starts
-      sequence:
-      - action: climate.set_temperature
-        metadata: {}
-        data:
-          temperature: 22
-        target:
-          area_id: bedroom
-    - conditions:
-      - condition: trigger
-        id:
-        - Morning ends
-      sequence:
-      - action: climate.set_temperature
-        metadata: {}
-        data:
-          temperature: 19.5
-        target:
-          area_id: bedroom
   mode: single
 - id: '1760675329567'
   alias: Motion
@@ -1543,18 +1495,19 @@
       area_id: downstairs_hallway
   mode: restart
 - id: '1762781357660'
-  alias: Lights on in the morning
+  alias: All lights one when turning on middle kitchen light
   description: ''
   triggers:
   - type: turned_on
-    device_id: c4fef1df9188b781a5a2676d3db745ed
-    entity_id: d305f15d3ad2a8e3538438c86e3cf451
+    device_id: b8691f03a0c087d82e563b2cafa9da2e
+    entity_id: c05b4c9fa751089d24e66b7a863d380b
     domain: light
     trigger: device
   conditions:
   - condition: time
     after: 07:30:00
     before: 09:30:00
+    enabled: true
   actions:
   - action: light.turn_on
     metadata: {}
@@ -1562,8 +1515,8 @@
     target:
       area_id:
       - living_room
-      - kitchen
       - entrance
+      - dining_room
   mode: single
 - id: '1763751075796'
   alias: Toggle curtains
@@ -1679,10 +1632,207 @@
     entity_id: binary_sensor.everybody_is_sleeping
     state:
     - 'off'
+  - condition: state
+    entity_id: media_player.theatre_tv_2
+    state:
+    - 'off'
+    for:
+      hours: 1
+      minutes: 0
+      seconds: 0
   actions:
   - action: media_player.turn_on
     metadata: {}
     data: {}
     target:
-      entity_id: media_player.android_tv
+      entity_id:
+      - media_player.theatre_tv_2
   mode: single
+- id: '1766619133791'
+  alias: Heat intervals
+  description: ''
+  use_blueprint:
+    path: ericmatte/old/heat_intervals.yaml
+    input:
+      high_temp: 21
+      time_high_1: 07:00:00
+      time_low_1: 09:00:00
+      time_high_2: '22:00:00'
+      time_low_2: '23:15:00'
+      climate_target:
+        entity_id: climate.bedroom_thermostat
+- id: '1767202020661'
+  alias: Vacation mode
+  description: Automating lights while we are out.
+  triggers:
+  - trigger: sun
+    event: sunset
+    offset: 0
+  conditions:
+  - condition: state
+    entity_id: binary_sensor.anybody
+    state:
+    - 'off'
+  actions:
+  - action: cover.close_cover
+    metadata: {}
+    target:
+      floor_id:
+      - basement
+      - first_floor
+    data: {}
+  - alias: Automated lights sequence
+    if:
+    - condition: state
+      entity_id: binary_sensor.anybody
+      state:
+      - 'off'
+      for:
+        hours: 24
+        minutes: 0
+        seconds: 0
+    then:
+    - delay:
+        hours: 0
+        minutes: 30
+        seconds: 0
+        milliseconds: 0
+    - action: light.turn_on
+      metadata: {}
+      target:
+        entity_id: light.chandelier
+      data: {}
+    - wait_for_trigger:
+      - trigger: time
+        at: '21:00:00'
+      continue_on_timeout: false
+    - action: light.turn_on
+      metadata: {}
+      target:
+        area_id: bedroom
+      data: {}
+    - wait_for_trigger:
+      - trigger: time
+        at: '22:00:00'
+      continue_on_timeout: false
+    - action: light.turn_off
+      metadata: {}
+      target:
+        entity_id: light.chandelier
+      data: {}
+    - wait_for_trigger:
+      - trigger: time
+        at: '23:00:00'
+      continue_on_timeout: false
+    - action: light.turn_off
+      metadata: {}
+      data: {}
+      target:
+        area_id: bedroom
+  mode: single
+- id: '1767662856200'
+  alias: Cinema lights on after turning off TV
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - media_player.theatre_tv
+    to:
+    - 'off'
+  conditions:
+  - condition: state
+    entity_id: light.theatre
+    state:
+    - 'on'
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    target:
+      entity_id: light.theatre
+    data:
+      transition: 1
+      brightness_pct: 100
+  mode: single
+- id: '1768185894945'
+  alias: Phone call
+  description: ''
+  triggers:
+  - domain: mqtt
+    device_id: 8317fbc3ea314ec40186f0d8ec39998d
+    type: action
+    subtype: single
+    trigger: device
+    id: single press
+  conditions: []
+  actions:
+  - action: assist_satellite.ask_question
+    metadata: {}
+    data:
+      preannounce: true
+      entity_id: assist_satellite.192_168_0_160
+      answers:
+      - id: 'yes'
+        sentences:
+        - 'yes'
+        - oui
+      - id: 'no'
+        sentences:
+        - 'no'
+        - non
+      question: Housekeeping! How can I help you?
+    response_variable: answer
+  - if:
+    - condition: template
+      value_template: '{{ answer.id == ''yes'' }}'
+    then:
+    - action: media_player.volume_set
+      metadata: {}
+      target:
+        entity_id: media_player.sonos
+      data:
+        volume_level: 0.5
+    - action: media_player.play_media
+      metadata: {}
+      target:
+        entity_id: media_player.sonos
+      data:
+        media:
+          media_content_id: media-source://media_source/local/Careless Whisper.mp3
+          media_content_type: audio/mpeg
+          metadata:
+            title: Careless Whisper.mp3
+            thumbnail:
+            media_class: music
+            children_media_class:
+            navigateIds:
+            - {}
+            - media_content_type: app
+              media_content_id: media-source://media_source
+            browse_entity_id: media_player.sonos
+        enqueue: play
+    - action: light.turn_on
+      metadata: {}
+      target:
+        entity_id:
+        - light.left_floor_lamp
+        - light.right_floor_lamp
+      data:
+        rgb_color:
+        - 255
+        - 0
+        - 0
+        transition: 3
+        brightness_pct: 70
+    else:
+    - action: assist_satellite.announce
+      metadata: {}
+      target:
+        entity_id: assist_satellite.192_168_0_160
+      data:
+        preannounce: false
+        message: Oui allô! Est-ce que je parle à Jade? Es-tu prête pour une aventure
+          des plus extraordinaire? Super, je te demanderai de raccrocher le téléphone,
+          et la lumière te guidera. Trouves les lettres cacher et le trésor sera à
+          toi. À chaque lettre trouvé, entre le bon nombre sur le téléphone. Bonne
+          chance!
+  mode: restart

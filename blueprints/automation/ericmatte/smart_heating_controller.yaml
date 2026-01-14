@@ -167,7 +167,7 @@ action:
             target:
               entity_id: "{{ aux_thermostats }}"
             data:
-              temperature: "{{ effective_target_temp }}"
+              temperature: "{{ effective_target_temp + 0.5 }}"
 
       # CASE 2: Normal operation (heat pump active)
       - conditions:

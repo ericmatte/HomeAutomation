@@ -71,8 +71,8 @@ template:
         default_entity_id: sensor.rainville_propane_tank
         state: "{{ states('sensor.rainville_propane_raw') }}"
         attributes:
-          last_update: "{{ states.sensor.rainville_propane_raw.last_changed }}"
-          last_rainville_update: "{{ state_attr('sensor.rainville_propane_raw', 'last_update') }}"
+          last_updated: "{{ state_attr('sensor.rainville_propane_raw', 'last_updated') }}"
+          last_rainville_update: "{{ state_attr('sensor.rainville_propane_raw', 'last_rainville_update') }}"
           next_estimated_delivery: "{{ state_attr('sensor.rainville_propane_raw', 'next_estimated_delivery') }}"
 
 automation: !include automations.yaml

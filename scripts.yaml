@@ -86,3 +86,157 @@ halloween_lights:
           milliseconds: 0
   alias: Halloween lights
   description: ''
+flash_light_twice:
+  alias: Flash light twice
+  description: Flash a light from 100% to a dim level twice, then return to 100% smoothly
+  mode: single
+  fields:
+    target_light:
+      name: Light to flash
+      required: true
+      selector:
+        entity:
+          domain: light
+  variables:
+    dim_brightness_pct: 20
+    step_time: 1
+  sequence:
+  - action: light.turn_on
+    target:
+      entity_id: '{{ target_light }}'
+    data:
+      brightness_pct: 100
+      transition: '{{ step_time }}'
+  - delay:
+      seconds: '{{ step_time }}'
+  - repeat:
+      count: 2
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: '{{ target_light }}'
+        data:
+          brightness_pct: '{{ dim_brightness_pct }}'
+          transition: '{{ step_time }}'
+      - delay:
+          seconds: '{{ step_time }}'
+      - action: light.turn_on
+        target:
+          entity_id: '{{ target_light }}'
+        data:
+          brightness_pct: 100
+          transition: '{{ step_time }}'
+      - delay:
+          seconds: '{{ step_time }}'
+  - action: light.turn_on
+    target:
+      entity_id: '{{ target_light }}'
+    data:
+      brightness_pct: 100
+      transition: 2
+  - delay:
+      seconds: 2
+escape_room:
+  alias: Escape Room
+  mode: single
+  fields:
+    player:
+      name: Player name
+      description: Name of the player
+      required: true
+      selector:
+        text:
+  sequence:
+  - sequence:
+    - data:
+        entity_id: media_player.sonos
+        message: Salut {{ player }}, prêt pour une aventure des plus extraordinaire?
+      action: tts.cloud_say
+    - action: light.turn_off
+      metadata: {}
+      target:
+        floor_id:
+        - first_floor
+        - basement
+      data:
+        transition: 2
+      enabled: true
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 4
+        milliseconds: 0
+    enabled: true
+  - action: script.flash_light_twice
+    metadata: {}
+    data:
+      target_light: light.metal_lamp
+  - action: script.flash_light_twice
+    metadata: {}
+    data:
+      target_light: light.bad_light
+  - action: script.turn_on
+    target:
+      entity_id: script.rgb_color_loop
+    data:
+      variables:
+        target_light: light.wooden_lamp
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 10
+      milliseconds: 0
+  - action: script.turn_off
+    metadata: {}
+    target:
+      entity_id: script.rgb_color_loop
+    data: {}
+rgb_color_loop:
+  alias: RGB Color Loop
+  mode: parallel
+  fields:
+    target_light:
+      name: Light
+      description: Light entity to loop colors on
+      required: true
+      selector:
+        entity:
+          domain: light
+  variables:
+    delay: 3
+  sequence:
+  - repeat:
+      while:
+      - condition: template
+        value_template: true
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: '{{ target_light }}'
+        data:
+          rgb_color:
+          - 255
+          - 0
+          - 0
+          transition: '{{ delay }}'
+      - delay: '{{ delay }}'
+      - action: light.turn_on
+        target:
+          entity_id: '{{ target_light }}'
+        data:
+          rgb_color:
+          - 0
+          - 255
+          - 0
+          transition: '{{ delay }}'
+      - delay: '{{ delay }}'
+      - action: light.turn_on
+        target:
+          entity_id: '{{ target_light }}'
+        data:
+          rgb_color:
+          - 0
+          - 0
+          - 255
+          transition: '{{ delay }}'
+      - delay: '{{ delay }}'
