@@ -264,6 +264,21 @@ escape_room:
 
           ```'
       enabled: false
+  - alias: Disable automations
+    sequence:
+    - action: automation.turn_off
+      metadata: {}
+      data:
+        stop_actions: true
+      target:
+        entity_id: '{{ label_entities(''motions'') }}'
+      enabled: true
+    - action: automation.turn_off
+      metadata: {}
+      target:
+        entity_id: automation.sync_auxiliary_light_with_main_light
+      data:
+        stop_actions: true
   - delay:
       hours: 0
       minutes: 0
@@ -435,6 +450,20 @@ reset_after_escape_roome:
     target:
       entity_id: media_player.sonos
     data: {}
+  - action: media_player.turn_off
+    metadata: {}
+    target:
+      entity_id: media_player.theatre_tv
+    data: {}
+  - action: automation.turn_on
+    metadata: {}
+    target:
+      entity_id: '{{ label_entities(''motions'') }}'
+    enabled: true
+  - action: automation.turn_on
+    metadata: {}
+    target:
+      entity_id: automation.sync_auxiliary_light_with_main_light
   - action: script.turn_off
     metadata: {}
     target:

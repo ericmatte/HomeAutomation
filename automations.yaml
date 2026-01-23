@@ -1875,6 +1875,12 @@
     - Agréable et réconfortant{b}
     - '{a}Agréable et réconfortant{b}'
     id: a
+  - trigger: state
+    entity_id:
+    - binary_sensor.vibration_sensor_vibration
+    to:
+    - 'on'
+    id: treasure
   conditions: []
   actions:
   - choose:
@@ -1898,6 +1904,7 @@
         id:
         - t
       sequence:
+      - set_conversation_response: ' '
       - alias: 'Phase 3: Found the letter T, now checking for letter E'
         sequence:
         - action: script.turn_off
@@ -2039,11 +2046,6 @@
             data:
               transition: 2
             action: light.turn_off
-          - action: script.rgb_color_loop
-            metadata: {}
-            data:
-              target_light: light.right_floor_lamp
-            enabled: false
         - action: light.turn_on
           metadata: {}
           target:
@@ -2059,6 +2061,7 @@
         id:
         - e
       sequence:
+      - set_conversation_response: ' '
       - alias: 'Phase 4: Found the letter E, now checking for the last letter A'
         sequence:
         - action: light.turn_off
@@ -2163,38 +2166,241 @@
         - delay:
             hours: 0
             minutes: 0
-            seconds: 6
+            seconds: 8
             milliseconds: 0
+        - action: script.flash_light_twice
+          metadata: {}
+          data:
+            target_light: light.downstairs_hallway_light
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 8
+            milliseconds: 0
+        - repeat:
+            count: 3
+            sequence:
+            - action: light.turn_on
+              metadata: {}
+              target:
+                entity_id: light.office
+              data: {}
+            - delay:
+                hours: 0
+                minutes: 0
+                seconds: 1
+                milliseconds: 500
+            - action: light.turn_off
+              metadata: {}
+              target:
+                entity_id: light.office
+              data: {}
+            - delay:
+                hours: 0
+                minutes: 0
+                seconds: 1
+                milliseconds: 500
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 1
+            milliseconds: 500
+        - action: light.turn_on
+          metadata: {}
+          target:
+            entity_id: light.auxiliary_lamp
+          data:
+            effect: opal
+            transition: 2
+        - action: script.rgb_color_loop
+          metadata: {}
+          data:
+            target_light: light.right_floor_lamp
+          enabled: false
         enabled: true
     - conditions:
       - condition: trigger
         id:
         - button
-      sequence: []
+      sequence:
+      - action: notify.send_message
+        metadata: {}
+        target:
+          entity_id: notify.echo_speak
+        data:
+          message: Hey! Par ici! C'est moi qui a la letter!
     - conditions:
       - condition: trigger
         id:
         - a
       sequence:
       - set_conversation_response: ' '
-      - action: tts.speak
-        metadata: {}
-        target:
-          entity_id: tts.home_assistant_cloud
-        data:
-          cache: true
-          media_player_entity_id: media_player.sonos
-          message: T!E!A! hmm. Mais oui! Ça veut dire thé en anglais! Il faut maintenant
-            trouver la boîte de thé. Hmmm, je me demande si ne pas suivre les règles
-            dans l'entrée pourrait nous aider...
-      - delay:
-          hours: 0
-          minutes: 0
-          seconds: 15
-          milliseconds: 0
-      - action: script.flash_light_twice
-        metadata: {}
-        data:
-          target_light: light.chandelier
+      - alias: 'Last phase: TEA!'
+        sequence:
+        - action: media_player.turn_on
+          metadata: {}
+          target:
+            entity_id: media_player.theatre_tv
+          data: {}
+        - action: light.turn_off
+          metadata: {}
+          target:
+            floor_id:
+            - basement
+            area_id:
+            - bedroom
+            - upstairs_bathroom
+            - entrance
+          data:
+            transition: 2
+          enabled: true
+        - action: light.turn_on
+          metadata: {}
+          data:
+            brightness_pct: 5
+          target:
+            area_id:
+            - dining_room
+            - kitchen
+            entity_id:
+            - light.hallway_lights
+            - light.left_floor_lamp
+            - light.right_floor_lamp
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 3
+            milliseconds: 500
+        - action: light.turn_on
+          metadata: {}
+          target:
+            entity_id:
+            - light.chandelier
+          data:
+            transition: 1
+            brightness_pct: 10
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 1
+            milliseconds: 0
+        - action: tts.speak
+          metadata: {}
+          target:
+            entity_id: tts.home_assistant_cloud
+          data:
+            cache: true
+            media_player_entity_id: media_player.sonos
+            message: T!, E!, A! Mais oui! Ça veut dire thé en anglais! Toute l'après-midi,
+              en bonne compagnie, c'est agréable et réconfortant de boire du thé!
+              Mais si seulement on avait une boîte de thé. Ça doit être cela que l'on
+              cherche.
+            language: fr-FR
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 13
+            milliseconds: 0
+        - action: light.turn_off
+          metadata: {}
+          target:
+            entity_id:
+            - light.chandelier
+          data:
+            transition: 2
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 1
+            milliseconds: 0
+        - action: media_player.play_media
+          metadata: {}
+          data:
+            media:
+              media_content_id: media-source://media_source/local/Bridgerton Theme
+                Song.mp3
+              media_content_type: audio/mpeg
+              metadata:
+                title: Bridgerton Theme Song.mp3
+                thumbnail:
+                media_class: music
+                children_media_class:
+                navigateIds:
+                - {}
+                - media_content_type: app
+                  media_content_id: media-source://media_source
+                browse_entity_id: media_player.theatre_tv
+          target:
+            entity_id: media_player.theatre_tv
+        - action: light.turn_on
+          metadata: {}
+          target:
+            entity_id:
+            - light.chandelier
+            - light.downstairs_hallway_light
+            - light.theatre
+          data:
+            transition: 2
+            brightness_pct: 100
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 1
+            milliseconds: 0
+        - action: light.turn_on
+          metadata: {}
+          data:
+            effect: prism
+            brightness_pct: 100
+          target:
+            entity_id: light.bad_light
+        enabled: true
+    - conditions:
+      - condition: trigger
+        id:
+        - treasure
+      sequence:
+      - alias: The treasure is found!
+        sequence:
+        - action: media_player.play_media
+          metadata: {}
+          data:
+            media:
+              media_content_id: media-source://media_source/local/Jamie Foxx - Winner
+                ft Justin Timberlake  TI.mp3
+              media_content_type: audio/mpeg
+              metadata:
+                title: Jamie Foxx - Winner ft Justin Timberlake  TI.mp3
+                thumbnail:
+                media_class: music
+                children_media_class:
+                navigateIds:
+                - {}
+                - media_content_type: app
+                  media_content_id: media-source://media_source
+                browse_entity_id: media_player.theatre_tv
+          target:
+            entity_id: media_player.theatre_tv
+        - action: light.turn_on
+          metadata: {}
+          target:
+            entity_id: light.theatre
+          data:
+            transition: 1
+            rgb_color:
+            - 0
+            - 255
+            - 0
+        - action: light.turn_on
+          metadata: {}
+          data:
+            transition: 1
+            rgb_color:
+            - 0
+            - 255
+            - 0
+          target:
+            entity_id: light.sync_box
+          enabled: false
     enabled: true
   mode: single
