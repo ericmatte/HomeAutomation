@@ -2166,7 +2166,7 @@
         - delay:
             hours: 0
             minutes: 0
-            seconds: 8
+            seconds: 6
             milliseconds: 0
         - action: script.flash_light_twice
           metadata: {}
@@ -2175,7 +2175,7 @@
         - delay:
             hours: 0
             minutes: 0
-            seconds: 8
+            seconds: 6
             milliseconds: 0
         - repeat:
             count: 3
@@ -2237,6 +2237,11 @@
       - set_conversation_response: ' '
       - alias: 'Last phase: TEA!'
         sequence:
+        - action: media_player.media_stop
+          metadata: {}
+          target:
+            entity_id: media_player.sonos
+          data: {}
         - action: media_player.turn_on
           metadata: {}
           target:
@@ -2338,15 +2343,11 @@
             entity_id:
             - light.chandelier
             - light.downstairs_hallway_light
-            - light.theatre
+            - light.wooden_lamp
+            - light.metal_lamp
           data:
             transition: 2
             brightness_pct: 100
-        - delay:
-            hours: 0
-            minutes: 0
-            seconds: 1
-            milliseconds: 0
         - action: light.turn_on
           metadata: {}
           data:
@@ -2356,9 +2357,16 @@
             entity_id: light.bad_light
         enabled: true
     - conditions:
-      - condition: trigger
-        id:
-        - treasure
+      - condition: and
+        conditions:
+        - condition: trigger
+          id:
+          - treasure
+        - condition: template
+          value_template: "{{ state_attr('media_player.theatre_tv', 'media_content_id')
+            is string\n   and 'Bridgerton' in state_attr('media_player.theatre_tv',
+            'media_content_id') }}\n"
+          alias: Bridgerton is playing
       sequence:
       - alias: The treasure is found!
         sequence:

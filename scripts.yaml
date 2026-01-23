@@ -276,7 +276,8 @@ escape_room:
     - action: automation.turn_off
       metadata: {}
       target:
-        entity_id: automation.sync_auxiliary_light_with_main_light
+        entity_id:
+        - automation.sync_auxiliary_light_with_main_light
       data:
         stop_actions: true
   - delay:
@@ -463,7 +464,9 @@ reset_after_escape_roome:
   - action: automation.turn_on
     metadata: {}
     target:
-      entity_id: automation.sync_auxiliary_light_with_main_light
+      entity_id:
+      - automation.sync_auxiliary_light_with_main_light
+    data: {}
   - action: script.turn_off
     metadata: {}
     target:
