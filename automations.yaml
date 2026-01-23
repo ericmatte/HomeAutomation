@@ -1004,7 +1004,7 @@
       - action: climate.set_temperature
         metadata: {}
         data:
-          temperature: 21
+          temperature: 22
         target:
           area_id: eric_office
     - conditions:
@@ -1015,7 +1015,7 @@
       - action: climate.set_temperature
         metadata: {}
         data:
-          temperature: 19.5
+          temperature: 20
         target:
           area_id: eric_office
   mode: single
@@ -1033,7 +1033,7 @@
       outside_temp_sensor: sensor.outside_temperature
       min_outside_temp: -13
       target_temp: 20
-      away_night_temp: 18
+      away_night_temp: 19
       anybody_home: binary_sensor.anybody
       use_target_from: 06:00:00
       fan_mode: auto
@@ -1768,7 +1768,7 @@
   - action: assist_satellite.ask_question
     metadata: {}
     data:
-      preannounce: true
+      preannounce: false
       entity_id: assist_satellite.192_168_0_160
       answers:
       - id: 'yes'
@@ -1779,7 +1779,10 @@
         sentences:
         - 'no'
         - non
-      question: Housekeeping! How can I help you?
+      question: Oui allô! Est-ce que je parle à Mike? Es-tu prêt pour une aventure
+        des plus extraordinaire? Super, je te demanderai de raccrocher le téléphone,
+        et la lumière te guidera. Trouves les lettres cacher et le trésor sera à toi.
+        À chaque lettre trouvé, entre le bon nombre sur le téléphone. Bonne chance!
     response_variable: answer
   - if:
     - condition: template
@@ -1797,10 +1800,11 @@
         entity_id: media_player.sonos
       data:
         media:
-          media_content_id: media-source://media_source/local/Careless Whisper.mp3
+          media_content_id: media-source://media_source/local/Never Gonna Give You
+            Up.mp3
           media_content_type: audio/mpeg
           metadata:
-            title: Careless Whisper.mp3
+            title: Never Gonna Give You Up.mp3
             thumbnail:
             media_class: music
             children_media_class:
@@ -1818,11 +1822,11 @@
         - light.right_floor_lamp
       data:
         rgb_color:
+        - 0
         - 255
-        - 0
-        - 0
-        transition: 3
+        - 255
         brightness_pct: 70
+        transition: 2
     else:
     - action: assist_satellite.announce
       metadata: {}
@@ -1830,9 +1834,367 @@
         entity_id: assist_satellite.192_168_0_160
       data:
         preannounce: false
-        message: Oui allô! Est-ce que je parle à Jade? Es-tu prête pour une aventure
-          des plus extraordinaire? Super, je te demanderai de raccrocher le téléphone,
-          et la lumière te guidera. Trouves les lettres cacher et le trésor sera à
-          toi. À chaque lettre trouvé, entre le bon nombre sur le téléphone. Bonne
-          chance!
+        message: Pas de problème, à une prochaine fois alors!
   mode: restart
+- id: '1768618057000'
+  alias: Escape room - Part 2
+  description: ''
+  triggers:
+  - trigger: conversation
+    command:
+    - indice
+    - '{a}indice'
+    - indice{b}
+    - '{a}indice{b}'
+    id: hint
+  - trigger: conversation
+    command:
+    - Tout[e] l'après-midi
+    - '{a}Tout[e] l''après-midi'
+    - Tout[e] l'après-midi{b}
+    - '{a}Tout[e] l''après-midi{b}'
+    id: t
+  - trigger: conversation
+    command:
+    - En[tre][ de] bonne compagnie
+    - '{a}En[tre][ de] bonne compagnie'
+    - En[tre][ de] bonne compagnie{b}
+    - '{a}En[tre][ de] bonne compagnie{b}'
+    id: e
+  - domain: mqtt
+    device_id: 8317fbc3ea314ec40186f0d8ec39998d
+    type: action
+    subtype: single
+    trigger: device
+    id: button
+    alias: Clicking on the button
+  - trigger: conversation
+    command:
+    - Agréable et réconfortant
+    - '{a}Agréable et réconfortant'
+    - Agréable et réconfortant{b}
+    - '{a}Agréable et réconfortant{b}'
+    id: a
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - hint
+      sequence:
+      - set_conversation_response: 'Trouve la lettre cachée et viens me dire la phrase
+          secrète.
+
+
+          Il y a 3 lettres à trouver.
+
+
+          Il semblerait que les lumières de couleurs ont quelque chose de spécial
+          à dire. Regarde aux alentours voir si tu ne pourrais pas déceler la lettre
+          et la phrase cachée.'
+    - conditions:
+      - condition: trigger
+        id:
+        - t
+      sequence:
+      - alias: 'Phase 3: Found the letter T, now checking for letter E'
+        sequence:
+        - action: script.turn_off
+          metadata: {}
+          target:
+            entity_id: script.rgb_color_loop
+          data: {}
+        - action: light.turn_off
+          metadata: {}
+          target:
+            floor_id:
+            - basement
+            area_id:
+            - living_room
+            - bedroom
+            - upstairs_bathroom
+            - entrance
+          data:
+            transition: 2
+          enabled: true
+        - action: light.turn_on
+          metadata: {}
+          data:
+            transition: 2
+            brightness_pct: 5
+          target:
+            area_id:
+            - dining_room
+            - kitchen
+            entity_id: light.hallway_lights
+        - action: media_player.volume_set
+          metadata: {}
+          target:
+            entity_id: media_player.sonos
+          data:
+            volume_level: 0.3
+        - action: media_player.play_media
+          metadata: {}
+          target:
+            entity_id: media_player.sonos
+          data:
+            enqueue: play
+            media:
+              media_content_id: media-source://media_source/local/The Clown's Theme.mp3
+              media_content_type: audio/mpeg
+              metadata:
+                title: The Clown's Theme.mp3
+                thumbnail:
+                media_class: music
+                children_media_class:
+                navigateIds:
+                - {}
+                - media_content_type: app
+                  media_content_id: media-source://media_source
+                browse_entity_id: media_player.sonos
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 3
+            milliseconds: 500
+        - action: light.turn_on
+          metadata: {}
+          target:
+            entity_id:
+            - light.chandelier
+          data:
+            transition: 1
+            brightness_pct: 10
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 1
+            milliseconds: 0
+        - action: tts.speak
+          metadata: {}
+          target:
+            entity_id: tts.home_assistant_cloud
+          data:
+            cache: true
+            media_player_entity_id: media_player.sonos
+            message: Bien joué! Tu as trouvé la lettre "T". Il te reste maintenant
+              2 lettres à trouver. Je me demande où pourrait bien se cacher la 2e
+              lettre..
+            language: fr-FR
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 9
+            milliseconds: 0
+        - action: light.turn_off
+          metadata: {}
+          target:
+            entity_id:
+            - light.chandelier
+          data:
+            transition: 2
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 6
+            milliseconds: 0
+        - alias: Alternating Flash RGB Lights
+          sequence:
+          - repeat:
+              count: 5
+              sequence:
+              - target:
+                  entity_id: light.left_floor_lamp
+                data:
+                  rgb_color:
+                  - 89
+                  - 0
+                  - 255
+                  brightness: 255
+                action: light.turn_on
+              - target:
+                  entity_id: light.right_floor_lamp
+                action: light.turn_off
+                data: {}
+              - delay:
+                  seconds: 0.2
+              - target:
+                  entity_id: light.right_floor_lamp
+                data:
+                  rgb_color:
+                  - 0
+                  - 255
+                  - 0
+                  brightness: 255
+                action: light.turn_on
+              - target:
+                  entity_id: light.left_floor_lamp
+                action: light.turn_off
+                data: {}
+              - delay:
+                  seconds: 0.2
+          - target:
+              entity_id: light.left_floor_lamp
+            data:
+              transition: 2
+            action: light.turn_off
+          - action: script.rgb_color_loop
+            metadata: {}
+            data:
+              target_light: light.right_floor_lamp
+            enabled: false
+        - action: light.turn_on
+          metadata: {}
+          target:
+            entity_id:
+            - light.chandelier
+            - light.dining_room_pendants
+          data:
+            transition: 5
+          enabled: false
+        enabled: true
+    - conditions:
+      - condition: trigger
+        id:
+        - e
+      sequence:
+      - alias: 'Phase 4: Found the letter E, now checking for the last letter A'
+        sequence:
+        - action: light.turn_off
+          metadata: {}
+          target:
+            floor_id:
+            - basement
+            area_id:
+            - bedroom
+            - upstairs_bathroom
+            - entrance
+          data:
+            transition: 2
+          enabled: true
+        - action: light.turn_on
+          metadata: {}
+          data:
+            brightness_pct: 5
+          target:
+            area_id:
+            - dining_room
+            - kitchen
+            entity_id:
+            - light.hallway_lights
+            - light.left_floor_lamp
+            - light.right_floor_lamp
+        - action: media_player.volume_set
+          metadata: {}
+          target:
+            entity_id: media_player.sonos
+          data:
+            volume_level: 0.5
+        - action: media_player.play_media
+          metadata: {}
+          target:
+            entity_id: media_player.sonos
+          data:
+            enqueue: play
+            media:
+              media_content_id: media-source://media_source/local/Magic is Real (Ambience).mp3
+              media_content_type: audio/mpeg
+              metadata:
+                title: Magic is Real (Ambience).mp3
+                thumbnail:
+                media_class: music
+                children_media_class:
+                navigateIds:
+                - {}
+                - media_content_type: app
+                  media_content_id: media-source://media_source
+                browse_entity_id: media_player.sonos
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 3
+            milliseconds: 500
+        - action: light.turn_on
+          metadata: {}
+          target:
+            entity_id:
+            - light.chandelier
+          data:
+            transition: 1
+            brightness_pct: 10
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 1
+            milliseconds: 0
+        - action: tts.speak
+          metadata: {}
+          target:
+            entity_id: tts.home_assistant_cloud
+          data:
+            cache: true
+            media_player_entity_id: media_player.sonos
+            message: Une autre lettre de trouvée! La fameuse lettre "E". Donc on a
+              actuellement les lettres "T" et "E". Seulement qu'une lettre, et le
+              trésor sera à nous! Ok bonne chance mon amie.
+            language: fr-FR
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 13
+            milliseconds: 0
+        - action: light.turn_off
+          metadata: {}
+          target:
+            entity_id:
+            - light.chandelier
+          data:
+            transition: 2
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 6
+            milliseconds: 0
+        - action: script.flash_light_twice
+          metadata: {}
+          data:
+            target_light: light.chandelier
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 6
+            milliseconds: 0
+        enabled: true
+    - conditions:
+      - condition: trigger
+        id:
+        - button
+      sequence: []
+    - conditions:
+      - condition: trigger
+        id:
+        - a
+      sequence:
+      - set_conversation_response: ' '
+      - action: tts.speak
+        metadata: {}
+        target:
+          entity_id: tts.home_assistant_cloud
+        data:
+          cache: true
+          media_player_entity_id: media_player.sonos
+          message: T!E!A! hmm. Mais oui! Ça veut dire thé en anglais! Il faut maintenant
+            trouver la boîte de thé. Hmmm, je me demande si ne pas suivre les règles
+            dans l'entrée pourrait nous aider...
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 15
+          milliseconds: 0
+      - action: script.flash_light_twice
+        metadata: {}
+        data:
+          target_light: light.chandelier
+    enabled: true
+  mode: single

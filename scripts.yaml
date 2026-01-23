@@ -138,7 +138,7 @@ flash_light_twice:
       seconds: 2
 escape_room:
   alias: Escape Room
-  mode: single
+  mode: restart
   fields:
     player:
       name: Player name
@@ -146,54 +146,242 @@ escape_room:
       required: true
       selector:
         text:
+    start_delay:
+      name: Initial Delay (seconds)
+      description: Delay before starting the script
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 300
+          step: 1
+      default: 0
   sequence:
-  - sequence:
-    - data:
-        entity_id: media_player.sonos
-        message: Salut {{ player }}, prêt pour une aventure des plus extraordinaire?
-      action: tts.cloud_say
+  - delay:
+      seconds: '{{ start_delay }}'
+  - alias: 'Phase 1: Game instructions'
+    sequence:
+    - action: assist_satellite.announce
+      metadata: {}
+      data:
+        message: 'Bien le bonjour, est-ce que je parle à {{ player }}?
+
+          Ah ok! Est-ce que tu pourrais lui dire que je l''ai appelé? Ça serait apprécié.
+          Je vais rappeler dans quelques secondes.
+
+          Bonne journée!'
+        preannounce: false
+      target:
+        entity_id: assist_satellite.192_168_0_160
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 8
+        milliseconds: 0
+    - action: assist_satellite.announce
+      metadata: {}
+      data:
+        message: 'Bien le bonjour très chère {{ player }}! Je t’attendais, et te voilà
+          maintenant arrivé.
+
+          Es-tu prête pour une aventure des plus extraordinaire ?
+
+          Que tu sois prête ou pas, il est trop tard pour reculer, alors voici ta
+          destiné:
+
+          Trouve les lettres cachées, et le trésor sera gagné.
+
+          Les couleurs sont tes alliées, alors laisse-toi guider.
+
+          À chaque lettre dénichée, une phrase secrète te sera dévoilée.
+
+          Il est maintenant temps pour toi de les découvrir, alors raccroche le téléphone,
+          c’est l’heure de commencer!
+
+          N’oublie pas de revenir me dire les phrases trouvées!
+
+          Bonne chance, camarade, ton destin est lancé!!'
+        preannounce: false
+      target:
+        entity_id: assist_satellite.192_168_0_160
+    - action: tts.speak
+      metadata: {}
+      target:
+        entity_id: tts.home_assistant_cloud
+      data:
+        cache: true
+        message: 'Bien le bonjour très chère {{ player }}! Je t’attendais, et te voilà
+          maintenant arrivé.
+
+          Es-tu prête pour une aventure des plus extraordinaire ?
+
+          Que tu sois prête ou pas, il est trop tard pour reculer, alors voici ta
+          destiné:
+
+          Trouve les lettres cachées, et le trésor sera gagné.
+
+          Les couleurs sont tes alliées, alors laisse-toi guider.
+
+          À chaque lettre dénichée, une phrase secrète te sera dévoilée.
+
+          Il est maintenant temps pour toi de les découvrir, alors raccroche le téléphone,
+          c’est l’heure de commencer!
+
+          N’oublie pas de revenir me dire les phrases trouvées!
+
+          Bonne chance, camarade, ton destin est lancé!!'
+        media_player_entity_id: media_player.sonos
+      enabled: false
+    - alias: 'Phase 1 [AI]: Find player and tell instructions'
+      action: assist_satellite.start_conversation
+      metadata: {}
+      target:
+        entity_id: assist_satellite.192_168_0_160
+      data:
+        start_message: Salut à toi! Est-ce que je parle à {{ player }}?!
+        preannounce: false
+        extra_system_prompt: 'On recherche {{ player }}.
+
+
+          - Si c''est {{ player }} qui répond, récite le txt ci-dessous.
+
+          - Si c''est quelqu''un d''autre qui répond, et tant que tu ne parles pas
+          à {{ player }}. continue de demander si quelqu''un l''a vue. Si la personne
+          qui te parle te dis qu''elle va te passer {{ player }}, répond une phrase
+          en attendant que {{ player }} arrive et se présente. Lorsque ce sera {{
+          player }} qui te parle, récite le txt ci-dessous.
+
+
+          txt à réciter, mot pour mot:
+
+          ```txt
+
+          Super! Je t''attendais, {{ player }}! Es-tu prêt pour une aventure des plus
+          extraordinaire? Trouves les lettres cachées et le trésor sera à toi. Les
+          couleurs sont tes amis. À chaque lettre trouvée, viens-me la dire, je les
+          compilerai. Je te demanderais maintenant de raccrocher le téléphone, et
+          la lumière te guidera. Bonne chance!
+
+          ```'
+      enabled: false
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 4
+      milliseconds: 0
+  - alias: 'Phase 2: Find the letter T'
+    sequence:
+    - action: light.turn_on
+      metadata: {}
+      data:
+        transition: 2
+        brightness_pct: 5
+      target:
+        area_id:
+        - dining_room
+        - kitchen
     - action: light.turn_off
       metadata: {}
       target:
         floor_id:
-        - first_floor
         - basement
+        area_id:
+        - living_room
+        - bedroom
+        - hallway
+        - upstairs_bathroom
+        - entrance
       data:
         transition: 2
       enabled: true
+    - action: media_player.volume_set
+      metadata: {}
+      target:
+        entity_id: media_player.sonos
+      data:
+        volume_level: 0.35
+    - action: media_player.play_media
+      metadata: {}
+      target:
+        entity_id: media_player.sonos
+      data:
+        enqueue: play
+        media:
+          media_content_id: media-source://media_source/local/The Magician's Theme.mp3
+          media_content_type: audio/mpeg
+          metadata:
+            title: The Magician's Theme.mp3
+            thumbnail:
+            media_class: music
+            children_media_class:
+            navigateIds:
+            - {}
+            - media_content_type: app
+              media_content_id: media-source://media_source
+            browse_entity_id: media_player.sonos
     - delay:
         hours: 0
         minutes: 0
         seconds: 4
         milliseconds: 0
+    - action: light.turn_on
+      metadata: {}
+      target:
+        entity_id:
+        - light.chandelier
+      data:
+        transition: 1
+        brightness_pct: 10
+    - action: tts.speak
+      metadata: {}
+      target:
+        entity_id: tts.home_assistant_cloud
+      data:
+        cache: true
+        language: fr-FR
+        message: Ah! En passant, je suis toujours là pour toi! Si tu un peu perdu,
+          tu peux toujours venir me demander un indice au téléphone. Ok bonne chance
+          là!!
+        media_player_entity_id: media_player.sonos
+        options:
+          voice: Denise (whispering)
+      alias: Indice
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 10
+        milliseconds: 0
+    - action: light.turn_off
+      metadata: {}
+      target:
+        entity_id:
+        - light.chandelier
+      data:
+        transition: 2
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 4
+        milliseconds: 0
+    - action: script.flash_light_twice
+      metadata: {}
+      data:
+        target_light: light.hallway_lights
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 2
+        milliseconds: 0
+    - action: script.turn_on
+      target:
+        entity_id: script.rgb_color_loop
+      data:
+        variables:
+          target_light: light.motion_light
     enabled: true
-  - action: script.flash_light_twice
-    metadata: {}
-    data:
-      target_light: light.metal_lamp
-  - action: script.flash_light_twice
-    metadata: {}
-    data:
-      target_light: light.bad_light
-  - action: script.turn_on
-    target:
-      entity_id: script.rgb_color_loop
-    data:
-      variables:
-        target_light: light.wooden_lamp
-  - delay:
-      hours: 0
-      minutes: 0
-      seconds: 10
-      milliseconds: 0
-  - action: script.turn_off
-    metadata: {}
-    target:
-      entity_id: script.rgb_color_loop
-    data: {}
 rgb_color_loop:
   alias: RGB Color Loop
-  mode: parallel
+  mode: restart
   fields:
     target_light:
       name: Light
@@ -203,12 +391,12 @@ rgb_color_loop:
         entity:
           domain: light
   variables:
-    delay: 3
+    delay: 1
   sequence:
   - repeat:
       while:
       - condition: template
-        value_template: true
+        value_template: '{{ true }}'
       sequence:
       - action: light.turn_on
         target:
@@ -218,7 +406,7 @@ rgb_color_loop:
           - 255
           - 0
           - 0
-          transition: '{{ delay }}'
+          transition: '{{ delay | int }}'
       - delay: '{{ delay }}'
       - action: light.turn_on
         target:
@@ -228,7 +416,7 @@ rgb_color_loop:
           - 0
           - 255
           - 0
-          transition: '{{ delay }}'
+          transition: '{{ delay | int }}'
       - delay: '{{ delay }}'
       - action: light.turn_on
         target:
@@ -238,5 +426,41 @@ rgb_color_loop:
           - 0
           - 0
           - 255
-          transition: '{{ delay }}'
+          transition: '{{ delay | int }}'
       - delay: '{{ delay }}'
+reset_after_escape_roome:
+  sequence:
+  - action: media_player.media_stop
+    metadata: {}
+    target:
+      entity_id: media_player.sonos
+    data: {}
+  - action: script.turn_off
+    metadata: {}
+    target:
+      entity_id:
+      - script.rgb_color_loop
+      - script.escape_room
+      - script.flash_light_twice
+    data: {}
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 0
+  - action: scene.turn_on
+    metadata: {}
+    target:
+      entity_id: scene.reset_after_escape_room
+    data:
+      transition: 2
+  - action: script.turn_off
+    metadata: {}
+    target:
+      entity_id:
+      - script.rgb_color_loop
+      - script.escape_room
+      - script.flash_light_twice
+    data: {}
+  alias: Reset after escape room
+  description: ''
