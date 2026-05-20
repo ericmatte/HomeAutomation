@@ -1,0 +1,82 @@
+blueprint:
+  name: Plant Soil Moisture Low Alert
+  description: >
+    Sends a phone notification when a plant soil moisture sensor drops below
+    a configured percentage.
+
+    Inputs:
+      - Plant soil moisture sensor (any % sensor)
+      - Threshold % (notification fires when reading goes BELOW this)
+      - Phone device to notify (any mobile_app device)
+      - Notification title (emojis welcome)
+      - Notification message (supports Jinja: {{ sensor_name }}, {{ moisture }})
+
+    Re-arms automatically once the sensor goes back above the threshold,
+    so you won't get spammed if the value oscillates around the threshold
+    (Home Assistant's numeric_state trigger handles this for us).
+  domain: automation
+  input:
+    moisture_sensor:
+      name: Plant Soil Moisture Sensor
+      description: The sensor reporting the plant soil moisture (in %).
+      selector:
+        entity:
+          domain: sensor
+
+    threshold:
+      name: Moisture Threshold (%)
+      description: Notify when the sensor reading drops BELOW this percentage.
+      default: 30
+      selector:
+        number:
+          min: 0
+          max: 100
+          step: 1
+          unit_of_measurement: "%"
+          mode: slider
+
+    notify_device:
+      name: Phone to Notify
+      description: The mobile device (phone) that will receive the push notification.
+      selector:
+        device:
+          integration: mobile_app
+
+    notification_title:
+      name: Notification Title
+      description: Title shown in the notification (emojis welcome).
+      default: "🌱 Plant needs water"
+      selector:
+        text:
+
+    notification_message:
+      name: Notification Message
+      description: >
+        Body of the notification. Supports Jinja templates — the placeholders
+        {{ sensor_name }} and {{ moisture }} are replaced with the sensor's
+        friendly name and current value.
+      default: "💧 {{ sensor_name }} is at {{ moisture }}% — time to water it!"
+      selector:
+        text:
+          multiline: true
+
+variables:
+  threshold_value: !input threshold
+
+trigger:
+  - platform: numeric_state
+    entity_id: !input moisture_sensor
+    below: !input threshold
+
+action:
+  - variables:
+      sensor_entity: "{{ trigger.entity_id }}"
+      sensor_name: "{{ state_attr(sensor_entity, 'friendly_name') or sensor_entity }}"
+      moisture: "{{ states(sensor_entity) }}"
+  - domain: mobile_app
+    type: notify
+    device_id: !input notify_device
+    title: !input notification_title
+    message: !input notification_message
+
+mode: single
