@@ -72,7 +72,7 @@ Ask only what can't be reasonably defaulted. Prefer `AskUserQuestion` with concr
   - **Bugfix** → `fix(skill): <concise description>`
   - **Refactor / cleanup** → `refactor(skill): <concise description>`
   - Title ≤72 chars. Body optional, only if non-obvious.
-- **Do not push.** Pushing is handled by `/ha-squash-and-commit-to-main`.
+- **Do not push.** Squashing the branch is a separate step (see `/ha-squash-and-commit`).
 
 ## Style Reference
 
@@ -135,6 +135,6 @@ Body skeleton:
 | Created a new file when the user meant to update an existing skill | Always run the Detect-mode step. Ask when ambiguous. |
 | Update-mode: rewrote the whole file instead of editing | Use `Edit` for targeted changes; only rewrite if the change is sweeping. |
 | Multiple commits for one skill change | One commit per skill change. |
-| Pushed after committing | Don't push — that's `/ha-squash-and-commit-to-main`'s job. |
+| Pushed after committing | Don't push — pushing is a separate manual step. |
 | Wrote a long workflow summary in the description | The description is *what*, the body is *how*. |
 | Description references a slash-command name (`/ha-foo`, `/...`, `/init`) | Rephrase to the concept ("a Home Assistant skill"). The harness silently drops the description otherwise and the menu shows only the skill name. |

@@ -1,48 +1,73 @@
-
-# Secrets and private information
+# =============================================================================
+# Secrets & credentials
+# =============================================================================
 secrets.yaml
 secrets.py
 *.secret.*
+*auth.json
 /html5_push_registrations.conf
 /known_devices.yaml
 /www/google*.html
-*auth.json
 
+# =============================================================================
 # Certificates
+# =============================================================================
 *.pem
+acme_reg.json
 
-# Ignored files
-/tts
+# =============================================================================
+# Home Assistant runtime files (logs, database, generated state)
+# =============================================================================
 /.uuid
-/custom_components
-/custom_components
-/www/community
 /home-assistant_v2.db*
 /home-assistant.log*
 /options.xml
+/tts
+.cache
+
+# Ignore all internal storage except the Lovelace dashboards we want to track
+/.storage/**
+!/.storage/lovelace
+
+# =============================================================================
+# Z-Wave
+# =============================================================================
 /OZW_Log.txt
 pyozw.sqlite
 zwcfg_0xdd825656.xml
 zwscene.xml
-acme_reg.json
-*.pyc
-.cache
 
-/.storage/**
-!/.storage/lovelace
+# =============================================================================
+# Zigbee2MQTT
+# =============================================================================
+zigbee.*
+zigbee2mqtt/
 
+# =============================================================================
+# Custom components & community frontend resources
+# =============================================================================
+/custom_components
+/www/community
+
+# =============================================================================
+# Themes — ignore everything except the ones we maintain
+# =============================================================================
 /themes/*
 !/themes/my-themes
 !/themes/minimalist-desktop/minimalist-desktop.yaml
 
+# =============================================================================
+# AppDaemon — only track config and our apps directory
+# =============================================================================
 /appdaemon/*
 !/appdaemon/appdaemon.yaml
 !/appdaemon/apps
 /appdaemon/apps/*
 !/appdaemon/apps/apps.yaml
 
+# =============================================================================
+# Miscellaneous
+# =============================================================================
 image/
-zigbee.*
-zigbee2mqtt/
+*.pyc
 
-/docs/plans

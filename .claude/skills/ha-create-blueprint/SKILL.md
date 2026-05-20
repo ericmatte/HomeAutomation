@@ -86,7 +86,7 @@ Then run through this **edge-case checklist** and ask only about the ones that a
   - **Refactor / convention update** → `refactor(blueprint): <concise description>`
   - **New input or trigger added** → `feat(blueprint): <concise description>`
   - Title ≤72 chars. Body optional, only if non-obvious.
-- **Do not push.** Pushing is a separate step (see `/ha-squash-and-commit-to-main`).
+- **Do not push.** Squashing the branch is a separate step (see `/ha-squash-and-commit`).
 
 ## Style Reference
 
