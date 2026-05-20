@@ -3,14 +3,12 @@
 # Run on a Home Assistant OS / Supervised host via the SSH & Web Terminal add-on.
 # Paste the output back into Claude when invoking the ha-plan-updates skill.
 #
-# Covers:
-#   - Core, OS, Supervisor               (via the `ha` CLI)
-#   - Installed add-ons                  (via the `ha` CLI)
-#   - HACS / integrations (update.*)     (via the REST API, requires a token)
+# Covers (all via the `ha` CLI — already authenticated inside HA, no token needed):
+#   - Core, OS, Supervisor
+#   - Installed add-ons
 #
-# Optional env vars:
-#   HA_TOKEN   long-lived access token (or set SUPERVISOR_TOKEN when running in an add-on)
-#   HA_URL     base URL of the HA REST API (default: http://supervisor/core)
+# HACS / integration `update.*` entities are NOT covered — list those manually
+# from Settings → System → Updates in the UI.
 
 set -euo pipefail
 
@@ -41,22 +39,3 @@ ha addons --raw-json \
   | jq -r '.data.addons[]
            | select(.version_latest != null and .version != .version_latest)
            | "- addon:\(.slug): \(.version) → \(.version_latest)"'
-
-TOKEN="${HA_TOKEN:-${SUPERVISOR_TOKEN:-}}"
-URL="${HA_URL:-http://supervisor/core}"
-
-if [ -n "$TOKEN" ]; then
-  echo
-  echo "## HACS / update.* entities"
-  if ! curl -fsSL -H "Authorization: Bearer ${TOKEN}" "${URL}/api/states" \
-       | jq -r '.[]
-                | select(.entity_id | startswith("update."))
-                | select(.state == "on")
-                | "- \(.entity_id): \(.attributes.installed_version) → \(.attributes.latest_version)"'; then
-    echo "(could not query update.* entities — check HA_TOKEN / HA_URL)" >&2
-  fi
-else
-  echo
-  echo "## HACS / update.* entities"
-  echo "(skipped — set HA_TOKEN to a long-lived access token to include HACS + integration updates)"
-fi
