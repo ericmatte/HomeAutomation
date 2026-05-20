@@ -1,27 +1,44 @@
 blueprint:
-  name: High Humidity Alert
-  description: >
-    Sends a notification if one or more humidity sensors go above a defined threshold.
+  name: 💦 Alerte taux d'humidité élevé
+  description: |
+    Surveille un ou plusieurs capteurs d'humidité et envoie une notification quand la valeur dépasse un seuil de façon **soutenue**.
+
+    - 📈 **Déclencheur** : un capteur reste AU-DESSUS du seuil pendant la durée configurée.
+    - 🔔 **Action** : notification via `notify.notify` avec le nom de la pièce et la valeur courante.
+    - 🔁 **Anti-spam** : la durée minimale empêche le déclenchement sur des oscillations brèves autour du seuil. Le trigger ne se réarme qu'après être redescendu sous le seuil.
   domain: automation
   input:
     humidity_sensors:
-      name: Humidity Sensors
-      description: List of humidity sensors to monitor
+      name: 💧 Capteurs d'humidité
+      description: Liste des capteurs d'humidité à surveiller.
       selector:
         entity:
           domain: sensor
           device_class: humidity
           multiple: true
+
     threshold:
-      name: Humidity Threshold
-      description: Humidity level (%) above which the alert is triggered
+      name: 📊 Seuil d'humidité (%)
+      description: Déclenche la notification quand un capteur dépasse ce pourcentage.
       default: 70
       selector:
         number:
           min: 0
           max: 100
+          step: 1
           unit_of_measurement: "%"
           mode: slider
+
+    for_duration:
+      name: ⏱️ Durée minimale au-dessus du seuil
+      description: >
+        Durée pendant laquelle l'humidité doit rester au-dessus du seuil avant
+        que la notification soit envoyée. Évite le spam quand la valeur oscille
+        autour du seuil.
+      default:
+        minutes: 5
+      selector:
+        duration:
 
 variables:
   threshold_value: !input threshold
@@ -30,6 +47,7 @@ trigger:
   - platform: numeric_state
     entity_id: !input humidity_sensors
     above: !input threshold
+    for: !input for_duration
 
 action:
   - service: notify.notify
