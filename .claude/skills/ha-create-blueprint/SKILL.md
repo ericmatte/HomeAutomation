@@ -16,10 +16,15 @@ Create OR update a Home Assistant **automation** blueprint under `blueprints/aut
 - **Inputs > hardcoded IDs.** Anything that could vary (entity, device, area, threshold, message text, notification target, duration) becomes a blueprint input. Never hardcode `entity_id`s in `trigger` / `action`.
 - **Blueprint `name:` starts with a relevant emoji** (e.g. `🌱 Alerte plante assoiffée`). One emoji that captures the blueprint's purpose.
 - **Input `name:` starts with a relevant emoji** (e.g. `🌱 Capteur d'humidité du sol`).
-- **Blueprint `description:` describes the *behavior* of the blueprint** — what it does end-to-end, in 1–3 sentences. **Do not repeat what individual inputs do** (each input has its own `description:` for that). Focus on the trigger → condition → action flow at a high level.
+- **Blueprint `description:` is formatted for clarity in the HA UI (which renders markdown).** Structure it as:
+  1. **A one-line overview** of what the blueprint does.
+  2. **A markdown bullet list of the flow** — labeled bullets for `Déclencheur` / `Condition` / `Action` / notable behaviors (`Ré-armement`, `Cooldown`, `Debounce`, etc.). Use emoji + bold label so it scans fast.
+  3. **(Optional) An ASCII flow diagram inside a fenced code block** — only when the logic branches or has multiple paths. Skip it for simple linear flows.
+
+  **Do not repeat what individual inputs do** (each input has its own `description:` for that). Focus on the blueprint's end-to-end behavior, not the configuration knobs.
 - **All HA-user-facing text in French:** `blueprint.name`, `blueprint.description`, every input's `name` / `description`, and any notification `title` / `message` in actions. YAML keys, service names, Jinja code, and entity domains stay in English.
 - **Mode:** default to `mode: single`. If you deviate, justify it in the summary.
-- **Readable YAML:** logical grouping, blank lines between sections, `#` comments only when the *why* isn't obvious from the *what*. Use block scalars (`>` for descriptions, `>-` / `|` for messages) for multi-line text.
+- **Readable YAML:** logical grouping, blank lines between sections, `#` comments only when the *why* isn't obvious from the *what*. Use block scalars: `|` for the blueprint `description` (preserves newlines + markdown formatting), `>` for plain-prose input descriptions, `>-` / `|` for messages.
 
 ## Procedure
 
@@ -90,15 +95,39 @@ Then run through this **edge-case checklist** and ask only about the ones that a
 
 ## Style Reference
 
-Top-level blueprint header — emoji-prefixed name, description focused on the *behavior*:
+Top-level blueprint header — emoji-prefixed name, structured description (intro + bullets):
 
 ```yaml
 blueprint:
   name: 🌱 Alerte plante assoiffée
-  description: >
-    Surveille un capteur d'humidité du sol et envoie une notification push
-    quand la valeur descend sous le seuil choisi. Un délai de re-déclenchement
-    évite le spam tant que la plante n'est pas arrosée.
+  description: |
+    Surveille l'humidité du sol et envoie une notification push quand la plante a soif.
+
+    - 📉 **Déclencheur** : l'humidité descend sous le seuil configuré.
+    - 🔔 **Action** : notification push sur l'appareil mobile choisi.
+    - 🔁 **Ré-armement** : se redéclenche seulement après que l'humidité soit remontée au-dessus du seuil — pas de spam si la valeur oscille.
+  domain: automation
+```
+
+For blueprints with branching logic (multiple triggers, conditional paths), add a small ASCII flow diagram in a fenced code block below the bullets:
+
+```yaml
+blueprint:
+  name: 🌡️ Thermostat intelligent
+  description: |
+    Ajuste la consigne de chauffage selon présence + heure + ouverture des fenêtres.
+
+    - 📅 **Déclencheur** : changement d'heure (chaque minute) ou état des capteurs.
+    - 🚪 **Condition** : aucune fenêtre ouverte dans la pièce.
+    - 🎯 **Action** : règle la consigne sur la valeur calculée.
+
+    ```
+    fenêtre ouverte ? ─ oui ─► consigne = 10°C (hors-gel)
+                      │
+                      └ non ─► personne à la maison ? ─ oui ─► consigne = jour
+                                                       │
+                                                       └ non ─► consigne = nuit
+    ```
   domain: automation
 ```
 
@@ -154,6 +183,8 @@ action:
 | Hardcoded an `entity_id` in trigger/action | Promote it to an input with the correct selector. |
 | Blueprint `name` without emoji prefix | Add one emoji that captures the blueprint's purpose. |
 | Blueprint `description` repeats what inputs do | Describe the blueprint's overall behavior (trigger → action flow). Let each input's own `description` cover the input. |
+| `description` is a flat paragraph that's hard to scan | Use the structured format: 1-line overview + markdown bullets (`Déclencheur` / `Action` / `Ré-armement`). Add an ASCII flow diagram for branching logic. |
+| Used `>` for a markdown `description` (newlines get folded) | Use `\|` for descriptions with markdown — `>` folds newlines and breaks bullet lists. |
 | Input `name` without emoji prefix | Add a relevant emoji. |
 | English `name` / `description` / notification text | Translate to French. Keys and Jinja stay English. |
 | Skipped the edge-case checklist | Run it for every blueprint — cooldown / mode / cardinality are easy to miss. |

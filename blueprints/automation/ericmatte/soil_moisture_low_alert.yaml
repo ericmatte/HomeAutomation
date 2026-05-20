@@ -1,31 +1,23 @@
 blueprint:
-  name: Plant Soil Moisture Low Alert
-  description: >
-    Sends a phone notification when a plant soil moisture sensor drops below
-    a configured percentage.
+  name: 🌱 Alerte humidité du sol basse
+  description: |
+    Surveille l'humidité du sol d'une plante et envoie une notification push quand elle a soif.
 
-    Inputs:
-      - Plant soil moisture sensor (any % sensor)
-      - Threshold % (notification fires when reading goes BELOW this)
-      - Phone device to notify (any mobile_app device)
-      - Notification title (emojis welcome)
-      - Notification message (supports Jinja: {{ sensor_name }}, {{ moisture }})
-
-    Re-arms automatically once the sensor goes back above the threshold,
-    so you won't get spammed if the value oscillates around the threshold
-    (Home Assistant's numeric_state trigger handles this for us).
+    - 📉 **Déclencheur** : l'humidité du capteur descend SOUS le seuil configuré.
+    - 🔔 **Action** : notification push sur l'appareil mobile choisi, avec titre et message personnalisables.
+    - 🔁 **Ré-armement** : se redéclenche seulement après que l'humidité soit remontée au-dessus du seuil — pas de spam si la valeur oscille autour de la limite.
   domain: automation
   input:
     moisture_sensor:
-      name: Plant Soil Moisture Sensor
-      description: The sensor reporting the plant soil moisture (in %).
+      name: 🌱 Capteur d'humidité du sol
+      description: Le capteur qui mesure l'humidité de la plante (en %).
       selector:
         entity:
           domain: sensor
 
     threshold:
-      name: Moisture Threshold (%)
-      description: Notify when the sensor reading drops BELOW this percentage.
+      name: 💧 Seuil d'humidité (%)
+      description: Déclenche la notification quand le capteur descend SOUS ce pourcentage.
       default: 30
       selector:
         number:
@@ -36,26 +28,26 @@ blueprint:
           mode: slider
 
     notify_device:
-      name: Phone to Notify
-      description: The mobile device (phone) that will receive the push notification.
+      name: 📱 Appareil à notifier
+      description: L'appareil mobile qui reçoit la notification push.
       selector:
         device:
           integration: mobile_app
 
     notification_title:
-      name: Notification Title
-      description: Title shown in the notification (emojis welcome).
-      default: "🌱 Plant needs water"
+      name: 📝 Titre de la notification
+      description: Titre affiché dans la notification (emojis bienvenus).
+      default: "🌱 Plante assoiffée"
       selector:
         text:
 
     notification_message:
-      name: Notification Message
+      name: 💬 Message de la notification
       description: >
-        Body of the notification. Supports Jinja templates — the placeholders
-        {{ sensor_name }} and {{ moisture }} are replaced with the sensor's
-        friendly name and current value.
-      default: "💧 {{ sensor_name }} is at {{ moisture }}% — time to water it!"
+        Corps de la notification. Supporte les templates Jinja — placeholders
+        disponibles : {{ sensor_name }} (nom convivial du capteur),
+        {{ moisture }} (valeur actuelle), {{ threshold_value }} (seuil choisi).
+      default: "💧 {{ sensor_name }} est à {{ moisture }} % — il faut l'arroser !"
       selector:
         text:
           multiline: true
