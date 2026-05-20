@@ -26,6 +26,7 @@ zwcfg_0xdd825656.xml
 zwscene.xml
 acme_reg.json
 *.pyc
+.cache
 
 /.storage/**
 !/.storage/lovelace

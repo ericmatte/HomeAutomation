@@ -940,3 +940,107 @@
       entity_only: true
     light.dining_room_pendants:
       entity_only: true
+- id: '1774148308806'
+  name: Gaming
+  entities:
+    light.auxiliary_lamp:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - 'off'
+      - candle
+      - fire
+      - prism
+      - sparkle
+      - opal
+      - glisten
+      supported_color_modes:
+      - color_temp
+      - xy
+      effect: 'off'
+      color_mode: xy
+      brightness: 255
+      color_temp_kelvin:
+      color_temp:
+      hs_color:
+      - 276.176
+      - 80
+      rgb_color:
+      - 174
+      - 51
+      - 255
+      xy_color:
+      - 0.2738
+      - 0.1139
+      mode: normal
+      dynamics: none
+      icon: mdi:desk-lamp
+      friendly_name: Auxiliary lamp
+      supported_features: 44
+      state: 'on'
+    switch.office:
+      device_id: '3'
+      zone_id: '2'
+      icon: mdi:wall-sconce-flat
+      friendly_name: Office light
+      state: 'on'
+  metadata:
+    light.auxiliary_lamp:
+      entity_only: true
+    switch.office:
+      entity_only: true
+  icon: mdi:controller
+- id: '1774148373028'
+  name: Work work
+  entities:
+    light.auxiliary_lamp:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - 'off'
+      - candle
+      - fire
+      - prism
+      - sparkle
+      - opal
+      - glisten
+      supported_color_modes:
+      - color_temp
+      - xy
+      effect: 'off'
+      color_mode: color_temp
+      brightness: 255
+      color_temp_kelvin: 3521
+      color_temp: 284
+      hs_color:
+      - 27.152
+      - 44.32
+      rgb_color:
+      - 255
+      - 193
+      - 142
+      xy_color:
+      - 0.452
+      - 0.373
+      mode: normal
+      dynamics: none
+      icon: mdi:desk-lamp
+      friendly_name: Auxiliary lamp
+      supported_features: 44
+      state: 'on'
+    switch.office:
+      device_id: '3'
+      zone_id: '2'
+      icon: mdi:wall-sconce-flat
+      friendly_name: Office light
+      state: 'on'
+  metadata:
+    light.auxiliary_lamp:
+      entity_only: true
+    switch.office:
+      entity_only: true
+  icon: mdi:laptop
