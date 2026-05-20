@@ -7,7 +7,7 @@ description: 🗺 Audit breaking changes across intermediate HA versions and pro
 
 ## Overview
 
-Given a list of Home Assistant components (Core, OS, Supervisor, add-ons, HACS / custom components) with their current and target versions, walk **every** intermediate release for breaking changes, then produce a dependency-aware update plan. Ships a helper script `list-pending-updates.sh` that pulls Core/OS/Supervisor/add-ons from a running HA instance via the `ha` CLI — HACS / integration `update.*` entities still have to be listed manually from the UI.
+Given a list of Home Assistant components (Core, OS, Supervisor, add-ons, HACS / custom components) with their current and target versions, walk **every** intermediate release for breaking changes, then produce a dependency-aware update plan. Ships a helper script `list-pending-updates.sh` that pulls the full inventory (Core, OS, Supervisor, add-ons, HACS, ESPHome, integration `update.*` entities) from a running HA instance with zero manual setup.
 
 ## Hard Rules
 
@@ -23,9 +23,8 @@ Given a list of Home Assistant components (Core, OS, Supervisor, add-ons, HACS /
 
 Two paths:
 
-- **Preferred** — Ask the user to run the sibling helper `list-pending-updates.sh` on their HA host (SSH & Web Terminal add-on) and paste the output back. The `ha` CLI is already authenticated inside HA, so no token is needed. Coverage: Core / OS / Supervisor / Add-ons.
-- **HACS / integrations** — Not exposed via the `ha` CLI. Ask the user to copy the list from **Settings → System → Updates** in the HA UI (entity name + installed → latest version).
-- **Fallback** — Ask the user to list each item as `name: current → target`.
+- **Preferred** — Ask the user to run the sibling helper `list-pending-updates.sh` on their HA host (SSH & Web Terminal add-on) and paste the output back. The `ha` CLI is already authenticated and `$SUPERVISOR_TOKEN` is auto-injected by the add-on, so no user setup is needed. Coverage: Core, OS, Supervisor, add-ons, HACS, ESPHome, and any integration that exposes an `update.*` entity.
+- **Fallback** — If running the script is impractical, ask the user to list each item from **Settings → System → Updates** as `name: current → target`.
 
 Parse out for each item: `name` (e.g. `ha-core`, `ha-os`, `ha-supervisor`, `addon:<slug>`, `hacs:<repo>`), `current_version`, `target_version`, and optional `source_url`. If anything is ambiguous, ask before fetching.
 
