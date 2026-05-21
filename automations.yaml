@@ -1078,12 +1078,12 @@
       use_target_from: 06:00:00
       fan_mode: auto
       summer_mode: input_boolean.climate_summer_mode
-      summer_target_temp: 23
+      summer_target_temp: 21
       summer_night_temp: 25
       summer_outside_threshold: 22
-      summer_cool_off_margin: 1
+      summer_cool_off_margin: 4
       summer_fan_mode: auto
-      summer_pre_cool_temp: 21
+      summer_pre_cool_temp: 20
       pre_cool_start_time: '21:30:00'
       bedtime: '22:30:00'
       aux_summer_floor: 16
