@@ -2768,3 +2768,13 @@
       - condition: sun
         after: sunset
         before: sunrise
+- id: '1779247445330'
+  alias: New automation
+  description: ''
+  use_blueprint:
+    path: ericmatte/soil_moisture_low_alert.yaml
+    input:
+      moisture_sensor: sensor.soil_moisture_soil_moisture
+      notify_device: 8ee3772d771cbe4afa821d73874df182
+      notification_message: "\U0001F4A7 {{ sensor_name }} is at {{ moisture }}% —
+        time to water it!"
