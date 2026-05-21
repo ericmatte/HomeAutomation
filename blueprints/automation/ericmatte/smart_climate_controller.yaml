@@ -9,7 +9,8 @@ blueprint:
     - 🚪 **Pré-cool** : entre l'heure d'ouverture et le coucher, la thermopompe descend à la consigne de pré-refroidissement — laisser la porte de la chambre OUVERTE pour faire circuler l'air.
     - ✋ **Override manuel** : un `climate.turn_off` posé à la main via UI/app est respecté jusqu'à la fin de la journée — l'automation ne rallume pas la thermopompe.
     - 🔁 **Ré-armement** : l'override expire automatiquement à minuit ; le cycle reprend normalement le lendemain.
-    - 🌀 **Anti-cycle court** : en été, si intérieur ≤ consigne − marge → thermopompe OFF temporairement, évite les démarrages/arrêts rapprochés.
+    - 🌀 **Anti-cycle court** : en été, si intérieur ≤ consigne − marge → thermopompe OFF temporairement, évite les démarrages/arrêts rapprochés autour du setpoint intérieur.
+    - ⏱️ **Anti-flicker seuil extérieur** : la température extérieure doit rester du même côté du seuil pendant 5 min avant de déclencher ON/OFF — pas d'oscillation quand la valeur frôle le seuil.
 
     ```
                           ┌──────────────────┐
@@ -165,8 +166,12 @@ blueprint:
           mode: slider
 
     summer_night_temp:
-      name: ☀️ Consigne nuit/absence
-      description: Consigne de nuit ou quand personne n'est à la maison. Une valeur plus haute économise l'énergie.
+      name: ☀️ Consigne de nuit
+      description: >
+        Consigne de la climatisation pendant la nuit (entre l'heure du
+        coucher et le début de la plage confort le matin). En cas
+        d'absence, la thermopompe est plutôt arrêtée — voir Gate B
+        dans le diagramme.
       default: 25
       selector:
         number:
@@ -196,7 +201,7 @@ blueprint:
       selector:
         number:
           min: 0
-          max: 3
+          max: 5
           step: 0.5
           unit_of_measurement: "°C"
           mode: slider
@@ -290,13 +295,19 @@ trigger:
   - platform: state
     entity_id: !input summer_mode
 
+  # Debounce 5 min : évite le flicker quand la temp extérieure oscille autour du seuil.
+  # Constante interne (non exposée en input).
   - platform: numeric_state
     entity_id: !input outside_temp_sensor
     above: !input summer_outside_threshold
+    for:
+      minutes: 5
 
   - platform: numeric_state
     entity_id: !input outside_temp_sensor
     below: !input summer_outside_threshold
+    for:
+      minutes: 5
 
   - platform: time
     at: !input pre_cool_start_time
