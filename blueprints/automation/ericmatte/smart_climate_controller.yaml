@@ -1,0 +1,527 @@
+blueprint:
+  name: 🌡️ Contrôleur climatique intelligent
+  description: |
+    Orchestre une thermopompe et des thermostats auxiliaires (plinthes) à l'année, avec bascule hiver/été pilotée par un `input_boolean`.
+
+    - ⚡ **Déclencheur** : changement de présence, de température extérieure, de consigne thermopompe (hors automation), horaires clés (début/fin confort, pré-cool, coucher, minuit), ou bascule du mode été.
+    - 🎯 **Action hiver** : thermopompe sur consigne effective (confort si plage horaire + présence, sinon nuit/absence), auxiliaires à -2 °C en suiveur. Si extérieur < seuil minimum → thermopompe OFF et auxiliaires prennent le relais à +0,5 °C.
+    - 🎯 **Action été** : auxiliaires épinglés au plancher (jamais de chauffage), puis cooling sur consigne pré-cool / nuit / jour selon la fenêtre horaire.
+    - 🚪 **Pré-cool** : entre l'heure d'ouverture et le coucher, la thermopompe descend à la consigne de pré-refroidissement — laisser la porte de la chambre OUVERTE pour faire circuler l'air.
+    - ✋ **Override manuel** : un `climate.turn_off` posé à la main via UI/app est respecté jusqu'à la fin de la journée — l'automation ne rallume pas la thermopompe.
+    - 🔁 **Ré-armement** : l'override expire automatiquement à minuit ; le cycle reprend normalement le lendemain.
+    - 🌀 **Anti-cycle court** : en été, si intérieur ≤ consigne − marge → thermopompe OFF temporairement, évite les démarrages/arrêts rapprochés.
+
+    ```
+                          ┌──────────────────┐
+                          │  summer_mode ?   │
+                          └────────┬─────────┘
+                       OFF ────────┴──────── ON
+                        │                     │
+                  ┌─────▼─────┐         ┌─────▼─────────────────┐
+                  │  HIVER    │         │  ÉTÉ                  │
+                  └─────┬─────┘         │  aux → floor (pin)    │
+                        │               └─────┬─────────────────┘
+              ext < min_outside_temp ?        │
+                   ┌────┴────┐         override manuel jour ?
+                  OUI       NON              ┌─┴─┐
+                   │         │              OUI  NON
+            ┌──────▼──┐  ┌───▼─────┐         │    │
+            │ HP OFF  │  │ HP ON   │      ┌──▼─┐  │
+            │ aux +0.5│  │ consigne│      │STOP│  │
+            └─────────┘  │ effect. │      └────┘  │
+                         │ aux −2  │       personne à la maison ?
+                         └─────────┘             ┌─┴─┐
+                                                OUI  NON
+                                                 │    │
+                                            ┌────▼─┐  │
+                                            │HP OFF│  │
+                                            └──────┘ ext < seuil été ?
+                                                       ┌─┴─┐
+                                                      OUI  NON
+                                                       │    │
+                                                  ┌────▼─┐ ┌▼──────────────────┐
+                                                  │HP OFF│ │ fenêtre :         │
+                                                  └──────┘ │  pré-cool / nuit  │
+                                                           │  / jour           │
+                                                           │ + anti-cycle court│
+                                                           └───────────────────┘
+    ```
+
+  domain: automation
+  input:
+    heat_pump:
+      name: 🌀 Thermopompe
+      description: L'entité principale de la thermopompe.
+      selector:
+        entity:
+          domain: climate
+
+    aux_thermostats:
+      name: 🔥 Thermostats auxiliaires
+      description: Un ou plusieurs thermostats auxiliaires (plinthes).
+      selector:
+        entity:
+          domain: climate
+          multiple: true
+
+    outside_temp_sensor:
+      name: 🌡️ Capteur de température extérieure
+      description: Sonde extérieure utilisée pour les seuils hiver (min thermopompe) et été (besoin de refroidir).
+      selector:
+        entity:
+          domain: sensor
+
+    anybody_home:
+      name: 🏠 Capteur de présence
+      description: Binary sensor agrégé — `on` = au moins une personne à la maison, `off` = maison vide.
+      selector:
+        entity:
+          domain: binary_sensor
+
+    # ---- Paramètres du mode hiver ----
+    min_outside_temp:
+      name: ❄️ Température extérieure minimum pour la thermopompe
+      description: >
+        En dessous de cette température, la thermopompe est coupée et les
+        thermostats auxiliaires prennent le relais.
+      default: -10
+      selector:
+        number:
+          min: -30
+          max: 10
+          unit_of_measurement: "°C"
+          mode: box
+
+    target_temp:
+      name: ❄️ Consigne de confort
+      description: Température de confort normale.
+      default: 21
+      selector:
+        number:
+          min: 16
+          max: 25
+          unit_of_measurement: "°C"
+          mode: slider
+
+    away_night_temp:
+      name: ❄️ Consigne nuit/absence
+      description: Température à utiliser quand tout le monde est parti ou pendant les heures de nuit.
+      default: 18
+      selector:
+        number:
+          min: 16
+          max: 25
+          unit_of_measurement: "°C"
+          mode: slider
+
+    use_target_from:
+      name: ❄️ Début de la plage "confort"
+      description: Heure à laquelle la consigne de confort devient active.
+      default: "07:00"
+      selector:
+        time:
+
+    use_target_until:
+      name: ❄️ Fin de la plage "confort"
+      description: Heure à laquelle la consigne nuit/absence devient active.
+      default: "22:00"
+      selector:
+        time:
+
+    fan_mode:
+      name: ❄️ Mode du ventilateur
+      description: Mode du ventilateur à appliquer sur la thermopompe en hiver.
+      default: auto
+      selector:
+        select:
+          options:
+            - auto
+            - low
+            - med
+            - high
+            - quiet
+
+    # ---- Bascule de mode ----
+    summer_mode:
+      name: 🔀 Bascule mode été
+      description: >
+        Input boolean qui détermine le mode actif.
+        ON = été (climatisation). OFF = hiver (comportement original).
+        Câblable à une switch physique pour un override matériel.
+      selector:
+        entity:
+          domain: input_boolean
+
+    # ---- Paramètres du mode été ----
+    summer_target_temp:
+      name: ☀️ Consigne de jour
+      description: Consigne de la climatisation quand la maison est occupée le jour.
+      default: 23
+      selector:
+        number:
+          min: 18
+          max: 28
+          unit_of_measurement: "°C"
+          mode: slider
+
+    summer_night_temp:
+      name: ☀️ Consigne nuit/absence
+      description: Consigne de nuit ou quand personne n'est à la maison. Une valeur plus haute économise l'énergie.
+      default: 25
+      selector:
+        number:
+          min: 18
+          max: 30
+          unit_of_measurement: "°C"
+          mode: slider
+
+    summer_outside_threshold:
+      name: ☀️ Seuil de température extérieure
+      description: La climatisation ne s'enclenche que si l'extérieur atteint ou dépasse cette valeur. En dessous, on coupe (pas besoin de refroidir).
+      default: 22
+      selector:
+        number:
+          min: 15
+          max: 30
+          unit_of_measurement: "°C"
+          mode: slider
+
+    summer_cool_off_margin:
+      name: ☀️ Marge d'arrêt (anti-cycle court)
+      description: >
+        La climatisation s'éteint quand l'intérieur est au moins ce nombre de
+        degrés EN DESSOUS de la consigne. Évite que la thermopompe s'allume
+        et s'éteigne sans arrêt autour du setpoint.
+      default: 1
+      selector:
+        number:
+          min: 0
+          max: 3
+          step: 0.5
+          unit_of_measurement: "°C"
+          mode: slider
+
+    summer_fan_mode:
+      name: ☀️ Mode du ventilateur
+      description: Mode du ventilateur à appliquer sur la thermopompe en été.
+      default: auto
+      selector:
+        select:
+          options:
+            - auto
+            - low
+            - med
+            - high
+            - quiet
+
+    summer_pre_cool_temp:
+      name: ☀️ Consigne de pré-refroidissement
+      description: >
+        Consigne de la thermopompe pendant la fenêtre de pré-cool avant le
+        coucher. Plus basse que la consigne de jour pour aider la chambre à
+        refroidir (laisser la porte ouverte).
+      default: 21
+      selector:
+        number:
+          min: 18
+          max: 26
+          unit_of_measurement: "°C"
+          mode: slider
+
+    pre_cool_start_time:
+      name: ☀️ Heure d'ouverture de la fenêtre de pré-cool
+      description: >
+        Heure à laquelle la thermopompe passe à la consigne de
+        pré-refroidissement (et y reste jusqu'à l'heure du coucher).
+      default: "21:30"
+      selector:
+        time:
+
+    bedtime:
+      name: ☀️ Heure du coucher
+      description: >
+        Heure approximative à laquelle tu vas te coucher. Ferme la fenêtre
+        de pré-cool et marque le début du mode nuit.
+      default: "22:30"
+      selector:
+        time:
+
+    aux_summer_floor:
+      name: ☀️ Plancher des thermostats auxiliaires
+      description: >
+        En mode été, les plinthes auxiliaires sont fixées à cette consigne
+        basse pour qu'elles ne déclenchent jamais de chauffage.
+      default: 16
+      selector:
+        number:
+          min: 10
+          max: 18
+          unit_of_measurement: "°C"
+          mode: slider
+
+mode: single
+
+trigger:
+  # ---- Triggers communs (hérités) ----
+  - platform: state
+    entity_id:
+      - !input anybody_home
+
+  - platform: state
+    entity_id: !input heat_pump
+    attribute: temperature
+    id: heat_pump_temp_change
+
+  - platform: numeric_state
+    entity_id: !input outside_temp_sensor
+    below: !input min_outside_temp
+
+  - platform: numeric_state
+    entity_id: !input outside_temp_sensor
+    above: !input min_outside_temp
+
+  - platform: time
+    at: !input use_target_from
+
+  - platform: time
+    at: !input use_target_until
+
+  # ---- Triggers été ----
+  - platform: state
+    entity_id: !input summer_mode
+
+  - platform: numeric_state
+    entity_id: !input outside_temp_sensor
+    above: !input summer_outside_threshold
+
+  - platform: numeric_state
+    entity_id: !input outside_temp_sensor
+    below: !input summer_outside_threshold
+
+  - platform: time
+    at: !input pre_cool_start_time
+    id: pre_cool_eval
+
+  - platform: time
+    at: !input bedtime
+    id: bedtime_eval
+
+  - platform: time
+    at: "00:00:00"
+    id: midnight_eval
+
+condition:
+  # Ignore les changements de consigne sur la thermopompe causés par une autre automation
+  - condition: template
+    value_template: >
+      {% if trigger.id == 'heat_pump_temp_change' %}
+        {{ trigger.to_state.context.parent_id == none }}
+      {% else %}
+        true
+      {% endif %}
+
+variables:
+  heat_pump: !input heat_pump
+  aux_thermostats: !input aux_thermostats
+  outside_temp_sensor: !input outside_temp_sensor
+  anybody_home: !input anybody_home
+  # Winter
+  min_outside_temp: !input min_outside_temp
+  target_temp: !input target_temp
+  away_night_temp: !input away_night_temp
+  use_target_from: !input use_target_from
+  use_target_until: !input use_target_until
+  fan_mode: !input fan_mode
+  # Summer
+  summer_mode: !input summer_mode
+  summer_target_temp: !input summer_target_temp
+  summer_night_temp: !input summer_night_temp
+  summer_outside_threshold: !input summer_outside_threshold
+  summer_cool_off_margin: !input summer_cool_off_margin
+  summer_fan_mode: !input summer_fan_mode
+  summer_pre_cool_temp: !input summer_pre_cool_temp
+  pre_cool_start_time: !input pre_cool_start_time
+  bedtime: !input bedtime
+  aux_summer_floor: !input aux_summer_floor
+  # Determine which target temperature to use (winter)
+  effective_target_temp: >
+    {% if use_target_from <= now().strftime('%H:%M:%S') < use_target_until and not is_state(anybody_home, 'off') %}
+      {{ target_temp }}
+    {% else %}
+      {{ away_night_temp }}
+    {% endif %}
+
+action:
+  - variables:
+      outside_temp: "{{ states(outside_temp_sensor) | float(0) }}"
+      triggered_by_heat_pump: "{{ trigger.id == 'heat_pump_temp_change' }}"
+      heat_pump_state: "{{ state_attr(heat_pump, 'hvac_action') }}"
+      heat_pump_temp: "{{ state_attr(heat_pump, 'temperature') | float(effective_target_temp) }}"
+      is_summer: "{{ is_state(summer_mode, 'on') }}"
+
+  - choose:
+      # ===================== SUMMER MODE =====================
+      - conditions:
+          - condition: template
+            value_template: "{{ is_summer }}"
+        sequence:
+          - variables:
+              inside_temp: "{{ state_attr(heat_pump, 'current_temperature') | float(0) }}"
+              is_home: "{{ is_state(anybody_home, 'on') }}"
+              outside_too_cool: "{{ outside_temp < summer_outside_threshold }}"
+              hp_state_obj: "{{ states[heat_pump] }}"
+              # manually_off_today distingue un vrai click "off" via UI/app
+              # (user_id défini ET parent_id null) d'un turn_off causé par
+              # l'automation elle-même via un clic Run (où user_id ET
+              # parent_id sont définis car l'action est enchaînée depuis
+              # l'utilisateur).
+              manually_off_today: >
+                {{ hp_state_obj.state == 'off'
+                   and hp_state_obj.context.user_id is not none
+                   and hp_state_obj.context.parent_id is none
+                   and hp_state_obj.last_changed.date() == now().date() }}
+
+          # Aux thermostats : pin au floor en mode été (jamais de chauffage)
+          - service: climate.set_temperature
+            target:
+              entity_id: "{{ aux_thermostats }}"
+            data:
+              temperature: "{{ aux_summer_floor }}"
+
+          - choose:
+              # ----- GATE A : override manuel aujourd'hui (UI/app direct) -----
+              - conditions:
+                  - condition: template
+                    value_template: "{{ manually_off_today }}"
+                sequence:
+                  - stop: "Override manuel actif aujourd'hui ; on respecte l'intention de l'utilisateur."
+
+              # ----- GATE B : personne à la maison -----
+              - conditions:
+                  - condition: template
+                    value_template: "{{ not is_home }}"
+                sequence:
+                  - service: climate.turn_off
+                    target:
+                      entity_id: "{{ heat_pump }}"
+
+              # ----- GATE C : extérieur déjà frais -----
+              - conditions:
+                  - condition: template
+                    value_template: "{{ outside_too_cool }}"
+                sequence:
+                  - service: climate.turn_off
+                    target:
+                      entity_id: "{{ heat_pump }}"
+
+            # ----- DEFAULT : cooling actif -----
+            default:
+              - variables:
+                  now_hm: "{{ now().strftime('%H:%M:%S') }}"
+                  in_pre_cool_window: "{{ pre_cool_start_time <= now_hm < bedtime }}"
+                  is_night: "{{ now_hm >= bedtime or now_hm < use_target_from }}"
+                  summer_setpoint: >
+                    {% if in_pre_cool_window %}
+                      {{ summer_pre_cool_temp }}
+                    {% elif is_night %}
+                      {{ summer_night_temp }}
+                    {% else %}
+                      {{ summer_target_temp }}
+                    {% endif %}
+
+              - choose:
+                  # Intérieur déjà assez froid → off (marge anti-cycle)
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ inside_temp <= (summer_setpoint | float - summer_cool_off_margin) }}"
+                    sequence:
+                      - service: climate.turn_off
+                        target:
+                          entity_id: "{{ heat_pump }}"
+                default:
+                  - service: climate.set_temperature
+                    target:
+                      entity_id: "{{ heat_pump }}"
+                    data:
+                      temperature: "{{ summer_setpoint }}"
+                      hvac_mode: cool
+
+                  - delay:
+                      seconds: 2
+                  - condition: template
+                    value_template: "{{ state_attr(heat_pump, 'fan_mode') != summer_fan_mode }}"
+                  - service: climate.set_fan_mode
+                    target:
+                      entity_id: "{{ heat_pump }}"
+                    data:
+                      fan_mode: "{{ summer_fan_mode }}"
+
+      # ===================== WINTER MODE (logique originale, intacte) =====================
+      - conditions:
+          - condition: template
+            value_template: "{{ not is_summer }}"
+        sequence:
+          - choose:
+              # CASE 1: Too cold for heat pump
+              - conditions:
+                  - condition: template
+                    value_template: "{{ outside_temp < min_outside_temp }}"
+                  - condition: template
+                    value_template: "{{ not triggered_by_heat_pump }}"
+                sequence:
+                  - service: climate.turn_off
+                    target:
+                      entity_id: "{{ heat_pump }}"
+                  - service: climate.set_temperature
+                    target:
+                      entity_id: "{{ aux_thermostats }}"
+                    data:
+                      temperature: "{{ effective_target_temp + 0.5 }}"
+
+              # CASE 2: Normal operation (heat pump active)
+              - conditions:
+                  - condition: template
+                    value_template: "{{ outside_temp >= min_outside_temp }}"
+                sequence:
+                  - choose:
+                      - conditions:
+                          - condition: template
+                            value_template: "{{ not triggered_by_heat_pump }}"
+                        sequence:
+                          - service: climate.set_temperature
+                            target:
+                              entity_id: "{{ heat_pump }}"
+                            data:
+                              temperature: "{{ effective_target_temp }}"
+                              hvac_mode: heat
+
+                          - delay:
+                              seconds: 2
+                          - condition: template
+                            value_template: "{{ state_attr(heat_pump, 'fan_mode') != fan_mode }}"
+                          - service: climate.set_fan_mode
+                            target:
+                              entity_id: "{{ heat_pump }}"
+                            data:
+                              fan_mode: "{{ fan_mode }}"
+
+                  # Aux thermostats follow heat pump temp - 2 if heating
+                  - choose:
+                      - conditions:
+                          - condition: template
+                            value_template: "{{ heat_pump_state == 'heating' }}"
+                        sequence:
+                          - service: climate.set_temperature
+                            target:
+                              entity_id: "{{ aux_thermostats }}"
+                            data:
+                              temperature: "{{ heat_pump_temp - 2 }}"
+                      - conditions:
+                          - condition: template
+                            value_template: "{{ heat_pump_state != 'heating' }}"
+                        sequence:
+                          - service: climate.set_temperature
+                            target:
+                              entity_id: "{{ aux_thermostats }}"
+                            data:
+                              temperature: "{{ (state_attr(heat_pump, 'temperature') | float(effective_target_temp)) - 2 }}"

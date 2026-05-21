@@ -1060,10 +1060,10 @@
           area_id: eric_office
   mode: single
 - id: '1760366605928'
-  alias: Smart heat controller
+  alias: Smart climate controller
   description: ''
   use_blueprint:
-    path: ericmatte/smart_heating_controller.yaml
+    path: ericmatte/smart_climate_controller.yaml
     input:
       use_target_until: '23:59:59'
       heat_pump: climate.heat_pump
@@ -1077,6 +1077,16 @@
       anybody_home: binary_sensor.anybody
       use_target_from: 06:00:00
       fan_mode: auto
+      summer_mode: input_boolean.climate_summer_mode
+      summer_target_temp: 23
+      summer_night_temp: 25
+      summer_outside_threshold: 22
+      summer_cool_off_margin: 1
+      summer_fan_mode: auto
+      summer_pre_cool_temp: 21
+      pre_cool_start_time: '21:30:00'
+      bedtime: '22:30:00'
+      aux_summer_floor: 16
 - id: '1760485855717'
   alias: Light on when opening workshop door
   description: ''
