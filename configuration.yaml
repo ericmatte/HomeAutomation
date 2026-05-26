@@ -62,6 +62,11 @@ command_line:
       unit_of_measurement: "MB"
       value_template: "{{ value | int - 1 }}"
 
+utility_meter:
+  hydro_sherbrooke_daily:
+    source: sensor.hydro_sherbrooke_reading
+    cycle: daily
+
 template:
   - sensor:
       - name: Propane Tank Level
@@ -74,6 +79,17 @@ template:
           last_updated: "{{ state_attr('sensor.rainville_propane_raw', 'last_updated') }}"
           last_rainville_update: "{{ state_attr('sensor.rainville_propane_raw', 'last_rainville_update') }}"
           next_estimated_delivery: "{{ state_attr('sensor.rainville_propane_raw', 'next_estimated_delivery') }}"
+
+      - name: "Hydro Sherbrooke current price"
+        unique_id: hydro_sherbrooke_current_price
+        unit_of_measurement: "CAD/kWh"
+        state: >
+          {% set daily = states('sensor.hydro_sherbrooke_daily') | float(0) %}
+          {% if daily < 40 %}
+            0.06905
+          {% else %}
+            0.10652
+          {% endif %}
 
 automation: !include automations.yaml
 script: !include scripts.yaml
