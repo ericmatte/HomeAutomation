@@ -95,12 +95,43 @@ template:
         unique_id: hydro_sherbrooke_current_price
         unit_of_measurement: "CAD/kWh"
         state: >
-          {% set daily = states('sensor.hydro_sherbrooke_daily') | float(0) %}
+          {% set daily = states('sensor.hydro_sherbrooke_daily_consumption') | float(0) %}
           {% if daily < 40 %}
             0.06905
           {% else %}
             0.10652
           {% endif %}
+
+      - name: "Hydro Sherbrooke daily total cost"
+        unique_id: hydro_sherbrooke_daily_total_cost
+        unit_of_measurement: "CAD"
+        device_class: monetary
+        state: >
+          {% set daily = states('sensor.hydro_sherbrooke_daily_consumption') | float(0) %}
+          {% set access = 0.46154 %}
+          {% if daily <= 40 %}
+            {% set energy = daily * 0.06905 %}
+          {% else %}
+            {% set energy = 40 * 0.06905 + (daily - 40) * 0.10652 %}
+          {% endif %}
+          {{ ((access + energy) * 1.14975) | round(2) }}
+        attributes:
+          access_fee: 0.46154
+          energy_cost: >
+            {% set daily = states('sensor.hydro_sherbrooke_daily_consumption') | float(0) %}
+            {% if daily <= 40 %}
+              {{ (daily * 0.06905) | round(4) }}
+            {% else %}
+              {{ (40 * 0.06905 + (daily - 40) * 0.10652) | round(4) }}
+            {% endif %}
+          taxes_rate: 0.14975
+
+  - binary_sensor:
+      - name: "Hydro Sherbrooke tier 2 alert"
+        unique_id: hydro_sherbrooke_tier2_alert
+        device_class: problem
+        icon: mdi:flash-alert
+        state: "{{ states('sensor.hydro_sherbrooke_daily_consumption') | float(0) > 40 }}"
 
 automation: !include automations.yaml
 script: !include scripts.yaml
