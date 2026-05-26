@@ -126,6 +126,15 @@ template:
             {% endif %}
           taxes_rate: 0.14975
 
+      - name: "Hydro Sherbrooke tier 2 marker"
+        unique_id: hydro_sherbrooke_tier2_marker
+        state: >
+          {% if is_state('binary_sensor.hydro_sherbrooke_tier_2_alert', 'on') %}
+            100
+          {% else %}
+            0
+          {% endif %}
+
   - binary_sensor:
       - name: "Hydro Sherbrooke tier 2 alert"
         unique_id: hydro_sherbrooke_tier2_alert
