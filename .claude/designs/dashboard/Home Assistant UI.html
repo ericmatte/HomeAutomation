@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Home Assistant — Simplified UI</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #f0eee9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
+  #root { width: 100%; height: 100%; }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  /* Reset for inner React apps */
+  .ha-frame * { box-sizing: border-box; }
+  .ha-frame button { font-family: inherit; }
+  .dc-card .ha-frame { overflow-y: auto; overflow-x: hidden; height: 100%; -webkit-font-smoothing: antialiased;
+              scrollbar-width: thin !important; scrollbar-color: rgba(255,255,255,0.22) transparent; }
+  .dc-card .ha-frame::-webkit-scrollbar { display: block !important; width: 8px; }
+  .dc-card .ha-frame::-webkit-scrollbar-track { background: transparent; }
+  .dc-card .ha-frame::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 999px; border: 2px solid #0e0f12; }
+  .dc-card .ha-frame::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.30); }
+</style>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="shared.jsx"></script>
+<script type="text/babel" src="opt1-accordion.jsx"></script>
+<script type="text/babel" src="opt1v2-accordion.jsx"></script>
+<script type="text/babel" src="opt2-floorplan.jsx"></script>
+<script type="text/babel" src="opt3-grid.jsx"></script>
+
+<script type="text/babel">
+function PhoneFrame({ children }) {
+  // Phone-like bezel that wraps the artboard content.
+  return (
+    <div className="ha-frame" style={{
+      width: '100%', height: '100%',
+      borderRadius: 0,
+      position: 'relative',
+      background: '#0e0f12',
+    }}>
+      {/* Status bar */}
+      <div style={{
+        position: 'sticky', top: 0, zIndex: 50,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '8px 18px 4px', fontFamily: 'system-ui',
+        fontSize: 13, fontWeight: 600, color: '#fff',
+        background: '#0e0f12',
+      }}>
+        <span>9:41</span>
+        <span style={{ display: 'inline-flex', gap: 5, alignItems: 'center', fontSize: 11 }}>
+          <span>•••</span>
+          <svg width="15" height="10" viewBox="0 0 15 10" fill="none">
+            <path d="M0 8L2 6.5L4 7.5L6 5L8 6L10 3L12 4L14 1" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>
+          </svg>
+          <svg width="22" height="11" viewBox="0 0 22 11" fill="none">
+            <rect x="0.5" y="0.5" width="18" height="10" rx="2.5" stroke="white" strokeOpacity="0.6"/>
+            <rect x="2" y="2" width="14" height="7" rx="1" fill="white"/>
+            <rect x="19.5" y="3.5" width="1.5" height="4" rx="0.5" fill="white" fillOpacity="0.6"/>
+          </svg>
+        </span>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function HAApp({ Component }) {
+  // Shared room state for this artboard.
+  const [rooms, setRooms] = React.useState(() => JSON.parse(JSON.stringify(ROOMS)));
+  const onUpdate = (roomId, patch) => {
+    setRooms(prev => prev.map(r => r.id === roomId ? { ...r, ...patch } : r));
+  };
+  return (
+    <PhoneFrame>
+      <Component rooms={rooms} onUpdate={onUpdate} />
+    </PhoneFrame>
+  );
+}
+
+function Note({ children }) {
+  return (
+    <div style={{
+      background: '#fef4a8', color: '#5a4a2a',
+      padding: '10px 12px', fontSize: 11.5, lineHeight: 1.45,
+      borderRadius: 4, width: 230, fontFamily: 'inherit',
+      boxShadow: '0 1px 3px rgba(0,0,0,.08)',
+    }}>{children}</div>
+  );
+}
+
+function App() {
+  return (
+    <DesignCanvas>
+      <DCSection id="intro" title="Home Assistant — simpler single-view dashboard"
+        subtitle="Three directions for collapsing the current room-list → sub-view flow into a single screen. Mobile, dark, fully interactive — tap, drag sliders, expand rows, switch floors. Same data across all three.">
+        <DCArtboard id="brief" label="Brief" width={300} height={620}>
+          <div style={{ padding: 24, fontFamily: '"Helvetica Neue", Helvetica, Arial', fontSize: 13, lineHeight: 1.55, color: '#2a251f', background: '#faf8f3', height: '100%', overflow: 'auto' }}>
+            <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 14, letterSpacing: -0.3 }}>What we're solving</div>
+            <p style={{ marginTop: 0 }}>Today: room list → tap → sub-view. Lots of back-and-forth to do anything granular.</p>
+            <p>Goal: <strong>single view</strong>, less clicks, but keep both the quick group-toggles you like AND granular per-device control.</p>
+
+            <div style={{ fontSize: 14, fontWeight: 600, marginTop: 22, marginBottom: 8 }}>Shared principles</div>
+            <ul style={{ paddingLeft: 18, margin: 0 }}>
+              <li>Sensors (temp/humidity/motion) always visible — never a tap to check a value.</li>
+              <li>Bulk toggles at the row level: "all lights in room", "all curtains".</li>
+              <li>Granular control inline — never a sub-page.</li>
+              <li>Color coding: <span style={{ color: '#b8862e' }}>amber = light</span>, <span style={{ color: '#7a5fbf' }}>violet = curtain</span>, <span style={{ color: '#2a8cc7' }}>cyan = sensor</span>.</li>
+            </ul>
+
+            <div style={{ fontSize: 14, fontWeight: 600, marginTop: 22, marginBottom: 8 }}>Three directions →</div>
+            <ol style={{ paddingLeft: 18, margin: 0 }}>
+              <li><strong>Accordion</strong> — clean room list, expand-in-place.</li>
+              <li><strong>Floor plan</strong> — spatial map at top, controls below.</li>
+              <li><strong>Dense grid</strong> — everything visible always, zero expansion.</li>
+            </ol>
+
+            <p style={{ marginTop: 22, fontStyle: 'italic', color: '#5a4a2a' }}>Try each. They share the same data + state — toggle a light in #1, switch to #3, you'll see it stays in #1 only because each artboard owns its own state for clean comparison.</p>
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="v2" title="V2 — Accordion + tabs + swipeable tiles"
+        subtitle="Refined Option 1 based on your feedback. Floor tabs at the top (All / First floor / Basement / Other). Each floor has a master tile: tap = toggle all lights on that floor, drag = dim all. Light tiles are swipeable: tap to toggle, drag horizontally to dim (the background fills as the slider), long-press for the entity modal. Scenes are icon-only with hover labels. Try Kitchen (3 lights, coffee cabinet door, scene) and Theatre (4 lights, shades, thermostat, 2 media players, 8 scenes).">
+        <DCArtboard id="v2-main" label="Mobile · 390×844" width={390} height={844}>
+          <HAApp Component={Opt1V2} />
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="opt1" title="Option 1 — Accordion (v1 for reference)"
+        subtitle="Original Option 1, kept for comparison.">
+        <DCArtboard id="opt1-main" label="Mobile · 390×844" width={390} height={844}>
+          <HAApp Component={Opt1} />
+        </DCArtboard>
+        <Note>
+          <strong>Strengths:</strong> calm, predictable, scannable. Familiar pattern.<br/><br/>
+          <strong>Watch:</strong> still requires a tap for granular control (but never a page load). I auto-expand the "active" room.
+        </Note>
+      </DCSection>
+
+      <DCSection id="opt2" title="Option 2 — Floor plan hybrid"
+        subtitle="A simplified top-down map shows the active floor. Rooms glow amber when lights are on, pulse cyan when motion fires. Tap a room in the map to bring its full controls up below — no scrolling to find rooms.">
+        <DCArtboard id="opt2-main" label="Mobile · 390×844" width={390} height={844}>
+          <HAApp Component={Opt2} />
+        </DCArtboard>
+        <Note>
+          <strong>Strengths:</strong> spatial intuition (you know which room is which without reading). Glanceable state. Cool factor.<br/><br/>
+          <strong>Watch:</strong> only one room's controls visible at a time. Needs accurate floor layout — I used an approximation; we'd tune it to your real plan.
+        </Note>
+      </DCSection>
+
+      <DCSection id="opt3" title="Option 3 — All-visible grid"
+        subtitle="Maximum density. 2-column tile per room. Every light, curtain, climate, and scene is rendered inline — no expand step. Truly zero navigation: see everything, tap anything. Tradeoff: more visual noise.">
+        <DCArtboard id="opt3-main" label="Mobile · 390×844" width={390} height={844}>
+          <HAApp Component={Opt3} />
+        </DCArtboard>
+        <Note>
+          <strong>Strengths:</strong> the literal "less clicks == better" answer. Nothing is ever hidden.<br/><br/>
+          <strong>Watch:</strong> dense — works great on a wall tablet, possibly a lot on a phone. Could be the "info-dense" mode toggled from a calmer default.
+        </Note>
+      </DCSection>
+
+      <DCSection id="next" title="Next steps">
+        <DCArtboard id="next-card" label="Where to go" width={420} height={360}>
+          <div style={{ padding: 22, fontFamily: '"Helvetica Neue", Helvetica, Arial', fontSize: 13, lineHeight: 1.55, color: '#2a251f', background: '#faf8f3', height: '100%' }}>
+            <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 10 }}>Pick a direction (or mix)</div>
+            <ul style={{ paddingLeft: 18, margin: 0 }}>
+              <li>"<strong>Accordion is right</strong> but I want a small status strip at the top" → easy.</li>
+              <li>"<strong>Floor plan</strong> looks great — let's use my real layout" → send me a rough sketch of each floor (or your HA areas with rooms).</li>
+              <li>"<strong>Dense grid</strong> on the wall tablet, accordion on phone" → totally reasonable.</li>
+              <li>Cherry-pick — e.g. accordion + floor-plan as a collapsible mini-header at the top.</li>
+            </ul>
+            <div style={{ marginTop: 14, fontSize: 12, color: '#5a4a2a' }}>Tell me which one to push further and what's missing (specific entities, layout per room, scenes, etc.).</div>
+          </div>
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
