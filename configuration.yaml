@@ -66,7 +66,17 @@ command_line:
 utility_meter:
   hydro_sherbrooke_daily:
     source: sensor.hydro_sherbrooke_reading
+    name: Hydro Sherbrooke daily consumption
     cycle: daily
+
+sensor:
+  - platform: derivative
+    source: sensor.hydro_sherbrooke_reading
+    name: Hydro Sherbrooke power
+    unit_time: h
+    unit: kW
+    time_window: "00:05:00"
+    round: 3
 
 template:
   - sensor:
