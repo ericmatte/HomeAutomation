@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "minor_version": 1,
+  "key": "lovelace.lovelace",
+  "data": {
+    "config": {
+      "strategy": {
+        "type": "areas",
+        "floors_display": {
+          "order": [
+            "first_floor",
+            "basement",
+            "__unassigned__"
+          ]
+        }
+      }
+    }
+  }
+}

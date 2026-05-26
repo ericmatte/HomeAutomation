@@ -1,0 +1,195 @@
+{
+    "data": {
+        "config": {
+            "title": "Home",
+            "views": [
+                {
+                    "badges": [
+                        {
+                            "entity": "binary_sensor.kitchen_switch"
+                        },
+                        {
+                            "entity": "binary_sensor.kitchen_motion_sensor"
+                        },
+                        {
+                            "entity": "binary_sensor.updater"
+                        },
+                        {
+                            "entity": "person.eric"
+                        },
+                        {
+                            "entity": "sensor.moon"
+                        },
+                        {
+                            "entity": "sensor.time"
+                        },
+                        {
+                            "entity": "sensor.date"
+                        },
+                        {
+                            "entity": "sensor.yr_temperature"
+                        },
+                        {
+                            "entity": "sensor.memory_free"
+                        },
+                        {
+                            "entity": "sensor.disk_free_home"
+                        },
+                        {
+                            "entity": "sensor.processor_use"
+                        },
+                        {
+                            "entity": "sensor.last_boot"
+                        },
+                        {
+                            "entity": "sensor.disk_use_percent_home"
+                        },
+                        {
+                            "entity": "sun.sun"
+                        }
+                    ],
+                    "cards": [
+                        {
+                            "entities": [
+                                {
+                                    "entity": "light.bedroom_light",
+                                    "name": "light"
+                                },
+                                "light.hue_light_1"
+                            ],
+                            "title": "Bedroom",
+                            "type": "entities"
+                        },
+                        {
+                            "entities": [
+                                {
+                                    "entity": "switch.kitchen_light",
+                                    "name": "light"
+                                }
+                            ],
+                            "title": "Kitchen",
+                            "type": "entities"
+                        },
+                        {
+                            "entities": [
+                                "switch.living_room_light"
+                            ],
+                            "title": "Living Room",
+                            "type": "entities"
+                        },
+                        {
+                            "entity": "media_player.tv",
+                            "type": "media-control"
+                        },
+                        {
+                            "entities": [
+                                {
+                                    "entity": "switch.office_light",
+                                    "name": "light"
+                                }
+                            ],
+                            "title": "Office",
+                            "type": "entities"
+                        },
+                        {
+                            "entity": "camera.live_cam",
+                            "type": "picture-entity"
+                        },
+                        {
+                            "entities": [
+                                "input_boolean.kitchen_motion_sensor",
+                                "input_boolean.light_toggle",
+                                "input_boolean.sync_tv_lights",
+                                "input_boolean.use_wake_up_alarm",
+                                "input_boolean.walk_in_door_sensor"
+                            ],
+                            "title": "Input boolean",
+                            "type": "entities"
+                        },
+                        {
+                            "entities": [
+                                "input_datetime.wake_up_alarm"
+                            ],
+                            "title": "Input datetime",
+                            "type": "entities"
+                        },
+                        {
+                            "entities": [
+                                "light.hue_light_2",
+                                "light.hue_light_3",
+                                "light.hue_light_4",
+                                "light.left_theatre_light",
+                                "light.right_theatre_light"
+                            ],
+                            "title": "Light",
+                            "type": "entities"
+                        },
+                        {
+                            "entities": [
+                                "scene.blue",
+                                "scene.green",
+                                "scene.red",
+                                "scene.yellow"
+                            ],
+                            "title": "Scene",
+                            "type": "entities"
+                        },
+                        {
+                            "entities": [
+                                "script.brighten_lights",
+                                "script.max_out_lights",
+                                "script.good_night",
+                                "script.dim_lights",
+                                "script.wake_up_increment_brightness",
+                                "script.pause_kitchen_motion",
+                                "script.toggle_kitchen_lights",
+                                "script.toggle_kitchen_lights_off",
+                                "script.toggle_kitchen_lights_on",
+                                "script.wake_up"
+                            ],
+                            "title": "Script",
+                            "type": "entities"
+                        },
+                        {
+                            "entities": [
+                                "switch.ac",
+                                "switch.eric_desktop",
+                                "switch.cell_charger_eric",
+                                "switch.flux",
+                                "switch.jasco_products_12722_on_off_relay_switch_switch",
+                                "switch.live_cam",
+                                "switch.rainbow_lights",
+                                "switch.caro_desktop"
+                            ],
+                            "title": "Switch",
+                            "type": "entities"
+                        },
+                        {
+                            "entities": [
+                                "vacuum.xiaomi_vacuum_cleaner"
+                            ],
+                            "title": "Vacuum",
+                            "type": "entities"
+                        },
+                        {
+                            "entity": "weather.home",
+                            "type": "weather-forecast"
+                        },
+                        {
+                            "entities": [
+                                "zwave.aeon_labs_zw090_z_stick_gen5_us",
+                                "zwave.jasco_products_12722_on_off_relay_switch"
+                            ],
+                            "title": "Z-Wave",
+                            "type": "entities"
+                        }
+                    ],
+                    "path": "default_view",
+                    "title": "Home"
+                }
+            ]
+        }
+    },
+    "key": "lovelace",
+    "version": 1
+}

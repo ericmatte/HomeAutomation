@@ -1,0 +1,182 @@
+{
+  "version": 1,
+  "minor_version": 1,
+  "key": "lovelace.lovelace_monitoring",
+  "data": {
+    "config": {
+      "views": [
+        {
+          "title": "Monitoring",
+          "path": "monitoring",
+          "icon": "mdi:server-network",
+          "badges": [],
+          "cards": [
+            {
+              "type": "vertical-stack",
+              "cards": [
+                {
+                  "type": "custom:mini-graph-card",
+                  "name": "Puissance instantanée",
+                  "icon": "mdi:flash",
+                  "hours_to_show": 24,
+                  "points_per_hour": 12,
+                  "line_width": 2,
+                  "decimals": 2,
+                  "entities": [
+                    {
+                      "entity": "sensor.hydro_sherbrooke_power",
+                      "name": "kW",
+                      "show_state": true,
+                      "color": "#f4a93b"
+                    },
+                    {
+                      "entity": "sensor.hydro_sherbrooke_tier_2_marker",
+                      "name": "Tarif 2",
+                      "color": "#ff5252",
+                      "show_state": false,
+                      "show_fill": true,
+                      "y_axis": "secondary"
+                    },
+                    {
+                      "entity": "sensor.hydro_sherbrooke_daily_total_cost",
+                      "name": "Coût jour",
+                      "show_state": true,
+                      "show_graph": false
+                    }
+                  ],
+                  "show": {
+                    "graph": "line",
+                    "fill": "fade",
+                    "labels": true,
+                    "extrema": true,
+                    "average": true
+                  }
+                },
+                {
+                  "type": "vertical-stack",
+                  "cards": [
+                    {
+                      "type": "conditional",
+                      "conditions": [
+                        {
+                          "entity": "binary_sensor.hydro_sherbrooke_tier_2_alert",
+                          "state": "on"
+                        }
+                      ],
+                      "card": {
+                        "type": "markdown",
+                        "content": "## ⚠️  Tarif 2 actif\nPlus de 40 kWh consommés aujourd'hui — la suite est à **$0.10652/kWh** au lieu de $0.06905/kWh.\n"
+                      }
+                    },
+                    {
+                      "type": "glance",
+                      "title": "Hydro Sherbrooke — Aujourd'hui",
+                      "columns": 2,
+                      "state_color": true,
+                      "entities": [
+                        {
+                          "entity": "sensor.hydro_sherbrooke_daily_total_cost",
+                          "name": "Coût estimé",
+                          "icon": "mdi:cash"
+                        },
+                        {
+                          "entity": "sensor.hydro_sherbrooke_daily_consumption",
+                          "name": "Consommation",
+                          "icon": "mdi:lightning-bolt"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "glance",
+                      "columns": 3,
+                      "state_color": true,
+                      "entities": [
+                        {
+                          "entity": "sensor.hydro_sherbrooke_power",
+                          "name": "Puissance",
+                          "icon": "mdi:flash"
+                        },
+                        {
+                          "entity": "sensor.hydro_sherbrooke_current_price",
+                          "name": "Tarif",
+                          "icon": "mdi:tag"
+                        },
+                        {
+                          "entity": "binary_sensor.hydro_sherbrooke_tier_2_alert",
+                          "name": "Palier 2",
+                          "icon": "mdi:alert"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "entities",
+                      "entities": [
+                        {
+                          "entity": "sensor.hydro_sherbrooke_reading",
+                          "name": "Compteur cumulatif",
+                          "icon": "mdi:counter",
+                          "secondary_info": "last-changed"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "entities": [
+                {
+                  "entity": "sensor.last_boot"
+                },
+                {
+                  "entity": "sensor.disk_use_percent_home"
+                },
+                {
+                  "entity": "sensor.memory_free"
+                },
+                {
+                  "entity": "sensor.disk_free"
+                }
+              ],
+              "show_header_toggle": false,
+              "title": "System Info",
+              "type": "entities",
+              "footer": {
+                "type": "graph",
+                "entity": "sensor.disk_free",
+                "hours_to_show": 168,
+                "detail": 1
+              }
+            },
+            {
+              "type": "gauge",
+              "entity": "sensor.cpu_temperature",
+              "min": 0,
+              "max": 100
+            },
+            {
+              "entity": "sensor.processor_use",
+              "graph": "line",
+              "type": "sensor",
+              "hours_to_show": 168
+            },
+            {
+              "entity": "sensor.memory_free",
+              "graph": "line",
+              "type": "sensor",
+              "detail": 1,
+              "hours_to_show": 168
+            },
+            {
+              "type": "sensor",
+              "entity": "sensor.database_filesize",
+              "icon": "hass:database",
+              "graph": "line",
+              "hours_to_show": 168
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "minor_version": 1,
+  "key": "lovelace.dashboard_home",
+  "data": {
+    "config": {
+      "strategy": {
+        "type": "home",
+        "favorite_entities": [
+          "person.eric",
+          "person.caro",
+          "sensor.rainville_propane_tank",
+          "input_boolean.guest_mode",
+          "light.first_floor_living_areas"
+        ]
+      }
+    }
+  }
+}

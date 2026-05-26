@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "minor_version": 1,
+  "key": "lovelace_dashboards",
+  "data": {
+    "items": [
+      {
+        "require_admin": true,
+        "show_in_sidebar": true,
+        "title": "Monitoring",
+        "url_path": "lovelace-monitoring",
+        "mode": "storage",
+        "id": "lovelace_monitoring",
+        "icon": "mdi:server-network"
+      },
+      {
+        "id": "map",
+        "icon": "mdi:map",
+        "title": "Map",
+        "url_path": "map",
+        "require_admin": true,
+        "mode": "storage",
+        "show_in_sidebar": true
+      },
+      {
+        "id": "dashboard_home",
+        "show_in_sidebar": true,
+        "icon": "mdi:home",
+        "title": "Home",
+        "require_admin": false,
+        "mode": "storage",
+        "url_path": "dashboard-home"
+      },
+      {
+        "id": "dashboard_bubble",
+        "show_in_sidebar": true,
+        "icon": "mdi:chart-bubble",
+        "title": "Bubble",
+        "require_admin": false,
+        "mode": "storage",
+        "url_path": "dashboard-bubble"
+      },
+      {
+        "id": "lovelace",
+        "icon": "mdi:view-dashboard",
+        "title": "Overview",
+        "url_path": "lovelace",
+        "mode": "storage",
+        "show_in_sidebar": true,
+        "require_admin": false
+      },
+      {
+        "id": "atrium_dym",
+        "show_in_sidebar": true,
+        "icon": "mdi:home-assistant",
+        "title": "Atrium",
+        "require_admin": false,
+        "mode": "storage",
+        "url_path": "atrium-dym"
+      }
+    ]
+  }
+}

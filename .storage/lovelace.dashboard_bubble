@@ -1,0 +1,376 @@
+{
+  "version": 1,
+  "minor_version": 1,
+  "key": "lovelace.dashboard_bubble",
+  "data": {
+    "config": {
+      "swipe_nav": {
+        "animate": "swipe",
+        "animate_duration": 150
+      },
+      "views": [
+        {
+          "type": "sections",
+          "title": "First floor",
+          "path": "first-floor",
+          "icon": "mdi:home-floor-1",
+          "sections": [
+            {
+              "type": "grid",
+              "cards": [
+                {
+                  "type": "custom:bubble-card",
+                  "card_type": "media-player",
+                  "entity": "media_player.sonos",
+                  "show_last_changed": false,
+                  "cover_background": true
+                }
+              ],
+              "visibility": [
+                {
+                  "condition": "state",
+                  "entity": "media_player.sonos",
+                  "state": "playing"
+                }
+              ]
+            },
+            {
+              "type": "grid",
+              "cards": [
+                {
+                  "type": "custom:area-bubble-auto-card",
+                  "floor": "first_floor",
+                  "custom_cards": {
+                    "living_room": [
+                      {
+                        "type": "custom:bubble-card",
+                        "entity": "climate.heat_pump",
+                        "select_attribute": "effect_list",
+                        "card_type": "climate",
+                        "sub_button": [
+                          {
+                            "name": "HVAC modes menu",
+                            "select_attribute": "hvac_modes",
+                            "state_background": false,
+                            "show_arrow": false
+                          },
+                          {
+                            "entity": "climate.heat_pump",
+                            "select_attribute": "fan_modes",
+                            "show_arrow": false
+                          },
+                          {
+                            "entity": "automation.smart_heat_controller",
+                            "icon": "mdi:cog",
+                            "state_background": false,
+                            "tap_action": {
+                              "action": "navigate",
+                              "navigation_path": "/config/automation/edit/1760366605928"
+                            }
+                          }
+                        ],
+                        "show_last_changed": false,
+                        "show_attribute": true,
+                        "attribute": "fan_mode",
+                        "hide_temperature": false,
+                        "state_color": false
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "max_columns": 4,
+          "dense_section_placement": false,
+          "cards": []
+        },
+        {
+          "type": "sections",
+          "max_columns": 4,
+          "title": "Basement",
+          "path": "basement",
+          "icon": "mdi:home-floor-0",
+          "subview": false,
+          "sections": [
+            {
+              "type": "grid",
+              "cards": [
+                {
+                  "type": "custom:area-bubble-auto-card",
+                  "floor": "basement"
+                }
+              ]
+            }
+          ],
+          "cards": []
+        },
+        {
+          "type": "sections",
+          "max_columns": 4,
+          "title": "Outside",
+          "path": "outside",
+          "icon": "mdi:home",
+          "sections": [
+            {
+              "type": "grid",
+              "cards": [
+                {
+                  "type": "custom:bubble-card",
+                  "card_type": "separator",
+                  "name": "People",
+                  "icon": "mdi:account-group"
+                },
+                {
+                  "type": "custom:bubble-card",
+                  "card_type": "button",
+                  "button_type": "state",
+                  "entity": "person.eric",
+                  "force_icon": false,
+                  "show_last_changed": true,
+                  "show_last_updated": false,
+                  "show_attribute": false,
+                  "grid_options": {
+                    "columns": 6,
+                    "rows": "auto"
+                  }
+                },
+                {
+                  "type": "custom:bubble-card",
+                  "card_type": "button",
+                  "button_type": "state",
+                  "entity": "person.caro",
+                  "force_icon": false,
+                  "show_last_changed": true,
+                  "show_last_updated": false,
+                  "show_attribute": false,
+                  "grid_options": {
+                    "columns": 6,
+                    "rows": "auto"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "grid",
+              "cards": [
+                {
+                  "type": "custom:area-bubble-auto-card",
+                  "floor": null
+                }
+              ]
+            },
+            {
+              "type": "grid",
+              "cards": [
+                {
+                  "show_current": true,
+                  "show_forecast": true,
+                  "type": "weather-forecast",
+                  "entity": "weather.home",
+                  "forecast_type": "daily"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "sections",
+          "max_columns": 4,
+          "title": "Test",
+          "path": "test",
+          "icon": "mdi:test-tube",
+          "sections": [
+            {
+              "type": "grid",
+              "cards": [
+                {
+                  "type": "custom:bubble-card",
+                  "card_type": "separator",
+                  "name": "Living room",
+                  "icon": "mdi:fireplace",
+                  "sub_button": [
+                    {
+                      "entity": "sensor.rm4_humidity",
+                      "show_state": true,
+                      "show_background": false
+                    },
+                    {
+                      "entity": "climate.living_room_thermostat",
+                      "show_attribute": true,
+                      "attribute": "current_temperature",
+                      "state_background": false,
+                      "show_background": false,
+                      "show_icon": false
+                    },
+                    {
+                      "entity": "binary_sensor.motion_presence",
+                      "show_last_updated": true
+                    }
+                  ],
+                  "card_layout": "large"
+                },
+                {
+                  "type": "custom:bubble-card",
+                  "card_type": "separator",
+                  "name": "",
+                  "icon": "",
+                  "sub_button": [
+                    {
+                      "entity": "binary_sensor.motion_presence",
+                      "show_last_updated": true
+                    }
+                  ],
+                  "card_layout": "large",
+                  "rows": "0.8"
+                },
+                {
+                  "type": "custom:bubble-card",
+                  "entity": "climate.heat_pump",
+                  "select_attribute": "effect_list",
+                  "card_type": "climate",
+                  "sub_button": [
+                    {
+                      "name": "HVAC modes menu",
+                      "select_attribute": "hvac_modes",
+                      "state_background": false,
+                      "show_arrow": false
+                    },
+                    {
+                      "entity": "climate.heat_pump",
+                      "select_attribute": "fan_modes",
+                      "show_arrow": false
+                    },
+                    {
+                      "entity": "automation.smart_heat_controller",
+                      "icon": "mdi:cog",
+                      "state_background": false,
+                      "tap_action": {
+                        "action": "navigate",
+                        "navigation_path": "/config/automation/edit/1760366605928"
+                      }
+                    }
+                  ],
+                  "show_last_changed": false,
+                  "show_attribute": true,
+                  "attribute": "fan_mode",
+                  "hide_temperature": false,
+                  "state_color": false
+                },
+                {
+                  "type": "custom:bubble-card",
+                  "card_type": "button",
+                  "button_type": "slider",
+                  "entity": "light.left_floor_lamp",
+                  "rows": "1",
+                  "card_layout": "large",
+                  "grid_options": {
+                    "columns": 6,
+                    "rows": "1"
+                  }
+                },
+                {
+                  "type": "custom:bubble-card",
+                  "card_type": "button",
+                  "button_type": "slider",
+                  "entity": "light.right_floor_lamp",
+                  "rows": "1",
+                  "card_layout": "large",
+                  "grid_options": {
+                    "columns": 6,
+                    "rows": "1"
+                  }
+                },
+                {
+                  "type": "custom:bubble-card",
+                  "card_type": "empty-column"
+                },
+                {
+                  "type": "custom:bubble-card",
+                  "card_type": "empty-column"
+                },
+                {
+                  "type": "custom:bubble-card",
+                  "card_type": "empty-column"
+                },
+                {
+                  "type": "custom:bubble-card",
+                  "card_type": "empty-column"
+                },
+                {
+                  "type": "custom:bubble-card",
+                  "card_type": "horizontal-buttons-stack",
+                  "1_link": "#kitchen",
+                  "1_name": "Kitchen",
+                  "1_icon": "mdi:faucet-variant",
+                  "1_entity": "light.kitchen_lights",
+                  "1_pir_sensor": "binary_sensor.motion_presence"
+                },
+                {
+                  "type": "vertical-stack",
+                  "cards": [
+                    {
+                      "type": "custom:bubble-card",
+                      "card_type": "pop-up",
+                      "hash": "#kitchen",
+                      "button_type": "slider",
+                      "entity": "light.kitchen_lights",
+                      "scrolling_effect": true,
+                      "use_accent_color": false,
+                      "show_icon": true,
+                      "force_icon": false,
+                      "show_attribute": true,
+                      "show_last_updated": true,
+                      "attribute": "brightness",
+                      "show_last_changed": false
+                    },
+                    {
+                      "square": false,
+                      "type": "grid",
+                      "cards": [
+                        {
+                          "type": "custom:bubble-card",
+                          "card_type": "separator",
+                          "name": "Lights"
+                        }
+                      ],
+                      "columns": 1
+                    },
+                    {
+                      "square": false,
+                      "type": "grid",
+                      "cards": [
+                        {
+                          "type": "custom:bubble-card",
+                          "card_type": "button",
+                          "button_type": "switch",
+                          "entity": "light.kitchen_island_lights",
+                          "name": "Island"
+                        },
+                        {
+                          "type": "custom:bubble-card",
+                          "card_type": "button",
+                          "button_type": "switch",
+                          "entity": "light.kitchen_middle_light",
+                          "name": "Middle"
+                        },
+                        {
+                          "type": "custom:bubble-card",
+                          "card_type": "button",
+                          "button_type": "switch",
+                          "entity": "light.kitchen_sink_lights",
+                          "name": "Sink"
+                        }
+                      ],
+                      "columns": 2
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

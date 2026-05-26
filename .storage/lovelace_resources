@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "minor_version": 1,
+  "key": "lovelace_resources",
+  "data": {
+    "items": [
+      {
+        "url": "/local/custom-lovelace/sun-card.js",
+        "type": "module",
+        "id": "cb8b1d51724841c79050877accb89e68"
+      },
+      {
+        "url": "/local/custom-lovelace/floorplan.js?v=35",
+        "type": "module",
+        "id": "911e57a7a6b644e5904afa4851ce0a75"
+      },
+      {
+        "id": "ee14736707ef4043aa0090df38cd95ef",
+        "url": "/hacsfiles/Bubble-Card/bubble-card.js?hacstag=680112919322",
+        "type": "module"
+      },
+      {
+        "id": "8dfd746a2aac432ea5bb7e4f9cbd4283",
+        "url": "/hacsfiles/lovelace-auto-entities/auto-entities.js?hacstag=1677445841161",
+        "type": "module"
+      },
+      {
+        "id": "a95b627ded0f4e218708b570782a569e",
+        "url": "/hacsfiles/hass-swipe-navigation/swipe-navigation.js?hacstag=5017254791160",
+        "type": "module"
+      },
+      {
+        "id": "ad5000bf608b43cb82b82f81384e54f1",
+        "url": "/local/area-bubble-auto-card.js?v0.1",
+        "type": "module"
+      },
+      {
+        "id": "62b84c296b574e538739ca55766c31b9",
+        "url": "/hacsfiles/lovelace-card-mod/card-mod.js?hacstag=190927524421",
+        "type": "module"
+      },
+      {
+        "id": "754431aa202a48d9bcdb05d43c9151c1",
+        "url": "/hacsfiles/mini-graph-card/mini-graph-card-bundle.js?hacstag=1512800620130",
+        "type": "module"
+      },
+      {
+        "id": "13b428ca35fc44e5b0f06f5512b6a281",
+        "url": "/local/atrium/strategy.js?v=1.21",
+        "type": "module"
+      }
+    ]
+  }
+}

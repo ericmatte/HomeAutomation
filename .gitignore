@@ -27,7 +27,7 @@ acme_reg.json
 
 # Ignore all internal storage except the Lovelace dashboards we want to track
 /.storage/**
-!/.storage/lovelace
+!/.storage/lovelace*
 
 # =============================================================================
 # Z-Wave
