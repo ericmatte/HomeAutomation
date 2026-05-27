@@ -124,23 +124,23 @@
               ]
             },
             {
+              "type": "entities",
+              "title": "System Info",
+              "show_header_toggle": false,
               "entities": [
                 {
-                  "entity": "sensor.last_boot"
+                  "entity": "sensor.last_boot",
+                  "name": "Uptime"
                 },
                 {
-                  "entity": "sensor.disk_use_percent_home"
+                  "entity": "sensor.disk_use_percent_home",
+                  "name": "Disk Used"
                 },
                 {
-                  "entity": "sensor.memory_free"
-                },
-                {
-                  "entity": "sensor.disk_free"
+                  "entity": "sensor.disk_free",
+                  "name": "Disk Free"
                 }
               ],
-              "show_header_toggle": false,
-              "title": "System Info",
-              "type": "entities",
               "footer": {
                 "type": "graph",
                 "entity": "sensor.disk_free",
@@ -151,27 +151,41 @@
             {
               "type": "gauge",
               "entity": "sensor.cpu_temperature",
+              "name": "CPU Temperature",
               "min": 0,
-              "max": 100
+              "max": 100,
+              "severity": {
+                "green": 0,
+                "yellow": 60,
+                "red": 80
+              }
             },
             {
+              "type": "sensor",
               "entity": "sensor.processor_use",
+              "name": "CPU Usage",
               "graph": "line",
-              "type": "sensor",
-              "hours_to_show": 168
-            },
-            {
-              "entity": "sensor.memory_free",
-              "graph": "line",
-              "type": "sensor",
               "detail": 1,
               "hours_to_show": 168
             },
             {
+              "graph": "line",
+              "type": "sensor",
+              "entity": "sensor.system_monitor_memory_use",
+              "name": "RAM",
+              "detail": 1,
+              "hours_to_show": 168,
+              "limits": {
+                "max": 8000
+              }
+            },
+            {
               "type": "sensor",
               "entity": "sensor.database_filesize",
+              "name": "Database Size",
               "icon": "hass:database",
               "graph": "line",
+              "detail": 1,
               "hours_to_show": 168
             }
           ]

@@ -48,6 +48,11 @@
         "id": "13b428ca35fc44e5b0f06f5512b6a281",
         "url": "/local/atrium/strategy.js?v=1.21",
         "type": "module"
+      },
+      {
+        "id": "146acba290af43cc8c2414f7d3cfce5a",
+        "url": "/hacsfiles/lovelace-mushroom/mushroom.js?hacstag=444350375511",
+        "type": "module"
       }
     ]
   }
