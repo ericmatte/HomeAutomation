@@ -861,10 +861,7 @@
       - sensor.rm4_humidity
       - sensor.downstairs_motion_humidity
       - sensor.office_motion_humidity
-      - sensor.workshop_temperature_humidity_humidity
       threshold: 60
-      for_duration:
-        minutes: 10
 - id: '1759267988873'
   alias: Sync covers with time and sun
   description: ''
@@ -2719,6 +2716,15 @@
     target:
       entity_id: light.office
   mode: restart
+- id: '1775410987239'
+  alias: High humidity alert
+  description: ''
+  use_blueprint:
+    path: ericmatte/humidity_high_alert.yaml
+    input:
+      humidity_sensors:
+      - sensor.workshop_temperature_humidity_humidity
+      threshold: 90
 - id: '1776202142206'
   alias: Toggle covers
   description: ''
