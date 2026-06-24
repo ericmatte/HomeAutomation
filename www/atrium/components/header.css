@@ -9,9 +9,19 @@
 .atrium-shell-pop-item-swatch {
   width: 26px; height: 26px; border-radius: 8px; flex-shrink: 0;
   display: inline-flex; align-items: center; justify-content: center;
+  border: none; padding: 0; font-family: inherit; cursor: pointer;
 }
 .atrium-shell-pop-item-swatch ha-icon { --mdc-icon-size: 14px; }
 .atrium-shell-pop-item-body { flex: 1; min-width: 0; }
+.atrium-shell-pop-light { padding: 0; overflow: hidden; }
+.atrium-shell-pop-light .atrium-shell-pop-item-swatch { margin-left: 10px; }
+.atrium-shell-pop-light .atrium-shell-pop-item-action {
+  flex: 1; min-width: 0; align-self: stretch;
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px 8px 0;
+  border: none; background: none; color: inherit;
+  font-family: inherit; text-align: left; cursor: pointer;
+}
 .atrium-shell-pop-item-name {
   font-size: 12.5px; color: var(--primary-text-color, #e8e9ec);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;

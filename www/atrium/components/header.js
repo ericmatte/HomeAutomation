@@ -485,6 +485,11 @@ class AtriumHeader extends HTMLElement {
     const pct = fmtBrightnessPct(st);
     const color = this._lightColor(st);
     const dimmable = canDimLight(st);
+    const tone = `color-mix(in srgb, ${color} 10%, transparent)`;
+    const room = this._areaForEntity(light.id);
+    const roomHTML = room
+      ? `${haIcon(room.icon)}<span class="room-name"></span>`
+      : "";
     const suffixHTML = dimmable
       ? `
         <span class="atrium-shell-pop-item-bar">
@@ -493,14 +498,33 @@ class AtriumHeader extends HTMLElement {
         <span class="atrium-shell-pop-item-pct" style="color:${color}">${pct}%</span>
       `
       : `<span class="atrium-shell-pop-item-pct" style="color:${color}">On</span>`;
-    return this._popoverItem({
-      entityId: light.id,
-      icon: st?.attributes?.icon || "mdi:lightbulb",
-      color,
-      name: st?.attributes?.friendly_name || light.id,
-      suffixHTML,
-      anchor,
+    const row = document.createElement("div");
+    row.className = "atrium-shell-pop-item atrium-shell-pop-light";
+    row.innerHTML = `
+      <button class="atrium-shell-pop-item-swatch" type="button" style="background:${tone};color:${color}" title="Open entity">
+        ${haIcon(st?.attributes?.icon || "mdi:lightbulb")}
+      </button>
+      <button class="atrium-shell-pop-item-action" type="button">
+        <span class="atrium-shell-pop-item-body">
+          <span class="atrium-shell-pop-item-name"></span>
+          <span class="atrium-shell-pop-item-room">${roomHTML}</span>
+        </span>
+        ${suffixHTML}
+      </button>
+    `;
+    row.querySelector(".atrium-shell-pop-item-name").textContent = st?.attributes?.friendly_name || light.id;
+    if (room) row.querySelector(".room-name").textContent = room.name;
+    row.querySelector(".atrium-shell-pop-item-swatch").addEventListener("click", (e) => {
+      e.stopPropagation();
+      closePopoverFor(anchor);
+      this._openEntityMore(light.id);
     });
+    row.querySelector(".atrium-shell-pop-item-action").addEventListener("click", (e) => {
+      e.stopPropagation();
+      closePopoverFor(anchor);
+      this._hass.callService("light", "turn_off", { entity_id: light.id });
+    });
+    return row;
   }
 
   _lightColor(st) {
