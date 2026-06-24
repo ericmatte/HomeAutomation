@@ -8,7 +8,7 @@ const {
   TONE, ICONS,
   CLIMATE_ACCENT, CLIMATE_LABELS, CLIMATE_ICONS,
   capitalize,
-  fmtBrightnessPct, fmtCoverPct,
+  canDimLight, fmtBrightnessPct, fmtCoverPct,
   iconForFanMode, iconForSwingMode,
   levelColor,
   labelDescriptor,
@@ -125,14 +125,16 @@ export function _updateLightRef(ref, entityId) {
   const unavailable = st.state === "unavailable";
   ref.tile.classList.toggle("unavailable", unavailable);
   const on = st.state === "on";
+  const canDim = canDimLight(st);
   const pct = fmtBrightnessPct(st);
-  ref.fill.style.width = on ? `${pct}%` : "0%";
+  ref.tile.classList.toggle("no-dim", !canDim);
+  ref.fill.style.width = on ? `${canDim ? pct : 100}%` : "0%";
   ref.thumb.style.left = `calc(${pct}% - 2px)`;
-  ref.thumb.style.display = on ? "block" : "none";
+  ref.thumb.style.display = on && canDim ? "block" : "none";
   ref.thumb.style.opacity = "0.55";
   ref.swatch.classList.toggle("on-light", on && !unavailable);
   ref.state.classList.toggle("on-light", on && !unavailable);
-  ref.state.textContent = unavailable ? "Unavailable" : on ? `${pct}%` : "Off";
+  ref.state.textContent = unavailable ? "Unavailable" : on ? (canDim ? `${pct}%` : "On") : "Off";
 
   // True color modes get the bulb's live rgb_color; white-temperature modes
   // fall back to the default yellow tint via the CSS var defaults.
@@ -350,7 +352,7 @@ export function _updateAutomationRef(ref, entityId) {
 
 export function _bindSwipeTile(tile, fill, thumb, swatch, stateEl, entityId, kind) {
   const ref = {
-    startX: 0, startY: 0, dragging: false, longPress: false, lpTimer: 0,
+    startX: 0, startY: 0, dragging: false, moved: false, longPress: false, lpTimer: 0,
     pointerId: null, onMove: null, onUp: null, onCancel: null,
   };
   const detach = () => {
@@ -374,6 +376,7 @@ export function _bindSwipeTile(tile, fill, thumb, swatch, stateEl, entityId, kin
     ref.startX = e.clientX;
     ref.startY = e.clientY;
     ref.dragging = false;
+    ref.moved = false;
     ref.longPress = false;
     ref.pointerId = e.pointerId;
     try { tile.setPointerCapture(e.pointerId); } catch (_) {}
@@ -389,8 +392,11 @@ export function _bindSwipeTile(tile, fill, thumb, swatch, stateEl, entityId, kin
       const dx = ev.clientX - ref.startX;
       const dy = ev.clientY - ref.startY;
       if (!ref.dragging && Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) {
-        ref.dragging = true;
         clearTimeout(ref.lpTimer);
+        ref.moved = true;
+        const st = this._hass.states?.[entityId];
+        if (kind === "light" && !canDimLight(st)) return;
+        ref.dragging = true;
       }
       if (ref.dragging) {
         const r = tile.getBoundingClientRect();
@@ -415,11 +421,13 @@ export function _bindSwipeTile(tile, fill, thumb, swatch, stateEl, entityId, kin
       const drag = this._dragState.get(entityId);
       this._dragState.delete(entityId);
       const wasDragging = ref.dragging;
+      const wasMoved = ref.moved;
       const wasLongPress = ref.longPress;
       detach();
       tile.classList.remove("pressed");
       ref.startX = 0;
       ref.dragging = false;
+      ref.moved = false;
       resetVisuals();
       if (wasDragging && drag) {
         if (kind === "light") {
@@ -430,14 +438,15 @@ export function _bindSwipeTile(tile, fill, thumb, swatch, stateEl, entityId, kin
           else if (drag.pct >= 100) this._call("cover", "open_cover", { entity_id: entityId });
           else this._call("cover", "set_cover_position", { entity_id: entityId, position: drag.pct });
         }
-      } else if (!wasLongPress) {
+      } else if (!wasLongPress && !wasMoved) {
         // Pointer capture guarantees this down/up sequence belongs to this
         // tile, so toggle without consulting ev.target (unreliable under
         // capture / shadow DOM).
         if (kind === "light") {
           const st = this._hass.states?.[entityId];
           if (st?.state === "on") this._call("light", "turn_off", { entity_id: entityId });
-          else this._call("light", "turn_on", { entity_id: entityId, brightness_pct: 100 });
+          else if (canDimLight(st)) this._call("light", "turn_on", { entity_id: entityId, brightness_pct: 100 });
+          else this._call("light", "turn_on", { entity_id: entityId });
         } else {
           const pct = fmtCoverPct(this._hass.states?.[entityId] || { attributes: {} });
           this._call("cover", pct > 5 ? "close_cover" : "open_cover", { entity_id: entityId });
@@ -453,6 +462,7 @@ export function _bindSwipeTile(tile, fill, thumb, swatch, stateEl, entityId, kin
       tile.classList.remove("pressed");
       ref.startX = 0;
       ref.dragging = false;
+      ref.moved = false;
       resetVisuals();
     };
 

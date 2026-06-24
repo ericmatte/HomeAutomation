@@ -1,13 +1,15 @@
 const _v = new URL(import.meta.url).search;
-const [popoverMod, hassUtilsMod, domUtilsMod, shellMod] = await Promise.all([
+const [popoverMod, hassUtilsMod, domUtilsMod, shellMod, sharedMod] = await Promise.all([
   import(`../lib/popover.js${_v}`),
   import(`../lib/hass-utils.js${_v}`),
   import(`../lib/dom-utils.js${_v}`),
   import(`../lib/shell.js${_v}`),
+  import(`./area-card-shared.js${_v}`),
 ]);
 const { openPopover, closePopoverFor, buildPopoverHeader, buildPopoverEmpty } = popoverMod;
 const { sameRegistries } = hassUtilsMod;
 const { haIcon } = domUtilsMod;
+const { canDimLight, fmtBrightnessPct } = sharedMod;
 const {
   SHELL_TONE,
   SHELL_STYLE,
@@ -66,6 +68,7 @@ class AtriumHeader extends HTMLElement {
       this._headerResizeObserver.disconnect();
       this._headerResizeObserver = null;
     }
+    if (this._lightsAnchor) closePopoverFor(this._lightsAnchor);
     if (this._batteryAnchor) closePopoverFor(this._batteryAnchor);
     if (this._problemAnchor) closePopoverFor(this._problemAnchor);
   }
@@ -117,7 +120,8 @@ class AtriumHeader extends HTMLElement {
     stats.addEventListener("click", (e) => {
       const btn = e.target.closest("button.atrium-shell-stat[data-action]");
       if (!btn || !stats.contains(btn)) return;
-      if (btn.dataset.action === "batteries") this._openBatteryPopover(btn);
+      if (btn.dataset.action === "lights") this._openLightsPopover(btn);
+      else if (btn.dataset.action === "batteries") this._openBatteryPopover(btn);
       else if (btn.dataset.action === "problems") this._openProblemPopover(btn);
     });
 
@@ -200,6 +204,7 @@ class AtriumHeader extends HTMLElement {
     const entReg = hass.entities || {};
 
     let lightsOn = 0;
+    const activeLights = [];
     const temps = [];
     const batteries = [];
     const problems = [];
@@ -216,6 +221,7 @@ class AtriumHeader extends HTMLElement {
       const dc = st.attributes?.device_class;
       if (domain === "light" && st.state === "on") {
         lightsOn += 1;
+        activeLights.push({ id, state: st });
       } else if (domain === "climate" && inTempScope) {
         const t = Number(st.attributes?.current_temperature);
         if (Number.isFinite(t)) temps.push(t);
@@ -245,6 +251,16 @@ class AtriumHeader extends HTMLElement {
     batteries.sort((a, b) => a.value - b.value);
     this._batteries = batteries;
 
+    activeLights.sort((a, b) => {
+      const ar = this._areaForEntity(a.id)?.name || "";
+      const br = this._areaForEntity(b.id)?.name || "";
+      if (ar !== br) return ar.localeCompare(br);
+      const an = a.state?.attributes?.friendly_name || a.id;
+      const bn = b.state?.attributes?.friendly_name || b.id;
+      return an.localeCompare(bn);
+    });
+    this._lightsOn = activeLights;
+
     // Active problems first (more urgent than offline), then by name within
     // each tier so the order is stable across hass ticks.
     problems.sort((a, b) => {
@@ -270,17 +286,18 @@ class AtriumHeader extends HTMLElement {
     const battLabel = batteries.length
       ? `${batteries.length}·${Math.round(batteries[0].value)}`
       : "";
+    const lightLabel = activeLights.map((l) => l.id).join(",");
     const hasActiveProblem = problems.some((p) => p.kind === "problem");
     const probLabel = problems.length ? `${problems.length}:${hasActiveProblem ? "a" : "i"}` : "";
     const personSig = persons.map((p) => `${p.entity_id}=${p.state}`).join(",");
-    const sig = `${lightsOn}|${tempLabel}|${battLabel}|${probLabel}|${personSig}`;
+    const sig = `${lightsOn}:${lightLabel}|${tempLabel}|${battLabel}|${probLabel}|${personSig}`;
     if (sig === this._lastStatsSig) return;
     this._lastStatsSig = sig;
 
     const peoplePills = persons.map((p) => this._personPill(p));
 
     const statPills = [];
-    statPills.push(this._statPill("mdi:lightbulb", SHELL_TONE.light, `${lightsOn} lights on`));
+    statPills.push(this._statPill("mdi:lightbulb", SHELL_TONE.light, `${lightsOn} lights on`, "lights"));
 
     if (tempLabel) {
       statPills.push(this._statPill("mdi:thermometer", SHELL_TONE.cool, tempLabel));
@@ -387,6 +404,33 @@ class AtriumHeader extends HTMLElement {
     });
   }
 
+  _openLightsPopover(anchor) {
+    ensurePopoverItemStyle();
+
+    const root = document.createElement("div");
+    const total = (this._lightsOn || []).length;
+    root.appendChild(buildPopoverHeader("Lights on", `${total} total`));
+
+    const listEl = document.createElement("div");
+    listEl.className = "atrium-pop-list";
+    if (total === 0) {
+      listEl.appendChild(buildPopoverEmpty("No lights are on."));
+    } else {
+      for (const light of this._lightsOn) {
+        listEl.appendChild(this._lightItem(light, anchor));
+      }
+    }
+    root.appendChild(listEl);
+
+    this._lightsAnchor = anchor;
+    openPopover({
+      anchor,
+      content: root,
+      width: 320,
+      onClose: () => { if (this._lightsAnchor === anchor) this._lightsAnchor = null; },
+    });
+  }
+
   _popoverItem({ entityId, icon, color, name, suffixHTML, anchor }) {
     const tone = `color-mix(in srgb, ${color} 10%, transparent)`;
     const room = this._areaForEntity(entityId);
@@ -434,6 +478,41 @@ class AtriumHeader extends HTMLElement {
       suffixHTML,
       anchor,
     });
+  }
+
+  _lightItem(light, anchor) {
+    const st = light.state;
+    const pct = fmtBrightnessPct(st);
+    const color = this._lightColor(st);
+    const dimmable = canDimLight(st);
+    const suffixHTML = dimmable
+      ? `
+        <span class="atrium-shell-pop-item-bar">
+          <span class="atrium-shell-pop-item-bar-fill" style="width:${pct}%;background:${color}"></span>
+        </span>
+        <span class="atrium-shell-pop-item-pct" style="color:${color}">${pct}%</span>
+      `
+      : `<span class="atrium-shell-pop-item-pct" style="color:${color}">On</span>`;
+    return this._popoverItem({
+      entityId: light.id,
+      icon: st?.attributes?.icon || "mdi:lightbulb",
+      color,
+      name: st?.attributes?.friendly_name || light.id,
+      suffixHTML,
+      anchor,
+    });
+  }
+
+  _lightColor(st) {
+    const attrs = st?.attributes || {};
+    const cm = attrs.color_mode;
+    const rgb = attrs.rgb_color;
+    const colorModes = ["rgb", "hs", "xy", "rgbw", "rgbww"];
+    if (cm && colorModes.includes(cm) && Array.isArray(rgb) && rgb.length >= 3) {
+      const [r, g, b] = rgb;
+      return `rgb(${r},${g},${b})`;
+    }
+    return SHELL_TONE.light;
   }
 
   _openProblemPopover(anchor) {

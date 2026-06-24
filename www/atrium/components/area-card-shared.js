@@ -170,6 +170,16 @@ export function fmtBrightnessPct(state) {
   return Math.max(0, Math.min(100, Math.round((b / 255) * 100)));
 }
 
+export function canDimLight(state) {
+  const attrs = state?.attributes || {};
+  const modes = attrs.supported_color_modes;
+  if (Array.isArray(modes) && modes.length) {
+    return modes.some((mode) => mode !== "onoff" && mode !== "unknown");
+  }
+  // Legacy HA light support flag: SUPPORT_BRIGHTNESS = 1.
+  return (Number(attrs.supported_features) & 1) === 1 || attrs.brightness != null;
+}
+
 export function fmtCoverPct(state) {
   const p = state.attributes?.current_position;
   if (p == null) return state.state === "open" ? 100 : 0;
