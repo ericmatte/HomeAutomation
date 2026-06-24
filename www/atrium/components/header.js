@@ -219,9 +219,13 @@ class AtriumHeader extends HTMLElement {
       const inTempScope = isAllView ? floorEntitySet.has(id) : true;
       const domain = id.split(".")[0];
       const dc = st.attributes?.device_class;
+      const ent = entReg[id];
+      const visible = !ent || (!ent.hidden && !ent.hidden_by && !ent.disabled_by);
       if (domain === "light" && st.state === "on") {
-        lightsOn += 1;
-        activeLights.push({ id, state: st });
+        if (visible) {
+          lightsOn += 1;
+          activeLights.push({ id, state: st });
+        }
       } else if (domain === "climate" && inTempScope) {
         const t = Number(st.attributes?.current_temperature);
         if (Number.isFinite(t)) temps.push(t);
@@ -234,8 +238,6 @@ class AtriumHeader extends HTMLElement {
           batteries.push({ id, value: v, state: st });
         }
       }
-      const ent = entReg[id];
-      const visible = !ent || (!ent.hidden && !ent.disabled_by);
       if (visible) {
         if (domain === "binary_sensor" && dc === "problem" && st.state === "on") {
           problems.push({ id, kind: "problem", state: st });
