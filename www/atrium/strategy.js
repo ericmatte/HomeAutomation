@@ -117,7 +117,10 @@ class AtriumStrategy {
           headerCard(ALL_FLOOR_KEY),
           ...allFloors.flatMap((f) => [
             floorLabelCard(f),
-            areaCard(f, { exclude: ["climates", "automations", "scripts"] }),
+            areaCard(f, {
+              exclude: ["climates", "automations", "scripts"],
+              defaultExpanded: true,
+            }),
           ]),
         ]),
       ],
