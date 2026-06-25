@@ -1,3 +1,4 @@
+export const COLLAPSIBLE = false;
 const _v = new URL(import.meta.url).search;
 const [popoverMod, sharedMod] = await Promise.all([
   import(`../lib/popover.js${_v}`),
@@ -12,7 +13,7 @@ const {
 } = sharedMod;
 
 export function _buildRoomCard(area, data) {
-  const expanded = this._expanded.has(area.area_id);
+  const expanded = COLLAPSIBLE ? this._expanded.has(area.area_id) : true;
   // No accordion content → render header-only and skip the chevron / click
   // handler so the row reads as static info.
   const hasBody =
@@ -54,7 +55,7 @@ export function _buildRoomCard(area, data) {
 export function _buildRoomHeader(area, data, hasBody = true) {
   const row = document.createElement("div");
   row.className = "atrium-row";
-  if (hasBody) {
+  if (hasBody && COLLAPSIBLE) {
     row.addEventListener("click", () => this._toggleExpanded(area.area_id));
   }
 
@@ -96,7 +97,7 @@ export function _buildRoomHeader(area, data, hasBody = true) {
   coverBtn.innerHTML = `<ha-icon icon="mdi:blinds-horizontal" style="--mdc-icon-size:14px"></ha-icon>`;
   coverBtn.addEventListener("click", (e) => { e.stopPropagation(); this._toggleAllCovers(data.covers); });
   actions.appendChild(coverBtn);
-  if (hasBody) {
+  if (hasBody && COLLAPSIBLE) {
     const chev = document.createElement("span");
     chev.className = "atrium-chev";
     chev.innerHTML = `<ha-icon icon="mdi:chevron-down" style="--mdc-icon-size:16px"></ha-icon>`;
@@ -319,7 +320,7 @@ export function _buildClimateTile(area, climate, sensors) {
   this._refs.areas.get(area.area_id).climates.set(climate.entity_id, ref);
   // Wake the graph immediately on default-expanded floors so the sparkline
   // is populated as the body slides in.
-  if (this._expanded.has(area.area_id)) this._wakeClimateGraph(ref);
+  if (COLLAPSIBLE ? this._expanded.has(area.area_id) : true) this._wakeClimateGraph(ref);
   return tile;
 }
 
@@ -431,7 +432,7 @@ export function _buildSensorTile(area, sensor) {
 
   const ref = { tile, graph: null, makeGraph };
   this._refs.areas.get(area.area_id).sensors.set(sensor.entity_id, ref);
-  if (this._expanded.has(area.area_id)) this._wakeSensorGraph(ref);
+  if (COLLAPSIBLE ? this._expanded.has(area.area_id) : true) this._wakeSensorGraph(ref);
   return tile;
 }
 

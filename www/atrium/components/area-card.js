@@ -370,6 +370,7 @@ class AtriumAreaCard extends HTMLElement {
   }
 
   _toggleExpanded(areaId) {
+    if (!buildersMod.COLLAPSIBLE) return;
     const ar = this._refs.areas.get(areaId);
     if (!ar) return;
     const card = ar.card;
@@ -415,7 +416,7 @@ class AtriumAreaCard extends HTMLElement {
   _update() {
     if (!this._refs) return;
     for (const [areaId, ar] of this._refs.areas) {
-      const isExpanded = this._expanded.has(areaId);
+      const isExpanded = buildersMod.COLLAPSIBLE ? this._expanded.has(areaId) : true;
       this._updateChips(ar);
       this._updateQuickButtons(ar);
 
