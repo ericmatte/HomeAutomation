@@ -28,7 +28,6 @@ export function _updateChips(ar) {
     if (data.sensors.humid) ids.push(data.sensors.humid.entity_id);
     for (const s of data.sensors.soil) ids.push(s.entity_id);
     for (const s of data.sensors.leak) ids.push(s.entity_id);
-    for (const s of data.sensors.safety) ids.push(s.entity_id);
     for (const d of data.doors) ids.push(d.entity_id);
     for (const p of data.sensors.propane) ids.push(p.entity_id);
     ar._chipIds = ids;
@@ -79,20 +78,6 @@ export function _updateChips(ar) {
     } else {
       addSpan(ICONS.leak, TONE.textDim, "Dry", { entityId: data.sensors.leak[0].entity_id });
     }
-  }
-  // Smoke/CO/gas/safety alarms only surface a chip while triggered, so they
-  // stay invisible (no clutter) on Home and stand out red on the Safety tab.
-  const SAFETY_DC = {
-    smoke: { icon: "mdi:smoke-detector-alert", label: "Smoke!" },
-    carbon_monoxide: { icon: "mdi:molecule-co", label: "CO!" },
-    gas: { icon: "mdi:gas-cylinder", label: "Gas!" },
-    safety: { icon: "mdi:shield-alert", label: "Alert!" },
-  };
-  for (const s of data.sensors.safety) {
-    if (hass.states?.[s.entity_id]?.state !== "on") continue;
-    const sdc = hass.states?.[s.entity_id]?.attributes?.device_class;
-    const meta = SAFETY_DC[sdc] || SAFETY_DC.safety;
-    addSpan(meta.icon, TONE.danger, meta.label, { bg: "color-mix(in srgb, var(--error-color, #ff5252) 16%, transparent)", pulse: true, entityId: s.entity_id });
   }
   for (const d of data.doors) {
     const isOpen = hass.states?.[d.entity_id]?.state === "on";

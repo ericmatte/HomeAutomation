@@ -119,7 +119,7 @@ class AtriumAreaCard extends HTMLElement {
       vacuums: [],
       scenes: [],
       mediaPlayers: [],
-      sensors: { motion: [], leak: [], safety: [], soil: [], propane: [], temp: null, humid: null, extras: [] },
+      sensors: { motion: [], leak: [], soil: [], propane: [], temp: null, humid: null, extras: [] },
       automations: [],
       scripts: [],
     };
@@ -153,7 +153,6 @@ class AtriumAreaCard extends HTMLElement {
     }
     if (want.has("doors")) out.doors = data.doors;
     if (want.has("leak")) out.sensors.leak = data.sensors.leak;
-    if (want.has("safety")) out.sensors.safety = data.sensors.safety;
     return out;
   }
 
@@ -177,7 +176,6 @@ class AtriumAreaCard extends HTMLElement {
         if (dc === "motion" || dc === "occupancy" || dc === "presence") out.sensors.motion.push(e);
         else if (dc === "moisture") out.sensors.leak.push(e);
         else if (dc === "door" || dc === "garage_door" || dc === "window" || dc === "opening") out.doors.push(e);
-        else if (dc === "smoke" || dc === "carbon_monoxide" || dc === "gas" || dc === "safety") out.sensors.safety.push(e);
       } else if (domain === "sensor") {
         const isSoil =
           matchesAny(e.entity_id, ["soil", "plant"]) &&
@@ -294,7 +292,6 @@ class AtriumAreaCard extends HTMLElement {
       !d.sensors.humid &&
       d.sensors.motion.length === 0 &&
       d.sensors.leak.length === 0 &&
-      d.sensors.safety.length === 0 &&
       d.sensors.soil.length === 0 &&
       d.sensors.propane.length === 0 &&
       d.sensors.extras.length === 0

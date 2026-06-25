@@ -153,13 +153,6 @@ class AtriumStrategy {
       sections: ["climate"],
     });
 
-    const safetyView = intentView({
-      title: "Safety",
-      path: "safety",
-      icon: "mdi:shield-home",
-      sections: ["doors", "leak", "safety"],
-    });
-
     const routinesView = intentView({
       title: "Routines",
       path: "routines",
@@ -184,13 +177,8 @@ class AtriumStrategy {
       ],
     });
 
-    // Lowest battery first so the items that need attention sit at the top.
-    const batteryEntities = sensorsByDeviceClass(["battery"])
-      .filter((id) => Number.isFinite(parseFloat(hass.states?.[id]?.state)))
-      .sort(
-        (a, b) =>
-          parseFloat(hass.states[a].state) - parseFloat(hass.states[b].state)
-      );
+    // Batteries are intentionally not listed here — the header pill already
+    // aggregates them, so this tab stays focused on manual system cards.
     const maintenanceView = baseView({
       title: "Maintenance",
       path: "maintenance",
@@ -198,7 +186,6 @@ class AtriumStrategy {
       cards: [
         stack([
           headerCard(ALL_FLOOR_KEY),
-          entitiesCard("Batteries", batteryEntities),
           entitiesCard("System", cfgList(cfg.maintenance?.entities)),
           ...cfgList(cfg.maintenance?.cards),
         ]),
@@ -211,7 +198,6 @@ class AtriumStrategy {
         homeView,
         climateView,
         energyView,
-        safetyView,
         routinesView,
         maintenanceView,
       ],
