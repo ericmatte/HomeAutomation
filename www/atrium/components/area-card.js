@@ -31,6 +31,13 @@ class AtriumAreaCard extends HTMLElement {
     this._floorId = config.floor === null ? null : config.floor;
     this._showLabel = config.show_floor_label === true;
     this._defaultExpanded = config.default_expanded === true;
+    // Intent tabs (Climate, Routines, …) pass a section profile so the card
+    // renders only the matching categories. Absent → full room view (Home).
+    this._sections =
+      Array.isArray(config.sections) && config.sections.length
+        ? new Set(config.sections)
+        : null;
+    this._heading = typeof config.heading === "string" ? config.heading : null;
   }
 
   connectedCallback() {
@@ -102,9 +109,8 @@ class AtriumAreaCard extends HTMLElement {
       });
   }
 
-  _classify(area, entities) {
-    const hass = this._hass;
-    const out = {
+  _emptyData() {
+    return {
       lights: [],
       covers: [],
       doors: [],
@@ -116,6 +122,42 @@ class AtriumAreaCard extends HTMLElement {
       automations: [],
       scripts: [],
     };
+  }
+
+  // Project classified data down to the active section profile. Categories
+  // left out are emptied so every downstream consumer (room header chips,
+  // quick buttons, body sections, `_areaIsEmpty`) hides them for free.
+  _filterData(data) {
+    if (!this._sections) return data;
+    const want = this._sections;
+    const out = this._emptyData();
+    if (want.has("lights")) out.lights = data.lights;
+    if (want.has("covers")) out.covers = data.covers;
+    if (want.has("climate")) {
+      out.climates = data.climates;
+      out.sensors.temp = data.sensors.temp;
+      out.sensors.humid = data.sensors.humid;
+    }
+    if (want.has("vacuum")) out.vacuums = data.vacuums;
+    if (want.has("sensors")) {
+      out.sensors.extras = data.sensors.extras;
+      out.sensors.soil = data.sensors.soil;
+      out.sensors.propane = data.sensors.propane;
+    }
+    if (want.has("motion")) out.sensors.motion = data.sensors.motion;
+    if (want.has("scenes")) out.scenes = data.scenes;
+    if (want.has("routines")) {
+      out.automations = data.automations;
+      out.scripts = data.scripts;
+    }
+    if (want.has("doors")) out.doors = data.doors;
+    if (want.has("leak")) out.sensors.leak = data.sensors.leak;
+    return out;
+  }
+
+  _classify(area, entities) {
+    const hass = this._hass;
+    const out = this._emptyData();
 
     for (const e of entities) {
       const domain = e.entity_id.split(".")[0];
@@ -203,13 +245,24 @@ class AtriumAreaCard extends HTMLElement {
       for (const a of areas) this._expanded.add(a.area_id);
       this._seededDefault = true;
     }
+    const cards = [];
     for (const area of areas) {
       const entities = this._entitiesForArea(area);
-      const data = this._classify(area, entities);
+      const data = this._filterData(this._classify(area, entities));
       if (this._areaIsEmpty(data)) continue;
-      const card = this._buildRoomCard(area, data);
-      root.appendChild(card);
+      cards.push(this._buildRoomCard(area, data));
     }
+    // A floor heading is only meaningful once this card actually rendered
+    // rooms — an intent tab (e.g. Climate) leaves floors with no match empty.
+    if (this._heading && cards.length) {
+      const heading = document.createElement("div");
+      heading.className = "atrium-floor-heading";
+      heading.textContent = this._heading;
+      heading.style.cssText =
+        "font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--secondary-text-color,#9aa0a6);margin:20px 6px 10px;opacity:.85";
+      root.appendChild(heading);
+    }
+    for (const card of cards) root.appendChild(card);
     this.appendChild(root);
     this._update();
   }

@@ -46,10 +46,12 @@ class AtriumStrategy {
       floor: floorScope,
     });
 
-    const areaCard = (floor, { defaultExpanded = false } = {}) => ({
+    const areaCard = (floor, { defaultExpanded = false, sections, heading } = {}) => ({
       type: "custom:atrium-area-card",
       floor: floor.floor_id ?? null,
       ...(defaultExpanded ? { default_expanded: true } : {}),
+      ...(sections ? { sections } : {}),
+      ...(heading ? { heading } : {}),
     });
 
     const floorLabelCard = (floor) => ({
@@ -71,9 +73,13 @@ class AtriumStrategy {
       ...extra,
     });
 
-    const allView = baseView({
-      title: "All",
-      path: "all",
+    // Home keeps the full all-floors room dashboard (floor dimmer + every
+    // category). The other tabs reuse the same area-card engine but pass a
+    // section profile so each renders only the entities matching its intent,
+    // with a per-floor heading in place of the (light-only) floor dimmer.
+    const homeView = baseView({
+      title: "Home",
+      path: "home",
       icon: "mdi:home",
       cards: [
         stack([
@@ -83,37 +89,39 @@ class AtriumStrategy {
       ],
     });
 
-    const floorViews = allFloors.map((floor) =>
+    const intentView = ({ title, path, icon, sections }) =>
       baseView({
-        title: floor.name,
-        path: AtriumStrategy.slug(floor.floor_id) || "other",
-        icon: floor.icon || AtriumStrategy.iconForFloor(floor),
+        title,
+        path,
+        icon,
         cards: [
           stack([
-            headerCard(floor.floor_id ?? null),
-            floorLabelCard(floor),
-            areaCard(floor),
+            headerCard(ALL_FLOOR_KEY),
+            ...allFloors.map((f) =>
+              areaCard(f, { sections, heading: f.name, defaultExpanded: true })
+            ),
           ]),
         ],
-      })
-    );
+      });
+
+    const climateView = intentView({
+      title: "Climate",
+      path: "climate",
+      icon: "mdi:thermostat",
+      sections: ["climate"],
+    });
+
+    const routinesView = intentView({
+      title: "Routines",
+      path: "routines",
+      icon: "mdi:robot",
+      sections: ["scenes", "routines"],
+    });
 
     return {
       title: "Atrium",
-      views: [allView, ...floorViews],
+      views: [homeView, climateView, routinesView],
     };
-  }
-
-  static iconForFloor(floor) {
-    const lvl = floor.level;
-    if (lvl == null) return "mdi:home";
-    if (lvl < 0) return "mdi:home-floor-b";
-    if (lvl === 0) return "mdi:home-floor-0";
-    return `mdi:home-floor-${Math.min(lvl, 3)}`;
-  }
-
-  static slug(s) {
-    return (s || "").toString().toLowerCase().replace(/[^a-z0-9-_]+/g, "-");
   }
 }
 
