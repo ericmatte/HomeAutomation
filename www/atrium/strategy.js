@@ -73,6 +73,33 @@ class AtriumStrategy {
       ...extra,
     });
 
+    // Manual config is additive and tolerant: unknown/missing keys are
+    // ignored rather than throwing so a typo can't break the whole dashboard.
+    const cfg = _config || {};
+    const cfgList = (v) => (Array.isArray(v) ? v : []);
+
+    // Aggregate tabs discover their entities up front from `hass` (which
+    // `generate` already receives). The set is fixed at generate time, but
+    // native `entities` cards still update their values live afterwards.
+    const sensorsByDeviceClass = (classes) => {
+      const want = new Set(classes);
+      return Object.values(hass.entities || {})
+        .filter(
+          (e) =>
+            !e.hidden &&
+            !e.hidden_by &&
+            !e.disabled_by &&
+            e.entity_id.startsWith("sensor.") &&
+            want.has(hass.states?.[e.entity_id]?.attributes?.device_class)
+        )
+        .map((e) => e.entity_id);
+    };
+
+    const entitiesCard = (title, ids) =>
+      ids.length
+        ? { type: "entities", title, entities: ids.map((entity) => ({ entity })) }
+        : null;
+
     // Home keeps the full all-floors room dashboard (floor dimmer + every
     // category). The other tabs reuse the same area-card engine but pass a
     // section profile so each renders only the entities matching its intent,
@@ -111,6 +138,13 @@ class AtriumStrategy {
       sections: ["climate"],
     });
 
+    const safetyView = intentView({
+      title: "Safety",
+      path: "safety",
+      icon: "mdi:shield-home",
+      sections: ["doors", "leak", "safety"],
+    });
+
     const routinesView = intentView({
       title: "Routines",
       path: "routines",
@@ -118,9 +152,54 @@ class AtriumStrategy {
       sections: ["scenes", "routines"],
     });
 
+    // Energy & Maintenance are aggregate/manual tabs: discovered entities
+    // plus whatever the user adds via YAML. No floor/area accordion.
+    const energyAuto = sensorsByDeviceClass(["power", "energy"]);
+    const energyView = baseView({
+      title: "Energy",
+      path: "energy",
+      icon: "mdi:lightning-bolt",
+      cards: [
+        stack([
+          headerCard(ALL_FLOOR_KEY),
+          entitiesCard("Power & energy", energyAuto),
+          entitiesCard("Energy", cfgList(cfg.energy?.entities)),
+          ...cfgList(cfg.energy?.cards),
+        ]),
+      ],
+    });
+
+    // Lowest battery first so the items that need attention sit at the top.
+    const batteryEntities = sensorsByDeviceClass(["battery"])
+      .filter((id) => Number.isFinite(parseFloat(hass.states?.[id]?.state)))
+      .sort(
+        (a, b) =>
+          parseFloat(hass.states[a].state) - parseFloat(hass.states[b].state)
+      );
+    const maintenanceView = baseView({
+      title: "Maintenance",
+      path: "maintenance",
+      icon: "mdi:wrench",
+      cards: [
+        stack([
+          headerCard(ALL_FLOOR_KEY),
+          entitiesCard("Batteries", batteryEntities),
+          entitiesCard("System", cfgList(cfg.maintenance?.entities)),
+          ...cfgList(cfg.maintenance?.cards),
+        ]),
+      ],
+    });
+
     return {
       title: "Atrium",
-      views: [homeView, climateView, routinesView],
+      views: [
+        homeView,
+        climateView,
+        energyView,
+        safetyView,
+        routinesView,
+        maintenanceView,
+      ],
     };
   }
 }
