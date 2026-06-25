@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Floorplan hotspot editor</title>
+    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; font-family: system-ui, sans-serif; display: flex; height: 100vh; }
+      #sidebar {
+        width: 320px; padding: 16px; border-right: 1px solid #ddd;
+        overflow-y: auto; flex-shrink: 0;
+      }
+      #stage { flex: 1; overflow: auto; background: #f4f4f4; position: relative; }
+      #canvas { position: relative; display: inline-block; }
+      #canvas img { display: block; max-width: none; user-select: none; -webkit-user-drag: none; }
+      .hotspot {
+        position: absolute; width: 28px; height: 28px; margin: -14px 0 0 -14px;
+        border-radius: 50%; background: rgba(33,150,243,0.85); border: 2px solid #fff;
+        cursor: grab; box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+      }
+      .hotspot.selected { background: rgba(244,67,54,0.9); }
+      .hotspot .tag {
+        position: absolute; top: 30px; left: 50%; transform: translateX(-50%);
+        white-space: nowrap; font-size: 11px; background: #000; color: #fff;
+        padding: 1px 5px; border-radius: 4px; pointer-events: none;
+      }
+      h1 { font-size: 16px; } h2 { font-size: 13px; text-transform: uppercase; color: #888; }
+      label { display: block; font-size: 12px; margin: 8px 0 2px; }
+      input, select, button { width: 100%; padding: 6px; font-size: 13px; }
+      button { cursor: pointer; margin-top: 8px; }
+      .row { display: flex; gap: 8px; } .row > * { flex: 1; }
+      .hint { font-size: 12px; color: #888; line-height: 1.5; }
+    </style>
+  </head>
+  <body>
+    <div id="sidebar">
+      <h1>Floorplan editor</h1>
+      <p class="hint">1. Load <code>config.yaml</code> (optional) and a floor image.<br />
+        2. Click the image to add a hotspot, drag to move.<br />
+        3. Export the updated <code>config.yaml</code>.</p>
+
+      <label>config.yaml <input type="file" id="config-file" accept=".yaml,.yml" /></label>
+      <label>Floor image <input type="file" id="image-file" accept="image/*" /></label>
+
+      <label>Floor <select id="floor-select"></select></label>
+
+      <h2>Selected hotspot</h2>
+      <div id="hotspot-panel" class="hint">None selected.</div>
+
+      <button id="export-btn">⬇ Export config.yaml</button>
+      <p class="hint" id="status"></p>
+    </div>
+
+    <div id="stage">
+      <div id="canvas"><img id="floor-img" alt="" /></div>
+    </div>
+
+    <script src="editor.js"></script>
+  </body>
+</html>

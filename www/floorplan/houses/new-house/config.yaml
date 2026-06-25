@@ -1,0 +1,38 @@
+# Per-house floorplan config. Edit this file (or use core/editor) then run:
+#   python ../../core/generate.py .
+# Everything specific to this home lives here; the engine in core/ is generic.
+house: new-house
+
+# Shared defaults applied to every hotspot (override per house as needed).
+style:
+  icon_scale: 1.35
+  background: "rgba(255, 255, 255, 0.3)"
+
+floors:
+  - id: main
+    name: Rez-de-chaussée
+    image: /local/floorplan/houses/new-house/floors/main.png
+    default: true
+    entities:
+      # Simple light: defaults to tap_action toggle.
+      - { entity: light.kitchen, left: "50%", top: "50%" }
+      # more-info instead of toggle:
+      # - { entity: vacuum.roby, left: "60%", top: "55%", tap_action: more-info }
+      # Climate badge with stacked attribute labels:
+      # - entity: climate.heat_pump
+      #   left: "57%"
+      #   top: "37%"
+      #   labels:
+      #     - { attribute: current_temperature, position: top-secondary, opacity: 0.8 }
+      #     - { attribute: temperature, position: top }
+      # Service button (e.g. turn everything off):
+      # - service: scene.turn_on
+      #   service_data: { entity_id: scene.turn_off_everything }
+      #   left: "91%"
+      #   top: "72%"
+
+  - id: upstairs
+    name: Étage
+    image: /local/floorplan/houses/new-house/floors/upstairs.png
+    entities:
+      - { entity: light.bedroom, left: "50%", top: "50%" }
