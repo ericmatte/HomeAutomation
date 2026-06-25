@@ -327,10 +327,8 @@ export function _updateAutomationRef(ref, entityId) {
   const enabled = ref.isScript ? true : st.state !== "off";
   ref.row.classList.toggle("disabled", !enabled);
   ref.name.classList.toggle("disabled", !enabled);
-  if (!ref.isScript) {
-    const slash = ref.swatch.querySelector(".slash");
-    if (slash) slash.style.display = enabled ? "none" : "block";
-    ref.swatch.title = enabled ? "Disable automation" : "Enable automation";
+  if (!ref.isScript && "checked" in ref.swatch) {
+    ref.swatch.checked = enabled;
   }
   const lastTs = st.attributes?.last_triggered;
   ref.last.textContent = lastTs ? `Last triggered: ${this._fmtTimeAgo(lastTs)}` : "Never triggered";

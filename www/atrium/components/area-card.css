@@ -122,6 +122,7 @@
 .atrium-auto-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--divider-color, rgba(127,127,127,0.18)); }
 .atrium-auto-row:last-child { border-bottom: none; }
 .atrium-auto-row.disabled { opacity: .55; }
+.atrium-auto-toggle { flex-shrink: 0; align-self: center; }
 .atrium-auto-swatch { position: relative; flex-shrink: 0; width: 30px; height: 30px; border-radius: 8px; border: none; cursor: pointer; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 6%, transparent); color: var(--primary-text-color, #e8e9ec); display: inline-flex; align-items: center; justify-content: center; transition: background .15s ease; }
 .atrium-auto-swatch.script { background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 4%, transparent); color: var(--secondary-text-color, #9aa0aa); cursor: default; }
 .atrium-auto-row.disabled .atrium-auto-swatch:not(.script) { background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 3%, transparent); color: color-mix(in srgb, var(--secondary-text-color, #9aa0aa) 70%, transparent); }
@@ -130,6 +131,7 @@
 .atrium-auto-name.disabled { color: var(--secondary-text-color, #9aa0aa); }
 .atrium-auto-last { font-size: 10.5px; color: color-mix(in srgb, var(--secondary-text-color, #9aa0aa) 70%, transparent); margin-top: 2px; }
 .atrium-auto-labels { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+.atrium-auto-labels:empty { display: none; }
 .atrium-auto-label { display: inline-flex; align-items: center; gap: 3px; padding: 1.5px 6px 1.5px 5px; border-radius: 999px; font-size: 9.5px; font-weight: 500; line-height: 1.5; }
 .atrium-auto-play { flex-shrink: 0; width: 30px; height: 30px; border-radius: 8px; border: none; cursor: pointer; background: color-mix(in srgb, var(--state-climate-cool-color, #5cc6ff) 12%, transparent); color: var(--state-climate-cool-color, #5cc6ff); display: inline-flex; align-items: center; justify-content: center; transition: background .15s ease; }
 .atrium-auto-play.disabled { background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 3%, transparent); color: color-mix(in srgb, var(--secondary-text-color, #9aa0aa) 70%, transparent); cursor: not-allowed; }

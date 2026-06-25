@@ -565,17 +565,16 @@ export function _buildAutomationRow(area, item) {
     swatch.className = "atrium-auto-swatch script";
     swatch.innerHTML = `<ha-icon icon="${ICONS.script}" style="--mdc-icon-size:15px"></ha-icon>`;
   } else {
-    swatch = document.createElement("button");
-    swatch.className = "atrium-auto-swatch";
-    swatch.innerHTML = `<ha-icon icon="${ICONS.cogs}" style="--mdc-icon-size:15px"></ha-icon>` +
-      `<svg class="slash" viewBox="0 0 24 24" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;display:${enabled ? "none" : "block"}">
-         <line x1="4" y1="20" x2="20" y2="4" stroke="${TONE.textMute}" stroke-width="1.8" stroke-linecap="round" />
-       </svg>`;
-    swatch.title = enabled ? "Disable automation" : "Enable automation";
-    swatch.addEventListener("click", (e) => {
+    // Stock HA toggle: animated, and reflects enable/disable directly. Setting
+    // `.checked` from the updater doesn't re-fire `change`, so no feedback loop.
+    swatch = document.createElement("ha-switch");
+    swatch.className = "atrium-auto-toggle";
+    swatch.checked = enabled;
+    swatch.setAttribute("aria-label", `Toggle ${this._entityName(item)}`);
+    swatch.addEventListener("click", (e) => e.stopPropagation());
+    swatch.addEventListener("change", (e) => {
       e.stopPropagation();
-      const isOn = this._hass.states?.[item.entity_id]?.state !== "off";
-      this._call("automation", isOn ? "turn_off" : "turn_on", { entity_id: item.entity_id });
+      this._call("automation", e.target.checked ? "turn_on" : "turn_off", { entity_id: item.entity_id });
     });
   }
 
