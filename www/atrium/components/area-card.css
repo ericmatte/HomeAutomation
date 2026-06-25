@@ -122,7 +122,15 @@
 .atrium-auto-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--divider-color, rgba(127,127,127,0.18)); }
 .atrium-auto-row:last-child { border-bottom: none; }
 .atrium-auto-row.disabled { opacity: .55; }
-.atrium-auto-toggle { flex-shrink: 0; align-self: center; }
+.atrium-auto-toggle {
+  flex-shrink: 0;
+  align-self: center;
+  /* Tone the stock switch down to the section accent (matches the play
+     button) instead of HA's brighter default primary blue. */
+  --switch-checked-color: var(--state-climate-cool-color, #5cc6ff);
+  --switch-checked-track-color: var(--state-climate-cool-color, #5cc6ff);
+  --switch-checked-button-color: var(--state-climate-cool-color, #5cc6ff);
+}
 .atrium-auto-swatch { position: relative; flex-shrink: 0; width: 30px; height: 30px; border-radius: 8px; border: none; cursor: pointer; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 6%, transparent); color: var(--primary-text-color, #e8e9ec); display: inline-flex; align-items: center; justify-content: center; transition: background .15s ease; }
 .atrium-auto-swatch.script { background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 4%, transparent); color: var(--secondary-text-color, #9aa0aa); cursor: default; }
 .atrium-auto-row.disabled .atrium-auto-swatch:not(.script) { background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 3%, transparent); color: color-mix(in srgb, var(--secondary-text-color, #9aa0aa) 70%, transparent); }
