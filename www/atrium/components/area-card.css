@@ -125,6 +125,8 @@
 .atrium-auto-toggle {
   flex-shrink: 0;
   align-self: center;
+  transform: scale(0.82);
+  transform-origin: center right;
   /* Tone the stock switch down to the section accent (matches the play
      button) instead of HA's brighter default primary blue. */
   --switch-checked-color: var(--state-climate-cool-color, #5cc6ff);
