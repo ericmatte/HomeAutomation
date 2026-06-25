@@ -38,6 +38,7 @@ class AtriumAreaCard extends HTMLElement {
         ? new Set(config.sections)
         : null;
     this._heading = typeof config.heading === "string" ? config.heading : null;
+    this._headingIcon = typeof config.heading_icon === "string" ? config.heading_icon : null;
   }
 
   connectedCallback() {
@@ -259,9 +260,17 @@ class AtriumAreaCard extends HTMLElement {
     if (this._heading && cards.length) {
       const heading = document.createElement("div");
       heading.className = "atrium-floor-heading";
-      heading.textContent = this._heading;
       heading.style.cssText =
-        "font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--secondary-text-color,#9aa0a6);margin:20px 6px 10px;opacity:.85";
+        "display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--secondary-text-color,#9aa0a6);margin:20px 6px 10px;opacity:.85";
+      if (this._headingIcon) {
+        const ic = document.createElement("ha-icon");
+        ic.setAttribute("icon", this._headingIcon);
+        ic.style.cssText = "--mdc-icon-size:18px";
+        heading.appendChild(ic);
+      }
+      const label = document.createElement("span");
+      label.textContent = this._heading;
+      heading.appendChild(label);
       root.appendChild(heading);
     }
     for (const card of cards) root.appendChild(card);

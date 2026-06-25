@@ -46,12 +46,22 @@ class AtriumStrategy {
       floor: floorScope,
     });
 
-    const areaCard = (floor, { defaultExpanded = false, sections, heading } = {}) => ({
+    const floorIcon = (floor) => {
+      if (floor.icon) return floor.icon;
+      const lvl = floor.level;
+      if (lvl == null) return "mdi:home";
+      if (lvl < 0) return "mdi:home-floor-b";
+      if (lvl === 0) return "mdi:home-floor-0";
+      return `mdi:home-floor-${Math.min(lvl, 3)}`;
+    };
+
+    const areaCard = (floor, { defaultExpanded = false, sections, heading, headingIcon } = {}) => ({
       type: "custom:atrium-area-card",
       floor: floor.floor_id ?? null,
       ...(defaultExpanded ? { default_expanded: true } : {}),
       ...(sections ? { sections } : {}),
       ...(heading ? { heading } : {}),
+      ...(headingIcon ? { heading_icon: headingIcon } : {}),
     });
 
     const floorLabelCard = (floor) => ({
@@ -125,7 +135,12 @@ class AtriumStrategy {
           stack([
             headerCard(ALL_FLOOR_KEY),
             ...allFloors.map((f) =>
-              areaCard(f, { sections, heading: f.name, defaultExpanded: true })
+              areaCard(f, {
+                sections,
+                heading: f.name,
+                headingIcon: floorIcon(f),
+                defaultExpanded: true,
+              })
             ),
           ]),
         ],
