@@ -260,8 +260,10 @@ class AtriumAreaCard extends HTMLElement {
     if (this._heading && cards.length) {
       const heading = document.createElement("div");
       heading.className = "atrium-floor-heading";
+      // Span every grid column so the floor label sits on its own full-width
+      // row instead of taking a single cell with rooms flowing to its right.
       heading.style.cssText =
-        "display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--secondary-text-color,#9aa0a6);margin:20px 6px 10px;opacity:.85";
+        "grid-column:1/-1;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--secondary-text-color,#9aa0a6);margin:20px 6px 10px;opacity:.85";
       if (this._headingIcon) {
         const ic = document.createElement("ha-icon");
         ic.setAttribute("icon", this._headingIcon);
