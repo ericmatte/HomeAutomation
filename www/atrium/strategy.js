@@ -55,18 +55,18 @@ class AtriumStrategy {
       return `mdi:home-floor-${Math.min(lvl, 3)}`;
     };
 
-    const areaCard = (floor, { defaultExpanded = false, sections, heading, headingIcon } = {}) => ({
+    const areaCard = (floor, { defaultExpanded = false, sections, exclude } = {}) => ({
       type: "custom:atrium-area-card",
       floor: floor.floor_id ?? null,
       ...(defaultExpanded ? { default_expanded: true } : {}),
       ...(sections ? { sections } : {}),
-      ...(heading ? { heading } : {}),
-      ...(headingIcon ? { heading_icon: headingIcon } : {}),
+      ...(exclude ? { exclude } : {}),
     });
 
     const floorLabelCard = (floor) => ({
       type: "custom:atrium-floor-label",
       name: floor.name,
+      icon: floorIcon(floor),
       floor: floor.floor_id ?? null,
     });
 
@@ -76,6 +76,16 @@ class AtriumStrategy {
     const stack = (cards) => ({
       type: "vertical-stack",
       cards: cards.filter(Boolean),
+    });
+
+    // Aggregate tabs render native cards that don't pad themselves (unlike the
+    // area-card / header). Wrap their content so it gets the same 16px side
+    // padding as the area views. card-mod is in the user's resources; if it
+    // weren't, the key is simply ignored (no padding, no error).
+    const paddedStack = (cards) => ({
+      type: "vertical-stack",
+      cards: cards.filter(Boolean),
+      card_mod: { style: ":host { display: block; padding: 0 16px 32px; }" },
     });
 
     const baseView = (extra) => ({
@@ -88,32 +98,16 @@ class AtriumStrategy {
     const cfg = _config || {};
     const cfgList = (v) => (Array.isArray(v) ? v : []);
 
-    // Aggregate tabs discover their entities up front from `hass` (which
-    // `generate` already receives). The set is fixed at generate time, but
-    // native `entities` cards still update their values live afterwards.
-    const sensorsByDeviceClass = (classes) => {
-      const want = new Set(classes);
-      return Object.values(hass.entities || {})
-        .filter(
-          (e) =>
-            !e.hidden &&
-            !e.hidden_by &&
-            !e.disabled_by &&
-            e.entity_id.startsWith("sensor.") &&
-            want.has(hass.states?.[e.entity_id]?.attributes?.device_class)
-        )
-        .map((e) => e.entity_id);
-    };
-
     const entitiesCard = (title, ids) =>
       ids.length
         ? { type: "entities", title, entities: ids.map((entity) => ({ entity })) }
         : null;
 
-    // Home keeps the full all-floors room dashboard (floor dimmer + every
-    // category). The other tabs reuse the same area-card engine but pass a
-    // section profile so each renders only the entities matching its intent,
-    // with a per-floor heading in place of the (light-only) floor dimmer.
+    // Home is the all-floors room dashboard, minus climate and
+    // automations/scripts — each of those has its own dedicated tab, so
+    // showing them here too is redundant. The other tabs reuse the same
+    // area-card engine but pass a section profile, with a per-floor heading
+    // in place of the (light-only) floor dimmer.
     const homeView = baseView({
       title: "Home",
       path: "home",
@@ -121,7 +115,10 @@ class AtriumStrategy {
       cards: [
         stack([
           headerCard(ALL_FLOOR_KEY),
-          ...allFloors.flatMap((f) => [floorLabelCard(f), areaCard(f)]),
+          ...allFloors.flatMap((f) => [
+            floorLabelCard(f),
+            areaCard(f, { exclude: ["climates", "automations", "scripts"] }),
+          ]),
         ]),
       ],
     });
@@ -134,14 +131,10 @@ class AtriumStrategy {
         cards: [
           stack([
             headerCard(ALL_FLOOR_KEY),
-            ...allFloors.map((f) =>
-              areaCard(f, {
-                sections,
-                heading: f.name,
-                headingIcon: floorIcon(f),
-                defaultExpanded: true,
-              })
-            ),
+            ...allFloors.flatMap((f) => [
+              floorLabelCard(f),
+              areaCard(f, { sections, defaultExpanded: true }),
+            ]),
           ]),
         ],
       });
@@ -160,9 +153,9 @@ class AtriumStrategy {
       sections: ["scenes", "routines"],
     });
 
-    // Energy & Maintenance are aggregate/manual tabs: discovered entities
-    // plus whatever the user adds via YAML. No floor/area accordion.
-    const energyAuto = sensorsByDeviceClass(["power", "energy"]);
+    // Energy & Maintenance are aggregate/manual tabs: only what the user adds
+    // via YAML (no auto-discovery — the header pill covers batteries, and the
+    // user supplies their own energy cards). No floor/area accordion.
     const energyView = baseView({
       title: "Energy",
       path: "energy",
@@ -170,15 +163,14 @@ class AtriumStrategy {
       cards: [
         stack([
           headerCard(ALL_FLOOR_KEY),
-          entitiesCard("Power & energy", energyAuto),
-          entitiesCard("Energy", cfgList(cfg.energy?.entities)),
-          ...cfgList(cfg.energy?.cards),
+          paddedStack([
+            entitiesCard("Energy", cfgList(cfg.energy?.entities)),
+            ...cfgList(cfg.energy?.cards),
+          ]),
         ]),
       ],
     });
 
-    // Batteries are intentionally not listed here — the header pill already
-    // aggregates them, so this tab stays focused on manual system cards.
     const maintenanceView = baseView({
       title: "Maintenance",
       path: "maintenance",
@@ -186,8 +178,10 @@ class AtriumStrategy {
       cards: [
         stack([
           headerCard(ALL_FLOOR_KEY),
-          entitiesCard("System", cfgList(cfg.maintenance?.entities)),
-          ...cfgList(cfg.maintenance?.cards),
+          paddedStack([
+            entitiesCard("System", cfgList(cfg.maintenance?.entities)),
+            ...cfgList(cfg.maintenance?.cards),
+          ]),
         ]),
       ],
     });

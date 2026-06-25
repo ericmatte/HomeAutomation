@@ -16,6 +16,7 @@ class AtriumFloorLabel extends HTMLElement {
   setConfig(config) {
     if (config.floor === undefined) throw new Error("floor is required");
     this._name = config.name || "";
+    this._icon = typeof config.icon === "string" ? config.icon : null;
     // `floor: null` targets areas not assigned to any floor.
     this.floorId = config.floor === null ? null : config.floor;
   }
@@ -88,6 +89,7 @@ class AtriumFloorLabel extends HTMLElement {
     this.innerHTML = `
       <style>${SHELL_STYLE}</style>
       <div class="atrium-shell-floor-label">
+        ${this._icon ? `<ha-icon class="atrium-shell-fl-icon" icon="${this._icon}"></ha-icon>` : ""}
         <span class="atrium-shell-fl-name"></span>
         <div class="atrium-shell-fl-line"></div>
         <div class="atrium-shell-fl-controls">

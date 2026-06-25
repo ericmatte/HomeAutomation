@@ -3,7 +3,7 @@ const [popoverMod, sharedMod] = await Promise.all([
   import(`../lib/popover.js${_v}`),
   import(`./area-card-shared.js${_v}`),
 ]);
-const { openPopover, closePopoverFor, buildPopoverHeader } = popoverMod;
+const { openPopover, closePopoverFor } = popoverMod;
 const {
   TONE, ICONS,
   iconForArea, iconForScene,
@@ -124,8 +124,8 @@ export function _buildRoomBody(area, data) {
   if (data.vacuums.length) sections.push(this._buildVacuumSection(area, data.vacuums));
   if (data.sensors.extras.length) sections.push(this._buildSensorsSection(area, data.sensors.extras));
   if (data.scenes.length) sections.push(this._buildScenesSection(area, data.scenes));
-  const drawer = this._buildAutomationsDrawer(area, data.automations, data.scripts);
-  if (drawer) sections.push(drawer);
+  const routines = this._buildAutomationsSection(area, data.automations, data.scripts);
+  if (routines) sections.push(routines);
   for (const s of sections) bodyInner.appendChild(s);
 
   body.appendChild(bodyInner);
@@ -529,56 +529,24 @@ export function _buildScenesSection(area, scenes) {
   return section;
 }
 
-export function _buildAutomationsDrawer(area, automations, scripts) {
+export function _buildAutomationsSection(area, automations, scripts) {
   const items = [...automations, ...scripts];
   if (!items.length) return null;
-  const total = items.length;
-  const disabledCount = automations.filter((a) => this._hass.states?.[a.entity_id]?.state === "off").length;
 
-  let titleBase;
-  if (automations.length && scripts.length) titleBase = "Automations &amp; scripts";
-  else if (scripts.length) titleBase = scripts.length > 1 ? "Scripts" : "Script";
-  else titleBase = automations.length > 1 ? "Automations" : "Automation";
-  const popTitleBase = titleBase.replace("&amp;", "&");
-  const metaText = `· ${total}${disabledCount ? ` · ${disabledCount} off` : ""}`;
-  const popTitle = `${popTitleBase} · ${total}${disabledCount ? ` (${disabledCount} off)` : ""}`;
+  let title;
+  if (automations.length && scripts.length) title = "Automations & scripts";
+  else if (scripts.length) title = scripts.length > 1 ? "Scripts" : "Script";
+  else title = automations.length > 1 ? "Automations" : "Automation";
 
-  const trigger = document.createElement("button");
-  trigger.type = "button";
-  trigger.className = "atrium-autos-trigger";
-  trigger.innerHTML = `
-    <span class="atrium-autos-trigger-iconwrap"><ha-icon icon="${ICONS.cogs}" style="--mdc-icon-size:12px"></ha-icon></span>
-    <span class="atrium-autos-trigger-label">${titleBase}</span>
-    <span class="atrium-autos-trigger-meta">${metaText}</span>
-  `;
-  trigger.addEventListener("click", (e) => {
-    e.stopPropagation();
-    this._openAutomationsPopover(area, items, trigger, popTitle);
-  });
-  return trigger;
-}
-
-export function _openAutomationsPopover(area, items, anchor, title) {
-  ensurePopoverItemStyle();
-
-  const root = document.createElement("div");
-  root.appendChild(buildPopoverHeader(title));
-  const listEl = document.createElement("div");
-  listEl.className = "atrium-pop-list atrium-pop-list-rooms";
-  for (const item of items) listEl.appendChild(this._buildAutomationRow(area, item));
-  root.appendChild(listEl);
-
-  this._openAnchors.add(anchor);
-  openPopover({
-    anchor,
-    content: root,
-    width: Math.min(340, window.innerWidth - 24),
-    onClose: () => {
-      anchor.classList.remove("open");
-      this._openAnchors.delete(anchor);
-    },
-  });
-  anchor.classList?.add?.("open");
+  // Same rows as the old popover, now grouped on a surface and dropped
+  // straight into the room body like every other section. The .atrium-auto-*
+  // row styles live in area-card.css (card scope); the surface background is
+  // inlined since .atrium-pop-list-rooms only exists in the popover stylesheet.
+  const list = document.createElement("div");
+  list.style.cssText =
+    "background:color-mix(in srgb, var(--primary-text-color, #e8e9ec) 6%, transparent);border-radius:12px;overflow:hidden";
+  for (const item of items) list.appendChild(this._buildAutomationRow(area, item));
+  return this._section(title, list);
 }
 
 export function _buildAutomationRow(area, item) {
