@@ -126,7 +126,10 @@
   flex-shrink: 0;
   align-self: center;
   transform: scale(0.82);
-  transform-origin: center right;
+  transform-origin: left center;
+  /* scale() keeps the original layout box, so trim the slack it leaves on the
+     right back out of the flow to keep the row tight. */
+  margin-right: -6px;
   /* Tone the stock switch down to the section accent (matches the play
      button) instead of HA's brighter default primary blue. */
   --switch-checked-color: var(--state-climate-cool-color, #5cc6ff);
