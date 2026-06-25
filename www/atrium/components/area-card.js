@@ -49,11 +49,21 @@ class AtriumAreaCard extends HTMLElement {
   connectedCallback() {
     this.style.display = "block";
     this.style.padding = "0 16px 32px";
+    if (!this._resizeObserver) {
+      this._resizeObserver = new ResizeObserver(() => this._onResize());
+      this._resizeObserver.observe(this);
+    }
   }
 
   disconnectedCallback() {
     for (const a of this._openAnchors) closePopoverFor(a);
     this._openAnchors.clear();
+    this._resizeObserver?.disconnect();
+    this._resizeObserver = null;
+    if (this._resizeRaf) {
+      cancelAnimationFrame(this._resizeRaf);
+      this._resizeRaf = 0;
+    }
   }
 
   _areaFloorId(area) {
@@ -268,14 +278,62 @@ class AtriumAreaCard extends HTMLElement {
       for (const a of areas) this._expanded.add(a.area_id);
       this._seededDefault = true;
     }
+    const cards = [];
     for (const area of areas) {
       const entities = this._entitiesForArea(area);
       const data = this._filterData(this._classify(area, entities));
       if (this._areaIsEmpty(data)) continue;
-      root.appendChild(this._buildRoomCard(area, data));
+      cards.push(this._buildRoomCard(area, data));
     }
+    this._roomCards = cards;
+    // Append the (empty) root first so getComputedStyle can resolve the
+    // --atrium-cols breakpoint variable before we distribute.
     this.appendChild(root);
+    this._root = root;
+    this._layoutMasonry();
     this._update();
+  }
+
+  // Distribute the room cards into N flex columns (N = --atrium-cols), greedily
+  // placing each card into the currently shortest column. This packs
+  // variable-height cards without the row-aligned gaps a CSS grid leaves.
+  _layoutMasonry() {
+    const root = this._root;
+    if (!root) return;
+    const colCount = this._colsFromCss(root);
+    this._colCount = colCount;
+    root.replaceChildren();
+    this._cols = Array.from({ length: colCount }, () => {
+      const col = document.createElement("div");
+      col.className = "atrium-col";
+      root.appendChild(col);
+      return col;
+    });
+    for (const card of this._roomCards || []) {
+      let shortest = this._cols[0];
+      for (const col of this._cols) {
+        if (col.offsetHeight < shortest.offsetHeight) shortest = col;
+      }
+      shortest.appendChild(card);
+    }
+  }
+
+  _colsFromCss(root) {
+    const raw = getComputedStyle(root).getPropertyValue("--atrium-cols");
+    const n = parseInt(raw, 10);
+    return Number.isFinite(n) && n > 0 ? n : 1;
+  }
+
+  // Re-distribute only when the breakpoint (column count) changes. Resizes
+  // caused by expand/collapse keep the same column count and are ignored, so
+  // toggling a card never makes other cards jump between columns.
+  _onResize() {
+    if (this._resizeRaf) return;
+    this._resizeRaf = requestAnimationFrame(() => {
+      this._resizeRaf = 0;
+      if (!this._root) return;
+      if (this._colsFromCss(this._root) !== this._colCount) this._layoutMasonry();
+    });
   }
 
   _areaIsEmpty(d) {
