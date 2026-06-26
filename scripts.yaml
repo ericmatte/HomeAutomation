@@ -496,11 +496,3 @@ reset_after_escape_roome:
     data: {}
   alias: Reset after escape room
   description: ''
-go_go_go_caro:
-  sequence:
-  - action: tts.speak
-    metadata: {}
-    data:
-      cache: true
-  alias: Go go go Caro
-  description: ''

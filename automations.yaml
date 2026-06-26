@@ -763,8 +763,9 @@
   actions:
   - if:
     - condition: state
-      entity_id: binary_sensor.laundry_door
-      state: 'on'
+      entity_id: binary_sensor.laundry_door_open
+      state:
+      - 'on'
     then:
     - action: light.turn_on
       metadata: {}
@@ -861,7 +862,11 @@
       - sensor.rm4_humidity
       - sensor.downstairs_motion_humidity
       - sensor.office_motion_humidity
-      threshold: 60
+      threshold: 70
+      for_duration:
+        hours: 0
+        minutes: 10
+        seconds: 0
 - id: '1759267988873'
   alias: Sync covers with time and sun
   description: ''
@@ -1637,9 +1642,9 @@
   - trigger: state
     entity_id:
     - binary_sensor.shower_leak_detector_water_leak
-    to:
-    - 'off'
     from:
+    - 'off'
+    to:
     - 'on'
   conditions: []
   actions:
@@ -1649,8 +1654,8 @@
       data:
         ttl: 0
         priority: high
-      message: Vérifier le niveau d'eau de la piscine
-      title: "\U0001F3CA‍♀️ Variation du niveau d'eau"
+      title: "\U0001F4A6 Leak d'eau détecté ❗️"
+      message: Au niveau de la tank d'eau chaude
   mode: single
 - id: '1763754630684'
   alias: Lights on when making coffee
