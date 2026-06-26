@@ -30,14 +30,6 @@ export function _buildRoomCard(area, data) {
     "atrium-room" + (expanded && hasBody ? " expanded" : "") + (hasBody ? "" : " no-body");
   card.dataset.area = area.area_id;
 
-  if (area.picture) {
-    card.classList.add("has-bg");
-    card.style.setProperty("--atrium-area-img", `url("${area.picture}")`);
-    const bg = document.createElement("div");
-    bg.className = "atrium-room-bg";
-    card.appendChild(bg);
-  }
-
   // Seed the per-area ref entry before delegating — section builders
   // mutate `this._refs.areas.get(area.area_id).<map>` while wiring tiles.
   const areaRef = {
