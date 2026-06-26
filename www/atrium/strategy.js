@@ -40,9 +40,10 @@ class AtriumStrategy {
 
     const welcomeName = hass.user?.name?.split(" ")?.[0] || "home";
 
-    const headerCard = (floorScope) => ({
+    const headerCard = (floorScope, title) => ({
       type: "custom:atrium-header",
       welcome_name: welcomeName,
+      ...(title ? { title } : {}),
       floor: floorScope,
     });
 
@@ -133,7 +134,7 @@ class AtriumStrategy {
         icon,
         cards: [
           stack([
-            headerCard(ALL_FLOOR_KEY),
+            headerCard(ALL_FLOOR_KEY, title),
             ...allFloors.flatMap((f) => [
               floorLabelCard(f),
               areaCard(f, { sections, defaultExpanded: true }),
@@ -165,7 +166,7 @@ class AtriumStrategy {
       icon: "mdi:lightning-bolt",
       cards: [
         stack([
-          headerCard(ALL_FLOOR_KEY),
+          headerCard(ALL_FLOOR_KEY, "Energy"),
           paddedStack([
             entitiesCard("Energy", cfgList(cfg.energy?.entities)),
             ...cfgList(cfg.energy?.cards),
@@ -180,7 +181,7 @@ class AtriumStrategy {
       icon: "mdi:wrench",
       cards: [
         stack([
-          headerCard(ALL_FLOOR_KEY),
+          headerCard(ALL_FLOOR_KEY, "Maintenance"),
           paddedStack([
             entitiesCard("System", cfgList(cfg.maintenance?.entities)),
             ...cfgList(cfg.maintenance?.cards),

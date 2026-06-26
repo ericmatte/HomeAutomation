@@ -51,6 +51,8 @@ class AtriumHeader extends HTMLElement {
     // every floor; otherwise a specific floor_id.
     this._floorId = config.floor === ALL_FLOOR_KEY ? ALL_FLOOR_KEY : config.floor;
     this._welcomeName = config.welcome_name || "home";
+    // The default (home) tab greets the user; every other tab labels itself.
+    this._title = config.title || null;
   }
 
   connectedCallback() {
@@ -102,7 +104,7 @@ class AtriumHeader extends HTMLElement {
     top.innerHTML = `
       <div class="atrium-shell-header-greeting">
         <div class="atrium-shell-date"></div>
-        <div class="atrium-shell-welcome">Welcome ${this._welcomeName}</div>
+        <div class="atrium-shell-welcome">${this._title || `Welcome ${this._welcomeName}`}</div>
       </div>
       <div class="atrium-shell-header-people"></div>
     `;
