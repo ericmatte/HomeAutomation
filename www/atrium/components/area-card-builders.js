@@ -136,13 +136,6 @@ export function _buildRoomBody(area, data) {
 
 export function _section(title, children) {
   const wrap = document.createElement("div");
-  const header = document.createElement("div");
-  header.className = "atrium-section-header";
-  const t = document.createElement("div");
-  t.className = "atrium-section-title";
-  t.textContent = title;
-  header.appendChild(t);
-  wrap.appendChild(header);
   const inner = document.createElement("div");
   inner.style.cssText = "display:flex;flex-direction:column;gap:6px";
   if (Array.isArray(children)) children.forEach((c) => inner.appendChild(c));
@@ -515,17 +508,7 @@ export function _buildScenesSection(area, scenes) {
     btn.addEventListener("click", () => this._call("scene", "turn_on", { entity_id: s.entity_id }));
     wrap.appendChild(btn);
   }
-  const header = document.createElement("div");
-  header.className = "atrium-section-header";
-  const t = document.createElement("div");
-  t.className = "atrium-section-title";
-  t.textContent = "Scenes";
-  const hint = document.createElement("div");
-  hint.className = "atrium-section-hint";
-  hint.textContent = `${scenes.length}`;
-  header.append(t, hint);
   const section = document.createElement("div");
-  section.appendChild(header);
   section.appendChild(wrap);
   return section;
 }

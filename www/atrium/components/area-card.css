@@ -42,9 +42,6 @@
    0fr. Padding lives on .atrium-body-inner. */
 .atrium-body { overflow: hidden; min-height: 0; }
 .atrium-body-inner { padding: 0 14px 16px; display: flex; flex-direction: column; gap: 12px; }
-.atrium-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
-.atrium-section-title { font-size: 11px; color: color-mix(in srgb, var(--secondary-text-color, #9aa0aa) 70%, transparent); letter-spacing: .6px; text-transform: uppercase; font-weight: 600; }
-.atrium-section-hint { font-size: 10.5px; color: color-mix(in srgb, var(--secondary-text-color, #9aa0aa) 70%, transparent); opacity: .7; }
 .atrium-grid { display: grid; gap: 6px; }
 .atrium-grid.cols-1 { grid-template-columns: 1fr; }
 .atrium-grid.cols-2 { grid-template-columns: 1fr 1fr; }
