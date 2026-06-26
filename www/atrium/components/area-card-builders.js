@@ -57,6 +57,7 @@ export function _buildRoomHeader(area, data, hasBody = true) {
   const row = document.createElement("div");
   row.className = "atrium-row";
   if (hasBody && COLLAPSIBLE) {
+    row.classList.add("clickable");
     row.addEventListener("click", () => this._toggleExpanded(area.area_id));
   }
 
