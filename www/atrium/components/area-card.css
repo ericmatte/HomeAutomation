@@ -8,8 +8,17 @@
 .atrium-floor-label { display: flex; align-items: center; gap: 8px; padding: 14px 4px 4px; font-size: 12px; color: var(--secondary-text-color, #9aa0aa); letter-spacing: .6px; text-transform: uppercase; font-weight: 600; grid-column: 1 / -1; }
 .atrium-floor-label > .line { flex: 1; height: 1px; background: var(--divider-color, rgba(127,127,127,0.18)); }
 
-.atrium-room { background: var(--ha-card-background, var(--card-background-color, var(--ha-card-background, var(--card-background-color, #16181d)))); border-radius: 14px; border: 1px solid var(--ha-card-border-color, var(--divider-color, transparent)); overflow: hidden; transition: border-color .2s; scroll-margin-bottom: 16px; }
+.atrium-room { position: relative; background: var(--ha-card-background, var(--card-background-color, var(--ha-card-background, var(--card-background-color, #16181d)))); border-radius: 14px; border: 1px solid var(--ha-card-border-color, var(--divider-color, transparent)); overflow: hidden; transition: border-color .2s; scroll-margin-bottom: 16px; }
 .atrium-room.expanded { border-color: var(--ha-card-border-color, var(--divider-color, color-mix(in srgb, var(--primary-text-color, #e8e9ec) 10%, transparent))); }
+
+/* Area picture (from HA area settings) as a full-card background. A vertical
+   scrim keeps the header light enough to show the photo while dimming the body
+   so the control tiles stay legible. */
+.atrium-room-bg { position: absolute; inset: 0; z-index: 0; background-image: var(--atrium-area-img); background-size: cover; background-position: center; }
+.atrium-room-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(20,22,29,.28) 0, rgba(20,22,29,.50) 60px, rgba(20,22,29,.88) 150px, rgba(20,22,29,.92) 100%); }
+.atrium-room.has-bg .atrium-row, .atrium-room.has-bg .atrium-body-wrap { position: relative; z-index: 1; }
+.atrium-room.has-bg .atrium-room-name { text-shadow: 0 1px 3px rgba(0,0,0,.55); }
+.atrium-room.has-bg .atrium-room-icon { color: var(--primary-text-color, #e8e9ec); text-shadow: 0 1px 3px rgba(0,0,0,.55); }
 
 .atrium-row { padding: 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none; }
 .atrium-room.no-body .atrium-row { cursor: default; user-select: auto; }

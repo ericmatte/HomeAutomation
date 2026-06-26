@@ -97,7 +97,7 @@ class AtriumAreaCard extends HTMLElement {
     const parts = [this._floorId];
     for (const a of Object.values(hass.areas)) {
       if (this._areaFloorId(a) !== this._floorId) continue;
-      parts.push(`A:${a.area_id}`);
+      parts.push(`A:${a.area_id}:${a.picture || ""}`);
     }
     for (const e of Object.values(hass.entities)) {
       const areaId = e.area_id || hass.devices?.[e.device_id]?.area_id;
