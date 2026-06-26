@@ -149,44 +149,51 @@
               }
             },
             {
-              "type": "gauge",
-              "entity": "sensor.cpu_temperature",
-              "name": "CPU Temperature",
-              "min": 0,
-              "max": 100,
-              "severity": {
-                "green": 0,
-                "yellow": 60,
-                "red": 80
-              }
-            },
-            {
-              "type": "sensor",
-              "entity": "sensor.processor_use",
-              "name": "CPU Usage",
-              "graph": "line",
-              "detail": 1,
-              "hours_to_show": 168
-            },
-            {
-              "graph": "line",
-              "type": "sensor",
-              "entity": "sensor.system_monitor_memory_use",
-              "name": "RAM",
-              "detail": 1,
-              "hours_to_show": 168,
-              "limits": {
-                "max": 8000
-              }
-            },
-            {
-              "type": "sensor",
-              "entity": "sensor.database_filesize",
-              "name": "Database Size",
-              "icon": "hass:database",
-              "graph": "line",
-              "detail": 1,
-              "hours_to_show": 168
+              "type": "grid",
+              "columns": 2,
+              "square": false,
+              "cards": [
+                {
+                  "type": "gauge",
+                  "entity": "sensor.cpu_temperature",
+                  "name": "CPU Temperature",
+                  "min": 0,
+                  "max": 100,
+                  "severity": {
+                    "green": 0,
+                    "yellow": 60,
+                    "red": 80
+                  }
+                },
+                {
+                  "type": "sensor",
+                  "entity": "sensor.processor_use",
+                  "name": "CPU Usage",
+                  "graph": "line",
+                  "detail": 1,
+                  "hours_to_show": 168
+                },
+                {
+                  "graph": "line",
+                  "type": "sensor",
+                  "entity": "sensor.system_monitor_memory_use",
+                  "name": "RAM",
+                  "detail": 1,
+                  "hours_to_show": 168,
+                  "limits": {
+                    "max": 8000
+                  }
+                },
+                {
+                  "type": "sensor",
+                  "entity": "sensor.database_filesize",
+                  "name": "Database Size",
+                  "icon": "hass:database",
+                  "graph": "line",
+                  "detail": 1,
+                  "hours_to_show": 168
+                }
+              ]
             }
           ]
         }
