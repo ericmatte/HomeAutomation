@@ -91,7 +91,7 @@
 .atrium-climate-menu-btn ha-icon { --mdc-icon-size: 13px; }
 .atrium-climate-menu-btn .label { line-height: 14px; text-transform: capitalize; }
 
-.atrium-sensor { background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 3%, transparent); border-radius: 12px; padding: 10px 12px; cursor: pointer; }
+.atrium-sensor { min-width: 0; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 3%, transparent); border-radius: 12px; padding: 10px 12px; cursor: pointer; }
 .atrium-sensor-row { display: flex; align-items: center; gap: 8px; }
 .atrium-sensor .atrium-swatch { width: 22px; height: 22px; border-radius: 7px; }
 .atrium-sensor-name { flex: 1; min-width: 0; font-size: 13.5px; line-height: 16px; color: var(--primary-text-color, #e8e9ec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
