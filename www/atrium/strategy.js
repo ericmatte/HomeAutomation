@@ -196,8 +196,8 @@ class AtriumStrategy {
         homeView,
         climateView,
         energyView,
-        routinesView,
         maintenanceView,
+        routinesView,
       ],
     };
   }
