@@ -109,6 +109,7 @@ export function _updateQuickButtons(ar) {
   const onCount = data.lights.filter((l) => hass.states?.[l.entity_id]?.state === "on").length;
   const openCount = data.covers.filter((c) => fmtCoverPct(hass.states?.[c.entity_id] || { attributes: {} }) > 5).length;
   ar.icon.classList.toggle("on", onCount > 0);
+  ar.card.classList.toggle("lights-on", onCount > 0);
   ar.bulbBtn.classList.toggle("on-light", onCount > 0);
   if (ar.bulbCountEl) {
     ar.bulbCountEl.style.display = onCount > 0 ? "inline" : "none";
