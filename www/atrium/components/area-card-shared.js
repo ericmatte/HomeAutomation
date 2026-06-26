@@ -186,6 +186,21 @@ export function fmtCoverPct(state) {
   return Math.max(0, Math.min(100, Math.round(p)));
 }
 
+// Current reading for a sensor, formatted like the header chips: percentages
+// rounded, other numbers kept to one decimal, unit glued or spaced per symbol.
+export function fmtSensorValue(state) {
+  const raw = state?.state;
+  if (raw == null || raw === "unavailable" || raw === "unknown") return "—";
+  const unit = state.attributes?.unit_of_measurement || "";
+  const num = parseFloat(raw);
+  let text = raw;
+  if (!Number.isNaN(num) && /^-?\d*\.?\d+$/.test(String(raw).trim())) {
+    text = unit === "%" ? String(Math.round(num)) : Number.isInteger(num) ? String(num) : num.toFixed(1);
+  }
+  if (!unit) return text;
+  return /^[°%]/.test(unit) ? `${text}${unit}` : `${text} ${unit}`;
+}
+
 // HA stores label colors as theme keys ("blue", "red", …). Map them to the
 // TONE palette so atrium labels track the rest of the dashboard.
 export function labelDescriptor(hass, labelId) {

@@ -8,7 +8,7 @@ const {
   TONE, ICONS,
   CLIMATE_ACCENT, CLIMATE_LABELS, CLIMATE_ICONS,
   capitalize,
-  canDimLight, fmtBrightnessPct, fmtCoverPct,
+  canDimLight, fmtBrightnessPct, fmtCoverPct, fmtSensorValue,
   iconForFanMode, iconForSwingMode,
   levelColor,
   labelDescriptor,
@@ -156,15 +156,9 @@ export function _updateLightRef(ref, entityId) {
   }
 }
 
-export function _wakeSensorGraph(ref) {
-  if (ref.graph || !ref.makeGraph) return;
-  ref.graph = ref.makeGraph();
-  if (ref.graph) ref.graph.hass = this._hass;
-}
-
-export function _updateSensorRef(ref, _entityId, isExpanded) {
-  if (!isExpanded || !ref.graph) return;
-  ref.graph.hass = this._hass;
+export function _updateSensorRef(ref, entityId) {
+  if (!ref.value) return;
+  ref.value.textContent = fmtSensorValue(this._hass.states?.[entityId]);
 }
 
 export function _wakeClimateGraph(ref) {

@@ -367,24 +367,6 @@ class AtriumAreaCard extends HTMLElement {
     return found?.entity_id || null;
   }
 
-  _tryCreateSensorMiniGraph(sensorId) {
-    try {
-      const el = document.createElement("mini-graph-card");
-      el.setConfig({
-        entities: [{ entity: sensorId, color: TONE.warn, show_line: true, show_points: false, show_fill: true }],
-        hours_to_show: 24,
-        points_per_hour: 2,
-        line_width: 1.4,
-        height: 60,
-        show: { name: false, icon: false, state: false, legend: false, extrema: false, labels: false, labels_secondary: false, fill: "fade" },
-        animate: false,
-      });
-      return el;
-    } catch (_) {
-      return null;
-    }
-  }
-
   _tryCreateMiniGraph(sensorId, climateId) {
     try {
       const el = document.createElement("mini-graph-card");
@@ -439,7 +421,6 @@ class AtriumAreaCard extends HTMLElement {
       this._expanded.add(areaId);
       card.classList.add("expanded");
       for (const [, cref] of ar.climates) this._wakeClimateGraph(cref);
-      if (ar.sensors) for (const [, sref] of ar.sensors) this._wakeSensorGraph(sref);
       // Wait out the 250ms body transition, then nudge the page enough to
       // reveal any overflow at the bottom of the now-expanded card.
       setTimeout(() => {
@@ -482,7 +463,7 @@ class AtriumAreaCard extends HTMLElement {
       for (const [entId, ref] of ar.climates) this._updateClimateRef(ref, entId, isExpanded);
       for (const [entId, ref] of ar.vacuums) this._updateVacuumRef(ref, entId);
       for (const [entId, ref] of ar.automations) this._updateAutomationRef(ref, entId);
-      if (ar.sensors) for (const [entId, ref] of ar.sensors) this._updateSensorRef(ref, entId, isExpanded);
+      if (ar.sensors) for (const [entId, ref] of ar.sensors) this._updateSensorRef(ref, entId);
     }
   }
 

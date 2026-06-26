@@ -10,6 +10,7 @@ const {
   iconForArea, iconForScene,
   nameWithoutAreaPrefix, nameWithoutStairs,
   ensurePopoverItemStyle,
+  fmtSensorValue,
 } = sharedMod;
 
 export function _buildRoomCard(area, data) {
@@ -375,25 +376,12 @@ export function _buildSensorsSection(area, sensors) {
 }
 
 export function _buildSensorTile(area, sensor) {
-  // Mirrors the climate tile shape: mini-graph as a faded background, only
-  // an icon + name overlaid. Tap anywhere → more-info. Lazy graph mount so
-  // collapsed rooms don't fetch history.
+  // Header-chip style: swatch icon + name + current reading. Tap → more-info.
   const tile = document.createElement("div");
   tile.className = "atrium-sensor";
   tile.dataset.entity = sensor.entity_id;
   tile.addEventListener("click", () => this._moreInfo(sensor.entity_id));
 
-  const bg = document.createElement("div");
-  bg.className = "atrium-sensor-bg";
-  tile.appendChild(bg);
-  const makeGraph = () => {
-    const g = this._tryCreateSensorMiniGraph(sensor.entity_id);
-    if (g) bg.appendChild(g);
-    return g;
-  };
-
-  const content = document.createElement("div");
-  content.className = "atrium-sensor-content";
   const row = document.createElement("div");
   row.className = "atrium-sensor-row";
   const swatch = document.createElement("div");
@@ -419,13 +407,14 @@ export function _buildSensorTile(area, sensor) {
   const name = document.createElement("div");
   name.className = "atrium-sensor-name";
   name.textContent = nameWithoutAreaPrefix(this._entityName(sensor), area);
-  row.append(swatch, name);
-  content.appendChild(row);
-  tile.appendChild(content);
+  const value = document.createElement("div");
+  value.className = "atrium-sensor-value";
+  value.textContent = fmtSensorValue(st);
+  row.append(swatch, name, value);
+  tile.appendChild(row);
 
-  const ref = { tile, graph: null, makeGraph };
+  const ref = { tile, value };
   this._refs.areas.get(area.area_id).sensors.set(sensor.entity_id, ref);
-  if (COLLAPSIBLE ? this._expanded.has(area.area_id) : true) this._wakeSensorGraph(ref);
   return tile;
 }
 
