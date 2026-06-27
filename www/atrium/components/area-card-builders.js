@@ -209,7 +209,7 @@ export function _buildLightTile(area, light) {
 
 export function _buildClimateSection(area, climates, sensors) {
   const grid = document.createElement("div");
-  grid.className = "atrium-grid " + (climates.length > 1 ? "cols-2" : "cols-1");
+  grid.className = "atrium-grid cols-1";
   grid.style.gap = "8px";
   for (const c of climates) grid.appendChild(this._buildClimateTile(area, c, sensors));
   return this._section("Climate", grid);
@@ -494,12 +494,14 @@ export function _buildScenesSection(area, scenes) {
   let dragMoved = false;
 
   wrap.addEventListener("pointerdown", (e) => {
-    isDragging = true;
     dragMoved = false;
-    startX = e.clientX;
-    scrollStart = wrap.scrollLeft;
-    wrap.classList.add("dragging");
-    wrap.setPointerCapture(e.pointerId);
+    if (e.target === wrap || e.target.closest(".atrium-scene-btn") === null) {
+      isDragging = true;
+      startX = e.clientX;
+      scrollStart = wrap.scrollLeft;
+      wrap.classList.add("dragging");
+      wrap.setPointerCapture(e.pointerId);
+    }
   });
   wrap.addEventListener("pointermove", (e) => {
     if (!isDragging) return;
@@ -507,7 +509,10 @@ export function _buildScenesSection(area, scenes) {
     if (Math.abs(dx) > 4) dragMoved = true;
     wrap.scrollLeft = scrollStart - dx;
   });
-  wrap.addEventListener("pointerup", () => {
+  wrap.addEventListener("pointerup", (e) => {
+    if (isDragging && e.target === wrap) {
+      wrap.releasePointerCapture(e.pointerId);
+    }
     isDragging = false;
     wrap.classList.remove("dragging");
   });
