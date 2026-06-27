@@ -612,3 +612,36 @@ export function _buildAutomationRow(area, item) {
   this._refs.areas.get(area.area_id).automations.set(item.entity_id, ref);
   return row;
 }
+
+export function _buildHiddenRoutinesBtn(area, hiddenItems) {
+  const rows = hiddenItems.map((item) => this._buildAutomationRow(area, item));
+
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "atrium-autos-trigger";
+  const count = hiddenItems.length;
+  btn.innerHTML =
+    `<span class="atrium-autos-trigger-iconwrap"><ha-icon icon="mdi:eye-off-outline" style="--mdc-icon-size:13px"></ha-icon></span>` +
+    `<span class="atrium-autos-trigger-label">${count} hidden</span>`;
+
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    ensurePopoverItemStyle();
+    const list = document.createElement("div");
+    list.className = "atrium-pop-list-rooms";
+    list.style.cssText = "border-radius:12px;overflow:hidden";
+    for (const row of rows) list.appendChild(row);
+    const wrap = document.createElement("div");
+    wrap.appendChild(buildPopoverHeader("Hidden routines", String(count)));
+    wrap.appendChild(list);
+    this._openAnchors.add(btn);
+    openPopover({
+      anchor: btn,
+      content: wrap,
+      width: 320,
+      onClose: () => this._openAnchors.delete(btn),
+    });
+  });
+
+  return btn;
+}

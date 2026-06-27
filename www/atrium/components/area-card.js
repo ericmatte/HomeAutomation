@@ -125,6 +125,19 @@ class AtriumAreaCard extends HTMLElement {
       });
   }
 
+  _hiddenRoutinesForArea(area) {
+    const hass = this._hass;
+    return Object.values(hass.entities)
+      .filter((e) => {
+        if (!e.hidden) return false;
+        const domain = e.entity_id.split(".")[0];
+        if (domain !== "automation" && domain !== "script") return false;
+        const areaId = e.area_id || hass.devices?.[e.device_id]?.area_id;
+        return areaId === area.area_id;
+      })
+      .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+  }
+
   _emptyData() {
     return {
       lights: [],
@@ -282,6 +295,9 @@ class AtriumAreaCard extends HTMLElement {
     for (const area of areas) {
       const entities = this._entitiesForArea(area);
       const data = this._filterData(this._classify(area, entities));
+      if (this._sections?.has("routines")) {
+        data.hiddenRoutines = this._hiddenRoutinesForArea(area);
+      }
       if (this._areaIsEmpty(data)) continue;
       cards.push(this._buildRoomCard(area, data));
     }

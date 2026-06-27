@@ -118,7 +118,7 @@
 
 .atrium-autos-trigger { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; margin-top: 4px; border-radius: 10px; border: none; cursor: pointer; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 3%, transparent); color: var(--secondary-text-color, #9aa0aa); font-family: inherit; transition: background .15s ease; align-self: flex-start; }
 .atrium-autos-trigger:hover { background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 6%, transparent); }
-.atrium-autos-trigger.open { background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 8%, transparent); }
+.atrium-autos-trigger.atrium-pop-open { background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 8%, transparent); }
 .atrium-autos-trigger-iconwrap { width: 20px; height: 20px; border-radius: 6px; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 5%, transparent); color: var(--secondary-text-color, #9aa0aa); display: inline-flex; align-items: center; justify-content: center; }
 .atrium-autos-trigger-label { font-size: 12px; color: var(--primary-text-color, #e8e9ec); font-weight: 500; line-height: 14px; }
 .atrium-autos-trigger-meta { font-size: 11px; color: color-mix(in srgb, var(--secondary-text-color, #9aa0aa) 70%, transparent); font-variant-numeric: tabular-nums; line-height: 14px; }
