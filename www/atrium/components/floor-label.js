@@ -156,7 +156,6 @@ class AtriumFloorLabel extends HTMLElement {
 
     if (!this._showControls) return;
 
-    this._lineEl.style.display = hasLights ? "none" : "";
     this._controlsEl.style.display = hasLights ? "" : "none";
     if (!hasLights) return;
 
