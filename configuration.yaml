@@ -130,7 +130,7 @@ template:
         unique_id: hydro_sherbrooke_tier2_marker
         state: >
           {% if is_state('binary_sensor.hydro_sherbrooke_tier_2_alert', 'on') %}
-            100
+            5
           {% else %}
             0
           {% endif %}

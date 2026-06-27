@@ -11,6 +11,10 @@ I also have left my configuration files to give you some examples.
 
 - [ad-media-lights-sync](https://github.com/ericmatte/ad-media-lights-sync): Synchronize the color of RGB lights with the thumbnail of a media player
 
+## Atrium Dashboard
+
+See [`www/atrium/README.md`](www/atrium/README.md) for setup instructions.
+
 ## Sub Projects
 
 - [esphome](esphome): Small projects using ESP8266 devices

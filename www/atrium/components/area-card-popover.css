@@ -1,0 +1,21 @@
+.atrium-pop-list-rooms { background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 6%, transparent); }
+.atrium-pop-list-rooms .atrium-auto-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--divider-color, rgba(127,127,127,0.18)); }
+.atrium-pop-list-rooms .atrium-auto-row:last-child { border-bottom: none; }
+.atrium-pop-list-rooms .atrium-auto-row.disabled { opacity: .55; }
+.atrium-pop-list-rooms .atrium-auto-swatch { position: relative; flex-shrink: 0; width: 30px; height: 30px; border-radius: 8px; border: none; cursor: pointer; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 6%, transparent); color: var(--primary-text-color, #e8e9ec); display: inline-flex; align-items: center; justify-content: center; transition: background .15s ease; }
+.atrium-pop-list-rooms .atrium-auto-swatch.script { background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 4%, transparent); color: var(--secondary-text-color, #9aa0aa); cursor: default; }
+.atrium-pop-list-rooms .atrium-auto-row.disabled .atrium-auto-swatch:not(.script) { background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 3%, transparent); color: color-mix(in srgb, var(--secondary-text-color, #9aa0aa) 70%, transparent); }
+.atrium-pop-list-rooms .atrium-auto-body { flex: 1; min-width: 0; text-align: left; background: transparent; border: none; padding: 0; cursor: pointer; color: var(--primary-text-color, #e8e9ec); font-family: inherit; }
+.atrium-pop-list-rooms .atrium-auto-name { font-size: 12.5px; font-weight: 500; color: var(--primary-text-color, #e8e9ec); line-height: 1.3; }
+.atrium-pop-list-rooms .atrium-auto-name.disabled { color: var(--secondary-text-color, #9aa0aa); }
+.atrium-pop-list-rooms .atrium-auto-last { font-size: 10.5px; color: color-mix(in srgb, var(--secondary-text-color, #9aa0aa) 70%, transparent); margin-top: 2px; }
+.atrium-pop-list-rooms .atrium-auto-labels { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+.atrium-pop-list-rooms .atrium-auto-label { display: inline-flex; align-items: center; gap: 3px; padding: 1.5px 6px 1.5px 5px; border-radius: 999px; font-size: 9.5px; font-weight: 500; line-height: 1.5; }
+.atrium-pop-list-rooms .atrium-auto-play { flex-shrink: 0; width: 30px; height: 30px; border-radius: 8px; border: none; cursor: pointer; background: color-mix(in srgb, var(--state-climate-cool-color, #5cc6ff) 12%, transparent); color: var(--state-climate-cool-color, #5cc6ff); display: inline-flex; align-items: center; justify-content: center; transition: background .15s ease; }
+.atrium-pop-list-rooms .atrium-auto-play.disabled { background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 3%, transparent); color: color-mix(in srgb, var(--secondary-text-color, #9aa0aa) 70%, transparent); cursor: not-allowed; }
+
+.atrium-pop-menu { display: flex; flex-direction: column; min-width: 140px; padding: 2px; }
+.atrium-pop-menu-item { display: flex; align-items: center; gap: 8px; width: 100%; padding: 7px 9px; border: none; border-radius: 7px; background: transparent; color: var(--primary-text-color, #e8e9ec); font-size: 12.5px; line-height: 14px; font-family: inherit; cursor: pointer; text-align: left; }
+.atrium-pop-menu-item:hover { background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 5%, transparent); }
+.atrium-pop-menu-item.active { color: var(--state-climate-cool-color, #5cc6ff); }
+.atrium-pop-menu-item ha-icon { --mdc-icon-size: 14px; flex-shrink: 0; }
