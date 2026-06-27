@@ -14,8 +14,10 @@
 
 .atrium-row { padding: 14px; display: flex; align-items: center; gap: 12px; }
 .atrium-row.clickable { cursor: pointer; user-select: none; }
-.atrium-room-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: transparent; color: var(--secondary-text-color, #9aa0aa); line-height: 0; transition: color .25s ease; }
-.atrium-room-icon.on { background: transparent; color: var(--state-light-active-color, #f5c451); }
+.atrium-room-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background-color: transparent; color: var(--secondary-text-color, #9aa0aa); line-height: 0; transition: color .25s ease; }
+.atrium-room-icon.on { background-color: transparent; color: var(--state-light-active-color, #f5c451); }
+/* Area picture (from HA area settings) shown as a vignette in place of the icon. */
+.atrium-room-icon.has-img { background-size: cover; background-position: center; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-text-color, #e8e9ec) 12%, transparent); }
 .atrium-room-mid { flex: 1; min-width: 0; }
 .atrium-room-name { font-size: 16px; font-weight: 500; letter-spacing: -.1px; color: var(--primary-text-color, #e8e9ec); line-height: 16px; }
 .atrium-room-title-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; line-height: 16px; }

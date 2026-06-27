@@ -63,7 +63,12 @@ export function _buildRoomHeader(area, data, hasBody = true) {
 
   const icon = document.createElement("div");
   icon.className = "atrium-room-icon";
-  icon.innerHTML = `<ha-icon icon="${iconForArea(area)}" style="--mdc-icon-size:28px"></ha-icon>`;
+  if (area.picture) {
+    icon.classList.add("has-img");
+    icon.style.backgroundImage = `url("${area.picture}")`;
+  } else {
+    icon.innerHTML = `<ha-icon icon="${iconForArea(area)}" style="--mdc-icon-size:28px"></ha-icon>`;
+  }
 
   const mid = document.createElement("div");
   mid.className = "atrium-room-mid";
