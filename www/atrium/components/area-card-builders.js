@@ -11,6 +11,7 @@ const {
   nameWithoutAreaPrefix, nameWithoutStairs,
   ensurePopoverItemStyle,
   fmtSensorValue,
+  canDimLight,
 } = sharedMod;
 
 export function _buildRoomCard(area, data) {
@@ -166,16 +167,9 @@ export function _buildLightTile(area, light) {
   tile.className = "atrium-tile";
   tile.dataset.entity = light.entity_id;
 
-  const fill = document.createElement("div");
-  fill.className = "atrium-tile-fill light";
-  tile.appendChild(fill);
-  const thumb = document.createElement("div");
-  thumb.className = "atrium-tile-thumb light";
-  thumb.style.display = "none";
-  tile.appendChild(thumb);
-
   const body = document.createElement("div");
   body.className = "atrium-tile-body";
+
   const swatch = document.createElement("div");
   swatch.className = "atrium-swatch";
   swatch.title = "Open entity";
@@ -189,22 +183,63 @@ export function _buildLightTile(area, light) {
     e.preventDefault(); e.stopPropagation();
     this._moreInfo(light.entity_id);
   });
+
   const text = document.createElement("div");
   text.className = "atrium-tile-text";
   const name = document.createElement("div");
   name.className = "atrium-tile-name";
   name.textContent = nameWithoutAreaPrefix(this._entityName(light), area);
-  const state = document.createElement("div");
-  state.className = "atrium-tile-state";
-  text.append(name, state);
+  text.appendChild(name);
+
   body.append(swatch, text);
   tile.appendChild(body);
 
-  this._bindSwipeTile(tile, fill, thumb, swatch, state, light.entity_id, "light");
+  const st = this._hass.states?.[light.entity_id];
+  const canDim = canDimLight(st);
+  let ref;
 
-  const ref = { tile, fill, thumb, swatch, iconEl, state, name };
+  if (canDim) {
+    const dimmer = this._buildDimmerSlider(light.entity_id);
+    text.appendChild(dimmer.el);
+    ref = { tile, swatch, iconEl, name, state: dimmer.label, dimmerFill: dimmer.fill, canDim: true };
+  } else {
+    const state = document.createElement("div");
+    state.className = "atrium-tile-state";
+    text.appendChild(state);
+    const sw = document.createElement("ha-switch");
+    sw.className = "atrium-light-switch";
+    sw.addEventListener("change", (e) => {
+      e.stopPropagation();
+      if (sw.checked) this._call("light", "turn_on", { entity_id: light.entity_id });
+      else this._call("light", "turn_off", { entity_id: light.entity_id });
+    });
+    body.appendChild(sw);
+    tile.addEventListener("click", (e) => {
+      if (tile.classList.contains("unavailable")) return;
+      const s = this._hass.states?.[light.entity_id];
+      if (s?.state === "on") this._call("light", "turn_off", { entity_id: light.entity_id });
+      else this._call("light", "turn_on", { entity_id: light.entity_id });
+    });
+    ref = { tile, swatch, iconEl, name, state, sw, canDim: false };
+  }
+
   this._refs.areas.get(area.area_id).lights.set(light.entity_id, ref);
   return tile;
+}
+
+export function _buildDimmerSlider(entityId) {
+  const el = document.createElement("div");
+  el.className = "atrium-dimmer";
+  const track = document.createElement("div");
+  track.className = "atrium-dimmer-track";
+  const fill = document.createElement("div");
+  fill.className = "atrium-dimmer-fill";
+  const label = document.createElement("span");
+  label.className = "atrium-dimmer-label";
+  track.appendChild(fill);
+  el.append(track, label);
+  this._bindDimmerSlider(el, track, fill, label, entityId);
+  return { el, fill, label };
 }
 
 export function _buildClimateSection(area, climates, sensors) {

@@ -78,6 +78,12 @@
 .atrium-tile.unavailable .atrium-swatch { opacity: .55; }
 .atrium-tile.unavailable .atrium-tile-text { opacity: .65; }
 
+.atrium-dimmer { display: flex; align-items: center; gap: 6px; margin-top: 4px; touch-action: none; cursor: ew-resize; }
+.atrium-dimmer-track { flex: 1; height: 10px; border-radius: 999px; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 9%, transparent); overflow: hidden; position: relative; }
+.atrium-dimmer-fill { position: absolute; top: 0; left: 0; bottom: 0; width: 0%; border-radius: 0 999px 999px 0; background: linear-gradient(90deg, rgb(var(--rgb-state-light-active-color, 245 196 81) / 0.65) 0%, rgb(var(--rgb-state-light-active-color, 245 196 81) / 0.92) 100%); transition: width .25s ease; }
+.atrium-dimmer-label { flex-shrink: 0; font-size: 11px; min-width: 26px; text-align: right; color: color-mix(in srgb, var(--secondary-text-color, #9aa0aa) 70%, transparent); transition: color .25s ease; font-variant-numeric: tabular-nums; }
+.atrium-dimmer-label.on-light { color: var(--tile-accent, var(--state-light-active-color, #f5c451)); }
+.atrium-light-switch { flex-shrink: 0; --switch-checked-color: var(--state-light-active-color, #f5c451); --switch-checked-track-color: var(--state-light-active-color, #f5c451); --switch-checked-button-color: #fff; }
 
 .atrium-climate { position: relative; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 3%, transparent); border-radius: 12px; padding: 12px 14px; overflow: visible; }
 .atrium-climate-bg { position: absolute; inset: 0; pointer-events: none; opacity: .28; display: block; overflow: hidden; border-radius: 12px; }
