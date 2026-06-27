@@ -626,7 +626,7 @@ export function _buildHiddenRoutinesBtn(area, hiddenItems) {
   btn.className = "atrium-autos-trigger";
   const count = hiddenItems.length;
   btn.innerHTML =
-    `<span class="atrium-autos-trigger-iconwrap"><ha-icon icon="mdi:eye-off-outline" style="--mdc-icon-size:13px"></ha-icon></span>` +
+    `<span class="atrium-autos-trigger-iconwrap"><ha-icon icon="mdi:eye-off-outline" style="--mdc-icon-size:20px"></ha-icon></span>` +
     `<span class="atrium-autos-trigger-label">${count} hidden</span>`;
 
   btn.addEventListener("click", (e) => {

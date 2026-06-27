@@ -199,7 +199,7 @@ export function _updateClimateRef(ref, entityId, isExpanded) {
   ref.swatch.style.background = `color-mix(in srgb, ${accent} 14%, transparent)`;
   ref.swatch.style.color = accent;
   ref.swatch.innerHTML =
-    `<ha-icon icon="${CLIMATE_ICONS[mode] || ICONS.thermo}" style="--mdc-icon-size:13px"></ha-icon>` +
+    `<ha-icon icon="${CLIMATE_ICONS[mode] || ICONS.thermo}" style="--mdc-icon-size:20px"></ha-icon>` +
     `<span class="atrium-swatch-caret"><ha-icon icon="mdi:menu-down"></ha-icon></span>`;
   ref.tile.style.opacity = mode === "off" ? "0.85" : "1";
 
