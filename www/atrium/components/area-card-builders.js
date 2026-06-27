@@ -11,6 +11,7 @@ const {
   nameWithoutAreaPrefix, nameWithoutStairs,
   ensurePopoverItemStyle,
   fmtSensorValue,
+  canDimLight,
 } = sharedMod;
 
 export function _buildRoomCard(area, data) {
@@ -156,39 +157,23 @@ export function _section(title, children) {
 
 export function _buildLightsSection(area, lights) {
   const grid = document.createElement("div");
-  grid.className = "atrium-grid " + (lights.length === 1 ? "cols-1" : "cols-2");
+  grid.className = "atrium-grid cols-1";
   for (const light of lights) grid.appendChild(this._buildLightTile(area, light));
   return this._section("Lights", grid);
 }
 
 export function _buildLightTile(area, light) {
-  const tile = document.createElement("div");
-  tile.className = "atrium-tile";
-  tile.dataset.entity = light.entity_id;
+  const row = document.createElement("div");
+  row.className = "atrium-light-row";
+  row.dataset.entity = light.entity_id;
 
-  const fill = document.createElement("div");
-  fill.className = "atrium-tile-fill light";
-  tile.appendChild(fill);
-  const thumb = document.createElement("div");
-  thumb.className = "atrium-tile-thumb light";
-  thumb.style.display = "none";
-  tile.appendChild(thumb);
-
-  const body = document.createElement("div");
-  body.className = "atrium-tile-body";
   const swatch = document.createElement("div");
   swatch.className = "atrium-swatch";
-  swatch.title = "Open entity";
   swatch.innerHTML =
     `<ha-icon icon="${ICONS.bulb}" style="--mdc-icon-size:20px"></ha-icon>` +
     `<span class="atrium-unavail-dot">!</span>`;
   const iconEl = swatch.querySelector("ha-icon");
-  swatch.addEventListener("pointerdown", (e) => e.stopPropagation());
-  swatch.addEventListener("pointerup", (e) => e.stopPropagation());
-  swatch.addEventListener("click", (e) => {
-    e.preventDefault(); e.stopPropagation();
-    this._moreInfo(light.entity_id);
-  });
+
   const text = document.createElement("div");
   text.className = "atrium-tile-text";
   const name = document.createElement("div");
@@ -197,14 +182,42 @@ export function _buildLightTile(area, light) {
   const state = document.createElement("div");
   state.className = "atrium-tile-state";
   text.append(name, state);
-  body.append(swatch, text);
-  tile.appendChild(body);
 
-  this._bindSwipeTile(tile, fill, thumb, swatch, state, light.entity_id, "light");
+  row.append(swatch, text);
 
-  const ref = { tile, fill, thumb, swatch, iconEl, state, name };
+  const st = this._hass.states?.[light.entity_id];
+  const canDim = canDimLight(st);
+
+  let slider, sliderFill, sw;
+
+  if (canDim) {
+    slider = document.createElement("div");
+    slider.className = "atrium-light-slider";
+    const track = document.createElement("div");
+    track.className = "atrium-light-slider-track";
+    sliderFill = document.createElement("div");
+    sliderFill.className = "atrium-light-slider-fill";
+    track.appendChild(sliderFill);
+    slider.appendChild(track);
+    row.appendChild(slider);
+    this._bindLightSlider(slider, sliderFill, state, light.entity_id);
+  } else {
+    sw = document.createElement("ha-switch");
+    sw.className = "atrium-light-switch";
+    sw.addEventListener("change", (e) => {
+      e.stopPropagation();
+      if (sw.checked) this._call("light", "turn_on", { entity_id: light.entity_id });
+      else this._call("light", "turn_off", { entity_id: light.entity_id });
+    });
+    row.appendChild(sw);
+  }
+
+  this._bindLightIcon(swatch, light.entity_id, canDim);
+
+  const ref = { row, swatch, iconEl, name, state, canDim,
+    ...(canDim ? { slider, sliderFill } : { sw }) };
   this._refs.areas.get(area.area_id).lights.set(light.entity_id, ref);
-  return tile;
+  return row;
 }
 
 export function _buildClimateSection(area, climates, sensors) {

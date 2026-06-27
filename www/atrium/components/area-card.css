@@ -49,6 +49,15 @@
 .atrium-grid.cols-1 { grid-template-columns: 1fr; }
 .atrium-grid.cols-2 { grid-template-columns: 1fr 1fr; }
 
+.atrium-light-row { display: flex; align-items: center; gap: 10px; padding: 4px 12px; border-radius: 12px; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 4%, transparent); user-select: none; min-height: 40px; }
+.atrium-light-row.unavailable { cursor: not-allowed; }
+.atrium-light-row.unavailable .atrium-swatch { opacity: .55; }
+.atrium-light-row.unavailable .atrium-tile-text { opacity: .65; }
+.atrium-light-slider { flex-shrink: 0; width: 120px; height: 28px; cursor: pointer; touch-action: none; }
+.atrium-light-slider-track { width: 100%; height: 100%; border-radius: 999px; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 8%, transparent); overflow: hidden; position: relative; }
+.atrium-light-slider-fill { position: absolute; top: 0; left: 0; bottom: 0; width: 0%; border-radius: 0 999px 999px 0; background: linear-gradient(90deg, rgb(var(--rgb-state-light-active-color, 245 196 81) / 0.65) 0%, rgb(var(--rgb-state-light-active-color, 245 196 81) / 0.90) 100%); transition: width .25s ease; }
+.atrium-light-switch { flex-shrink: 0; --switch-checked-color: var(--state-light-active-color, #f5c451); --switch-checked-track-color: var(--state-light-active-color, #f5c451); --switch-checked-button-color: #fff; }
+
 .atrium-tile { position: relative; border-radius: 12px; padding: 6px 14px; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 4%, transparent); overflow: hidden; user-select: none; touch-action: pan-y; cursor: pointer; min-height: 52px; display: flex; flex-direction: column; justify-content: center; transition: background .25s ease; }
 .atrium-tile.unavailable { cursor: not-allowed; }
 .atrium-tile-fill { position: absolute; top: 0; bottom: 0; left: 0; width: 0%; pointer-events: none; transition: width .25s ease, background .2s ease; }
