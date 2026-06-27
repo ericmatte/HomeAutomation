@@ -112,7 +112,12 @@ class AtriumAreaCard extends HTMLElement {
   _areasOnFloor() {
     return Object.values(this._hass.areas)
       .filter((a) => this._areaFloorId(a) === this._floorId)
-      .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+      .sort((a, b) => {
+        const ao = a.order ?? Infinity;
+        const bo = b.order ?? Infinity;
+        if (ao !== bo) return ao - bo;
+        return (a.name || "").localeCompare(b.name || "");
+      });
   }
 
   _entitiesForArea(area) {
