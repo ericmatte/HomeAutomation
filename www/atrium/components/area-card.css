@@ -49,7 +49,7 @@
 .atrium-grid.cols-1 { grid-template-columns: 1fr; }
 .atrium-grid.cols-2 { grid-template-columns: 1fr 1fr; }
 
-.atrium-tile { position: relative; border-radius: 12px; padding: 4px 14px; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 4%, transparent); overflow: hidden; user-select: none; touch-action: pan-y; cursor: pointer; min-height: 44px; display: flex; flex-direction: column; justify-content: center; transition: background .25s ease; }
+.atrium-tile { position: relative; border-radius: 12px; padding: 4px 10px; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 4%, transparent); overflow: hidden; user-select: none; touch-action: pan-y; cursor: pointer; min-height: 44px; display: flex; flex-direction: column; justify-content: center; transition: background .25s ease; }
 .atrium-tile.unavailable { cursor: not-allowed; }
 .atrium-tile-fill { position: absolute; top: 0; bottom: 0; left: 0; width: 0%; pointer-events: none; transition: width .25s ease, background .2s ease; }
 .atrium-tile-fill.light { background: var(--tile-fill, linear-gradient(90deg, rgb(var(--rgb-state-light-active-color, 245 196 81) / 0.22) 0%, rgb(var(--rgb-state-light-active-color, 245 196 81) / 0.30) 100%)); }
