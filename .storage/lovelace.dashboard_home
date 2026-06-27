@@ -10,8 +10,7 @@
           "person.eric",
           "person.caro",
           "sensor.rainville_propane_tank",
-          "input_boolean.guest_mode",
-          "light.first_floor_living_areas"
+          "input_boolean.guest_mode"
         ]
       }
     }

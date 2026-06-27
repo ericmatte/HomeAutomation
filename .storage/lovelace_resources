@@ -25,11 +25,6 @@
         "type": "module"
       },
       {
-        "id": "a95b627ded0f4e218708b570782a569e",
-        "url": "/hacsfiles/hass-swipe-navigation/swipe-navigation.js?hacstag=5017254791160",
-        "type": "module"
-      },
-      {
         "id": "ad5000bf608b43cb82b82f81384e54f1",
         "url": "/local/area-bubble-auto-card.js?v0.1",
         "type": "module"
