@@ -415,6 +415,19 @@ class AtriumHeader extends HTMLElement {
     const total = (this._lightsOn || []).length;
     root.appendChild(buildPopoverHeader("Lights on", `${total} total`));
 
+    if (total > 0) {
+      const turnOffAllBtn = document.createElement("button");
+      turnOffAllBtn.type = "button";
+      turnOffAllBtn.className = "atrium-turn-off-all-btn";
+      turnOffAllBtn.innerHTML = `${haIcon("mdi:lightbulb-off")} Turn off all`;
+      turnOffAllBtn.addEventListener("click", () => {
+        const entityIds = this._lightsOn.map(l => l.id);
+        this._hass.callService("light", "turn_off", { entity_id: entityIds });
+        closePopoverFor(anchor);
+      });
+      root.appendChild(turnOffAllBtn);
+    }
+
     const listEl = document.createElement("div");
     listEl.className = "atrium-pop-list";
     if (total === 0) {

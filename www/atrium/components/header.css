@@ -42,3 +42,16 @@
   font-size: 11.5px; font-weight: 600; font-variant-numeric: tabular-nums;
   min-width: 34px; text-align: right;
 }
+.atrium-turn-off-all-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: calc(100% - 20px); padding: 10px;
+  margin: 8px; border-radius: 8px;
+  border: none; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 8%, transparent);
+  color: var(--primary-text-color, #e8e9ec);
+  font-family: inherit; font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: background .2s;
+}
+.atrium-turn-off-all-btn:hover {
+  background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 12%, transparent);
+}
+.atrium-turn-off-all-btn ha-icon { --mdc-icon-size: 16px; }
