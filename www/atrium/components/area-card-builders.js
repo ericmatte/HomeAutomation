@@ -102,7 +102,25 @@ export function _buildRoomHeader(area, data, hasBody = true) {
   coverBtn.className = "atrium-quick-btn";
   coverBtn.style.display = data.covers.length ? "inline-flex" : "none";
   coverBtn.innerHTML = `<ha-icon icon="mdi:blinds-horizontal" style="--mdc-icon-size:20px"></ha-icon>`;
-  coverBtn.addEventListener("click", (e) => { e.stopPropagation(); this._toggleAllCovers(data.covers); });
+  {
+    let lpTimer = 0, didLongPress = false;
+    coverBtn.addEventListener("pointerdown", (e) => {
+      e.stopPropagation();
+      didLongPress = false;
+      lpTimer = setTimeout(() => {
+        didLongPress = true;
+        if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(15);
+        if (data.covers.length) this._moreInfo(data.covers[0].entity_id);
+      }, 480);
+    });
+    coverBtn.addEventListener("pointerup", (e) => {
+      e.stopPropagation();
+      clearTimeout(lpTimer);
+      if (!didLongPress) this._toggleAllCovers(data.covers);
+    });
+    coverBtn.addEventListener("pointercancel", () => clearTimeout(lpTimer));
+    coverBtn.addEventListener("click", (e) => e.stopPropagation());
+  }
   actions.appendChild(coverBtn);
   if (hasBody && COLLAPSIBLE) {
     const chev = document.createElement("span");
@@ -178,17 +196,10 @@ export function _buildLightTile(area, light) {
   body.className = "atrium-tile-body";
   const swatch = document.createElement("div");
   swatch.className = "atrium-swatch";
-  swatch.title = "Open entity";
   swatch.innerHTML =
     `<ha-icon icon="${ICONS.bulb}" style="--mdc-icon-size:20px"></ha-icon>` +
     `<span class="atrium-unavail-dot">!</span>`;
   const iconEl = swatch.querySelector("ha-icon");
-  swatch.addEventListener("pointerdown", (e) => e.stopPropagation());
-  swatch.addEventListener("pointerup", (e) => e.stopPropagation());
-  swatch.addEventListener("click", (e) => {
-    e.preventDefault(); e.stopPropagation();
-    this._moreInfo(light.entity_id);
-  });
   const text = document.createElement("div");
   text.className = "atrium-tile-text";
   const name = document.createElement("div");
