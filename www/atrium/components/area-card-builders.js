@@ -94,14 +94,14 @@ export function _buildRoomHeader(area, data, hasBody = true) {
   const bulbBtn = document.createElement("button");
   bulbBtn.className = "atrium-quick-btn";
   bulbBtn.style.display = data.lights.length ? "inline-flex" : "none";
-  bulbBtn.innerHTML = `<ha-icon icon="mdi:lightbulb" style="--mdc-icon-size:14px"></ha-icon><span class="count" style="font-size:12px;font-weight:600;display:none"></span>`;
+  bulbBtn.innerHTML = `<ha-icon icon="mdi:lightbulb" style="--mdc-icon-size:20px"></ha-icon><span class="count" style="font-size:12px;font-weight:600;display:none"></span>`;
   bulbBtn.addEventListener("click", (e) => { e.stopPropagation(); this._toggleAllLights(data.lights); });
   const bulbCountEl = bulbBtn.querySelector(".count");
   actions.appendChild(bulbBtn);
   const coverBtn = document.createElement("button");
   coverBtn.className = "atrium-quick-btn";
   coverBtn.style.display = data.covers.length ? "inline-flex" : "none";
-  coverBtn.innerHTML = `<ha-icon icon="mdi:blinds-horizontal" style="--mdc-icon-size:14px"></ha-icon>`;
+  coverBtn.innerHTML = `<ha-icon icon="mdi:blinds-horizontal" style="--mdc-icon-size:20px"></ha-icon>`;
   coverBtn.addEventListener("click", (e) => { e.stopPropagation(); this._toggleAllCovers(data.covers); });
   actions.appendChild(coverBtn);
   if (hasBody && COLLAPSIBLE) {
@@ -180,7 +180,7 @@ export function _buildLightTile(area, light) {
   swatch.className = "atrium-swatch";
   swatch.title = "Open entity";
   swatch.innerHTML =
-    `<ha-icon icon="${ICONS.bulb}" style="--mdc-icon-size:14px"></ha-icon>` +
+    `<ha-icon icon="${ICONS.bulb}" style="--mdc-icon-size:20px"></ha-icon>` +
     `<span class="atrium-unavail-dot">!</span>`;
   const iconEl = swatch.querySelector("ha-icon");
   swatch.addEventListener("pointerdown", (e) => e.stopPropagation());
@@ -246,7 +246,7 @@ export function _buildClimateTile(area, climate, sensors) {
   swatch.className = "atrium-swatch";
   swatch.style.cursor = "pointer";
   swatch.innerHTML =
-    `<ha-icon icon="${ICONS.thermo}" style="--mdc-icon-size:13px"></ha-icon>` +
+    `<ha-icon icon="${ICONS.thermo}" style="--mdc-icon-size:20px"></ha-icon>` +
     `<span class="atrium-swatch-caret"><ha-icon icon="mdi:menu-down"></ha-icon></span>`;
   const text = document.createElement("div");
   text.style.flex = "1";
@@ -277,13 +277,13 @@ export function _buildClimateTile(area, climate, sensors) {
   setpointRow.className = "atrium-climate-target";
   const minus = document.createElement("button");
   minus.className = "atrium-tiny-btn";
-  minus.innerHTML = `<ha-icon icon="${ICONS.minus}" style="--mdc-icon-size:14px"></ha-icon>`;
+  minus.innerHTML = `<ha-icon icon="${ICONS.minus}" style="--mdc-icon-size:20px"></ha-icon>`;
   minus.addEventListener("click", (e) => { e.stopPropagation(); this._adjustClimate(climate.entity_id, -0.5); });
   const temp = document.createElement("div");
   temp.className = "atrium-climate-temp";
   const plus = document.createElement("button");
   plus.className = "atrium-tiny-btn";
-  plus.innerHTML = `<ha-icon icon="${ICONS.plus}" style="--mdc-icon-size:14px"></ha-icon>`;
+  plus.innerHTML = `<ha-icon icon="${ICONS.plus}" style="--mdc-icon-size:20px"></ha-icon>`;
   plus.addEventListener("click", (e) => { e.stopPropagation(); this._adjustClimate(climate.entity_id, 0.5); });
   setpointRow.append(minus, temp, plus);
   content.appendChild(setpointRow);
@@ -413,7 +413,7 @@ export function _buildSensorTile(area, sensor) {
     voltage: "mdi:flash-triangle",
   };
   const icon = st?.attributes?.icon || ICON_BY_DC[dc] || "mdi:gauge";
-  swatch.innerHTML = `<ha-icon icon="${icon}" style="--mdc-icon-size:13px"></ha-icon>`;
+  swatch.innerHTML = `<ha-icon icon="${icon}" style="--mdc-icon-size:20px"></ha-icon>`;
   const name = document.createElement("div");
   name.className = "atrium-sensor-name";
   name.textContent = nameWithoutAreaPrefix(this._entityName(sensor), area);
