@@ -179,6 +179,7 @@ export function _buildLightTile(area, light) {
   swatch.innerHTML =
     `<ha-icon icon="${ICONS.bulb}" style="--mdc-icon-size:14px"></ha-icon>` +
     `<span class="atrium-unavail-dot">!</span>`;
+  const iconEl = swatch.querySelector("ha-icon");
   swatch.addEventListener("pointerdown", (e) => e.stopPropagation());
   swatch.addEventListener("pointerup", (e) => e.stopPropagation());
   swatch.addEventListener("click", (e) => {
@@ -198,7 +199,7 @@ export function _buildLightTile(area, light) {
 
   this._bindSwipeTile(tile, fill, thumb, swatch, state, light.entity_id, "light");
 
-  const ref = { tile, fill, thumb, swatch, state, name };
+  const ref = { tile, fill, thumb, swatch, iconEl, state, name };
   this._refs.areas.get(area.area_id).lights.set(light.entity_id, ref);
   return tile;
 }
@@ -493,6 +494,31 @@ export function _buildVacuumTile(area, vacuum) {
 export function _buildScenesSection(area, scenes) {
   const wrap = document.createElement("div");
   wrap.className = "atrium-scenes";
+
+  let isDragging = false;
+  let startX = 0;
+  let scrollStart = 0;
+  let dragMoved = false;
+
+  wrap.addEventListener("pointerdown", (e) => {
+    isDragging = true;
+    dragMoved = false;
+    startX = e.clientX;
+    scrollStart = wrap.scrollLeft;
+    wrap.classList.add("dragging");
+    wrap.setPointerCapture(e.pointerId);
+  });
+  wrap.addEventListener("pointermove", (e) => {
+    if (!isDragging) return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > 4) dragMoved = true;
+    wrap.scrollLeft = scrollStart - dx;
+  });
+  wrap.addEventListener("pointerup", () => {
+    isDragging = false;
+    wrap.classList.remove("dragging");
+  });
+
   for (const s of scenes) {
     const btn = document.createElement("button");
     btn.className = "atrium-scene-btn";
@@ -500,7 +526,10 @@ export function _buildScenesSection(area, scenes) {
     btn.title = sceneName;
     btn.innerHTML = `<ha-icon icon="${iconForScene(s, sceneName)}"></ha-icon><span class="atrium-scene-btn-name"></span>`;
     btn.querySelector(".atrium-scene-btn-name").textContent = nameWithoutAreaPrefix(sceneName, area);
-    btn.addEventListener("click", () => this._call("scene", "turn_on", { entity_id: s.entity_id }));
+    btn.addEventListener("click", (e) => {
+      if (dragMoved) { e.preventDefault(); return; }
+      this._call("scene", "turn_on", { entity_id: s.entity_id });
+    });
     wrap.appendChild(btn);
   }
   const section = document.createElement("div");

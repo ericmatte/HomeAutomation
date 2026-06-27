@@ -17,7 +17,7 @@
 .atrium-room-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background-color: transparent; color: var(--secondary-text-color, #9aa0aa); line-height: 0; transition: color .25s ease; }
 .atrium-room-icon.on { background-color: transparent; color: var(--state-light-active-color, #f5c451); }
 /* Area picture (from HA area settings) shown as a vignette in place of the icon. */
-.atrium-room-icon.has-img { background-size: cover; background-position: center; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-text-color, #e8e9ec) 12%, transparent); }
+.atrium-room-icon.has-img { background-size: cover; background-position: center; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-text-color, #e8e9ec) 12%, transparent); transform: scale(1.2); }
 .atrium-room-mid { flex: 1; min-width: 0; }
 .atrium-room-name { font-size: 16px; font-weight: 500; letter-spacing: -.1px; color: var(--primary-text-color, #e8e9ec); line-height: 16px; }
 .atrium-room-title-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; line-height: 16px; }
@@ -107,7 +107,9 @@
 .atrium-vacuum-cmd { flex: 1; height: 34px; border-radius: 8px; border: none; cursor: pointer; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 5%, transparent); color: var(--primary-text-color, #e8e9ec); display: inline-flex; align-items: center; justify-content: center; }
 .atrium-vacuum-cmd.active { background: color-mix(in srgb, var(--state-climate-cool-color, #5cc6ff) 16%, transparent); color: var(--state-climate-cool-color, #5cc6ff); }
 
-.atrium-scenes { display: flex; flex-wrap: wrap; gap: 6px; }
+.atrium-scenes { display: flex; flex-wrap: nowrap; gap: 6px; overflow-x: auto; overflow-y: hidden; cursor: grab; user-select: none; scrollbar-width: none; }
+.atrium-scenes::-webkit-scrollbar { display: none; }
+.atrium-scenes.dragging { cursor: grabbing; }
 .atrium-scene-btn { position: relative; height: 32px; max-width: 160px; padding: 0 10px 0 8px; border-radius: 9px; border: none; cursor: pointer; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 5%, transparent); color: var(--primary-text-color, #e8e9ec); display: inline-flex; align-items: center; gap: 6px; font-family: inherit; font-size: 12px; line-height: 14px; transition: background .2s ease, color .2s ease; }
 .atrium-scene-btn:hover { background: color-mix(in srgb, var(--state-light-active-color, #f5c451) 14%, transparent); color: var(--state-light-active-color, #f5c451); }
 .atrium-scene-btn ha-icon { --mdc-icon-size: 15px; flex-shrink: 0; color: var(--secondary-text-color, #9aa0aa); transition: color .2s ease; }

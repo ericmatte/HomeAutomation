@@ -119,10 +119,17 @@ export function _updateQuickButtons(ar) {
 }
 
 export function _updateLightRef(ref, entityId) {
-  const st = this._hass.states?.[entityId];
+  const hass = this._hass;
+  const st = hass.states?.[entityId];
   if (!st) return;
   if (this._dragState.has(entityId)) return; // pointer event owns the visuals
   if (unchangedState(ref, "_lastState", st)) return;
+
+  const icon = hass.entities?.[entityId]?.icon ?? st.attributes?.icon ?? ICONS.bulb;
+  if (icon !== ref._icon) {
+    ref._icon = icon;
+    ref.iconEl.setAttribute("icon", icon);
+  }
   const unavailable = st.state === "unavailable";
   ref.tile.classList.toggle("unavailable", unavailable);
   const on = st.state === "on";

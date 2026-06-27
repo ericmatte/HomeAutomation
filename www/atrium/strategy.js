@@ -64,11 +64,12 @@ class AtriumStrategy {
       ...(exclude ? { exclude } : {}),
     });
 
-    const floorLabelCard = (floor) => ({
+    const floorLabelCard = (floor, showControls = true) => ({
       type: "custom:atrium-floor-label",
       name: floor.name,
       icon: floorIcon(floor),
       floor: floor.floor_id ?? null,
+      ...(showControls ? {} : { show_controls: false }),
     });
 
     // Each view is `panel: true` so it gets the full viewport width (no
@@ -136,7 +137,7 @@ class AtriumStrategy {
           stack([
             headerCard(ALL_FLOOR_KEY, title),
             ...allFloors.flatMap((f) => [
-              floorLabelCard(f),
+              floorLabelCard(f, false),
               areaCard(f, { sections, defaultExpanded: true }),
             ]),
           ]),

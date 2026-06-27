@@ -19,6 +19,7 @@ class AtriumFloorLabel extends HTMLElement {
     this._icon = typeof config.icon === "string" ? config.icon : null;
     // `floor: null` targets areas not assigned to any floor.
     this.floorId = config.floor === null ? null : config.floor;
+    this._showControls = config.show_controls !== false;
   }
 
   connectedCallback() {
@@ -92,6 +93,7 @@ class AtriumFloorLabel extends HTMLElement {
         ${this._icon ? `<ha-icon class="atrium-shell-fl-icon" icon="${this._icon}"></ha-icon>` : ""}
         <span class="atrium-shell-fl-name"></span>
         <div class="atrium-shell-fl-line"></div>
+        ${this._showControls ? `
         <div class="atrium-shell-fl-controls">
           <span class="atrium-shell-fl-count"></span>
           <div class="atrium-shell-fl-dimmer" role="slider"
@@ -104,19 +106,22 @@ class AtriumFloorLabel extends HTMLElement {
             <ha-icon icon="mdi:lightbulb"></ha-icon>
           </button>
         </div>
+        ` : ""}
       </div>
     `;
     this._nameEl = this.querySelector(".atrium-shell-fl-name");
     this._lineEl = this.querySelector(".atrium-shell-fl-line");
-    this._controlsEl = this.querySelector(".atrium-shell-fl-controls");
-    this._countEl = this.querySelector(".atrium-shell-fl-count");
-    this._dimmerEl = this.querySelector(".atrium-shell-fl-dimmer");
-    this._fillEl = this.querySelector(".atrium-shell-fl-dimmer-fill");
-    this._thumbEl = this.querySelector(".atrium-shell-fl-dimmer-thumb");
-    this._btnEl = this.querySelector(".atrium-shell-fl-bulb");
-    this._bindPointer();
-    this._btnEl.addEventListener("click", () => this._toggleAll());
     this._nameEl.textContent = this._name;
+    if (this._showControls) {
+      this._controlsEl = this.querySelector(".atrium-shell-fl-controls");
+      this._countEl = this.querySelector(".atrium-shell-fl-count");
+      this._dimmerEl = this.querySelector(".atrium-shell-fl-dimmer");
+      this._fillEl = this.querySelector(".atrium-shell-fl-dimmer-fill");
+      this._thumbEl = this.querySelector(".atrium-shell-fl-dimmer-thumb");
+      this._btnEl = this.querySelector(".atrium-shell-fl-bulb");
+      this._bindPointer();
+      this._btnEl.addEventListener("click", () => this._toggleAll());
+    }
     this._mounted = true;
   }
 
@@ -148,6 +153,8 @@ class AtriumFloorLabel extends HTMLElement {
 
     const lightIds = this.floorLights();
     const hasLights = lightIds.length > 0;
+
+    if (!this._showControls) return;
 
     this._lineEl.style.display = hasLights ? "none" : "";
     this._controlsEl.style.display = hasLights ? "" : "none";
