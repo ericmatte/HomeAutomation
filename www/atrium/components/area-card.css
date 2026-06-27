@@ -58,13 +58,15 @@
 .atrium-tile.pressed .atrium-tile-fill.cover { background: linear-gradient(90deg, color-mix(in srgb, var(--state-cover-active-color, #9b7fd1) 32%, transparent) 0%, color-mix(in srgb, var(--state-cover-active-color, #9b7fd1) 44%, transparent) 100%); }
 .atrium-tile-thumb { display: none !important; }
 .atrium-tile-body { position: relative; display: flex; align-items: center; gap: 10px; }
-.atrium-swatch { width: 28px; height: 28px; border-radius: 8px; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 4%, transparent); color: color-mix(in srgb, var(--secondary-text-color, #9aa0aa) 70%, transparent); display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; cursor: pointer; transition: background .25s ease, color .25s ease; }
+.atrium-swatch { width: 32px; height: 32px; border-radius: 8px; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 4%, transparent); color: color-mix(in srgb, var(--secondary-text-color, #9aa0aa) 70%, transparent); display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; cursor: pointer; transition: background .25s ease, color .25s ease; }
 .atrium-swatch.on-light { background: var(--tile-swatch-bg, rgb(var(--rgb-state-light-active-color, 245 196 81) / 0.18)); color: var(--tile-accent, var(--state-light-active-color, var(--state-light-active-color, #f5c451))); }
 .atrium-swatch.on-cover { background: color-mix(in srgb, var(--state-cover-active-color, #9b7fd1) 14%, transparent); color: var(--state-cover-active-color, #9b7fd1); }
 .atrium-swatch.on-heat { background: color-mix(in srgb, var(--state-climate-heat-color, #ff8a5b) 18%, transparent); color: var(--state-climate-heat-color, #ff8a5b); }
 .atrium-swatch-caret { display: none; position: absolute; right: -4px; bottom: -4px; width: 14px; height: 14px; border-radius: 50%; background: var(--ha-card-background, var(--card-background-color, #16181d)); color: var(--secondary-text-color, #9aa0aa); align-items: center; justify-content: center; pointer-events: none; }
 .atrium-swatch.has-dropdown .atrium-swatch-caret { display: inline-flex; }
 .atrium-swatch-caret ha-icon { --mdc-icon-size: 13px; line-height: 0; }
+.atrium-swatch ha-icon { --mdc-icon-size: 20px; line-height: 0; }
+.atrium-tiny-btn ha-icon { --mdc-icon-size: 20px; line-height: 0; }
 .atrium-tile-text { flex: 1; min-width: 0; }
 .atrium-tile-name { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--primary-text-color, #e8e9ec); }
 .atrium-tile-state { font-size: 12px; color: color-mix(in srgb, var(--secondary-text-color, #9aa0aa) 70%, transparent); transition: color .25s ease; }
@@ -88,7 +90,7 @@
 .atrium-climate-meta-range { font-variant-numeric: tabular-nums; text-transform: none; letter-spacing: 0; }
 .atrium-climate-target { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
 .atrium-climate-temp { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--primary-text-color, #e8e9ec); line-height: 24px; }
-.atrium-tiny-btn { width: 30px; height: 30px; border-radius: 8px; border: none; cursor: pointer; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 5%, transparent); color: var(--primary-text-color, #e8e9ec); display: inline-flex; align-items: center; justify-content: center; }
+.atrium-tiny-btn { width: 32px; height: 32px; border-radius: 8px; border: none; cursor: pointer; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 5%, transparent); color: var(--primary-text-color, #e8e9ec); display: inline-flex; align-items: center; justify-content: center; }
 .atrium-climate-extras { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--divider-color, rgba(127,127,127,0.18)); display: flex; align-items: center; justify-content: space-between; gap: 6px; }
 .atrium-climate-menu-btn { display: inline-flex; align-items: center; gap: 4px; height: 26px; padding: 0 8px; border-radius: 8px; border: none; cursor: pointer; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 5%, transparent); color: var(--secondary-text-color, #9aa0aa); font-family: inherit; font-size: 11.5px; line-height: 14px; }
 .atrium-climate-menu-btn ha-icon { --mdc-icon-size: 13px; }
@@ -96,7 +98,7 @@
 
 .atrium-sensor { min-width: 0; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 3%, transparent); border-radius: 12px; padding: 10px 12px; cursor: pointer; }
 .atrium-sensor-row { display: flex; align-items: center; gap: 8px; }
-.atrium-sensor .atrium-swatch { width: 22px; height: 22px; border-radius: 7px; }
+.atrium-sensor .atrium-swatch { width: 32px; height: 32px; border-radius: 8px; }
 .atrium-sensor-name { flex: 1; min-width: 0; font-size: 13.5px; line-height: 16px; color: var(--primary-text-color, #e8e9ec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .atrium-sensor-value { flex-shrink: 0; font-size: 13.5px; line-height: 16px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--primary-text-color, #e8e9ec); }
 
