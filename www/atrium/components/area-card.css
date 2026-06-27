@@ -101,10 +101,10 @@
 .atrium-sensor-value { flex-shrink: 0; font-size: 13.5px; line-height: 16px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--primary-text-color, #e8e9ec); }
 
 .atrium-vacuum { background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 6%, transparent); border-radius: 12px; padding: 12px 14px; }
-.atrium-vacuum-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-.atrium-vacuum-primary { width: 100%; height: 34px; border-radius: 9px; border: none; cursor: pointer; background: color-mix(in srgb, var(--state-climate-cool-color, #5cc6ff) 16%, transparent); color: var(--state-climate-cool-color, #5cc6ff); font-family: inherit; font-size: 13.5px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 8px; }
+.atrium-vacuum-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
 .atrium-vacuum-cmd-row { display: flex; gap: 4px; }
 .atrium-vacuum-cmd { flex: 1; height: 34px; border-radius: 8px; border: none; cursor: pointer; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 5%, transparent); color: var(--primary-text-color, #e8e9ec); display: inline-flex; align-items: center; justify-content: center; }
+.atrium-vacuum-cmd[data-action="start"] { background: color-mix(in srgb, var(--state-climate-cool-color, #5cc6ff) 16%, transparent); color: var(--state-climate-cool-color, #5cc6ff); }
 .atrium-vacuum-cmd.active { background: color-mix(in srgb, var(--state-climate-cool-color, #5cc6ff) 16%, transparent); color: var(--state-climate-cool-color, #5cc6ff); }
 
 .atrium-scenes { display: flex; flex-wrap: nowrap; gap: 6px; overflow-x: auto; overflow-y: hidden; cursor: grab; user-select: none; scrollbar-width: none; }

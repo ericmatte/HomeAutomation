@@ -311,7 +311,6 @@ export function _updateVacuumRef(ref, entityId) {
   } else {
     ref.batt.textContent = "";
   }
-  ref.primary.innerHTML = `<ha-icon icon="${status.primaryIcon}" style="--mdc-icon-size:13px"></ha-icon>${status.primary}`;
   for (const [k, b] of Object.entries(ref.cmds)) {
     const isActive =
       (k === "start" && st.state === "cleaning") ||

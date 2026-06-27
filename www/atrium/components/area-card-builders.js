@@ -4,7 +4,7 @@ const [popoverMod, sharedMod] = await Promise.all([
   import(`../lib/popover.js${_v}`),
   import(`./area-card-shared.js${_v}`),
 ]);
-const { openPopover, closePopoverFor } = popoverMod;
+const { openPopover, closePopoverFor, buildPopoverHeader } = popoverMod;
 const {
   TONE, ICONS,
   iconForArea, iconForScene,
@@ -135,6 +135,9 @@ export function _buildRoomBody(area, data) {
   const routines = this._buildAutomationsSection(area, data.automations, data.scripts);
   if (routines) sections.push(routines);
   for (const s of sections) bodyInner.appendChild(s);
+  if (data.hiddenRoutines?.length) {
+    bodyInner.appendChild(this._buildHiddenRoutinesBtn(area, data.hiddenRoutines));
+  }
 
   body.appendChild(bodyInner);
   bodyWrap.appendChild(body);
@@ -458,10 +461,6 @@ export function _buildVacuumTile(area, vacuum) {
   row.append(swatch, text, batt);
   tile.appendChild(row);
 
-  const primary = document.createElement("button");
-  primary.className = "atrium-vacuum-primary";
-  tile.appendChild(primary);
-
   const cmds = document.createElement("div");
   cmds.className = "atrium-vacuum-cmd-row";
   const mkCmd = (icon, action, service) => {
@@ -480,13 +479,7 @@ export function _buildVacuumTile(area, vacuum) {
   const cDock = mkCmd(ICONS.dock, "return", "return_to_base");
   tile.appendChild(cmds);
 
-  primary.addEventListener("click", () => {
-    const st = this._hass.states?.[vacuum.entity_id];
-    const isCleaning = st?.state === "cleaning" || st?.state === "returning";
-    this._call("vacuum", isCleaning ? "pause" : "start", { entity_id: vacuum.entity_id });
-  });
-
-  const ref = { tile, swatch, name, sub, batt, primary, cmds: { start: cStart, pause: cPause, stop: cStop, loc: cLoc, dock: cDock } };
+  const ref = { tile, swatch, name, sub, batt, cmds: { start: cStart, pause: cPause, stop: cStop, loc: cLoc, dock: cDock } };
   this._refs.areas.get(area.area_id).vacuums.set(vacuum.entity_id, ref);
   return tile;
 }
