@@ -122,7 +122,7 @@ export function _updateLightRef(ref, entityId) {
   const hass = this._hass;
   const st = hass.states?.[entityId];
   if (!st) return;
-  if (ref.canDim && this._dragState.has(entityId)) return;
+  if (this._dragState.has(entityId)) return; // pointer event owns the visuals
   if (unchangedState(ref, "_lastState", st)) return;
 
   const icon = hass.entities?.[entityId]?.icon ?? st.attributes?.icon ?? ICONS.bulb;
@@ -133,104 +133,35 @@ export function _updateLightRef(ref, entityId) {
   const unavailable = st.state === "unavailable";
   ref.tile.classList.toggle("unavailable", unavailable);
   const on = st.state === "on";
+  const canDim = canDimLight(st);
+  const pct = fmtBrightnessPct(st);
+  ref.tile.classList.toggle("no-dim", !canDim);
+  ref.fill.style.width = on ? `${canDim ? pct : 100}%` : "0%";
+  ref.thumb.style.left = `calc(${pct}% - 2px)`;
+  ref.thumb.style.display = on && canDim ? "block" : "none";
+  ref.thumb.style.opacity = "0.55";
   ref.swatch.classList.toggle("on-light", on && !unavailable);
+  ref.state.classList.toggle("on-light", on && !unavailable);
+  ref.state.textContent = unavailable ? "Unavailable" : on ? (canDim ? `${pct}%` : "On") : "Off";
 
-  if (ref.canDim) {
-    const pct = fmtBrightnessPct(st);
-    ref.dimmerFill.style.width = on ? `${pct}%` : "0%";
-    ref.state.classList.toggle("on-light", on && !unavailable);
-    ref.state.textContent = unavailable ? "Unavailable" : on ? `${pct}%` : "Off";
-
-    // True color modes get the bulb's live rgb_color; white-temperature modes
-    // fall back to the default yellow tint via the CSS var defaults.
-    const cm = st.attributes?.color_mode;
-    const rgb = st.attributes?.rgb_color;
-    const colorModes = ["rgb", "hs", "xy", "rgbw", "rgbww"];
-    const isColorMode = on && !unavailable && cm && colorModes.includes(cm) && Array.isArray(rgb) && rgb.length >= 3;
-    if (isColorMode) {
-      const [r, g, b] = rgb;
-      ref.tile.style.setProperty("--tile-accent", `rgb(${r},${g},${b})`);
-      ref.tile.style.setProperty("--tile-swatch-bg", `rgba(${r},${g},${b},0.20)`);
-      ref.dimmerFill.style.background = `linear-gradient(90deg, rgba(${r},${g},${b},0.65) 0%, rgba(${r},${g},${b},0.90) 100%)`;
-    } else {
-      ref.tile.style.removeProperty("--tile-accent");
-      ref.tile.style.removeProperty("--tile-swatch-bg");
-      ref.dimmerFill.style.removeProperty("background");
-    }
+  // True color modes get the bulb's live rgb_color; white-temperature modes
+  // fall back to the default yellow tint via the CSS var defaults.
+  const cm = st.attributes?.color_mode;
+  const rgb = st.attributes?.rgb_color;
+  const colorModes = ["rgb", "hs", "xy", "rgbw", "rgbww"];
+  const isColorMode = on && !unavailable && cm && colorModes.includes(cm) && Array.isArray(rgb) && rgb.length >= 3;
+  if (isColorMode) {
+    const [r, g, b] = rgb;
+    ref.tile.style.setProperty("--tile-accent", `rgb(${r},${g},${b})`);
+    ref.tile.style.setProperty("--tile-swatch-bg", `rgba(${r},${g},${b},0.20)`);
+    ref.tile.style.setProperty("--tile-fill", `linear-gradient(90deg, rgba(${r},${g},${b},0.24) 0%, rgba(${r},${g},${b},0.34) 100%)`);
+    ref.tile.style.setProperty("--tile-fill-pressed", `linear-gradient(90deg, rgba(${r},${g},${b},0.40) 0%, rgba(${r},${g},${b},0.52) 100%)`);
   } else {
-    ref.sw.checked = on;
-    ref.sw.disabled = unavailable;
-    ref.state.classList.toggle("on-light", on && !unavailable);
-    ref.state.textContent = unavailable ? "Unavailable" : on ? "On" : "Off";
+    ref.tile.style.removeProperty("--tile-accent");
+    ref.tile.style.removeProperty("--tile-swatch-bg");
+    ref.tile.style.removeProperty("--tile-fill");
+    ref.tile.style.removeProperty("--tile-fill-pressed");
   }
-}
-
-export function _bindDimmerSlider(el, track, fill, label, entityId) {
-  let pointerId = null, dragging = false, startX = 0;
-
-  const calcPct = (ev) => {
-    const r = track.getBoundingClientRect();
-    return Math.max(0, Math.min(100, Math.round(((ev.clientX - r.left) / r.width) * 100)));
-  };
-
-  const previewPct = (pct) => {
-    fill.style.transition = "none";
-    fill.style.width = `${pct}%`;
-    label.classList.add("on-light");
-    label.textContent = pct > 0 ? `${pct}%` : "Off";
-  };
-
-  el.addEventListener("pointerdown", (e) => {
-    e.stopPropagation();
-    pointerId = e.pointerId;
-    dragging = false;
-    startX = e.clientX;
-    try { el.setPointerCapture(e.pointerId); } catch (_) {}
-    previewPct(calcPct(e));
-    this._dragState.set(entityId, { pct: calcPct(e), kind: "light" });
-  });
-
-  el.addEventListener("pointermove", (e) => {
-    if (e.pointerId !== pointerId) return;
-    if (Math.abs(e.clientX - startX) > 3) dragging = true;
-    if (!dragging) return;
-    const pct = calcPct(e);
-    this._dragState.set(entityId, { pct, kind: "light" });
-    previewPct(pct);
-  });
-
-  el.addEventListener("pointerup", (e) => {
-    if (e.pointerId !== pointerId) return;
-    pointerId = null;
-    const drag = this._dragState.get(entityId);
-    this._dragState.delete(entityId);
-    fill.style.transition = "";
-
-    if (dragging && drag != null) {
-      if (drag.pct <= 0) this._call("light", "turn_off", { entity_id: entityId });
-      else this._call("light", "turn_on", { entity_id: entityId, brightness_pct: drag.pct });
-    } else {
-      const st = this._hass.states?.[entityId];
-      if (st?.state !== "on") {
-        this._call("light", "turn_on", { entity_id: entityId, brightness_pct: 100 });
-      } else {
-        const pct = calcPct(e);
-        if (pct <= 0) this._call("light", "turn_off", { entity_id: entityId });
-        else this._call("light", "turn_on", { entity_id: entityId, brightness_pct: pct });
-      }
-    }
-    dragging = false;
-  });
-
-  el.addEventListener("pointercancel", (e) => {
-    if (e.pointerId !== pointerId) return;
-    pointerId = null;
-    dragging = false;
-    this._dragState.delete(entityId);
-    fill.style.transition = "";
-  });
-
-  el.addEventListener("click", (e) => e.stopPropagation());
 }
 
 export function _updateSensorRef(ref, entityId) {
