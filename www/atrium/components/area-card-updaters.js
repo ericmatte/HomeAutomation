@@ -382,6 +382,12 @@ export function _bindSwipeTile(tile, fill, thumb, swatch, stateEl, entityId, kin
     tile.classList.add("pressed");
     ref.lpTimer = setTimeout(() => {
       ref.longPress = true;
+      detach();
+      tile.classList.remove("pressed");
+      ref.dragging = false;
+      ref.moved = false;
+      this._dragState.delete(entityId);
+      resetVisuals();
       if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(15);
       this._moreInfo(entityId);
     }, 480);
