@@ -447,24 +447,22 @@ export function _buildInputSelectsSection(area, inputSelects) {
 
 export function _buildInputSelectTile(area, entity) {
   const hass = this._hass;
-  // A single button row (icon + name + current value + caret). Tapping it
-  // opens the shared popover menu — reused from the climate mode picker — with
-  // one item per option; picking one fires input_select.select_option.
+  // A single badge-height button (inline icon + name + current value + caret),
+  // styled like the scene badges. Tapping it opens the shared popover menu —
+  // reused from the climate mode picker — with one item per option; picking
+  // one fires input_select.select_option.
   const btn = document.createElement("button");
   btn.type = "button";
   btn.className = "atrium-select";
   btn.dataset.entity = entity.entity_id;
 
-  const row = document.createElement("div");
-  row.className = "atrium-select-row";
-
-  const swatch = document.createElement("div");
-  swatch.className = "atrium-swatch";
+  const iconEl = document.createElement("ha-icon");
+  iconEl.className = "atrium-select-icon";
   const icon =
     hass.entities?.[entity.entity_id]?.icon ??
     hass.states?.[entity.entity_id]?.attributes?.icon ??
     "mdi:form-select";
-  swatch.innerHTML = `<ha-icon icon="${icon}" style="--mdc-icon-size:20px"></ha-icon>`;
+  iconEl.setAttribute("icon", icon);
 
   const name = document.createElement("div");
   name.className = "atrium-select-name";
@@ -477,8 +475,7 @@ export function _buildInputSelectTile(area, entity) {
   caret.className = "atrium-select-caret";
   caret.setAttribute("icon", "mdi:menu-down");
 
-  row.append(swatch, name, value, caret);
-  btn.appendChild(row);
+  btn.append(iconEl, name, value, caret);
 
   let cachedItems = [], cachedCurrent = null;
   btn.addEventListener("click", (e) => {
