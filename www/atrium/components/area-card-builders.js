@@ -20,7 +20,6 @@ export function _buildRoomCard(area, data) {
   const hasBody =
     data.lights.length > 0 ||
     data.climates.length > 0 ||
-    data.vacuums.length > 0 ||
     data.sensors.extras.length > 0 ||
     data.inputSelects.length > 0 ||
     data.scenes.length > 0 ||
@@ -36,7 +35,7 @@ export function _buildRoomCard(area, data) {
   const areaRef = {
     card, data,
     lights: new Map(),
-    climates: new Map(), vacuums: new Map(), automations: new Map(),
+    climates: new Map(), automations: new Map(),
     inputSelects: new Map(),
     sensors: new Map(),
   };
@@ -149,7 +148,6 @@ export function _buildRoomBody(area, data) {
   const sections = [];
   if (data.lights.length) sections.push(this._buildLightsSection(area, data.lights));
   if (data.climates.length) sections.push(this._buildClimateSection(area, data.climates, data.sensors));
-  if (data.vacuums.length) sections.push(this._buildVacuumSection(area, data.vacuums));
   if (data.sensors.extras.length) sections.push(this._buildSensorsSection(area, data.sensors.extras));
   if (data.inputSelects.length) sections.push(this._buildInputSelectsSection(area, data.inputSelects));
   if (data.scenes.length) sections.push(this._buildScenesSection(area, data.scenes));
@@ -498,62 +496,6 @@ export function _buildInputSelectTile(area, entity) {
   const ref = { btn, value, setItems };
   this._refs.areas.get(area.area_id).inputSelects.set(entity.entity_id, ref);
   return btn;
-}
-
-export function _buildVacuumSection(area, vacuums) {
-  const wrap = document.createElement("div");
-  wrap.style.cssText = "display:flex;flex-direction:column;gap:8px";
-  for (const v of vacuums) wrap.appendChild(this._buildVacuumTile(area, v));
-  return this._section("Vacuum", wrap);
-}
-
-export function _buildVacuumTile(area, vacuum) {
-  const tile = document.createElement("div");
-  tile.className = "atrium-vacuum";
-  tile.dataset.entity = vacuum.entity_id;
-
-  const row = document.createElement("div");
-  row.className = "atrium-vacuum-row";
-  const swatch = document.createElement("div");
-  swatch.className = "atrium-swatch";
-  swatch.style.width = "30px";
-  swatch.style.height = "30px";
-  swatch.innerHTML = `<ha-icon icon="${ICONS.vacuum}" style="--mdc-icon-size:16px"></ha-icon>`;
-  swatch.addEventListener("click", () => this._moreInfo(vacuum.entity_id));
-  const text = document.createElement("div");
-  text.style.flex = "1";
-  const name = document.createElement("div");
-  name.style.cssText = `font-size:14px;font-weight:500;color:${TONE.text}`;
-  name.textContent = nameWithoutAreaPrefix(this._entityName(vacuum), area);
-  const sub = document.createElement("div");
-  sub.style.cssText = "font-size:11.5px;display:flex;align-items:center;gap:6px";
-  text.append(name, sub);
-  const batt = document.createElement("span");
-  batt.style.cssText = "font-size:12px;font-weight:600;font-variant-numeric:tabular-nums";
-  row.append(swatch, text, batt);
-  tile.appendChild(row);
-
-  const cmds = document.createElement("div");
-  cmds.className = "atrium-vacuum-cmd-row";
-  const mkCmd = (icon, action, service) => {
-    const b = document.createElement("button");
-    b.className = "atrium-vacuum-cmd";
-    b.dataset.action = action;
-    b.innerHTML = `<ha-icon icon="${icon}" style="--mdc-icon-size:14px"></ha-icon>`;
-    b.addEventListener("click", () => this._call("vacuum", service, { entity_id: vacuum.entity_id }));
-    cmds.appendChild(b);
-    return b;
-  };
-  const cStart = mkCmd(ICONS.play, "start", "start");
-  const cPause = mkCmd(ICONS.pause, "pause", "pause");
-  const cStop = mkCmd(ICONS.stop, "stop", "stop");
-  const cLoc = mkCmd(ICONS.pin, "locate", "locate");
-  const cDock = mkCmd(ICONS.dock, "return", "return_to_base");
-  tile.appendChild(cmds);
-
-  const ref = { tile, swatch, name, sub, batt, cmds: { start: cStart, pause: cPause, stop: cStop, loc: cLoc, dock: cDock } };
-  this._refs.areas.get(area.area_id).vacuums.set(vacuum.entity_id, ref);
-  return tile;
 }
 
 export function _buildScenesSection(area, scenes) {

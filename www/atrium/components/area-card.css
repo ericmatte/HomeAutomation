@@ -110,13 +110,6 @@
 .atrium-select-value { flex-shrink: 0; font-size: 13.5px; line-height: 16px; font-weight: 600; color: var(--primary-text-color, #e8e9ec); }
 .atrium-select-caret { --mdc-icon-size: 18px; line-height: 0; flex-shrink: 0; margin-left: -2px; color: var(--secondary-text-color, #9aa0aa); }
 
-.atrium-vacuum { background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 6%, transparent); border-radius: 12px; padding: 12px 14px; }
-.atrium-vacuum-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-.atrium-vacuum-cmd-row { display: flex; gap: 4px; }
-.atrium-vacuum-cmd { flex: 1; height: 34px; border-radius: 8px; border: none; cursor: pointer; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 5%, transparent); color: var(--primary-text-color, #e8e9ec); display: inline-flex; align-items: center; justify-content: center; }
-.atrium-vacuum-cmd[data-action="start"] { background: color-mix(in srgb, var(--state-climate-cool-color, #5cc6ff) 16%, transparent); color: var(--state-climate-cool-color, #5cc6ff); }
-.atrium-vacuum-cmd.active { background: color-mix(in srgb, var(--state-climate-cool-color, #5cc6ff) 16%, transparent); color: var(--state-climate-cool-color, #5cc6ff); }
-
 .atrium-scenes { display: flex; flex-wrap: nowrap; gap: 6px; overflow-x: auto; overflow-y: hidden; cursor: grab; user-select: none; scrollbar-width: none; }
 .atrium-scenes::-webkit-scrollbar { display: none; }
 .atrium-scenes.dragging { cursor: grabbing; }

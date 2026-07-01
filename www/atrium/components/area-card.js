@@ -481,7 +481,6 @@ class AtriumAreaCard extends HTMLElement {
 
       for (const [entId, ref] of ar.lights) this._updateLightRef(ref, entId);
       for (const [entId, ref] of ar.climates) this._updateClimateRef(ref, entId, isExpanded);
-      for (const [entId, ref] of ar.vacuums) this._updateVacuumRef(ref, entId);
       if (ar.inputSelects) for (const [entId, ref] of ar.inputSelects) this._updateInputSelectRef(ref, entId);
       for (const [entId, ref] of ar.automations) this._updateAutomationRef(ref, entId);
       if (ar.sensors) for (const [entId, ref] of ar.sensors) this._updateSensorRef(ref, entId);
