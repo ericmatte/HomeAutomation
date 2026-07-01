@@ -574,8 +574,13 @@ export function _buildAutomationRow(area, item) {
   const customIcon = hass.entities?.[item.entity_id]?.icon ?? state?.attributes?.icon ?? null;
 
   const row = document.createElement("div");
-  row.className = "atrium-auto-row" + (!enabled ? " disabled" : "");
+  row.className = "atrium-auto-row" + (!enabled ? " disabled" : "") + (isScript ? " is-clickable" : "");
   row.dataset.entity = item.entity_id;
+  // Scripts have no dedicated action of their own on this row (no toggle, no
+  // useful "run" here) — the whole row just opens the entity's more-info,
+  // same as tapping the name. Body/play don't stopPropagation for scripts so
+  // clicks on them bubble up to this listener too.
+  if (isScript) row.addEventListener("click", () => this._moreInfo(item.entity_id));
 
   let swatch;
   if (isScript) {
@@ -598,7 +603,7 @@ export function _buildAutomationRow(area, item) {
 
   const body = document.createElement("button");
   body.className = "atrium-auto-body";
-  body.addEventListener("click", () => this._moreInfo(item.entity_id));
+  if (!isScript) body.addEventListener("click", () => this._moreInfo(item.entity_id));
   const name = document.createElement("div");
   name.className = "atrium-auto-name" + (enabled ? "" : " disabled");
   if (!isScript && customIcon) {
@@ -616,14 +621,11 @@ export function _buildAutomationRow(area, item) {
 
   const play = document.createElement("button");
   play.className = "atrium-auto-play" + (!enabled ? " disabled" : "");
-  play.title = isScript ? "Run script" : "Trigger automation";
+  play.title = isScript ? "" : "Trigger automation";
   play.innerHTML = `<ha-icon icon="${isScript ? ICONS.play_circle : ICONS.play}" style="--mdc-icon-size:${isScript ? 16 : 13}px"></ha-icon>`;
   play.addEventListener("click", (e) => {
+    if (isScript) return; // bubbles to the row, which opens the more-info dialog
     e.stopPropagation();
-    if (isScript) {
-      this._call("script", "turn_on", { entity_id: item.entity_id });
-      return;
-    }
     const isOn = this._hass.states?.[item.entity_id]?.state !== "off";
     if (!isOn) return;
     this._call("automation", "trigger", { entity_id: item.entity_id });

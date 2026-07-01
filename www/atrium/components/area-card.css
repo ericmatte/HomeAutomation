@@ -127,6 +127,7 @@
 .atrium-auto-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--divider-color, rgba(127,127,127,0.18)); }
 .atrium-auto-row:last-child { border-bottom: none; }
 .atrium-auto-row.disabled { opacity: .55; }
+.atrium-auto-row.is-clickable { cursor: pointer; }
 .atrium-auto-toggle {
   flex-shrink: 0;
   align-self: center;
