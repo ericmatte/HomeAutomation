@@ -478,12 +478,29 @@ export function _buildInputSelectTile(area, entity) {
   btn.append(iconEl, name, value, caret);
 
   let cachedItems = [], cachedCurrent = null;
-  btn.addEventListener("click", (e) => {
+  // Short tap → option picker; long press → more-info dialog, mirroring the
+  // light tile / cover button long-press.
+  let lpTimer = 0, didLongPress = false;
+  btn.addEventListener("pointerdown", (e) => {
     e.stopPropagation();
-    this._openClimateMenu(btn, cachedItems, cachedCurrent, (option) =>
-      this._call("input_select", "select_option", { entity_id: entity.entity_id, option })
-    );
+    didLongPress = false;
+    lpTimer = setTimeout(() => {
+      didLongPress = true;
+      if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(15);
+      this._moreInfo(entity.entity_id);
+    }, 480);
   });
+  btn.addEventListener("pointerup", (e) => {
+    e.stopPropagation();
+    clearTimeout(lpTimer);
+    if (!didLongPress) {
+      this._openClimateMenu(btn, cachedItems, cachedCurrent, (option) =>
+        this._call("input_select", "select_option", { entity_id: entity.entity_id, option })
+      );
+    }
+  });
+  btn.addEventListener("pointercancel", () => clearTimeout(lpTimer));
+  btn.addEventListener("click", (e) => e.stopPropagation());
 
   const setItems = (items, current) => {
     cachedItems = items;
