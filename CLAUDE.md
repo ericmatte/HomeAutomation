@@ -2,13 +2,13 @@
 
 This repo tracks a two-level validation checklist per automation/blueprint in
 `www/atrium/validation-checklists.json`, surfaced as checkable items in the
-Atrium dashboard's Routines tab (see
-`docs/superpowers/specs/2026-07-01-automation-validation-checklists-design.md`
-for the full design):
+Atrium dashboard's Routines tab (see `www/atrium/components/validation-card.js`
+for the implementation):
 
-- `change` — items to validate for the specific change just made. Removed
-  from the to-do list once checked; also remove them from this file once
-  you've confirmed they were validated (they served their purpose).
+- `change` — items to validate for the specific change just made. Checking
+  one off just marks it done (struck through) — it stays visible. Remove it
+  from this file once you've confirmed it was validated; that's what
+  actually clears it from the list (they served their purpose).
 - `ongoing` — recurring real-world scenarios to re-validate over time (e.g.
   every summer). Leave these in place indefinitely.
 
@@ -27,9 +27,10 @@ Per automation entry:
   at a glance.
 - `entity` (optional) — the automation's `entity_id` (e.g.
   `automation.smart_climate_controller`, found via its `alias:` in
-  `automations.yaml`). When set, `change` items link to that entity's
-  more-info dialog in the UI. Only add it when you're sure of the actual
-  entity_id — leave it out rather than guessing.
+  `automations.yaml`). When set, the automation's title links to that
+  entity's more-info dialog in the UI (the only link — items themselves
+  never link out). Only add it when you're sure of the actual entity_id —
+  leave it out rather than guessing.
 
 Every item's `text`, at **both** levels (`change` and `ongoing`), also starts
 with a fitting emoji — same reason as the label: scannable at a glance. Reuse

@@ -1,7 +1,7 @@
 // Two-level (change / ongoing) validation checklists per automation. Content
 // lives in ../validation-checklists.json (versioned in git); checked state
 // lives natively in 2 global Local To-do lists so it's checkable from any
-// HA client. See docs/superpowers/specs/2026-07-01-automation-validation-checklists-design.md.
+// HA client. See ../../CLAUDE.md for the authoring convention.
 const _v = new URL(import.meta.url).search;
 const [domUtilsMod] = await Promise.all([import(`../lib/dom-utils.js${_v}`)]);
 const { haIcon } = domUtilsMod;
@@ -182,15 +182,14 @@ class AtriumValidationCard extends HTMLElement {
     for (const [autoKey, autoDef] of Object.entries(this._manifest)) {
       const sections = LEVELS
         .map((level) => {
+          // Checked items stay visible (struck through) at both levels —
+          // only removing the manifest entry itself takes an item away.
           const items = (autoDef[level.key] || [])
             .map((item) => {
               const todoItem = this._itemsByCorrelation.get(`${autoKey}:${item.id}`);
               return todoItem ? { ...item, todoItem } : null;
             })
-            .filter(Boolean)
-            // A checked "change" item disappears from view once validated;
-            // "ongoing" items stay visible so they can be re-tested later.
-            .filter((entry) => level.key !== "change" || entry.todoItem.status !== "completed");
+            .filter(Boolean);
           return { level, items };
         })
         .filter((s) => s.items.length);
