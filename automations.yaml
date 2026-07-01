@@ -1087,6 +1087,7 @@
       summer_target_temp: 21
       pre_cool_start_time: '21:30:00'
       bedtime: '22:30:00'
+      aux_summer_floor: 16
 - id: '1760485855717'
   alias: Light on when opening workshop door
   description: ''

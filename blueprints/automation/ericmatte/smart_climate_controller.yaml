@@ -176,6 +176,19 @@ blueprint:
       selector:
         time:
 
+    aux_summer_floor:
+      name: ☀️ Plancher des thermostats auxiliaires
+      description: >
+        En mode été, les plinthes auxiliaires sont fixées à cette consigne
+        basse pour qu'elles ne déclenchent jamais de chauffage.
+      default: 16
+      selector:
+        number:
+          min: 10
+          max: 18
+          unit_of_measurement: "°C"
+          mode: slider
+
 mode: single
 
 trigger:
@@ -245,7 +258,7 @@ variables:
   cool_off_margin: 1
   pre_cool_start_time: !input pre_cool_start_time
   bedtime: !input bedtime
-  aux_floor_temp: "{{ (summer_target_temp | float) - 7 }}"
+  aux_summer_floor: !input aux_summer_floor
   # Determine which target temperature to use (winter)
   effective_target_temp: >
     {% if use_target_from <= now().strftime('%H:%M:%S') < use_target_until and not is_state(anybody_home, 'off') %}
@@ -277,7 +290,7 @@ action:
             target:
               entity_id: "{{ aux_thermostats }}"
             data:
-              temperature: "{{ aux_floor_temp }}"
+              temperature: "{{ aux_summer_floor }}"
 
           - choose:
               # ----- GATE A : personne à la maison -----
