@@ -43,6 +43,7 @@ blueprint:
 
   domain: automation
   input:
+    # ---- Paramètres communs ----
     heat_pump:
       name: 🌀 Thermopompe
       description: L'entité principale de la thermopompe.
@@ -71,6 +72,36 @@ blueprint:
       selector:
         entity:
           domain: binary_sensor
+
+    use_target_from:
+      name: 🕒 Début de la plage "confort"
+      description: Heure à laquelle la consigne de confort devient active (hiver) et où la nuit se termine (été).
+      default: "07:00"
+      selector:
+        time:
+
+    fan_mode:
+      name: 🌀 Mode du ventilateur
+      description: Mode du ventilateur à appliquer sur la thermopompe en hiver et en été.
+      default: auto
+      selector:
+        select:
+          options:
+            - auto
+            - low
+            - med
+            - high
+            - quiet
+
+    summer_mode:
+      name: 🔀 Bascule mode été
+      description: >
+        Input boolean qui détermine le mode actif.
+        ON = été (climatisation). OFF = hiver (comportement original).
+        Câblable à une switch physique pour un override matériel.
+      selector:
+        entity:
+          domain: input_boolean
 
     # ---- Paramètres du mode hiver ----
     min_outside_temp:
@@ -108,43 +139,12 @@ blueprint:
           unit_of_measurement: "°C"
           mode: slider
 
-    use_target_from:
-      name: 🕒 Début de la plage "confort"
-      description: Heure à laquelle la consigne de confort devient active (hiver) et où la nuit se termine (été).
-      default: "07:00"
-      selector:
-        time:
-
     use_target_until:
       name: ❄️ Fin de la plage "confort"
       description: Heure à laquelle la consigne nuit/absence devient active en hiver.
       default: "22:00"
       selector:
         time:
-
-    fan_mode:
-      name: 🌀 Mode du ventilateur
-      description: Mode du ventilateur à appliquer sur la thermopompe en hiver et en été.
-      default: auto
-      selector:
-        select:
-          options:
-            - auto
-            - low
-            - med
-            - high
-            - quiet
-
-    # ---- Bascule de mode ----
-    summer_mode:
-      name: 🔀 Bascule mode été
-      description: >
-        Input boolean qui détermine le mode actif.
-        ON = été (climatisation). OFF = hiver (comportement original).
-        Câblable à une switch physique pour un override matériel.
-      selector:
-        entity:
-          domain: input_boolean
 
     # ---- Paramètres du mode été ----
     summer_target_temp:
