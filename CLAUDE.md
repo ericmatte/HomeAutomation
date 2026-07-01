@@ -30,3 +30,10 @@ Per automation entry:
   `automations.yaml`). When set, `change` items link to that entity's
   more-info dialog in the UI. Only add it when you're sure of the actual
   entity_id — leave it out rather than guessing.
+
+Every item's `text`, at **both** levels (`change` and `ongoing`), also starts
+with a fitting emoji — same reason as the label: scannable at a glance. Reuse
+an emoji already used in that blueprint's own `description:` bullets when one
+fits (e.g. ✋ for a manual-override item, 🔁 for an anti-spam/hysteresis item);
+otherwise pick a fitting one. Avoid repeating the exact same emoji across
+multiple items within the same automation.

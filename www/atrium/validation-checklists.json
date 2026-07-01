@@ -5,25 +5,25 @@
     "change": [
       {
         "id": "summer-setpoints-from-target",
-        "text": "Les consignes été (pré-cool = cible -2°C, nuit = cible +2°C, jour = cible) suivent bien summer_target_temp, sans les anciens inputs summer_night_temp/summer_outside_threshold"
+        "text": "☀️ Les consignes été (pré-cool = cible -2°C, nuit = cible +2°C, jour = cible) suivent bien summer_target_temp, sans les anciens inputs summer_night_temp/summer_outside_threshold"
       },
       {
         "id": "no-manual-override-block",
-        "text": "Un climate.turn_off ou un changement de consigne fait à la main ne bloque plus l'automation jusqu'à minuit — elle reprend au prochain déclencheur prévu"
+        "text": "✋ Un climate.turn_off ou un changement de consigne fait à la main ne bloque plus l'automation jusqu'à minuit — elle reprend au prochain déclencheur prévu"
       }
     ],
     "ongoing": [
       {
         "id": "hot-day-ac-start",
-        "text": "Journée chaude : la climatisation démarre quand l'extérieur atteint summer_target_temp"
+        "text": "🥵 Journée chaude : la climatisation démarre quand l'extérieur atteint summer_target_temp"
       },
       {
         "id": "summer-night-setpoint",
-        "text": "Nuit d'été : la consigne nuit (cible +2°C) s'applique correctement entre le coucher et le début de la plage confort"
+        "text": "🌙 Nuit d'été : la consigne nuit (cible +2°C) s'applique correctement entre le coucher et le début de la plage confort"
       },
       {
         "id": "manual-change-recovers",
-        "text": "Après un changement manuel de consigne pendant la journée, l'automation reprend normalement au prochain déclencheur planifié (pas de blocage résiduel)"
+        "text": "🔄 Après un changement manuel de consigne pendant la journée, l'automation reprend normalement au prochain déclencheur planifié (pas de blocage résiduel)"
       }
     ]
   },
@@ -33,17 +33,17 @@
     "change": [
       {
         "id": "hysteresis-buffer",
-        "text": "L'alerte ne se réarme qu'après être redescendue sous le seuil - 5% (pas dès le retour sous le seuil configuré)"
+        "text": "🔁 L'alerte ne se réarme qu'après être redescendue sous le seuil - 5% (pas dès le retour sous le seuil configuré)"
       },
       {
         "id": "workshop-sensor-merged",
-        "text": "sensor.workshop_temperature_humidity_humidity est bien surveillé par cette automation (l'ancienne automation dédiée à l'atelier a été retirée)"
+        "text": "🧰 sensor.workshop_temperature_humidity_humidity est bien surveillé par cette automation (l'ancienne automation dédiée à l'atelier a été retirée)"
       }
     ],
     "ongoing": [
       {
         "id": "oscillation-no-spam",
-        "text": "Un capteur qui oscille juste autour du seuil ne génère pas de notifications répétées"
+        "text": "🔕 Un capteur qui oscille juste autour du seuil ne génère pas de notifications répétées"
       }
     ]
   }
