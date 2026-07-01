@@ -119,6 +119,13 @@ export function openPopover({ anchor, content, width, maxWidth, onClose }) {
   };
 
   const onDown = (e) => {
+    // The popover lives on document.body but anchors live inside nested shadow
+    // roots (hui-card, …). Across a shadow boundary `e.target` is retargeted to
+    // the host, so `anchor.contains(e.target)` is false even when the click IS
+    // on the anchor — which used to close-then-reopen on a repeat anchor click.
+    // composedPath() pierces the shadow boundaries and reports the true path.
+    const path = typeof e.composedPath === "function" ? e.composedPath() : [];
+    if (path.includes(pop) || path.includes(anchor)) return;
     if (pop.contains(e.target) || anchor.contains(e.target)) return;
     close();
   };
