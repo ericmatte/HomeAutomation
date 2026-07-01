@@ -169,6 +169,24 @@ export function _updateSensorRef(ref, entityId) {
   ref.value.textContent = fmtSensorValue(this._hass.states?.[entityId]);
 }
 
+export function _updateInputSelectRef(ref, entityId) {
+  const st = this._hass.states?.[entityId];
+  if (!st) return;
+  if (unchangedState(ref, "_lastState", st)) return;
+  const options = Array.isArray(st.attributes?.options) ? st.attributes.options : [];
+  const unavailable = st.state === "unavailable" || st.state === "unknown";
+  const current = unavailable ? null : st.state;
+  ref.value.textContent = unavailable ? "—" : st.state;
+  ref.setItems(
+    options.map((opt) => ({
+      id: opt,
+      label: opt,
+      icon: opt === current ? "mdi:check" : "mdi:circle-small",
+    })),
+    current,
+  );
+}
+
 export function _wakeClimateGraph(ref) {
   if (ref.graph || !ref.makeGraph) return;
   ref.graph = ref.makeGraph();

@@ -22,6 +22,7 @@ export function _buildRoomCard(area, data) {
     data.climates.length > 0 ||
     data.vacuums.length > 0 ||
     data.sensors.extras.length > 0 ||
+    data.inputSelects.length > 0 ||
     data.scenes.length > 0 ||
     data.automations.length > 0 ||
     data.scripts.length > 0;
@@ -36,6 +37,7 @@ export function _buildRoomCard(area, data) {
     card, data,
     lights: new Map(),
     climates: new Map(), vacuums: new Map(), automations: new Map(),
+    inputSelects: new Map(),
     sensors: new Map(),
   };
   this._refs.areas.set(area.area_id, areaRef);
@@ -149,6 +151,7 @@ export function _buildRoomBody(area, data) {
   if (data.climates.length) sections.push(this._buildClimateSection(area, data.climates, data.sensors));
   if (data.vacuums.length) sections.push(this._buildVacuumSection(area, data.vacuums));
   if (data.sensors.extras.length) sections.push(this._buildSensorsSection(area, data.sensors.extras));
+  if (data.inputSelects.length) sections.push(this._buildInputSelectsSection(area, data.inputSelects));
   if (data.scenes.length) sections.push(this._buildScenesSection(area, data.scenes));
   const routines = this._buildAutomationsSection(area, data.automations, data.scripts);
   if (routines) sections.push(routines);
@@ -437,6 +440,64 @@ export function _buildSensorTile(area, sensor) {
   const ref = { tile, value };
   this._refs.areas.get(area.area_id).sensors.set(sensor.entity_id, ref);
   return tile;
+}
+
+export function _buildInputSelectsSection(area, inputSelects) {
+  const tiles = inputSelects.map((s) => this._buildInputSelectTile(area, s));
+  return this._section("Selectors", tiles);
+}
+
+export function _buildInputSelectTile(area, entity) {
+  const hass = this._hass;
+  // A single button row (icon + name + current value + caret). Tapping it
+  // opens the shared popover menu — reused from the climate mode picker — with
+  // one item per option; picking one fires input_select.select_option.
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "atrium-select";
+  btn.dataset.entity = entity.entity_id;
+
+  const row = document.createElement("div");
+  row.className = "atrium-select-row";
+
+  const swatch = document.createElement("div");
+  swatch.className = "atrium-swatch";
+  const icon =
+    hass.entities?.[entity.entity_id]?.icon ??
+    hass.states?.[entity.entity_id]?.attributes?.icon ??
+    "mdi:form-select";
+  swatch.innerHTML = `<ha-icon icon="${icon}" style="--mdc-icon-size:20px"></ha-icon>`;
+
+  const name = document.createElement("div");
+  name.className = "atrium-select-name";
+  name.textContent = nameWithoutAreaPrefix(this._entityName(entity), area);
+
+  const value = document.createElement("div");
+  value.className = "atrium-select-value";
+
+  const caret = document.createElement("ha-icon");
+  caret.className = "atrium-select-caret";
+  caret.setAttribute("icon", "mdi:menu-down");
+
+  row.append(swatch, name, value, caret);
+  btn.appendChild(row);
+
+  let cachedItems = [], cachedCurrent = null;
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    this._openClimateMenu(btn, cachedItems, cachedCurrent, (option) =>
+      this._call("input_select", "select_option", { entity_id: entity.entity_id, option })
+    );
+  });
+
+  const setItems = (items, current) => {
+    cachedItems = items;
+    cachedCurrent = current;
+  };
+
+  const ref = { btn, value, setItems };
+  this._refs.areas.get(area.area_id).inputSelects.set(entity.entity_id, ref);
+  return btn;
 }
 
 export function _buildVacuumSection(area, vacuums) {
