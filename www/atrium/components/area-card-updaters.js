@@ -8,7 +8,7 @@ const {
   TONE, ICONS,
   CLIMATE_ACCENT, CLIMATE_LABELS, CLIMATE_ICONS,
   capitalize,
-  canDimLight, fmtBrightnessPct, fmtCoverPct, fmtSensorValue,
+  canDimLight, fmtBrightnessPct, fmtCoverPct, fmtSensorValue, fmtTimeAgoShort,
   iconForFanMode, iconForSwingMode,
   levelColor,
   labelDescriptor,
@@ -164,8 +164,9 @@ export function _updateLightRef(ref, entityId) {
   ref.thumb.style.display = on && canDim ? "block" : "none";
   ref.thumb.style.opacity = "0.55";
   ref.swatch.classList.toggle("on-light", on && !unavailable);
-  ref.state.classList.toggle("on-light", on && !unavailable);
-  ref.state.textContent = unavailable ? "Unavailable" : on ? (canDim ? `${pct}%` : "On") : "Off";
+  ref.state.classList.remove("on-light");
+  const stateText = unavailable ? "Unavailable" : on ? (canDim ? `${pct}%` : "On") : "Off";
+  ref.state.textContent = st.last_updated ? `${stateText} - ${fmtTimeAgoShort(st.last_updated)}` : stateText;
 
   // True color modes get the bulb's live rgb_color; white-temperature modes
   // fall back to the default yellow tint via the CSS var defaults.
@@ -421,7 +422,7 @@ export function _bindSwipeTile(tile, fill, thumb, swatch, stateEl, entityId, kin
         thumb.style.left = `calc(${pct}% - 2px)`;
         thumb.style.opacity = "1";
         stateEl.textContent = `${pct}%`;
-        stateEl.classList.add(kind === "light" ? "on-light" : "on-cover");
+        if (kind === "cover") stateEl.classList.add("on-cover");
       }
     };
 
