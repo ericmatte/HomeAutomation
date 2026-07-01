@@ -21,6 +21,7 @@ class AtriumValidationCard extends HTMLElement {
     this._built = false;
     this._synced = false;
     this._refreshInterval = null;
+    this._expanded = false;
   }
 
   setConfig(_config) {}
@@ -204,20 +205,51 @@ class AtriumValidationCard extends HTMLElement {
       return;
     }
 
-    const card = document.createElement("div");
-    card.className = "atrium-validation-card";
+    const totalItems = automations.reduce(
+      (n, a) => n + a.sections.reduce((m, s) => m + s.items.length, 0),
+      0
+    );
 
-    const cardTitle = document.createElement("div");
-    cardTitle.className = "atrium-validation-card-title";
-    cardTitle.textContent = "✅ Validation";
-    card.appendChild(cardTitle);
+    const card = document.createElement("div");
+    card.className = "atrium-validation-card" + (this._expanded ? " expanded" : "");
+
+    const header = document.createElement("div");
+    header.className = "atrium-validation-header";
+    header.innerHTML = `
+      <span class="atrium-validation-card-title">✅ Validation</span>
+      <span class="atrium-validation-count">${totalItems}</span>
+      <span class="atrium-validation-chev">${haIcon("mdi:chevron-down", 18)}</span>
+    `;
+    header.addEventListener("click", () => {
+      this._expanded = !this._expanded;
+      this._render();
+    });
+    card.appendChild(header);
+
+    const body = document.createElement("div");
+    body.className = "atrium-validation-body";
 
     for (const automation of automations) {
       const block = document.createElement("div");
       block.className = "atrium-validation-automation";
-      const title = document.createElement("div");
-      title.className = "atrium-validation-automation-title";
-      title.textContent = automation.label;
+
+      // Only the automation itself links out — that's the single, top-level
+      // "jump to what changed" action. Individual items are plain text so
+      // the checklist stays a checklist, not a list of separate links.
+      const linkable = !!automation.entity;
+      const title = document.createElement(linkable ? "button" : "div");
+      title.className = "atrium-validation-automation-title" + (linkable ? " is-linkable" : "");
+      if (linkable) {
+        title.type = "button";
+        title.innerHTML = `<span></span>${haIcon("mdi:open-in-new", 14)}`;
+        title.querySelector("span").textContent = automation.label;
+        title.addEventListener("click", (e) => {
+          e.stopPropagation();
+          this._openEntityMore(automation.entity);
+        });
+      } else {
+        title.textContent = automation.label;
+      }
       block.appendChild(title);
 
       for (const section of automation.sections) {
@@ -225,17 +257,16 @@ class AtriumValidationCard extends HTMLElement {
         sectionLabel.className = "atrium-validation-section-label";
         sectionLabel.textContent = section.level.label;
         block.appendChild(sectionLabel);
-        for (const entry of section.items) {
-          block.appendChild(this._buildItem(entry, section.level, automation.entity));
-        }
+        for (const entry of section.items) block.appendChild(this._buildItem(entry, section.level));
       }
-      card.appendChild(block);
+      body.appendChild(block);
     }
 
+    card.appendChild(body);
     this._root.replaceChildren(card);
   }
 
-  _buildItem(entry, level, entityId) {
+  _buildItem(entry, level) {
     const checked = entry.todoItem.status === "completed";
     const row = document.createElement("div");
     row.className = "atrium-validation-item" + (checked ? " is-checked" : "");
@@ -243,23 +274,9 @@ class AtriumValidationCard extends HTMLElement {
     const checkbox = document.createElement("ha-checkbox");
     checkbox.checked = checked;
 
-    // Only "change" items link to an entity — that's the thing the change
-    // touched, so jumping to it is what makes sense to re-check. "Ongoing"
-    // items are broader scenarios, not tied to one entity.
-    const linkable = level.key === "change" && !!entityId;
-    const text = document.createElement(linkable ? "button" : "span");
-    text.className = "atrium-validation-item-text" + (linkable ? " is-linkable" : "");
-    if (linkable) {
-      text.type = "button";
-      text.innerHTML = `<span></span>${haIcon("mdi:open-in-new", 14)}`;
-      text.querySelector("span").textContent = entry.text;
-      text.addEventListener("click", (e) => {
-        e.stopPropagation();
-        this._openEntityMore(entityId);
-      });
-    } else {
-      text.textContent = entry.text;
-    }
+    const text = document.createElement("span");
+    text.className = "atrium-validation-item-text";
+    text.textContent = entry.text;
 
     row.append(checkbox, text);
     row.addEventListener("click", () => {
