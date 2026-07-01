@@ -66,13 +66,16 @@ regardless of how many automations get checklists.
 
 ### Sync (client-side, on card render)
 
-A new Atrium card fetches the manifest and reconciles it against the two
-native to-do lists over the websocket API:
+A new Atrium card fetches the manifest once per page load and reconciles it
+against the two native to-do lists over the websocket API (`todo/item/list`
+to read, `todo.add_item` / `todo.update_item` / `todo.remove_item` to write).
+The correlation id is stored in the to-do item's **`description`** field
+(supported by the to-do entity platform via `SET_DESCRIPTION_ON_ITEM`), not
+in the visible summary — so the item reads cleanly if someone opens the raw
+to-do list from the standard HA to-do card or the mobile app.
 
-- Manifest item not yet in the corresponding to-do list → `todo.add_item`,
-  with the correlation id encoded as a hidden prefix in the item summary
-  (e.g. `⟦smart_climate_controller:day-setpoint⟧ Le setpoint jour suit
-  summer_target_temp`), stripped for display in the card.
+- Manifest item not yet in the corresponding to-do list → `todo.add_item`
+  with `item: <text>` and `description: <automation_key>:<item_id>`.
 - To-do item whose correlation id is no longer present in the manifest →
   `todo.remove_item` (manifest is the source of truth for *content*).
 - **Change** item checked → `todo.remove_item` right away (auto-cleanup).
