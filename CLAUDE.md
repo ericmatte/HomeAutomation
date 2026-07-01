@@ -18,3 +18,15 @@ the relevant `change` and `ongoing` entries for that automation in
 `www/atrium/validation-checklists.json` before considering the change done.
 Use the automation/blueprint's snake_case key (matching its filename) as the
 top-level key in the JSON.
+
+Per automation entry:
+
+- `label` — prefix it with the same emoji as the blueprint's own `name:` (or
+  a fitting one if there's no blueprint), matching the house convention
+  already used for blueprint/input names — it makes the checklist scannable
+  at a glance.
+- `entity` (optional) — the automation's `entity_id` (e.g.
+  `automation.smart_climate_controller`, found via its `alias:` in
+  `automations.yaml`). When set, `change` items link to that entity's
+  more-info dialog in the UI. Only add it when you're sure of the actual
+  entity_id — leave it out rather than guessing.

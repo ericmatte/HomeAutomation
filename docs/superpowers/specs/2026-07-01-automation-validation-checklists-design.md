@@ -91,9 +91,16 @@ of the existing **Routines** view in `strategy.js` (before the per-floor
 loop) — checklists are per-automation, not per-area, so they don't belong
 inside the per-area `atrium-area-card` sections.
 
-Per automation with pending items: label, then a "Changement" sub-list and
-a "Suivi long terme" sub-list, each item rendered as a checkbox reflecting
-(and toggling) the underlying to-do item's status.
+Per automation with pending items: label (emoji-prefixed, matching the
+blueprint's own `name:` per house convention), then a "🔧 Changement"
+sub-list and a "🔁 Suivi long terme" sub-list, each item rendered as a
+checkbox reflecting (and toggling) the underlying to-do item's status.
+
+An automation entry may optionally set `entity` (its `entity_id`). When
+present, `change` items render as a link that opens that entity's more-info
+dialog — the change touched that entity, so jumping to it is the natural
+next step. `ongoing` items never link; they're broader scenarios, not tied
+to one entity.
 
 ### Error handling
 

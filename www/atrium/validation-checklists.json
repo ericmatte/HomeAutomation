@@ -1,6 +1,7 @@
 {
   "smart_climate_controller": {
-    "label": "Smart Climate Controller",
+    "label": "🌡️ Smart Climate Controller",
+    "entity": "automation.smart_climate_controller",
     "change": [
       {
         "id": "summer-setpoints-from-target",

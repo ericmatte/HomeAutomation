@@ -3,14 +3,16 @@
 // lives natively in 2 global Local To-do lists so it's checkable from any
 // HA client. See docs/superpowers/specs/2026-07-01-automation-validation-checklists-design.md.
 const _v = new URL(import.meta.url).search;
+const [domUtilsMod] = await Promise.all([import(`../lib/dom-utils.js${_v}`)]);
+const { haIcon } = domUtilsMod;
 const STYLE = await fetch(new URL(`./validation-card.css${_v}`, import.meta.url)).then((r) => r.text());
 const MANIFEST_URL = new URL(`../validation-checklists.json${_v}`, import.meta.url);
 
 const REFRESH_INTERVAL_MS = 30 * 1000;
 
 const LEVELS = [
-  { key: "change", entityId: "todo.validation_changement", label: "Changement" },
-  { key: "ongoing", entityId: "todo.validation_suivi_long_terme", label: "Suivi long terme" },
+  { key: "change", entityId: "todo.validation_changement", label: "🔧 Changement" },
+  { key: "ongoing", entityId: "todo.validation_suivi_long_terme", label: "🔁 Suivi long terme" },
 ];
 
 class AtriumValidationCard extends HTMLElement {
@@ -187,7 +189,9 @@ class AtriumValidationCard extends HTMLElement {
         })
         .filter((s) => s.items.length);
 
-      if (sections.length) automations.push({ label: autoDef.label || autoKey, sections });
+      if (sections.length) {
+        automations.push({ label: autoDef.label || autoKey, entity: autoDef.entity || null, sections });
+      }
     }
 
     if (!automations.length) {
@@ -197,6 +201,11 @@ class AtriumValidationCard extends HTMLElement {
 
     const card = document.createElement("div");
     card.className = "atrium-validation-card";
+
+    const cardTitle = document.createElement("div");
+    cardTitle.className = "atrium-validation-card-title";
+    cardTitle.textContent = "✅ Validation";
+    card.appendChild(cardTitle);
 
     for (const automation of automations) {
       const block = document.createElement("div");
@@ -211,7 +220,9 @@ class AtriumValidationCard extends HTMLElement {
         sectionLabel.className = "atrium-validation-section-label";
         sectionLabel.textContent = section.level.label;
         block.appendChild(sectionLabel);
-        for (const entry of section.items) block.appendChild(this._buildItem(entry, section.level));
+        for (const entry of section.items) {
+          block.appendChild(this._buildItem(entry, section.level, automation.entity));
+        }
       }
       card.appendChild(block);
     }
@@ -219,7 +230,7 @@ class AtriumValidationCard extends HTMLElement {
     this._root.replaceChildren(card);
   }
 
-  _buildItem(entry, level) {
+  _buildItem(entry, level, entityId) {
     const checked = entry.todoItem.status === "completed";
     const row = document.createElement("div");
     row.className = "atrium-validation-item" + (checked ? " is-checked" : "");
@@ -227,18 +238,37 @@ class AtriumValidationCard extends HTMLElement {
     const checkbox = document.createElement("ha-checkbox");
     checkbox.checked = checked;
 
-    const text = document.createElement("span");
-    text.className = "atrium-validation-item-text";
-    text.textContent = entry.text;
+    // Only "change" items link to an entity — that's the thing the change
+    // touched, so jumping to it is what makes sense to re-check. "Ongoing"
+    // items are broader scenarios, not tied to one entity.
+    const linkable = level.key === "change" && !!entityId;
+    const text = document.createElement(linkable ? "button" : "span");
+    text.className = "atrium-validation-item-text" + (linkable ? " is-linkable" : "");
+    if (linkable) {
+      text.type = "button";
+      text.innerHTML = `<span></span>${haIcon("mdi:open-in-new", 14)}`;
+      text.querySelector("span").textContent = entry.text;
+      text.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this._openEntityMore(entityId);
+      });
+    } else {
+      text.textContent = entry.text;
+    }
 
     row.append(checkbox, text);
-    row.addEventListener("click", (e) => {
-      e.stopPropagation();
+    row.addEventListener("click", () => {
       const next = !checkbox.checked;
       checkbox.checked = next;
       this._toggleItem(entry.todoItem, level, next);
     });
     return row;
+  }
+
+  _openEntityMore(entityId) {
+    const ev = new Event("hass-more-info", { bubbles: true, composed: true });
+    ev.detail = { entityId };
+    this.dispatchEvent(ev);
   }
 
   async _toggleItem(todoItem, level, checked) {
