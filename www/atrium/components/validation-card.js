@@ -94,7 +94,12 @@ class AtriumValidationCard extends HTMLElement {
   }
 
   async _loadManifest() {
-    const res = await fetch(MANIFEST_URL);
+    // Bypass both the browser HTTP cache and any service-worker cache (HA's
+    // frontend runs as a PWA) so edits to the manifest show up on a normal
+    // refresh, without needing a hard reload.
+    const bustedUrl = new URL(MANIFEST_URL);
+    bustedUrl.searchParams.set("_", Date.now());
+    const res = await fetch(bustedUrl, { cache: "no-store" });
     if (res.status === 404) {
       const err = new Error("not found");
       err.notFound = true;
