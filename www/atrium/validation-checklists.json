@@ -26,5 +26,25 @@
         "text": "Après un changement manuel de consigne pendant la journée, l'automation reprend normalement au prochain déclencheur planifié (pas de blocage résiduel)"
       }
     ]
+  },
+  "humidity_high_alert": {
+    "label": "💦 Alerte taux d'humidité élevé",
+    "entity": "automation.high_humidity_alert",
+    "change": [
+      {
+        "id": "hysteresis-buffer",
+        "text": "L'alerte ne se réarme qu'après être redescendue sous le seuil - 5% (pas dès le retour sous le seuil configuré)"
+      },
+      {
+        "id": "workshop-sensor-merged",
+        "text": "sensor.workshop_temperature_humidity_humidity est bien surveillé par cette automation (l'ancienne automation dédiée à l'atelier a été retirée)"
+      }
+    ],
+    "ongoing": [
+      {
+        "id": "oscillation-no-spam",
+        "text": "Un capteur qui oscille juste autour du seuil ne génère pas de notifications répétées"
+      }
+    ]
   }
 }
