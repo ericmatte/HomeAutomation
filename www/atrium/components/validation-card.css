@@ -11,8 +11,9 @@
 .atrium-validation-chev { display: inline-flex; color: color-mix(in srgb, var(--secondary-text-color, #9aa0aa) 70%, transparent); transition: transform .2s; }
 .atrium-validation-card.expanded .atrium-validation-chev { transform: rotate(180deg); }
 
-.atrium-validation-body { display: none; padding: 0 16px 14px; }
-.atrium-validation-card.expanded .atrium-validation-body { display: block; }
+.atrium-validation-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .25s ease; }
+.atrium-validation-card.expanded .atrium-validation-body { grid-template-rows: 1fr; }
+.atrium-validation-body-inner { overflow: hidden; padding: 0 16px 14px; }
 
 .atrium-validation-automation + .atrium-validation-automation { margin-top: 16px; }
 .atrium-validation-automation-title { font-size: 15px; font-weight: 600; color: var(--primary-text-color, #e8e9ec); margin-bottom: 6px; }

@@ -208,6 +208,15 @@ class AtriumValidationCard extends HTMLElement {
       (n, a) => n + a.sections.reduce((m, s) => m + s.items.length, 0),
       0
     );
+    const checkedItems = automations.reduce(
+      (n, a) =>
+        n +
+        a.sections.reduce(
+          (m, s) => m + s.items.filter((entry) => entry.todoItem.status === "completed").length,
+          0
+        ),
+      0
+    );
 
     const card = document.createElement("div");
     card.className = "atrium-validation-card" + (this._expanded ? " expanded" : "");
@@ -215,8 +224,8 @@ class AtriumValidationCard extends HTMLElement {
     const header = document.createElement("div");
     header.className = "atrium-validation-header";
     header.innerHTML = `
-      <span class="atrium-validation-card-title">✅ Validation</span>
-      <span class="atrium-validation-count">${totalItems}</span>
+      <span class="atrium-validation-card-title">✅ ${automations.length} validation${automations.length > 1 ? "s" : ""}</span>
+      <span class="atrium-validation-count">${checkedItems}/${totalItems}</span>
       <span class="atrium-validation-chev">${haIcon("mdi:chevron-down", 18)}</span>
     `;
     header.addEventListener("click", () => {
@@ -227,6 +236,8 @@ class AtriumValidationCard extends HTMLElement {
 
     const body = document.createElement("div");
     body.className = "atrium-validation-body";
+    const bodyInner = document.createElement("div");
+    bodyInner.className = "atrium-validation-body-inner";
 
     for (const automation of automations) {
       const block = document.createElement("div");
@@ -258,9 +269,10 @@ class AtriumValidationCard extends HTMLElement {
         block.appendChild(sectionLabel);
         for (const entry of section.items) block.appendChild(this._buildItem(entry, section.level));
       }
-      body.appendChild(block);
+      bodyInner.appendChild(block);
     }
 
+    body.appendChild(bodyInner);
     card.appendChild(body);
     this._root.replaceChildren(card);
   }
