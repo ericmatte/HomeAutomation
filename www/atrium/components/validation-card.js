@@ -234,6 +234,11 @@ class AtriumValidationCard extends HTMLElement {
     });
     card.appendChild(header);
 
+    // Wrap as a grid so the body can animate from 0fr to 1fr (height: 0 →
+    // auto). Padding lives on .atrium-validation-body-inner so it doesn't
+    // leak visible height when the wrap collapses.
+    const bodyWrap = document.createElement("div");
+    bodyWrap.className = "atrium-validation-body-wrap";
     const body = document.createElement("div");
     body.className = "atrium-validation-body";
     const bodyInner = document.createElement("div");
@@ -273,7 +278,8 @@ class AtriumValidationCard extends HTMLElement {
     }
 
     body.appendChild(bodyInner);
-    card.appendChild(body);
+    bodyWrap.appendChild(body);
+    card.appendChild(bodyWrap);
     this._root.replaceChildren(card);
   }
 
