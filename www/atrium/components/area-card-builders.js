@@ -571,6 +571,7 @@ export function _buildAutomationRow(area, item) {
   const state = hass.states?.[item.entity_id];
   const isScript = item.entity_id.startsWith("script.");
   const enabled = isScript ? true : state?.state !== "off";
+  const customIcon = hass.entities?.[item.entity_id]?.icon ?? state?.attributes?.icon ?? null;
 
   const row = document.createElement("div");
   row.className = "atrium-auto-row" + (!enabled ? " disabled" : "");
@@ -580,7 +581,7 @@ export function _buildAutomationRow(area, item) {
   if (isScript) {
     swatch = document.createElement("div");
     swatch.className = "atrium-auto-swatch script";
-    swatch.innerHTML = `<ha-icon icon="${ICONS.script}" style="--mdc-icon-size:15px"></ha-icon>`;
+    swatch.innerHTML = `<ha-icon icon="${customIcon || ICONS.script}" style="--mdc-icon-size:15px"></ha-icon>`;
   } else {
     // Stock HA toggle: animated, and reflects enable/disable directly. Setting
     // `.checked` from the updater doesn't re-fire `change`, so no feedback loop.
@@ -600,7 +601,13 @@ export function _buildAutomationRow(area, item) {
   body.addEventListener("click", () => this._moreInfo(item.entity_id));
   const name = document.createElement("div");
   name.className = "atrium-auto-name" + (enabled ? "" : " disabled");
-  name.textContent = this._entityName(item);
+  if (!isScript && customIcon) {
+    name.className += " has-icon";
+    name.innerHTML = `<ha-icon icon="${customIcon}" style="--mdc-icon-size:13px"></ha-icon>`;
+    name.appendChild(document.createTextNode(this._entityName(item)));
+  } else {
+    name.textContent = this._entityName(item);
+  }
   const last = document.createElement("div");
   last.className = "atrium-auto-last";
   const labels = document.createElement("div");

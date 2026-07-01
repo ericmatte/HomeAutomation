@@ -147,6 +147,8 @@
 .atrium-auto-body { flex: 1; min-width: 0; text-align: left; background: transparent; border: none; padding: 0; cursor: pointer; color: var(--primary-text-color, #e8e9ec); font-family: inherit; }
 .atrium-auto-name { font-size: 12.5px; font-weight: 500; color: var(--primary-text-color, #e8e9ec); line-height: 1.3; }
 .atrium-auto-name.disabled { color: var(--secondary-text-color, #9aa0aa); }
+.atrium-auto-name.has-icon { display: flex; align-items: center; gap: 5px; }
+.atrium-auto-name.has-icon ha-icon { flex-shrink: 0; color: var(--secondary-text-color, #9aa0aa); }
 .atrium-auto-last { font-size: 10.5px; color: color-mix(in srgb, var(--secondary-text-color, #9aa0aa) 70%, transparent); margin-top: 2px; }
 .atrium-auto-labels { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
 .atrium-auto-labels:empty { display: none; }

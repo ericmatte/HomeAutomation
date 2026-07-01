@@ -228,9 +228,12 @@ class AtriumValidationCard extends HTMLElement {
       <span class="atrium-validation-count">${checkedItems}/${totalItems}</span>
       <span class="atrium-validation-chev">${haIcon("mdi:chevron-down", 18)}</span>
     `;
+    // Toggle the class on the live element (not a full re-render) so the
+    // grid-template-rows transition has a start state to animate from — a
+    // rebuilt node would mount already-expanded and skip the ease.
     header.addEventListener("click", () => {
       this._expanded = !this._expanded;
-      this._render();
+      card.classList.toggle("expanded", this._expanded);
     });
     card.appendChild(header);
 
