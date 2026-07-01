@@ -20,8 +20,8 @@ export function _buildRoomCard(area, data) {
   const hasBody =
     data.lights.length > 0 ||
     data.climates.length > 0 ||
-    data.vacuums.length > 0 ||
     data.sensors.extras.length > 0 ||
+    data.inputSelects.length > 0 ||
     data.scenes.length > 0 ||
     data.automations.length > 0 ||
     data.scripts.length > 0;
@@ -35,7 +35,8 @@ export function _buildRoomCard(area, data) {
   const areaRef = {
     card, data,
     lights: new Map(),
-    climates: new Map(), vacuums: new Map(), automations: new Map(),
+    climates: new Map(), automations: new Map(),
+    inputSelects: new Map(),
     sensors: new Map(),
   };
   this._refs.areas.set(area.area_id, areaRef);
@@ -147,8 +148,8 @@ export function _buildRoomBody(area, data) {
   const sections = [];
   if (data.lights.length) sections.push(this._buildLightsSection(area, data.lights));
   if (data.climates.length) sections.push(this._buildClimateSection(area, data.climates, data.sensors));
-  if (data.vacuums.length) sections.push(this._buildVacuumSection(area, data.vacuums));
   if (data.sensors.extras.length) sections.push(this._buildSensorsSection(area, data.sensors.extras));
+  if (data.inputSelects.length) sections.push(this._buildInputSelectsSection(area, data.inputSelects));
   if (data.scenes.length) sections.push(this._buildScenesSection(area, data.scenes));
   const routines = this._buildAutomationsSection(area, data.automations, data.scripts);
   if (routines) sections.push(routines);
@@ -439,60 +440,76 @@ export function _buildSensorTile(area, sensor) {
   return tile;
 }
 
-export function _buildVacuumSection(area, vacuums) {
-  const wrap = document.createElement("div");
-  wrap.style.cssText = "display:flex;flex-direction:column;gap:8px";
-  for (const v of vacuums) wrap.appendChild(this._buildVacuumTile(area, v));
-  return this._section("Vacuum", wrap);
+export function _buildInputSelectsSection(area, inputSelects) {
+  const tiles = inputSelects.map((s) => this._buildInputSelectTile(area, s));
+  return this._section("Selectors", tiles);
 }
 
-export function _buildVacuumTile(area, vacuum) {
-  const tile = document.createElement("div");
-  tile.className = "atrium-vacuum";
-  tile.dataset.entity = vacuum.entity_id;
+export function _buildInputSelectTile(area, entity) {
+  const hass = this._hass;
+  // A single badge-height button (inline icon + name + current value + caret),
+  // styled like the scene badges. Tapping it opens the shared popover menu —
+  // reused from the climate mode picker — with one item per option; picking
+  // one fires input_select.select_option.
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "atrium-select";
+  btn.dataset.entity = entity.entity_id;
 
-  const row = document.createElement("div");
-  row.className = "atrium-vacuum-row";
-  const swatch = document.createElement("div");
-  swatch.className = "atrium-swatch";
-  swatch.style.width = "30px";
-  swatch.style.height = "30px";
-  swatch.innerHTML = `<ha-icon icon="${ICONS.vacuum}" style="--mdc-icon-size:16px"></ha-icon>`;
-  swatch.addEventListener("click", () => this._moreInfo(vacuum.entity_id));
-  const text = document.createElement("div");
-  text.style.flex = "1";
+  const iconEl = document.createElement("ha-icon");
+  iconEl.className = "atrium-select-icon";
+  const icon =
+    hass.entities?.[entity.entity_id]?.icon ??
+    hass.states?.[entity.entity_id]?.attributes?.icon ??
+    "mdi:form-select";
+  iconEl.setAttribute("icon", icon);
+
   const name = document.createElement("div");
-  name.style.cssText = `font-size:14px;font-weight:500;color:${TONE.text}`;
-  name.textContent = nameWithoutAreaPrefix(this._entityName(vacuum), area);
-  const sub = document.createElement("div");
-  sub.style.cssText = "font-size:11.5px;display:flex;align-items:center;gap:6px";
-  text.append(name, sub);
-  const batt = document.createElement("span");
-  batt.style.cssText = "font-size:12px;font-weight:600;font-variant-numeric:tabular-nums";
-  row.append(swatch, text, batt);
-  tile.appendChild(row);
+  name.className = "atrium-select-name";
+  name.textContent = nameWithoutAreaPrefix(this._entityName(entity), area);
 
-  const cmds = document.createElement("div");
-  cmds.className = "atrium-vacuum-cmd-row";
-  const mkCmd = (icon, action, service) => {
-    const b = document.createElement("button");
-    b.className = "atrium-vacuum-cmd";
-    b.dataset.action = action;
-    b.innerHTML = `<ha-icon icon="${icon}" style="--mdc-icon-size:14px"></ha-icon>`;
-    b.addEventListener("click", () => this._call("vacuum", service, { entity_id: vacuum.entity_id }));
-    cmds.appendChild(b);
-    return b;
+  const value = document.createElement("div");
+  value.className = "atrium-select-value";
+
+  const caret = document.createElement("ha-icon");
+  caret.className = "atrium-select-caret";
+  caret.setAttribute("icon", "mdi:menu-down");
+
+  btn.append(iconEl, name, value, caret);
+
+  let cachedItems = [], cachedCurrent = null;
+  // Short tap → option picker; long press → more-info dialog, mirroring the
+  // light tile / cover button long-press.
+  let lpTimer = 0, didLongPress = false;
+  btn.addEventListener("pointerdown", (e) => {
+    e.stopPropagation();
+    didLongPress = false;
+    lpTimer = setTimeout(() => {
+      didLongPress = true;
+      if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(15);
+      this._moreInfo(entity.entity_id);
+    }, 480);
+  });
+  btn.addEventListener("pointerup", (e) => {
+    e.stopPropagation();
+    clearTimeout(lpTimer);
+    if (!didLongPress) {
+      this._openClimateMenu(btn, cachedItems, cachedCurrent, (option) =>
+        this._call("input_select", "select_option", { entity_id: entity.entity_id, option })
+      );
+    }
+  });
+  btn.addEventListener("pointercancel", () => clearTimeout(lpTimer));
+  btn.addEventListener("click", (e) => e.stopPropagation());
+
+  const setItems = (items, current) => {
+    cachedItems = items;
+    cachedCurrent = current;
   };
-  const cStart = mkCmd(ICONS.play, "start", "start");
-  const cPause = mkCmd(ICONS.pause, "pause", "pause");
-  const cStop = mkCmd(ICONS.stop, "stop", "stop");
-  const cLoc = mkCmd(ICONS.pin, "locate", "locate");
-  const cDock = mkCmd(ICONS.dock, "return", "return_to_base");
-  tile.appendChild(cmds);
 
-  const ref = { tile, swatch, name, sub, batt, cmds: { start: cStart, pause: cPause, stop: cStop, loc: cLoc, dock: cDock } };
-  this._refs.areas.get(area.area_id).vacuums.set(vacuum.entity_id, ref);
-  return tile;
+  const ref = { btn, value, setItems };
+  this._refs.areas.get(area.area_id).inputSelects.set(entity.entity_id, ref);
+  return btn;
 }
 
 export function _buildScenesSection(area, scenes) {
@@ -571,16 +588,22 @@ export function _buildAutomationRow(area, item) {
   const state = hass.states?.[item.entity_id];
   const isScript = item.entity_id.startsWith("script.");
   const enabled = isScript ? true : state?.state !== "off";
+  const customIcon = hass.entities?.[item.entity_id]?.icon ?? state?.attributes?.icon ?? null;
 
   const row = document.createElement("div");
-  row.className = "atrium-auto-row" + (!enabled ? " disabled" : "");
+  row.className = "atrium-auto-row" + (!enabled ? " disabled" : "") + (isScript ? " is-clickable" : "");
   row.dataset.entity = item.entity_id;
+  // Scripts have no dedicated action of their own on this row (no toggle, no
+  // useful "run" here) — the whole row just opens the entity's more-info,
+  // same as tapping the name. Body/play don't stopPropagation for scripts so
+  // clicks on them bubble up to this listener too.
+  if (isScript) row.addEventListener("click", () => this._moreInfo(item.entity_id));
 
   let swatch;
   if (isScript) {
     swatch = document.createElement("div");
     swatch.className = "atrium-auto-swatch script";
-    swatch.innerHTML = `<ha-icon icon="${ICONS.script}" style="--mdc-icon-size:15px"></ha-icon>`;
+    swatch.innerHTML = `<ha-icon icon="${customIcon || ICONS.script}" style="--mdc-icon-size:15px"></ha-icon>`;
   } else {
     // Stock HA toggle: animated, and reflects enable/disable directly. Setting
     // `.checked` from the updater doesn't re-fire `change`, so no feedback loop.
@@ -597,10 +620,16 @@ export function _buildAutomationRow(area, item) {
 
   const body = document.createElement("button");
   body.className = "atrium-auto-body";
-  body.addEventListener("click", () => this._moreInfo(item.entity_id));
+  if (!isScript) body.addEventListener("click", () => this._moreInfo(item.entity_id));
   const name = document.createElement("div");
   name.className = "atrium-auto-name" + (enabled ? "" : " disabled");
-  name.textContent = this._entityName(item);
+  if (!isScript && customIcon) {
+    name.className += " has-icon";
+    name.innerHTML = `<ha-icon icon="${customIcon}" style="--mdc-icon-size:13px"></ha-icon>`;
+    name.appendChild(document.createTextNode(this._entityName(item)));
+  } else {
+    name.textContent = this._entityName(item);
+  }
   const last = document.createElement("div");
   last.className = "atrium-auto-last";
   const labels = document.createElement("div");
@@ -609,14 +638,11 @@ export function _buildAutomationRow(area, item) {
 
   const play = document.createElement("button");
   play.className = "atrium-auto-play" + (!enabled ? " disabled" : "");
-  play.title = isScript ? "Run script" : "Trigger automation";
+  play.title = isScript ? "" : "Trigger automation";
   play.innerHTML = `<ha-icon icon="${isScript ? ICONS.play_circle : ICONS.play}" style="--mdc-icon-size:${isScript ? 16 : 13}px"></ha-icon>`;
   play.addEventListener("click", (e) => {
+    if (isScript) return; // bubbles to the row, which opens the more-info dialog
     e.stopPropagation();
-    if (isScript) {
-      this._call("script", "turn_on", { entity_id: item.entity_id });
-      return;
-    }
     const isOn = this._hass.states?.[item.entity_id]?.state !== "off";
     if (!isOn) return;
     this._call("automation", "trigger", { entity_id: item.entity_id });

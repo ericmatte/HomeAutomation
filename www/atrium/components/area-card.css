@@ -68,9 +68,8 @@
 .atrium-swatch ha-icon { --mdc-icon-size: 20px; line-height: 0; }
 .atrium-tiny-btn ha-icon { --mdc-icon-size: 20px; line-height: 0; }
 .atrium-tile-text { flex: 1; min-width: 0; }
-.atrium-tile-name { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--primary-text-color, #e8e9ec); }
-.atrium-tile-state { font-size: 12px; color: color-mix(in srgb, var(--secondary-text-color, #9aa0aa) 70%, transparent); transition: color .25s ease; }
-.atrium-tile-state.on-light { color: var(--tile-accent, var(--state-light-active-color, var(--state-light-active-color, #f5c451))); }
+.atrium-tile-name { font-size: 14px; font-weight: 500; line-height: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--primary-text-color, #e8e9ec); }
+.atrium-tile-state { font-size: 12px; line-height: 14px; margin-top: 2px; color: color-mix(in srgb, var(--secondary-text-color, #9aa0aa) 70%, transparent); transition: color .25s ease; }
 .atrium-tile-state.on-cover { color: var(--state-cover-active-color, #9b7fd1); }
 .atrium-tile-state.on-heat { color: var(--state-climate-heat-color, #ff8a5b); }
 .atrium-unavail-dot { display: none; position: absolute; top: -4px; right: -4px; width: 14px; height: 14px; border-radius: 999px; background: var(--warning-color, #f0b13a); color: #fff; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; line-height: 1; border: 2px solid var(--ha-card-background, var(--card-background-color, #16181d)); box-sizing: content-box; }
@@ -102,12 +101,12 @@
 .atrium-sensor-name { flex: 1; min-width: 0; font-size: 13.5px; line-height: 16px; color: var(--primary-text-color, #e8e9ec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .atrium-sensor-value { flex-shrink: 0; font-size: 13.5px; line-height: 16px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--primary-text-color, #e8e9ec); }
 
-.atrium-vacuum { background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 6%, transparent); border-radius: 12px; padding: 12px 14px; }
-.atrium-vacuum-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-.atrium-vacuum-cmd-row { display: flex; gap: 4px; }
-.atrium-vacuum-cmd { flex: 1; height: 34px; border-radius: 8px; border: none; cursor: pointer; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 5%, transparent); color: var(--primary-text-color, #e8e9ec); display: inline-flex; align-items: center; justify-content: center; }
-.atrium-vacuum-cmd[data-action="start"] { background: color-mix(in srgb, var(--state-climate-cool-color, #5cc6ff) 16%, transparent); color: var(--state-climate-cool-color, #5cc6ff); }
-.atrium-vacuum-cmd.active { background: color-mix(in srgb, var(--state-climate-cool-color, #5cc6ff) 16%, transparent); color: var(--state-climate-cool-color, #5cc6ff); }
+.atrium-select { width: 100%; min-width: 0; height: 32px; padding: 0 8px; display: flex; align-items: center; gap: 6px; border: none; border-radius: 9px; cursor: pointer; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 5%, transparent); color: var(--primary-text-color, #e8e9ec); font-family: inherit; font-size: 12px; line-height: 14px; transition: background .2s ease, color .2s ease; }
+.atrium-select:hover, .atrium-select.atrium-pop-open { background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 8%, transparent); }
+.atrium-select-icon { --mdc-icon-size: 15px; flex-shrink: 0; line-height: 0; color: var(--secondary-text-color, #9aa0aa); }
+.atrium-select-name { flex: 1; min-width: 0; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.atrium-select-value { flex-shrink: 0; font-weight: 600; }
+.atrium-select-caret { --mdc-icon-size: 16px; flex-shrink: 0; line-height: 0; margin-left: -2px; color: var(--secondary-text-color, #9aa0aa); }
 
 .atrium-scenes { display: flex; flex-wrap: nowrap; gap: 6px; overflow-x: auto; overflow-y: hidden; cursor: grab; user-select: none; scrollbar-width: none; }
 .atrium-scenes::-webkit-scrollbar { display: none; }
@@ -127,6 +126,7 @@
 .atrium-auto-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--divider-color, rgba(127,127,127,0.18)); }
 .atrium-auto-row:last-child { border-bottom: none; }
 .atrium-auto-row.disabled { opacity: .55; }
+.atrium-auto-row.is-clickable { cursor: pointer; }
 .atrium-auto-toggle {
   flex-shrink: 0;
   align-self: center;
@@ -147,6 +147,8 @@
 .atrium-auto-body { flex: 1; min-width: 0; text-align: left; background: transparent; border: none; padding: 0; cursor: pointer; color: var(--primary-text-color, #e8e9ec); font-family: inherit; }
 .atrium-auto-name { font-size: 12.5px; font-weight: 500; color: var(--primary-text-color, #e8e9ec); line-height: 1.3; }
 .atrium-auto-name.disabled { color: var(--secondary-text-color, #9aa0aa); }
+.atrium-auto-name.has-icon { display: flex; align-items: center; gap: 5px; }
+.atrium-auto-name.has-icon ha-icon { flex-shrink: 0; color: var(--secondary-text-color, #9aa0aa); }
 .atrium-auto-last { font-size: 10.5px; color: color-mix(in srgb, var(--secondary-text-color, #9aa0aa) 70%, transparent); margin-top: 2px; }
 .atrium-auto-labels { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
 .atrium-auto-labels:empty { display: none; }

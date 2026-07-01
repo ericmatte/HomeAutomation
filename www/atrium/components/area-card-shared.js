@@ -180,6 +180,16 @@ export function canDimLight(state) {
   return (Number(attrs.supported_features) & 1) === 1 || attrs.brightness != null;
 }
 
+export function fmtTimeAgoShort(ts) {
+  const d = new Date(ts);
+  const diff = (Date.now() - d.getTime()) / 1000;
+  if (diff < 60) return "now";
+  if (diff < 3600) return `${Math.round(diff / 60)}m`;
+  if (diff < 86400) return `${Math.round(diff / 3600)}h`;
+  if (diff < 86400 * 30) return `${Math.round(diff / 86400)}d`;
+  return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
 export function fmtCoverPct(state) {
   const p = state.attributes?.current_position;
   if (p == null) return state.state === "open" ? 100 : 0;

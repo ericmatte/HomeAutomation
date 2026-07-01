@@ -145,6 +145,7 @@ class AtriumAreaCard extends HTMLElement {
       climates: [],
       vacuums: [],
       scenes: [],
+      inputSelects: [],
       mediaPlayers: [],
       sensors: { motion: [], leak: [], soil: [], propane: [], temp: null, humid: null, extras: [] },
       automations: [],
@@ -168,6 +169,7 @@ class AtriumAreaCard extends HTMLElement {
       out.sensors.humid = data.sensors.humid;
     }
     if (want.has("vacuum")) out.vacuums = data.vacuums;
+    if (want.has("inputs")) out.inputSelects = data.inputSelects;
     if (want.has("sensors")) {
       out.sensors.extras = data.sensors.extras;
       out.sensors.soil = data.sensors.soil;
@@ -196,6 +198,7 @@ class AtriumAreaCard extends HTMLElement {
       else if (key === "lights") out.lights = [];
       else if (key === "covers") out.covers = [];
       else if (key === "vacuums") out.vacuums = [];
+      else if (key === "inputs") out.inputSelects = [];
     }
     return out;
   }
@@ -213,6 +216,7 @@ class AtriumAreaCard extends HTMLElement {
       else if (domain === "climate") out.climates.push(e);
       else if (domain === "vacuum") out.vacuums.push(e);
       else if (domain === "scene") out.scenes.push(e);
+      else if (domain === "input_select") out.inputSelects.push(e);
       else if (domain === "media_player") out.mediaPlayers.push(e);
       else if (domain === "automation") out.automations.push(e);
       else if (domain === "script") out.scripts.push(e);
@@ -359,6 +363,7 @@ class AtriumAreaCard extends HTMLElement {
       d.climates.length === 0 &&
       d.vacuums.length === 0 &&
       d.scenes.length === 0 &&
+      d.inputSelects.length === 0 &&
       d.automations.length === 0 &&
       d.scripts.length === 0 &&
       !d.sensors.temp &&
@@ -476,7 +481,7 @@ class AtriumAreaCard extends HTMLElement {
 
       for (const [entId, ref] of ar.lights) this._updateLightRef(ref, entId);
       for (const [entId, ref] of ar.climates) this._updateClimateRef(ref, entId, isExpanded);
-      for (const [entId, ref] of ar.vacuums) this._updateVacuumRef(ref, entId);
+      if (ar.inputSelects) for (const [entId, ref] of ar.inputSelects) this._updateInputSelectRef(ref, entId);
       for (const [entId, ref] of ar.automations) this._updateAutomationRef(ref, entId);
       if (ar.sensors) for (const [entId, ref] of ar.sensors) this._updateSensorRef(ref, entId);
     }

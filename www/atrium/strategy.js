@@ -3,10 +3,11 @@
 // the browser keeps serving stale modules after the strategy resource URL
 // is bumped — un-versioned sibling paths stay in cache.
 const _v = new URL(import.meta.url).search;
-const [, , , shellMod] = await Promise.all([
+const [, , , , shellMod] = await Promise.all([
   import(`./components/area-card.js${_v}`),
   import(`./components/header.js${_v}`),
   import(`./components/floor-label.js${_v}`),
+  import(`./components/validation-card.js${_v}`),
   import(`./lib/shell.js${_v}`),
 ]);
 const { ALL_FLOOR_KEY } = shellMod;
@@ -151,12 +152,15 @@ class AtriumStrategy {
       sections: ["climate"],
     });
 
+    // Validation checklists are per-automation, not per-area, so the card
+    // is inserted once at the top rather than reused inside each area-card.
     const routinesView = intentView({
       title: "Routines",
       path: "routines",
       icon: "mdi:robot",
       sections: ["scenes", "routines"],
     });
+    routinesView.cards[0].cards.splice(1, 0, { type: "custom:atrium-validation-card" });
 
     // Energy & Maintenance are aggregate/manual tabs: only what the user adds
     // via YAML (no auto-discovery — the header pill covers batteries, and the

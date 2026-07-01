@@ -1,0 +1,32 @@
+.atrium-validation-root { display: flex; flex-direction: column; gap: 8px; padding: 0 18px; margin-bottom: 12px; }
+
+.atrium-validation-card { background: var(--ha-card-background, var(--card-background-color, #16181d)); border-radius: 14px; border: 1px solid var(--ha-card-border-color, var(--divider-color, transparent)); overflow: hidden; }
+
+.atrium-validation-msg { font-size: 13px; color: var(--secondary-text-color, #9aa0aa); padding: 14px 16px; }
+.atrium-validation-msg.is-error { color: var(--error-color, #e57373); }
+
+.atrium-validation-header { display: flex; align-items: center; gap: 8px; padding: 14px 16px; cursor: pointer; user-select: none; }
+.atrium-validation-card-title { font-size: 13px; font-weight: 600; letter-spacing: .3px; color: var(--secondary-text-color, #9aa0aa); flex: 1; }
+.atrium-validation-count { font-size: 12px; font-weight: 600; color: var(--secondary-text-color, #9aa0aa); background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 8%, transparent); border-radius: 999px; padding: 1px 8px; }
+.atrium-validation-chev { display: inline-flex; color: color-mix(in srgb, var(--secondary-text-color, #9aa0aa) 70%, transparent); transition: transform .2s; }
+.atrium-validation-card.expanded .atrium-validation-chev { transform: rotate(180deg); }
+
+.atrium-validation-body-wrap { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .25s ease; }
+.atrium-validation-card.expanded .atrium-validation-body-wrap { grid-template-rows: 1fr; }
+/* No padding here — it would leak visible height when the grid track is
+   0fr. Padding lives on .atrium-validation-body-inner. */
+.atrium-validation-body { overflow: hidden; min-height: 0; }
+.atrium-validation-body-inner { padding: 0 16px 14px; }
+
+.atrium-validation-automation + .atrium-validation-automation { margin-top: 16px; }
+.atrium-validation-automation-title { font-size: 15px; font-weight: 600; color: var(--primary-text-color, #e8e9ec); margin-bottom: 6px; }
+.atrium-validation-automation-title.is-linkable { display: inline-flex; align-items: center; gap: 5px; background: none; border: none; padding: 0; font: inherit; font-weight: 600; text-align: left; cursor: pointer; color: var(--primary-color, #6fa8ff); }
+.atrium-validation-automation-title.is-linkable:hover { text-decoration: underline; }
+.atrium-validation-automation-title.is-linkable ha-icon { --mdc-icon-size: 14px; opacity: .7; }
+
+.atrium-validation-section-label { font-size: 11px; letter-spacing: .5px; text-transform: uppercase; font-weight: 600; color: var(--secondary-text-color, #9aa0aa); margin: 10px 0 4px; }
+
+.atrium-validation-item { display: flex; align-items: flex-start; gap: 8px; padding: 4px 0; cursor: pointer; }
+.atrium-validation-item ha-checkbox { flex-shrink: 0; margin-top: -2px; }
+.atrium-validation-item-text { font-size: 14px; line-height: 20px; color: var(--primary-text-color, #e8e9ec); }
+.atrium-validation-item.is-checked .atrium-validation-item-text { color: var(--secondary-text-color, #9aa0aa); text-decoration: line-through; }

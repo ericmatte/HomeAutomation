@@ -8,7 +8,7 @@ const {
   TONE, ICONS,
   CLIMATE_ACCENT, CLIMATE_LABELS, CLIMATE_ICONS,
   capitalize,
-  canDimLight, fmtBrightnessPct, fmtCoverPct, fmtSensorValue,
+  canDimLight, fmtBrightnessPct, fmtCoverPct, fmtSensorValue, fmtTimeAgoShort,
   iconForFanMode, iconForSwingMode,
   levelColor,
   labelDescriptor,
@@ -30,6 +30,7 @@ export function _updateChips(ar) {
     for (const s of data.sensors.leak) ids.push(s.entity_id);
     for (const d of data.doors) ids.push(d.entity_id);
     for (const p of data.sensors.propane) ids.push(p.entity_id);
+    for (const v of data.vacuums) ids.push(v.entity_id);
     ar._chipIds = ids;
   }
   if (unchangedStates(ar, "_chipStates", hass, ar._chipIds)) return;
@@ -101,6 +102,28 @@ export function _updateChips(ar) {
       addSpan(ICONS.propane, c, `${pct}%`, { bg: `color-mix(in srgb, ${c} 12%, transparent)`, entityId: p.entity_id });
     }
   }
+  const VACUUM_CHIP_COLOR = {
+    docked: TONE.textDim, idle: TONE.textDim,
+    cleaning: TONE.good, returning: TONE.cool,
+    paused: TONE.light, error: TONE.danger,
+  };
+  for (const v of data.vacuums) {
+    const st = hass.states?.[v.entity_id];
+    if (!st || st.state === "unavailable") continue;
+    const color = VACUUM_CHIP_COLOR[st.state] || TONE.textDim;
+    const active = st.state === "cleaning" || st.state === "returning";
+    const span = document.createElement("span");
+    span.className = "atrium-chip clickable" + (active ? " has-bg" : "") + (st.state === "error" ? " pulse" : "");
+    if (active) span.style.background = `color-mix(in srgb, ${color} 16%, transparent)`;
+    span.style.color = color;
+    span.title = this._entityName(v);
+    span.innerHTML = `<ha-icon icon="${ICONS.vacuum}"></ha-icon>`;
+    span.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this._moreInfo(v.entity_id);
+    });
+    chips.appendChild(span);
+  }
 }
 
 export function _updateQuickButtons(ar) {
@@ -141,8 +164,9 @@ export function _updateLightRef(ref, entityId) {
   ref.thumb.style.display = on && canDim ? "block" : "none";
   ref.thumb.style.opacity = "0.55";
   ref.swatch.classList.toggle("on-light", on && !unavailable);
-  ref.state.classList.toggle("on-light", on && !unavailable);
-  ref.state.textContent = unavailable ? "Unavailable" : on ? (canDim ? `${pct}%` : "On") : "Off";
+  ref.state.classList.remove("on-light");
+  const stateText = unavailable ? "Unavailable" : on ? (canDim ? `${pct}%` : "On") : "Off";
+  ref.state.textContent = st.last_updated ? `${stateText} - ${fmtTimeAgoShort(st.last_updated)}` : stateText;
 
   // True color modes get the bulb's live rgb_color; white-temperature modes
   // fall back to the default yellow tint via the CSS var defaults.
@@ -167,6 +191,24 @@ export function _updateLightRef(ref, entityId) {
 export function _updateSensorRef(ref, entityId) {
   if (!ref.value) return;
   ref.value.textContent = fmtSensorValue(this._hass.states?.[entityId]);
+}
+
+export function _updateInputSelectRef(ref, entityId) {
+  const st = this._hass.states?.[entityId];
+  if (!st) return;
+  if (unchangedState(ref, "_lastState", st)) return;
+  const options = Array.isArray(st.attributes?.options) ? st.attributes.options : [];
+  const unavailable = st.state === "unavailable" || st.state === "unknown";
+  const current = unavailable ? null : st.state;
+  ref.value.textContent = unavailable ? "—" : st.state;
+  ref.setItems(
+    options.map((opt) => ({
+      id: opt,
+      label: opt,
+      icon: opt === current ? "mdi:check" : "mdi:circle-small",
+    })),
+    current,
+  );
 }
 
 export function _wakeClimateGraph(ref) {
@@ -284,42 +326,6 @@ export function _updateClimate24hRange(ref, cur) {
   }
 }
 
-export function _updateVacuumRef(ref, entityId) {
-  const st = this._hass.states?.[entityId];
-  if (!st) return;
-  if (unchangedState(ref, "_lastState", st)) return;
-  const VACUUM_STATUS = {
-    docked:    { label: "Docked",    color: TONE.textDim, primary: "Start cleaning", primaryIcon: ICONS.play, primaryService: "start" },
-    cleaning:  { label: "Cleaning",  color: TONE.good,    primary: "Pause",          primaryIcon: ICONS.pause, primaryService: "pause" },
-    paused:    { label: "Paused",    color: TONE.light,   primary: "Resume",         primaryIcon: ICONS.play, primaryService: "start" },
-    returning: { label: "Returning", color: TONE.cool,    primary: "Pause",          primaryIcon: ICONS.pause, primaryService: "pause" },
-    error:     { label: "Error",     color: TONE.danger,  primary: "Retry",          primaryIcon: ICONS.play, primaryService: "start" },
-    idle:      { label: "Idle",      color: TONE.textDim, primary: "Start cleaning", primaryIcon: ICONS.play, primaryService: "start" },
-  };
-  const status = VACUUM_STATUS[st.state] || VACUUM_STATUS.idle;
-  ref.swatch.style.background = (st.state === "cleaning" || st.state === "returning")
-    ? "color-mix(in srgb, var(--state-climate-cool-color, #5cc6ff) 18%, transparent)"
-    : `color-mix(in srgb, var(--primary-text-color, #e8e9ec) 5%, transparent)`;
-  ref.swatch.style.color = (st.state === "cleaning" || st.state === "returning") ? TONE.cool : TONE.textDim;
-  ref.sub.style.color = status.color;
-  ref.sub.textContent = status.label;
-  const battery = st.attributes?.battery_level;
-  if (battery != null) {
-    const c = battery <= 20 ? TONE.danger : battery <= 50 ? TONE.light : TONE.good;
-    ref.batt.style.color = c;
-    ref.batt.textContent = `${battery}%`;
-  } else {
-    ref.batt.textContent = "";
-  }
-  for (const [k, b] of Object.entries(ref.cmds)) {
-    const isActive =
-      (k === "start" && st.state === "cleaning") ||
-      (k === "pause" && st.state === "paused") ||
-      (k === "dock" && st.state === "returning");
-    b.classList.toggle("active", isActive);
-  }
-}
-
 export function _updateAutomationRef(ref, entityId) {
   const hass = this._hass;
   const st = hass.states?.[entityId];
@@ -416,7 +422,7 @@ export function _bindSwipeTile(tile, fill, thumb, swatch, stateEl, entityId, kin
         thumb.style.left = `calc(${pct}% - 2px)`;
         thumb.style.opacity = "1";
         stateEl.textContent = `${pct}%`;
-        stateEl.classList.add(kind === "light" ? "on-light" : "on-cover");
+        if (kind === "cover") stateEl.classList.add("on-cover");
       }
     };
 
