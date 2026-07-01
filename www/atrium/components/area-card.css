@@ -105,7 +105,7 @@
 .atrium-select { width: 100%; min-width: 0; height: 32px; padding: 0 8px; display: flex; align-items: center; gap: 6px; border: none; border-radius: 9px; cursor: pointer; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 5%, transparent); color: var(--primary-text-color, #e8e9ec); font-family: inherit; font-size: 12px; line-height: 14px; transition: background .2s ease, color .2s ease; }
 .atrium-select:hover, .atrium-select.atrium-pop-open { background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 8%, transparent); }
 .atrium-select-icon { --mdc-icon-size: 15px; flex-shrink: 0; line-height: 0; color: var(--secondary-text-color, #9aa0aa); }
-.atrium-select-name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.atrium-select-name { flex: 1; min-width: 0; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .atrium-select-value { flex-shrink: 0; font-weight: 600; }
 .atrium-select-caret { --mdc-icon-size: 16px; flex-shrink: 0; line-height: 0; margin-left: -2px; color: var(--secondary-text-color, #9aa0aa); }
 
