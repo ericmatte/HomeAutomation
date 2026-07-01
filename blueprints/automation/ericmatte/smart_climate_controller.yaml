@@ -116,7 +116,7 @@ blueprint:
         time:
 
     use_target_until:
-      name: 🕒 Fin de la plage "confort"
+      name: ❄️ Fin de la plage "confort"
       description: Heure à laquelle la consigne nuit/absence devient active en hiver.
       default: "22:00"
       selector:
