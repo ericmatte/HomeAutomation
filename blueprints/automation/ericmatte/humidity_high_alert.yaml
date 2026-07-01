@@ -3,7 +3,7 @@ blueprint:
   description: |
     Surveille un ou plusieurs capteurs d'humidité et envoie une notification quand la valeur dépasse un seuil de façon **soutenue**.
 
-    - 📈 **Déclencheur** : un capteur reste AU-DESSUS du seuil pendant la durée configurée.
+    - 📈 **Déclencheur** : un capteur reste AU-DESSUS du seuil + 5% pendant la durée configurée.
     - 🔔 **Action** : notification via `notify.notify` avec le nom de la pièce et la valeur courante.
     - 🔁 **Anti-spam** : la durée minimale empêche le déclenchement sur des oscillations brèves autour du seuil. Le trigger ne se réarme qu'après être redescendu sous le seuil.
   domain: automation
@@ -19,7 +19,7 @@ blueprint:
 
     threshold:
       name: 📊 Seuil d'humidité (%)
-      description: Déclenche la notification quand un capteur dépasse ce pourcentage.
+      description: Seuil accepté. La notification est envoyée seulement quand un capteur dépasse ce seuil de 5%.
       default: 70
       selector:
         number:
@@ -42,10 +42,12 @@ blueprint:
 
 variables:
   threshold_value: !input threshold
+  notification_threshold: "{{ threshold_value | float(0) + 5 }}"
 
 trigger:
   - platform: numeric_state
     entity_id: !input humidity_sensors
+    value_template: "{{ state.state | float(0) - 5 }}"
     above: !input threshold
     for: !input for_duration
 
@@ -56,6 +58,6 @@ action:
       message: >-
         {% set sensor = trigger.entity_id %}
         L'humidité dans la pièce '{{ area_name(sensor) }}' est à {{ states(sensor) }}%
-        (seuil accepté: {{ threshold_value }}%).
+        (seuil accepté: {{ threshold_value }}%, notification à partir de {{ notification_threshold }}%).
 
 mode: single
