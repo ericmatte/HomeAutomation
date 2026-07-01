@@ -2775,3 +2775,17 @@
       notify_device: 8ee3772d771cbe4afa821d73874df182
       notification_message: "\U0001F4A7 {{ sensor_name }} is at {{ moisture }}% —
         time to water it!"
+- id: '1782615430347'
+  alias: Toggle christmas lights
+  description: ''
+  triggers:
+  - trigger: tag
+    tag_id: e5ddc9d4-0764-4bfa-94ec-9a12bb11353b
+  conditions: []
+  actions:
+  - action: light.toggle
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.outside_outlet
+  mode: single
