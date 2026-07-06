@@ -538,25 +538,35 @@ class AtriumAreaCard extends HTMLElement {
       this._animTimer = 0;
     }
     const collapsedTarget = !open;
+    const peek =
+      parseFloat(getComputedStyle(body).getPropertyValue("--floor-peek-height")) || 128;
 
-    // Measure the true target height with the target's resting margins and no
-    // transition running. Measuring while is-animating is on would read the
-    // still-compressed layout, so the height would animate short and then jump
-    // to fill the rest at the end.
+    // Measure + pin the start with the body height transition OFF, so the
+    // class toggles below (and their forced reflows) don't kick off competing
+    // height transitions — that churn made close snap instead of animate.
+    body.style.transition = "none";
     body.classList.remove("is-animating");
     const from = body.offsetHeight;
-    body.classList.toggle("is-collapsed", collapsedTarget);
-    body.style.height = "";
-    const to = body.offsetHeight;
 
-    // Back to the start state and pin the from-height, then commit it.
+    // Target height with the target's resting margins: fixed peek when
+    // collapsing, natural content height when opening.
+    let to = peek;
+    if (open) {
+      body.classList.remove("is-collapsed");
+      body.style.height = "";
+      to = body.offsetHeight;
+    }
+
+    // Back to the start state, pin the from-height, commit it (no transition).
     body.classList.toggle("is-collapsed", !collapsedTarget);
     body.style.height = `${from}px`;
     body.style.overflow = "hidden";
     void body.offsetHeight;
 
-    // Now animate: is-animating lets the per-card margins transition alongside
-    // the body height, so cards slide into/out of the stack in sync.
+    // Re-enable transitions and animate to the target in one shot. is-animating
+    // lets the per-card margins transition alongside the body height, so the
+    // cards slide into/out of the stack in sync.
+    body.style.transition = "";
     body.classList.add("is-animating");
     body.classList.toggle("is-collapsed", collapsedTarget);
     body.style.height = `${to}px`;
