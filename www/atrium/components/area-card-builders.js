@@ -273,7 +273,7 @@ export function _buildDeviceSensorCaret(area, entity, sensors) {
     e.stopPropagation();
     ensurePopoverItemStyle();
     const list = document.createElement("div");
-    list.style.cssText = "display:flex;flex-direction:column;gap:8px";
+    list.className = "atrium-pop-list-sensors";
     for (const row of rows) list.appendChild(row);
     const wrap = document.createElement("div");
     wrap.appendChild(buildPopoverHeader(this._entityName(entity), String(sensors.length)));
