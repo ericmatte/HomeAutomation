@@ -374,11 +374,19 @@ class AtriumAreaCard extends HTMLElement {
       }
       shortest.appendChild(card);
     }
-    // Per-column index drives the collapsed stack's z-order (first at back,
-    // last in front) so cards' own positioned children can't break it.
+    // Collapsed stack: pull each card up so only a header strip of the one
+    // before it shows. The pull is (strip - prevCardHeight), measured here
+    // from natural heights (a fixed margin can't, since heights vary). --i
+    // drives the z-order (first at back, last in front) so cards' own
+    // positioned children can't break the paint order.
+    const strip =
+      parseFloat(getComputedStyle(this._bodyEl).getPropertyValue("--floor-peek-strip")) || 48;
     for (const col of this._cols) {
+      let prevH = 0;
       col.querySelectorAll(":scope > .atrium-room").forEach((card, i) => {
         card.style.setProperty("--i", i);
+        card.style.setProperty("--stack-mt", i === 0 ? "0px" : `${strip - prevH}px`);
+        prevH = card.offsetHeight;
       });
     }
     if (wasCollapsed) this._bodyEl.classList.add("is-collapsed");

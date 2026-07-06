@@ -7,16 +7,18 @@
 .atrium-col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
 
 /* Collapsible floor. Open: the body is just the masonry. Collapsed: the real
-   room cards keep their full height, but the body is clipped to a short peek
-   window (overflow hidden) with a bottom fade; a small negative margin lets
-   the cards overlap into a stack. Explicit z-index (via the per-column --i
-   index) keeps the paint order clean despite cards' own positioned children:
-   first/top card at the back, last/bottom card in front. area-card.js animates
-   the body height on open/close (FLIP).
-   --floor-peek-height  = height of the collapsed peek window
-   --floor-peek-overlap = how much each card overlaps the previous one
+   room cards keep their full height, but each is pulled up so only its header
+   strip (--floor-peek-strip) shows, stacking into a deck; the body clips to a
+   short peek window with a bottom fade. The per-card pull (--stack-mt) is
+   computed in area-card.js from each card's natural height — a fixed margin
+   can't do it since card heights vary. Explicit z-index (per-column --i) keeps
+   the paint order clean despite cards' own positioned children: first/top card
+   at the back, last/bottom card in front. area-card.js animates the body
+   height on open/close (FLIP).
+   --floor-peek-height = height of the collapsed peek window
+   --floor-peek-strip  = how much of each stacked card's header shows
    Both are tuned by eye. */
-.atrium-floor-body { --floor-peek-height: 108px; --floor-peek-overlap: 11px; transition: height .3s ease; }
+.atrium-floor-body { --floor-peek-height: 128px; --floor-peek-strip: 48px; transition: height .3s ease; }
 .atrium-floor-body.is-collapsed {
   height: var(--floor-peek-height);
   overflow: hidden;
@@ -31,7 +33,7 @@
   z-index: var(--i, 0);
 }
 .atrium-floor-body.is-collapsed .atrium-col > .atrium-room:not(:first-child) {
-  margin-top: calc(-1 * var(--floor-peek-overlap));
+  margin-top: var(--stack-mt, 0px);
 }
 .atrium-floor-label { display: flex; align-items: center; gap: 8px; padding: 14px 4px 4px; font-size: 12px; color: var(--secondary-text-color, #9aa0aa); letter-spacing: .6px; text-transform: uppercase; font-weight: 600; grid-column: 1 / -1; }
 .atrium-floor-label > .line { flex: 1; height: 1px; background: var(--divider-color, rgba(127,127,127,0.18)); }
