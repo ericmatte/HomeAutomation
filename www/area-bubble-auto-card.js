@@ -112,6 +112,19 @@ class AreaBubbleAutoCard extends HTMLElement {
     this.createCard(areaWrapper, helpers, header);
   }
 
+  createEntityCard(container, helpers, entity, area, buttonType) {
+    const card = this.createCard(container, helpers, {
+      type: "custom:bubble-card",
+      card_type: "button",
+      button_type: buttonType,
+      entity: entity.entity_id,
+      name: nameWithoutAreaPrefix(this.getEntityName(entity), area),
+      rows: "1",
+      card_layout: "large",
+    });
+    card.style.width = "calc(50% - 4px)";
+  }
+
   createContent(areaWrapper, helpers, entities, area) {
     const container = document.createElement("div");
     container.style.cssText = "display: flex; gap: 8px; flex-wrap: wrap";
@@ -123,17 +136,12 @@ class AreaBubbleAutoCard extends HTMLElement {
 
     entities.forEach((light) => {
       if (!light.entity_id.startsWith("light.") || light.hidden) return;
+      this.createEntityCard(container, helpers, light, area, "slider");
+    });
 
-      const lightCard = this.createCard(container, helpers, {
-        type: "custom:bubble-card",
-        card_type: "button",
-        button_type: "slider",
-        entity: light.entity_id,
-        name: nameWithoutAreaPrefix(this.getEntityName(light), area),
-        rows: "1",
-        card_layout: "large",
-      });
-      lightCard.style.width = "calc(50% - 4px)";
+    entities.forEach((switchEntity) => {
+      if (!switchEntity.entity_id.startsWith("switch.") || switchEntity.hidden) return;
+      this.createEntityCard(container, helpers, switchEntity, area, "switch");
     });
 
     if (container.children.length > 0) {
