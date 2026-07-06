@@ -395,14 +395,18 @@ class AtriumAreaCard extends HTMLElement {
     // positioned children can't break the paint order.
     const strip =
       parseFloat(getComputedStyle(this._bodyEl).getPropertyValue("--floor-peek-strip")) || 48;
-    for (const col of this._cols) {
+    // Read every card's natural height before writing any styles: interleaving
+    // reads and writes here would force a synchronous layout reflow per card.
+    const colCards = this._cols.map((col) => Array.from(col.querySelectorAll(":scope > .atrium-room")));
+    const colHeights = colCards.map((cards) => cards.map((card) => card.offsetHeight));
+    colCards.forEach((cards, colIndex) => {
       let prevH = 0;
-      col.querySelectorAll(":scope > .atrium-room").forEach((card, i) => {
+      cards.forEach((card, i) => {
         card.style.setProperty("--i", i);
         card.style.setProperty("--stack-mt", i === 0 ? "0px" : `${strip - prevH}px`);
-        prevH = card.offsetHeight;
+        prevH = colHeights[colIndex][i];
       });
-    }
+    });
     if (wasCollapsed) this._bodyEl.classList.add("is-collapsed");
   }
 

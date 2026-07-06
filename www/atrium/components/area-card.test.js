@@ -55,3 +55,60 @@ test("_filterData: a 'sensors' section profile keeps sensors.other alongside ext
   assert.equal(filtered.sensors.other.length, 1);
   assert.equal(filtered.sensors.extras.length, 1);
 });
+
+test("_layoutMasonry: reads every card's natural height before writing any stack styles (no interleaved reflow)", () => {
+  const ops = [];
+  function makeMockCard(className, height) {
+    return {
+      className,
+      style: { setProperty: (name) => ops.push(["write", name]) },
+      get offsetHeight() {
+        ops.push(["read"]);
+        return height;
+      },
+    };
+  }
+  function makeMockCol() {
+    const children = [];
+    return {
+      className: "",
+      offsetHeight: 0,
+      appendChild: (child) => children.push(child),
+      querySelectorAll: () => children,
+    };
+  }
+
+  const prevDocument = globalThis.document;
+  const prevGetComputedStyle = globalThis.getComputedStyle;
+  globalThis.document = { createElement: () => makeMockCol() };
+  globalThis.getComputedStyle = () => ({
+    getPropertyValue: (name) => ({ "--floor-peek-strip": "48", "--atrium-cols": "1" })[name] || "",
+  });
+
+  try {
+    const cardEl = makeCard();
+    const bodyEl = { classList: { contains: () => false, add() {}, remove() {} } };
+    const root = { replaceChildren() {}, appendChild() {} };
+    cardEl._root = root;
+    cardEl._bodyEl = bodyEl;
+    cardEl._roomCards = [
+      makeMockCard("atrium-room", 100),
+      makeMockCard("atrium-room", 150),
+      makeMockCard("atrium-room", 80),
+    ];
+
+    cardEl._layoutMasonry();
+
+    const lastReadIndex = ops.findLastIndex(([type]) => type === "read");
+    const firstWriteIndex = ops.findIndex(([type]) => type === "write");
+    assert.ok(ops.some(([type]) => type === "read"), "expected at least one height read");
+    assert.ok(ops.some(([type]) => type === "write"), "expected at least one style write");
+    assert.ok(
+      lastReadIndex < firstWriteIndex,
+      `expected all height reads to happen before any style write, got order: ${JSON.stringify(ops)}`,
+    );
+  } finally {
+    globalThis.document = prevDocument;
+    globalThis.getComputedStyle = prevGetComputedStyle;
+  }
+});
