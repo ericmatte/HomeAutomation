@@ -374,6 +374,13 @@ class AtriumAreaCard extends HTMLElement {
       }
       shortest.appendChild(card);
     }
+    // Per-column index drives the collapsed stack's z-order (first at back,
+    // last in front) so cards' own positioned children can't break it.
+    for (const col of this._cols) {
+      col.querySelectorAll(":scope > .atrium-room").forEach((card, i) => {
+        card.style.setProperty("--i", i);
+      });
+    }
     if (wasCollapsed) this._bodyEl.classList.add("is-collapsed");
   }
 

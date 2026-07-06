@@ -9,8 +9,10 @@
 /* Collapsible floor. Open: the body is just the masonry. Collapsed: the real
    room cards keep their full height, but the body is clipped to a short peek
    window (overflow hidden) with a bottom fade; a small negative margin lets
-   the cards overlap into a subtle stack (later cards paint on top by DOM
-   order). area-card.js animates the body height on open/close (FLIP).
+   the cards overlap into a stack. Explicit z-index (via the per-column --i
+   index) keeps the paint order clean despite cards' own positioned children:
+   first/top card at the back, last/bottom card in front. area-card.js animates
+   the body height on open/close (FLIP).
    --floor-peek-height  = height of the collapsed peek window
    --floor-peek-overlap = how much each card overlaps the previous one
    Both are tuned by eye. */
@@ -23,7 +25,11 @@
   mask-image: linear-gradient(to bottom, #000 55%, transparent);
 }
 .atrium-floor-body.is-collapsed .atrium-col { gap: 0; }
-.atrium-floor-body.is-collapsed .atrium-room { pointer-events: none; }
+.atrium-floor-body.is-collapsed .atrium-room {
+  pointer-events: none;
+  position: relative;
+  z-index: var(--i, 0);
+}
 .atrium-floor-body.is-collapsed .atrium-col > .atrium-room:not(:first-child) {
   margin-top: calc(-1 * var(--floor-peek-overlap));
 }
