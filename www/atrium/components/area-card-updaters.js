@@ -426,10 +426,12 @@ export function _bindSwipeTile(tile, fill, thumb, swatch, stateEl, entityId, kin
       const dy = ev.clientY - ref.startY;
       if (!ref.dragging && Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) {
         clearTimeout(ref.lpTimer);
-        ref.moved = true;
         const st = this._hass.states?.[entityId];
+        // on/off-only entities have nothing to drag; leave ref.moved false so
+        // pointerup still resolves this as a tap-toggle instead of a dead swipe.
         if (kind === "light" && !canDimLight(st)) return;
-        if (kind === "switch") return; // on/off only — a swipe never dims
+        if (kind === "switch") return;
+        ref.moved = true;
         ref.dragging = true;
       }
       if (ref.dragging) {
