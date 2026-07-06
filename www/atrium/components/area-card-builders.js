@@ -148,8 +148,8 @@ export function _buildRoomBody(area, data) {
   bodyInner.className = "atrium-body-inner";
 
   const sections = [];
-  if (data.lights.length) sections.push(this._buildLightsSection(area, data.lights));
-  if (data.switches.length) sections.push(this._buildSwitchesSection(area, data.switches));
+  if (data.lights.length) sections.push(this._buildLightsSection(area, data.lights, data.deviceSensors));
+  if (data.switches.length) sections.push(this._buildSwitchesSection(area, data.switches, data.deviceSensors));
   if (data.climates.length) sections.push(this._buildClimateSection(area, data.climates, data.sensors));
   if (data.sensors.extras.length) sections.push(this._buildSensorsSection(area, data.sensors.extras));
   if (data.inputSelects.length) sections.push(this._buildInputSelectsSection(area, data.inputSelects));
@@ -176,34 +176,37 @@ export function _section(title, children) {
   return wrap;
 }
 
-export function _buildLightsSection(area, lights) {
+export function _buildLightsSection(area, lights, deviceSensors) {
   const grid = document.createElement("div");
   grid.className = "atrium-grid " + (lights.length === 1 ? "cols-1" : "cols-2");
-  for (const light of lights) grid.appendChild(this._buildLightTile(area, light));
+  for (const light of lights) grid.appendChild(this._buildLightTile(area, light, deviceSensors));
   return this._section("Lights", grid);
 }
 
-export function _buildLightTile(area, light) {
-  return this._buildToggleTile(area, light, { kind: "light", icon: ICONS.bulb, refKey: "lights" });
+export function _buildLightTile(area, light, deviceSensors) {
+  return this._buildToggleTile(area, light, { kind: "light", icon: ICONS.bulb, refKey: "lights" }, deviceSensors);
 }
 
-export function _buildSwitchesSection(area, switches) {
+export function _buildSwitchesSection(area, switches, deviceSensors) {
   const grid = document.createElement("div");
   grid.className = "atrium-grid " + (switches.length === 1 ? "cols-1" : "cols-2");
-  for (const s of switches) grid.appendChild(this._buildSwitchTile(area, s));
+  for (const s of switches) grid.appendChild(this._buildSwitchTile(area, s, deviceSensors));
   return this._section("Switches", grid);
 }
 
 // A switch is a light tile minus dimming: same DOM/classes, but tap toggles
 // and a swipe never dims (see `_bindSwipeTile`'s "switch" kind).
-export function _buildSwitchTile(area, entity) {
-  return this._buildToggleTile(area, entity, { kind: "switch", icon: ICONS.toggle, refKey: "switches" });
+export function _buildSwitchTile(area, entity, deviceSensors) {
+  return this._buildToggleTile(area, entity, { kind: "switch", icon: ICONS.toggle, refKey: "switches" }, deviceSensors);
 }
 
 // Shared on/off tile for lights and switches. `kind` drives the swipe/tap
 // behavior in `_bindSwipeTile`; `icon` is the swatch fallback; `refKey`
-// selects which per-area ref map the matching updater reads.
-export function _buildToggleTile(area, entity, { kind, icon, refKey }) {
+// selects which per-area ref map the matching updater reads. `deviceSensors`
+// (optional) is the area's Map<entityId, sensorEntity[]> — when this entity
+// has an entry, a caret button is appended that opens those sensors in a
+// popover instead of them rendering in the generic Sensors section.
+export function _buildToggleTile(area, entity, { kind, icon, refKey }, deviceSensors) {
   const tile = document.createElement("div");
   tile.className = "atrium-tile";
   tile.dataset.entity = entity.entity_id;
@@ -233,6 +236,12 @@ export function _buildToggleTile(area, entity, { kind, icon, refKey }) {
   state.className = "atrium-tile-state";
   text.append(name, state);
   body.append(swatch, text);
+
+  const linkedSensors = deviceSensors?.get(entity.entity_id);
+  if (linkedSensors?.length) {
+    body.appendChild(this._buildDeviceSensorCaret(area, entity, linkedSensors));
+  }
+
   tile.appendChild(body);
 
   this._bindSwipeTile(tile, fill, thumb, swatch, state, entity.entity_id, kind);
@@ -240,6 +249,45 @@ export function _buildToggleTile(area, entity, { kind, icon, refKey }) {
   const ref = { tile, fill, thumb, swatch, iconEl, state, name };
   this._refs.areas.get(area.area_id)[refKey].set(entity.entity_id, ref);
   return tile;
+}
+
+// Caret button for a light/switch tile whose device also exposes sensor
+// entities (see groupDeviceSensors in lib/device-sensors.js). The sensor
+// tiles are built once, here, eagerly — not lazily on first click — so they
+// register into `ar.sensors` (via _buildSensorTile) and keep receiving
+// _updateSensorRef refreshes whether or not the popover has ever been
+// opened.
+export function _buildDeviceSensorCaret(area, entity, sensors) {
+  const caret = document.createElement("button");
+  caret.type = "button";
+  caret.className = "atrium-tile-caret";
+  caret.innerHTML = `<ha-icon icon="mdi:menu-down"></ha-icon>`;
+  // The tile itself is a swipe/tap surface (see _bindSwipeTile) bound with a
+  // pointerdown listener; without stopping propagation here, pressing the
+  // caret would also start that tile's press/drag/long-press sequence.
+  caret.addEventListener("pointerdown", (e) => e.stopPropagation());
+
+  const rows = sensors.map((s) => this._buildSensorTile(area, s));
+
+  caret.addEventListener("click", (e) => {
+    e.stopPropagation();
+    ensurePopoverItemStyle();
+    const list = document.createElement("div");
+    list.style.cssText = "display:flex;flex-direction:column;gap:8px";
+    for (const row of rows) list.appendChild(row);
+    const wrap = document.createElement("div");
+    wrap.appendChild(buildPopoverHeader(this._entityName(entity), String(sensors.length)));
+    wrap.appendChild(list);
+    this._openAnchors.add(caret);
+    openPopover({
+      anchor: caret,
+      content: wrap,
+      width: 280,
+      onClose: () => this._openAnchors.delete(caret),
+    });
+  });
+
+  return caret;
 }
 
 export function _buildClimateSection(area, climates, sensors) {
