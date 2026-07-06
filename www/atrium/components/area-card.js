@@ -537,6 +537,9 @@ class AtriumAreaCard extends HTMLElement {
       clearTimeout(this._animTimer);
       this._animTimer = 0;
     }
+    // is-animating must be on before toggling is-collapsed so the per-card
+    // margin change transitions (cards slide into/out of the stack).
+    body.classList.add("is-animating");
     const from = body.offsetHeight;
     body.classList.toggle("is-collapsed", !open);
     // Clear the inline height so the target is whatever CSS wants: the fixed
@@ -549,6 +552,7 @@ class AtriumAreaCard extends HTMLElement {
     body.style.height = `${to}px`;
     this._animTimer = setTimeout(() => {
       this._animTimer = 0;
+      body.classList.remove("is-animating");
       body.style.height = "";
       // Keep clipping only while collapsed so open floors don't cut off
       // popovers/graphs that overflow their room card.

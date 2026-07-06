@@ -35,6 +35,11 @@
 .atrium-floor-body.is-collapsed .atrium-col > .atrium-room:not(:first-child) {
   margin-top: var(--stack-mt, 0px);
 }
+/* During open/close, animate the per-card pull too, so the cards visibly
+   slide into/out of the stack instead of the container just shedding empty
+   space (which reads as no animation on close). Gated to the animating window
+   so the initial collapse at build time still snaps. */
+.atrium-floor-body.is-animating .atrium-room { transition: margin-top .3s ease; }
 .atrium-floor-label { display: flex; align-items: center; gap: 8px; padding: 14px 4px 4px; font-size: 12px; color: var(--secondary-text-color, #9aa0aa); letter-spacing: .6px; text-transform: uppercase; font-weight: 600; grid-column: 1 / -1; }
 .atrium-floor-label > .line { flex: 1; height: 1px; background: var(--divider-color, rgba(127,127,127,0.18)); }
 
