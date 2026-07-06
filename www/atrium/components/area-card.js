@@ -537,18 +537,28 @@ class AtriumAreaCard extends HTMLElement {
       clearTimeout(this._animTimer);
       this._animTimer = 0;
     }
-    // is-animating must be on before toggling is-collapsed so the per-card
-    // margin change transitions (cards slide into/out of the stack).
-    body.classList.add("is-animating");
+    const collapsedTarget = !open;
+
+    // Measure the true target height with the target's resting margins and no
+    // transition running. Measuring while is-animating is on would read the
+    // still-compressed layout, so the height would animate short and then jump
+    // to fill the rest at the end.
+    body.classList.remove("is-animating");
     const from = body.offsetHeight;
-    body.classList.toggle("is-collapsed", !open);
-    // Clear the inline height so the target is whatever CSS wants: the fixed
-    // peek height when collapsing, natural content height when opening.
+    body.classList.toggle("is-collapsed", collapsedTarget);
     body.style.height = "";
     const to = body.offsetHeight;
+
+    // Back to the start state and pin the from-height, then commit it.
+    body.classList.toggle("is-collapsed", !collapsedTarget);
     body.style.height = `${from}px`;
     body.style.overflow = "hidden";
-    void body.offsetHeight; // commit the from-height before transitioning
+    void body.offsetHeight;
+
+    // Now animate: is-animating lets the per-card margins transition alongside
+    // the body height, so cards slide into/out of the stack in sync.
+    body.classList.add("is-animating");
+    body.classList.toggle("is-collapsed", collapsedTarget);
     body.style.height = `${to}px`;
     this._animTimer = setTimeout(() => {
       this._animTimer = 0;
