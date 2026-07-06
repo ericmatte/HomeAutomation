@@ -78,6 +78,10 @@ class AtriumAreaCard extends HTMLElement {
       cancelAnimationFrame(this._resizeRaf);
       this._resizeRaf = 0;
     }
+    if (this._restackRaf) {
+      cancelAnimationFrame(this._restackRaf);
+      this._restackRaf = 0;
+    }
     this._unsubAccordion?.();
     this._unsubAccordion = null;
     this._heightAnim?.cancel();
@@ -360,6 +364,16 @@ class AtriumAreaCard extends HTMLElement {
     this._layoutMasonry();
     this._reflectCollapsed(false);
     this._update();
+    // Card content (icons, tiles, images) can settle a frame or two after the
+    // first layout, leaving the measured stack pulls short — so the collapsed
+    // peek shows no stack until a resize. Recompute once it has settled.
+    if (this._restackRaf) cancelAnimationFrame(this._restackRaf);
+    this._restackRaf = requestAnimationFrame(() => {
+      this._restackRaf = requestAnimationFrame(() => {
+        this._restackRaf = 0;
+        this._restackPeek();
+      });
+    });
   }
 
   // Distribute the room cards into N flex columns (N = --atrium-cols), greedily
@@ -388,15 +402,23 @@ class AtriumAreaCard extends HTMLElement {
       }
       shortest.appendChild(card);
     }
-    // Collapsed stack: pull each card up so only a header strip of the one
-    // before it shows. The pull is (strip - prevCardHeight), measured here
-    // from natural heights (a fixed margin can't, since heights vary). --i
-    // drives the z-order (first at back, last in front) so cards' own
-    // positioned children can't break the paint order.
+    if (wasCollapsed) this._bodyEl.classList.add("is-collapsed");
+    this._restackPeek();
+  }
+
+  // Recompute each collapsed card's upward pull so only a header strip of the
+  // one before it shows: pull = strip - prevCardHeight (a fixed margin can't,
+  // since heights vary). --i drives the z-order (first at back, last in front)
+  // so cards' own positioned children can't break the paint order. Split out
+  // from _layoutMasonry so it can re-run when card heights settle (async
+  // content) or change, without redistributing columns. offsetHeight is
+  // margin-independent, so this is correct whether or not the floor is
+  // collapsed.
+  _restackPeek() {
+    if (!this._cols || !this._bodyEl) return;
     const strip =
       parseFloat(getComputedStyle(this._bodyEl).getPropertyValue("--floor-peek-strip")) || 48;
-    // Read every card's natural height before writing any styles: interleaving
-    // reads and writes here would force a synchronous layout reflow per card.
+    // Read all heights before writing any styles to avoid per-card reflows.
     const colCards = this._cols.map((col) => Array.from(col.querySelectorAll(":scope > .atrium-room")));
     const colHeights = colCards.map((cards) => cards.map((card) => card.offsetHeight));
     colCards.forEach((cards, colIndex) => {
@@ -407,7 +429,6 @@ class AtriumAreaCard extends HTMLElement {
         prevH = colHeights[colIndex][i];
       });
     });
-    if (wasCollapsed) this._bodyEl.classList.add("is-collapsed");
   }
 
   _colsFromCss(root) {
@@ -425,6 +446,7 @@ class AtriumAreaCard extends HTMLElement {
       this._resizeRaf = 0;
       if (!this._root) return;
       if (this._colsFromCss(this._root) !== this._colCount) this._layoutMasonry();
+      else this._restackPeek();
     });
   }
 
