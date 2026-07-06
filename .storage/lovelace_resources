@@ -15,6 +15,11 @@
         "id": "911e57a7a6b644e5904afa4851ce0a75"
       },
       {
+        "id": "ee14736707ef4043aa0090df38cd95ef",
+        "url": "/hacsfiles/Bubble-Card/bubble-card.js?hacstag=680112919324",
+        "type": "module"
+      },
+      {
         "id": "8dfd746a2aac432ea5bb7e4f9cbd4283",
         "url": "/hacsfiles/lovelace-auto-entities/auto-entities.js?hacstag=1677445841161",
         "type": "module"
