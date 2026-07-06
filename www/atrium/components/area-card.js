@@ -196,6 +196,7 @@ class AtriumAreaCard extends HTMLElement {
     if (want.has("inputs")) out.inputSelects = data.inputSelects;
     if (want.has("sensors")) {
       out.sensors.extras = data.sensors.extras;
+      out.sensors.other = data.sensors.other;
       out.sensors.soil = data.sensors.soil;
       out.sensors.propane = data.sensors.propane;
     }
@@ -441,7 +442,8 @@ class AtriumAreaCard extends HTMLElement {
       d.sensors.leak.length === 0 &&
       d.sensors.soil.length === 0 &&
       d.sensors.propane.length === 0 &&
-      d.sensors.extras.length === 0
+      d.sensors.extras.length === 0 &&
+      d.sensors.other.length === 0
     );
   }
 

@@ -22,6 +22,7 @@ export function _buildRoomCard(area, data) {
     data.switches.length > 0 ||
     data.climates.length > 0 ||
     data.sensors.extras.length > 0 ||
+    data.sensors.other.length > 0 ||
     data.inputSelects.length > 0 ||
     data.scenes.length > 0 ||
     data.automations.length > 0 ||
@@ -151,7 +152,12 @@ export function _buildRoomBody(area, data) {
   if (data.lights.length) sections.push(this._buildLightsSection(area, data.lights, data.deviceSensors));
   if (data.switches.length) sections.push(this._buildSwitchesSection(area, data.switches, data.deviceSensors));
   if (data.climates.length) sections.push(this._buildClimateSection(area, data.climates, data.sensors));
-  if (data.sensors.extras.length) sections.push(this._buildSensorsSection(area, data.sensors.extras));
+  // `other` holds binary_sensor entities not device-linked to any light/switch
+  // (see groupDeviceSensors) — surface them alongside extras rather than
+  // silently dropping them, which would otherwise hide a room whose only
+  // content is one of these.
+  const genericSensors = [...data.sensors.extras, ...data.sensors.other];
+  if (genericSensors.length) sections.push(this._buildSensorsSection(area, genericSensors));
   if (data.inputSelects.length) sections.push(this._buildInputSelectsSection(area, data.inputSelects));
   if (data.scenes.length) sections.push(this._buildScenesSection(area, data.scenes));
   const routines = this._buildAutomationsSection(area, data.automations, data.scripts);
