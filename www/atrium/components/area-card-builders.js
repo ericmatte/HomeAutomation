@@ -406,8 +406,8 @@ export function _buildSensorTile(area, sensor) {
 
   const row = document.createElement("div");
   row.className = "atrium-sensor-row";
-  const swatch = document.createElement("div");
-  swatch.className = "atrium-swatch";
+  const icon = document.createElement("ha-icon");
+  icon.className = "atrium-sensor-icon";
   const st = this._hass.states?.[sensor.entity_id];
   const dc = st?.attributes?.device_class;
   const ICON_BY_DC = {
@@ -424,15 +424,14 @@ export function _buildSensorTile(area, sensor) {
     current: "mdi:current-ac",
     voltage: "mdi:flash-triangle",
   };
-  const icon = st?.attributes?.icon || ICON_BY_DC[dc] || "mdi:gauge";
-  swatch.innerHTML = `<ha-icon icon="${icon}" style="--mdc-icon-size:20px"></ha-icon>`;
+  icon.setAttribute("icon", st?.attributes?.icon || ICON_BY_DC[dc] || "mdi:gauge");
   const name = document.createElement("div");
   name.className = "atrium-sensor-name";
   name.textContent = nameWithoutAreaPrefix(this._entityName(sensor), area);
   const value = document.createElement("div");
   value.className = "atrium-sensor-value";
   value.textContent = fmtSensorValue(st);
-  row.append(swatch, name, value);
+  row.append(icon, name, value);
   tile.appendChild(row);
 
   const ref = { tile, value };

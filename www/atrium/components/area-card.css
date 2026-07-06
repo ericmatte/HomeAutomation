@@ -95,11 +95,11 @@
 .atrium-climate-menu-btn ha-icon { --mdc-icon-size: 13px; }
 .atrium-climate-menu-btn .label { line-height: 14px; text-transform: capitalize; }
 
-.atrium-sensor { min-width: 0; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 3%, transparent); border-radius: 12px; padding: 10px 12px; cursor: pointer; }
-.atrium-sensor-row { display: flex; align-items: center; gap: 8px; }
-.atrium-sensor .atrium-swatch { width: 32px; height: 32px; border-radius: 8px; }
-.atrium-sensor-name { flex: 1; min-width: 0; font-size: 13.5px; line-height: 16px; color: var(--primary-text-color, #e8e9ec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.atrium-sensor-value { flex-shrink: 0; font-size: 13.5px; line-height: 16px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--primary-text-color, #e8e9ec); }
+.atrium-sensor { min-width: 0; height: 32px; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 3%, transparent); border-radius: 9px; padding: 0 10px 0 8px; cursor: pointer; }
+.atrium-sensor-row { display: flex; align-items: center; gap: 6px; height: 100%; }
+.atrium-sensor-icon { --mdc-icon-size: 15px; flex-shrink: 0; color: var(--secondary-text-color, #9aa0aa); }
+.atrium-sensor-name { flex: 1; min-width: 0; font-size: 12px; line-height: 14px; color: var(--primary-text-color, #e8e9ec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.atrium-sensor-value { flex-shrink: 0; font-size: 12px; line-height: 14px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--primary-text-color, #e8e9ec); }
 
 .atrium-select { width: 100%; min-width: 0; height: 32px; padding: 0 8px; display: flex; align-items: center; gap: 6px; border: none; border-radius: 9px; cursor: pointer; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 5%, transparent); color: var(--primary-text-color, #e8e9ec); font-family: inherit; font-size: 12px; line-height: 14px; transition: background .2s ease, color .2s ease; }
 .atrium-select:hover, .atrium-select.atrium-pop-open { background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 8%, transparent); }
