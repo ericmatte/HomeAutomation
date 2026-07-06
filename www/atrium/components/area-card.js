@@ -80,10 +80,8 @@ class AtriumAreaCard extends HTMLElement {
     }
     this._unsubAccordion?.();
     this._unsubAccordion = null;
-    if (this._animTimer) {
-      clearTimeout(this._animTimer);
-      this._animTimer = 0;
-    }
+    this._heightAnim?.cancel();
+    this._heightAnim = null;
   }
 
   _areaFloorId(area) {
@@ -527,57 +525,58 @@ class AtriumAreaCard extends HTMLElement {
     this._collapsedInit = true;
 
     if (!animate) {
+      this._heightAnim?.cancel();
+      this._heightAnim = null;
+      body.classList.remove("is-animating");
       body.classList.toggle("is-collapsed", !open);
       body.style.height = "";
       body.style.overflow = open ? "" : "hidden";
       return;
     }
 
-    if (this._animTimer) {
-      clearTimeout(this._animTimer);
-      this._animTimer = 0;
-    }
+    const from = body.offsetHeight;
+    this._heightAnim?.cancel();
+    this._heightAnim = null;
+
     const collapsedTarget = !open;
     const peek =
       parseFloat(getComputedStyle(body).getPropertyValue("--floor-peek-height")) || 128;
 
-    // Measure + pin the start with the body height transition OFF, so the
-    // class toggles below (and their forced reflows) don't kick off competing
-    // height transitions — that churn made close snap instead of animate.
-    body.style.transition = "none";
+    // Target resting height, measured with the per-card margins snapped to the
+    // target (is-animating off) so it isn't read mid-transition (which read the
+    // still-compressed layout and made open grow short then jump).
     body.classList.remove("is-animating");
-    const from = body.offsetHeight;
-
-    // Target height with the target's resting margins: fixed peek when
-    // collapsing, natural content height when opening.
+    body.classList.toggle("is-collapsed", collapsedTarget);
     let to = peek;
     if (open) {
-      body.classList.remove("is-collapsed");
       body.style.height = "";
       to = body.offsetHeight;
     }
 
-    // Back to the start state, pin the from-height, commit it (no transition).
+    // Reset to the start state and commit it (margins still snapped), then turn
+    // on is-animating and switch to the target so the cards' margins transition.
     body.classList.toggle("is-collapsed", !collapsedTarget);
-    body.style.height = `${from}px`;
-    body.style.overflow = "hidden";
     void body.offsetHeight;
-
-    // Re-enable transitions and animate to the target in one shot. is-animating
-    // lets the per-card margins transition alongside the body height, so the
-    // cards slide into/out of the stack in sync.
-    body.style.transition = "";
     body.classList.add("is-animating");
     body.classList.toggle("is-collapsed", collapsedTarget);
-    body.style.height = `${to}px`;
-    this._animTimer = setTimeout(() => {
-      this._animTimer = 0;
+    body.style.overflow = "hidden";
+    body.style.height = "";
+
+    // Drive the body height with the Web Animations API. CSS height transitions
+    // raced with the measurement reflows and snapped on close; WAAPI is
+    // deterministic, and animating height reflows the floors below in step.
+    this._heightAnim = body.animate(
+      [{ height: `${from}px` }, { height: `${to}px` }],
+      { duration: FLOOR_ANIM_MS, easing: "ease-in-out" }
+    );
+    this._heightAnim.onfinish = () => {
+      this._heightAnim = null;
       body.classList.remove("is-animating");
       body.style.height = "";
       // Keep clipping only while collapsed so open floors don't cut off
       // popovers/graphs that overflow their room card.
       body.style.overflow = open ? "" : "hidden";
-    }, FLOOR_ANIM_MS);
+    };
   }
 
   _toggleExpanded(areaId) {
