@@ -7,24 +7,25 @@
 .atrium-col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
 
 /* Collapsible floor. Open: the body is just the masonry. Collapsed: the real
-   room cards clamp and overlap into a downward-fanned deck, clipped by the
-   body. Each card behind leaves its header (title + area image) peeking above
-   the next; the last card sits fully in front on top. area-card.js animates
-   the body height on open/close (FLIP).
-   --floor-peek-card-h  = clamped height of the front (last) card
-   --floor-peek-overlap = height of each card's peeking header strip
+   room cards keep their full height, but the body is clipped to a short peek
+   window (overflow hidden) with a bottom fade; a small negative margin lets
+   the cards overlap into a subtle stack (later cards paint on top by DOM
+   order). area-card.js animates the body height on open/close (FLIP).
+   --floor-peek-height  = height of the collapsed peek window
+   --floor-peek-overlap = how much each card overlaps the previous one
    Both are tuned by eye. */
-.atrium-floor-body { --floor-peek-card-h: 66px; --floor-peek-overlap: 44px; transition: height .3s ease; }
-.atrium-floor-body.is-collapsed { cursor: pointer; }
-.atrium-floor-body.is-collapsed .atrium-col { gap: 0; }
-.atrium-floor-body.is-collapsed .atrium-room {
-  max-height: var(--floor-peek-card-h);
-  position: relative;
-  z-index: var(--i, 0);
-  pointer-events: none;
+.atrium-floor-body { --floor-peek-height: 108px; --floor-peek-overlap: 11px; transition: height .3s ease; }
+.atrium-floor-body.is-collapsed {
+  height: var(--floor-peek-height);
+  overflow: hidden;
+  cursor: pointer;
+  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
+  mask-image: linear-gradient(to bottom, #000 55%, transparent);
 }
+.atrium-floor-body.is-collapsed .atrium-col { gap: 0; }
+.atrium-floor-body.is-collapsed .atrium-room { pointer-events: none; }
 .atrium-floor-body.is-collapsed .atrium-col > .atrium-room:not(:first-child) {
-  margin-top: calc(var(--floor-peek-overlap) - var(--floor-peek-card-h));
+  margin-top: calc(-1 * var(--floor-peek-overlap));
 }
 .atrium-floor-label { display: flex; align-items: center; gap: 8px; padding: 14px 4px 4px; font-size: 12px; color: var(--secondary-text-color, #9aa0aa); letter-spacing: .6px; text-transform: uppercase; font-weight: 600; grid-column: 1 / -1; }
 .atrium-floor-label > .line { flex: 1; height: 1px; background: var(--divider-color, rgba(127,127,127,0.18)); }

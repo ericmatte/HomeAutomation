@@ -374,12 +374,6 @@ class AtriumAreaCard extends HTMLElement {
       }
       shortest.appendChild(card);
     }
-    // Per-column index drives the collapsed deck's stagger and z-order.
-    for (const col of this._cols) {
-      col.querySelectorAll(":scope > .atrium-room").forEach((card, i) => {
-        card.style.setProperty("--i", i);
-      });
-    }
     if (wasCollapsed) this._bodyEl.classList.add("is-collapsed");
   }
 
@@ -515,7 +509,9 @@ class AtriumAreaCard extends HTMLElement {
     }
     const from = body.offsetHeight;
     body.classList.toggle("is-collapsed", !open);
-    body.style.height = "auto";
+    // Clear the inline height so the target is whatever CSS wants: the fixed
+    // peek height when collapsing, natural content height when opening.
+    body.style.height = "";
     const to = body.offsetHeight;
     body.style.height = `${from}px`;
     body.style.overflow = "hidden";
