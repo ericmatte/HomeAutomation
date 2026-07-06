@@ -1,4 +1,3 @@
-export const COLLAPSIBLE = false;
 const _v = new URL(import.meta.url).search;
 const [popoverMod, sharedMod] = await Promise.all([
   import(`../lib/popover.js${_v}`),
@@ -14,9 +13,7 @@ const {
 } = sharedMod;
 
 export function _buildRoomCard(area, data) {
-  const expanded = COLLAPSIBLE ? this._expanded.has(area.area_id) : true;
-  // No accordion content → render header-only and skip the chevron / click
-  // handler so the row reads as static info.
+  // No body content → render header-only so the row reads as static info.
   const hasBody =
     data.lights.length > 0 ||
     data.switches.length > 0 ||
@@ -28,8 +25,7 @@ export function _buildRoomCard(area, data) {
     data.automations.length > 0 ||
     data.scripts.length > 0;
   const card = document.createElement("div");
-  card.className =
-    "atrium-room" + (expanded && hasBody ? " expanded" : "") + (hasBody ? "" : " no-body");
+  card.className = "atrium-room" + (hasBody ? " expanded" : " no-body");
   card.dataset.area = area.area_id;
 
   // Seed the per-area ref entry before delegating — section builders
@@ -44,7 +40,7 @@ export function _buildRoomCard(area, data) {
   };
   this._refs.areas.set(area.area_id, areaRef);
 
-  const headerRefs = this._buildRoomHeader(area, data, hasBody);
+  const headerRefs = this._buildRoomHeader(area, data);
   card.appendChild(headerRefs.row);
 
   if (hasBody) {
@@ -57,13 +53,9 @@ export function _buildRoomCard(area, data) {
   return card;
 }
 
-export function _buildRoomHeader(area, data, hasBody = true) {
+export function _buildRoomHeader(area, data) {
   const row = document.createElement("div");
   row.className = "atrium-row";
-  if (hasBody && COLLAPSIBLE) {
-    row.classList.add("clickable");
-    row.addEventListener("click", () => this._toggleExpanded(area.area_id));
-  }
 
   const icon = document.createElement("div");
   icon.className = "atrium-room-icon";
@@ -126,12 +118,6 @@ export function _buildRoomHeader(area, data, hasBody = true) {
     coverBtn.addEventListener("click", (e) => e.stopPropagation());
   }
   actions.appendChild(coverBtn);
-  if (hasBody && COLLAPSIBLE) {
-    const chev = document.createElement("span");
-    chev.className = "atrium-chev";
-    chev.innerHTML = `<ha-icon icon="mdi:chevron-down" style="--mdc-icon-size:16px"></ha-icon>`;
-    actions.appendChild(chev);
-  }
 
   row.append(icon, mid, actions);
   return { row, icon, motionPill, chips, bulbBtn, bulbCountEl, coverBtn };
@@ -415,9 +401,9 @@ export function _buildClimateTile(area, climate, sensors) {
     graph: null, makeGraph, tempId,
   };
   this._refs.areas.get(area.area_id).climates.set(climate.entity_id, ref);
-  // Wake the graph immediately on default-expanded floors so the sparkline
-  // is populated as the body slides in.
-  if (COLLAPSIBLE ? this._expanded.has(area.area_id) : true) this._wakeClimateGraph(ref);
+  // Rooms are always expanded, so wake the graph immediately so the sparkline
+  // is populated from the first render.
+  this._wakeClimateGraph(ref);
   return tile;
 }
 

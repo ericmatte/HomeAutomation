@@ -26,10 +26,6 @@ export function closePopoverFor(anchor) {
   if (close) close();
 }
 
-export function isPopoverOpenFor(anchor) {
-  return _registry.has(anchor);
-}
-
 export function openPopover({ anchor, content, width, maxWidth, onClose }) {
   ensureStyle();
 

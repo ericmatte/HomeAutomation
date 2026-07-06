@@ -61,10 +61,9 @@ class AtriumStrategy {
       return `mdi:home-floor-${Math.min(lvl, 3)}`;
     };
 
-    const areaCard = (floor, { defaultExpanded = false, sections, exclude } = {}) => ({
+    const areaCard = (floor, { sections, exclude } = {}) => ({
       type: "custom:atrium-area-card",
       floor: floor.floor_id ?? null,
-      ...(defaultExpanded ? { default_expanded: true } : {}),
       ...(sections ? { sections } : {}),
       ...(exclude ? { exclude } : {}),
       ...(collapsibleFloors ? {} : { collapsible: false }),
@@ -128,7 +127,6 @@ class AtriumStrategy {
             floorLabelCard(f),
             areaCard(f, {
               exclude: ["climates", "automations", "scripts"],
-              defaultExpanded: true,
             }),
           ]),
         ]),
@@ -145,7 +143,7 @@ class AtriumStrategy {
             headerCard(ALL_FLOOR_KEY, title),
             ...allFloors.flatMap((f) => [
               floorLabelCard(f, false),
-              areaCard(f, { sections, defaultExpanded: true }),
+              areaCard(f, { sections }),
             ]),
           ]),
         ],

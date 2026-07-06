@@ -34,7 +34,6 @@ export function ensurePopoverItemStyle() {
 }
 
 export const capitalize = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
-export const slug = (s) => (s || "").toString().toLowerCase().replace(/[^a-z0-9_]+/g, "_");
 
 export function nameWithoutAreaPrefix(name, area) {
   return capitalize((name || "").replace(`${area.name} `, "").trim());

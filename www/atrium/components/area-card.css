@@ -48,7 +48,6 @@
 .atrium-room.lights-on { background: linear-gradient(180deg, color-mix(in srgb, var(--state-light-active-color, #f5c451) 9%, var(--ha-card-background, var(--card-background-color, #16181d))) 0%, var(--ha-card-background, var(--card-background-color, #16181d)) 100%); border-color: color-mix(in srgb, var(--state-light-active-color, #f5c451) 38%, transparent); }
 
 .atrium-row { padding: 14px; display: flex; align-items: center; gap: 12px; }
-.atrium-row.clickable { cursor: pointer; user-select: none; }
 .atrium-room-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background-color: transparent; color: var(--secondary-text-color, #9aa0aa); line-height: 0; transition: color .25s ease; }
 .atrium-room-icon.on { background-color: transparent; color: var(--state-light-active-color, #f5c451); }
 /* Area picture (from HA area settings) shown as a vignette in place of the icon. */
@@ -71,8 +70,6 @@
 .atrium-quick-btn { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-width: 36px; height: 36px; padding: 0 12px; border-radius: 10px; border: none; cursor: pointer; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 4%, transparent); color: var(--secondary-text-color, #9aa0aa); font-family: inherit; transition: background .25s ease, color .25s ease; }
 .atrium-quick-btn.on-light { background: color-mix(in srgb, var(--state-light-active-color, #f5c451) 14%, transparent); color: var(--state-light-active-color, #f5c451); }
 .atrium-quick-btn.on-cover { background: color-mix(in srgb, var(--state-cover-active-color, #9b7fd1) 14%, transparent); color: var(--state-cover-active-color, #9b7fd1); }
-.atrium-chev { transition: transform .2s; color: color-mix(in srgb, var(--secondary-text-color, #9aa0aa) 70%, transparent); margin-left: 2px; display: inline-flex; }
-.atrium-room.expanded .atrium-chev { transform: rotate(180deg); }
 
 .atrium-body-wrap { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .25s ease; }
 .atrium-room.expanded .atrium-body-wrap { grid-template-rows: 1fr; }
