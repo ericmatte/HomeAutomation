@@ -37,6 +37,8 @@ class AtriumAreaCard extends HTMLElement {
     this._floorId = config.floor === null ? null : config.floor;
     this._showLabel = config.show_floor_label === true;
     this._defaultExpanded = config.default_expanded === true;
+    // Single-floor dashboards pass collapsible:false → always expanded.
+    this._collapsible = config.collapsible !== false;
     // Intent tabs (Climate, Routines, …) pass a section profile so the card
     // renders only the matching categories. Absent → full room view (Home).
     this._sections =
@@ -59,7 +61,9 @@ class AtriumAreaCard extends HTMLElement {
       this._resizeObserver = new ResizeObserver(() => this._onResize());
       this._resizeObserver.observe(this);
     }
-    this._unsubAccordion = floorAccordion.subscribe(() => this._reflectCollapsed(true));
+    if (this._collapsible) {
+      this._unsubAccordion = floorAccordion.subscribe(() => this._reflectCollapsed(true));
+    }
     if (this._bodyEl) this._reflectCollapsed(false);
   }
 
@@ -486,6 +490,13 @@ class AtriumAreaCard extends HTMLElement {
   _reflectCollapsed(animate) {
     const body = this._bodyEl;
     if (!body) return;
+    // Not collapsible → stay expanded regardless of the accordion.
+    if (!this._collapsible) {
+      body.classList.remove("is-collapsed");
+      body.style.height = "";
+      body.style.overflow = "";
+      return;
+    }
     const open = floorAccordion.isOpen(this._floorId);
     const wasOpen = !body.classList.contains("is-collapsed");
     if (this._collapsedInit && open === wasOpen) return;

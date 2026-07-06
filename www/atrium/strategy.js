@@ -39,6 +39,10 @@ class AtriumStrategy {
       : null;
     const allFloors = otherFloor ? [...floors, otherFloor] : floors;
 
+    // A single floor section has nothing to accordion against — leave it
+    // permanently expanded. Two or more become collapsible.
+    const collapsibleFloors = allFloors.length >= 2;
+
     const welcomeName = hass.user?.name?.split(" ")?.[0] || "home";
 
     const headerCard = (floorScope, title) => ({
@@ -63,6 +67,7 @@ class AtriumStrategy {
       ...(defaultExpanded ? { default_expanded: true } : {}),
       ...(sections ? { sections } : {}),
       ...(exclude ? { exclude } : {}),
+      ...(collapsibleFloors ? {} : { collapsible: false }),
     });
 
     const floorLabelCard = (floor, showControls = true) => ({
@@ -71,6 +76,7 @@ class AtriumStrategy {
       icon: floorIcon(floor),
       floor: floor.floor_id ?? null,
       ...(showControls ? {} : { show_controls: false }),
+      ...(collapsibleFloors ? {} : { collapsible: false }),
     });
 
     // Each view is `panel: true` so it gets the full viewport width (no

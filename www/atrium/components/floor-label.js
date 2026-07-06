@@ -22,6 +22,8 @@ class AtriumFloorLabel extends HTMLElement {
     // `floor: null` targets areas not assigned to any floor.
     this.floorId = config.floor === null ? null : config.floor;
     this._showControls = config.show_controls !== false;
+    // Single-floor dashboards pass collapsible:false → no chevron/toggle.
+    this._collapsible = config.collapsible !== false;
   }
 
   connectedCallback() {
@@ -34,8 +36,10 @@ class AtriumFloorLabel extends HTMLElement {
     this.style.top =
       "calc(var(--header-height, 0px) + var(--atrium-shell-header-height, 0px))";
     this.style.zIndex = "1";
-    this._unsub = floorAccordion.subscribe(() => this._reflectOpen());
-    if (this._mounted) this._reflectOpen();
+    if (this._collapsible) {
+      this._unsub = floorAccordion.subscribe(() => this._reflectOpen());
+      if (this._mounted) this._reflectOpen();
+    }
   }
 
   disconnectedCallback() {
@@ -98,10 +102,10 @@ class AtriumFloorLabel extends HTMLElement {
     if (this._mounted) return;
     this.innerHTML = `
       <style>${SHELL_STYLE}</style>
-      <div class="atrium-shell-floor-label" role="button" tabindex="0" aria-expanded="false">
+      <div class="atrium-shell-floor-label"${this._collapsible ? ` role="button" tabindex="0" aria-expanded="false"` : ""}>
         ${this._icon ? `<ha-icon class="atrium-shell-fl-icon" icon="${this._icon}"></ha-icon>` : ""}
         <span class="atrium-shell-fl-name"></span>
-        <ha-icon class="atrium-shell-fl-chev" icon="mdi:chevron-down"></ha-icon>
+        ${this._collapsible ? `<ha-icon class="atrium-shell-fl-chev" icon="mdi:chevron-down"></ha-icon>` : ""}
         <div class="atrium-shell-fl-line"></div>
         ${this._showControls ? `
         <div class="atrium-shell-fl-controls">
@@ -126,13 +130,15 @@ class AtriumFloorLabel extends HTMLElement {
 
     // The whole label row toggles the floor; the light controls keep their
     // own actions by not letting their clicks bubble up to the row.
-    this._labelEl.addEventListener("click", () => this._toggleOpen());
-    this._labelEl.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        this._toggleOpen();
-      }
-    });
+    if (this._collapsible) {
+      this._labelEl.addEventListener("click", () => this._toggleOpen());
+      this._labelEl.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          this._toggleOpen();
+        }
+      });
+    }
 
     if (this._showControls) {
       this._controlsEl = this.querySelector(".atrium-shell-fl-controls");
@@ -154,7 +160,7 @@ class AtriumFloorLabel extends HTMLElement {
   }
 
   _reflectOpen() {
-    if (!this._labelEl) return;
+    if (!this._labelEl || !this._collapsible) return;
     const open = floorAccordion.isOpen(this.floorId);
     this._labelEl.classList.toggle("is-open", open);
     this._labelEl.setAttribute("aria-expanded", open ? "true" : "false");
