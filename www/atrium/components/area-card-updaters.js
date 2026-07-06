@@ -188,6 +188,28 @@ export function _updateLightRef(ref, entityId) {
   }
 }
 
+export function _updateSwitchRef(ref, entityId) {
+  const hass = this._hass;
+  const st = hass.states?.[entityId];
+  if (!st) return;
+  if (unchangedState(ref, "_lastState", st)) return;
+
+  const icon = hass.entities?.[entityId]?.icon ?? st.attributes?.icon ?? ICONS.toggle;
+  if (icon !== ref._icon) {
+    ref._icon = icon;
+    ref.iconEl.setAttribute("icon", icon);
+  }
+  const unavailable = st.state === "unavailable";
+  ref.tile.classList.toggle("unavailable", unavailable);
+  // Switches never dim: the fill is a binary on/off wash, no thumb.
+  ref.tile.classList.add("no-dim");
+  const on = st.state === "on";
+  ref.fill.style.width = on ? "100%" : "0%";
+  ref.swatch.classList.toggle("on-light", on && !unavailable);
+  const stateText = unavailable ? "Unavailable" : on ? "On" : "Off";
+  ref.state.textContent = st.last_updated ? `${stateText} - ${fmtTimeAgoShort(st.last_updated)}` : stateText;
+}
+
 export function _updateSensorRef(ref, entityId) {
   if (!ref.value) return;
   ref.value.textContent = fmtSensorValue(this._hass.states?.[entityId]);
@@ -407,6 +429,7 @@ export function _bindSwipeTile(tile, fill, thumb, swatch, stateEl, entityId, kin
         ref.moved = true;
         const st = this._hass.states?.[entityId];
         if (kind === "light" && !canDimLight(st)) return;
+        if (kind === "switch") return; // on/off only — a swipe never dims
         ref.dragging = true;
       }
       if (ref.dragging) {
@@ -458,6 +481,9 @@ export function _bindSwipeTile(tile, fill, thumb, swatch, stateEl, entityId, kin
           if (st?.state === "on") this._call("light", "turn_off", { entity_id: entityId });
           else if (canDimLight(st)) this._call("light", "turn_on", { entity_id: entityId, brightness_pct: 100 });
           else this._call("light", "turn_on", { entity_id: entityId });
+        } else if (kind === "switch") {
+          const st = this._hass.states?.[entityId];
+          this._call("switch", st?.state === "on" ? "turn_off" : "turn_on", { entity_id: entityId });
         } else {
           const pct = fmtCoverPct(this._hass.states?.[entityId] || { attributes: {} });
           this._call("cover", pct > 5 ? "close_cover" : "open_cover", { entity_id: entityId });

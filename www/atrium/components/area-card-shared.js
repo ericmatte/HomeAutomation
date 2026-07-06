@@ -84,6 +84,7 @@ export const ICONS = {
   fan: "mdi:fan",
   swing: "mdi:swap-horizontal",
   power: "mdi:power",
+  toggle: "mdi:toggle-switch-variant",
   auto: "mdi:autorenew",
   cogs: "mdi:cog-outline",
   script: "mdi:script-text",

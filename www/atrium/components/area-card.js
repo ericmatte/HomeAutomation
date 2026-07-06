@@ -154,6 +154,7 @@ class AtriumAreaCard extends HTMLElement {
   _emptyData() {
     return {
       lights: [],
+      switches: [],
       covers: [],
       doors: [],
       climates: [],
@@ -175,7 +176,10 @@ class AtriumAreaCard extends HTMLElement {
     if (!this._sections) return data;
     const want = this._sections;
     const out = this._emptyData();
-    if (want.has("lights")) out.lights = data.lights;
+    if (want.has("lights")) {
+      out.lights = data.lights;
+      out.switches = data.switches;
+    }
     if (want.has("covers")) out.covers = data.covers;
     if (want.has("climate")) {
       out.climates = data.climates;
@@ -209,7 +213,7 @@ class AtriumAreaCard extends HTMLElement {
       else if (key === "automations") out.automations = [];
       else if (key === "scripts") out.scripts = [];
       else if (key === "scenes") out.scenes = [];
-      else if (key === "lights") out.lights = [];
+      else if (key === "lights") { out.lights = []; out.switches = []; }
       else if (key === "covers") out.covers = [];
       else if (key === "vacuums") out.vacuums = [];
       else if (key === "inputs") out.inputSelects = [];
@@ -226,6 +230,9 @@ class AtriumAreaCard extends HTMLElement {
       const st = hass.states?.[e.entity_id];
       const dc = st?.attributes?.device_class;
       if (domain === "light") out.lights.push(e);
+      // Config/diagnostic switches (device knobs like "LED", "crossfade") would
+      // clutter the room body — only surface primary controls.
+      else if (domain === "switch") { if (!e.entity_category) out.switches.push(e); }
       else if (domain === "cover") out.covers.push(e);
       else if (domain === "climate") out.climates.push(e);
       else if (domain === "vacuum") out.vacuums.push(e);
@@ -393,6 +400,7 @@ class AtriumAreaCard extends HTMLElement {
   _areaIsEmpty(d) {
     return (
       d.lights.length === 0 &&
+      d.switches.length === 0 &&
       d.covers.length === 0 &&
       d.doors.length === 0 &&
       d.climates.length === 0 &&
@@ -562,6 +570,7 @@ class AtriumAreaCard extends HTMLElement {
       this._updateQuickButtons(ar);
 
       for (const [entId, ref] of ar.lights) this._updateLightRef(ref, entId);
+      if (ar.switches) for (const [entId, ref] of ar.switches) this._updateSwitchRef(ref, entId);
       for (const [entId, ref] of ar.climates) this._updateClimateRef(ref, entId, isExpanded);
       if (ar.inputSelects) for (const [entId, ref] of ar.inputSelects) this._updateInputSelectRef(ref, entId);
       for (const [entId, ref] of ar.automations) this._updateAutomationRef(ref, entId);

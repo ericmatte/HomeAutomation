@@ -19,6 +19,7 @@ export function _buildRoomCard(area, data) {
   // handler so the row reads as static info.
   const hasBody =
     data.lights.length > 0 ||
+    data.switches.length > 0 ||
     data.climates.length > 0 ||
     data.sensors.extras.length > 0 ||
     data.inputSelects.length > 0 ||
@@ -35,6 +36,7 @@ export function _buildRoomCard(area, data) {
   const areaRef = {
     card, data,
     lights: new Map(),
+    switches: new Map(),
     climates: new Map(), automations: new Map(),
     inputSelects: new Map(),
     sensors: new Map(),
@@ -147,6 +149,7 @@ export function _buildRoomBody(area, data) {
 
   const sections = [];
   if (data.lights.length) sections.push(this._buildLightsSection(area, data.lights));
+  if (data.switches.length) sections.push(this._buildSwitchesSection(area, data.switches));
   if (data.climates.length) sections.push(this._buildClimateSection(area, data.climates, data.sensors));
   if (data.sensors.extras.length) sections.push(this._buildSensorsSection(area, data.sensors.extras));
   if (data.inputSelects.length) sections.push(this._buildInputSelectsSection(area, data.inputSelects));
@@ -216,6 +219,56 @@ export function _buildLightTile(area, light) {
 
   const ref = { tile, fill, thumb, swatch, iconEl, state, name };
   this._refs.areas.get(area.area_id).lights.set(light.entity_id, ref);
+  return tile;
+}
+
+export function _buildSwitchesSection(area, switches) {
+  const grid = document.createElement("div");
+  grid.className = "atrium-grid " + (switches.length === 1 ? "cols-1" : "cols-2");
+  for (const s of switches) grid.appendChild(this._buildSwitchTile(area, s));
+  return this._section("Switches", grid);
+}
+
+// Same tile as a light but on/off only: no brightness fill/thumb drag, tap
+// toggles, long-press opens more-info (handled by `_bindSwipeTile`'s "switch"
+// kind). Reuses the light tile's `.light` fill/swatch classes for an
+// identical look.
+export function _buildSwitchTile(area, entity) {
+  const tile = document.createElement("div");
+  tile.className = "atrium-tile";
+  tile.dataset.entity = entity.entity_id;
+
+  const fill = document.createElement("div");
+  fill.className = "atrium-tile-fill light";
+  tile.appendChild(fill);
+  const thumb = document.createElement("div");
+  thumb.className = "atrium-tile-thumb light";
+  thumb.style.display = "none";
+  tile.appendChild(thumb);
+
+  const body = document.createElement("div");
+  body.className = "atrium-tile-body";
+  const swatch = document.createElement("div");
+  swatch.className = "atrium-swatch";
+  swatch.innerHTML =
+    `<ha-icon icon="${ICONS.toggle}" style="--mdc-icon-size:20px"></ha-icon>` +
+    `<span class="atrium-unavail-dot">!</span>`;
+  const iconEl = swatch.querySelector("ha-icon");
+  const text = document.createElement("div");
+  text.className = "atrium-tile-text";
+  const name = document.createElement("div");
+  name.className = "atrium-tile-name";
+  name.textContent = nameWithoutAreaPrefix(this._entityName(entity), area);
+  const state = document.createElement("div");
+  state.className = "atrium-tile-state";
+  text.append(name, state);
+  body.append(swatch, text);
+  tile.appendChild(body);
+
+  this._bindSwipeTile(tile, fill, thumb, swatch, state, entity.entity_id, "switch");
+
+  const ref = { tile, fill, thumb, swatch, iconEl, state, name };
+  this._refs.areas.get(area.area_id).switches.set(entity.entity_id, ref);
   return tile;
 }
 
