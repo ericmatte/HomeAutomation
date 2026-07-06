@@ -3,16 +3,22 @@
 // per-ref identity-gated updaters in `area-card-updaters.js` handle it.
 
 const _v = new URL(import.meta.url).search;
-const [popoverMod, hassUtilsMod, sharedMod, buildersMod, updatersMod] = await Promise.all([
+const [popoverMod, hassUtilsMod, sharedMod, buildersMod, updatersMod, accordionMod] = await Promise.all([
   import(`../lib/popover.js${_v}`),
   import(`../lib/hass-utils.js${_v}`),
   import(`./area-card-shared.js${_v}`),
   import(`./area-card-builders.js${_v}`),
   import(`./area-card-updaters.js${_v}`),
+  import(`../lib/floor-accordion.js${_v}`),
 ]);
 const { closePopoverFor } = popoverMod;
 const { sameRegistries } = hassUtilsMod;
 const { TONE, STYLE, matchesAny, fmtCoverPct } = sharedMod;
+const { floorAccordion } = accordionMod;
+
+// Body-height collapse/expand transition, in ms. Kept in sync with the
+// `.atrium-floor-body` transition duration in area-card.css.
+const FLOOR_ANIM_MS = 300;
 
 class AtriumAreaCard extends HTMLElement {
   constructor() {
@@ -53,6 +59,8 @@ class AtriumAreaCard extends HTMLElement {
       this._resizeObserver = new ResizeObserver(() => this._onResize());
       this._resizeObserver.observe(this);
     }
+    this._unsubAccordion = floorAccordion.subscribe(() => this._reflectCollapsed(true));
+    if (this._bodyEl) this._reflectCollapsed(false);
   }
 
   disconnectedCallback() {
@@ -63,6 +71,12 @@ class AtriumAreaCard extends HTMLElement {
     if (this._resizeRaf) {
       cancelAnimationFrame(this._resizeRaf);
       this._resizeRaf = 0;
+    }
+    this._unsubAccordion?.();
+    this._unsubAccordion = null;
+    if (this._animTimer) {
+      clearTimeout(this._animTimer);
+      this._animTimer = 0;
     }
   }
 
@@ -305,11 +319,21 @@ class AtriumAreaCard extends HTMLElement {
       cards.push(this._buildRoomCard(area, data));
     }
     this._roomCards = cards;
+    // The floor body clips the masonry so a collapsed floor can show a
+    // stacked-deck peek; it also owns the open/close height transition.
+    const body = document.createElement("div");
+    body.className = "atrium-floor-body";
+    body.appendChild(root);
+    // The peek is a click target: while collapsed, a tap anywhere in the
+    // deck opens the floor rather than actuating the card under the finger.
+    body.addEventListener("click", (e) => this._onBodyClick(e), true);
     // Append the (empty) root first so getComputedStyle can resolve the
     // --atrium-cols breakpoint variable before we distribute.
-    this.appendChild(root);
+    this.appendChild(body);
+    this._bodyEl = body;
     this._root = root;
     this._layoutMasonry();
+    this._reflectCollapsed(false);
     this._update();
   }
 
@@ -319,6 +343,10 @@ class AtriumAreaCard extends HTMLElement {
   _layoutMasonry() {
     const root = this._root;
     if (!root) return;
+    // Measure natural card heights: the collapsed deck clamps rooms to a
+    // uniform strip, which would skew the shortest-column packing.
+    const wasCollapsed = this._bodyEl?.classList.contains("is-collapsed");
+    if (wasCollapsed) this._bodyEl.classList.remove("is-collapsed");
     const colCount = this._colsFromCss(root);
     this._colCount = colCount;
     root.replaceChildren();
@@ -335,6 +363,13 @@ class AtriumAreaCard extends HTMLElement {
       }
       shortest.appendChild(card);
     }
+    // Per-column index drives the collapsed deck's stagger and z-order.
+    for (const col of this._cols) {
+      col.querySelectorAll(":scope > .atrium-room").forEach((card, i) => {
+        card.style.setProperty("--i", i);
+      });
+    }
+    if (wasCollapsed) this._bodyEl.classList.add("is-collapsed");
   }
 
   _colsFromCss(root) {
@@ -427,6 +462,53 @@ class AtriumAreaCard extends HTMLElement {
       entity_id: entityId,
       temperature: Math.round((cur + delta) * 2) / 2,
     });
+  }
+
+  // A tap on the collapsed deck opens the floor instead of actuating the
+  // card under the finger. Capture-phase, so inner controls never see it.
+  _onBodyClick(e) {
+    if (!this._bodyEl?.classList.contains("is-collapsed")) return;
+    e.preventDefault();
+    e.stopPropagation();
+    floorAccordion.toggle(this._floorId);
+  }
+
+  // Reflect the shared accordion state onto this floor's body. `animate`
+  // runs a FLIP height transition; otherwise it snaps (initial build).
+  _reflectCollapsed(animate) {
+    const body = this._bodyEl;
+    if (!body) return;
+    const open = floorAccordion.isOpen(this._floorId);
+    const wasOpen = !body.classList.contains("is-collapsed");
+    if (this._collapsedInit && open === wasOpen) return;
+    this._collapsedInit = true;
+
+    if (!animate) {
+      body.classList.toggle("is-collapsed", !open);
+      body.style.height = "";
+      body.style.overflow = open ? "" : "hidden";
+      return;
+    }
+
+    if (this._animTimer) {
+      clearTimeout(this._animTimer);
+      this._animTimer = 0;
+    }
+    const from = body.offsetHeight;
+    body.classList.toggle("is-collapsed", !open);
+    body.style.height = "auto";
+    const to = body.offsetHeight;
+    body.style.height = `${from}px`;
+    body.style.overflow = "hidden";
+    void body.offsetHeight; // commit the from-height before transitioning
+    body.style.height = `${to}px`;
+    this._animTimer = setTimeout(() => {
+      this._animTimer = 0;
+      body.style.height = "";
+      // Keep clipping only while collapsed so open floors don't cut off
+      // popovers/graphs that overflow their room card.
+      body.style.overflow = open ? "" : "hidden";
+    }, FLOOR_ANIM_MS);
   }
 
   _toggleExpanded(areaId) {

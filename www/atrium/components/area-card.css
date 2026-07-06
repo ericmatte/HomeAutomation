@@ -5,6 +5,23 @@
 @media (min-width: 900px) { .atrium-root { --atrium-cols: 2; } }
 @media (min-width: 1380px) { .atrium-root { --atrium-cols: 3; } }
 .atrium-col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+
+/* Collapsible floor. Open: the body is just the masonry. Collapsed: the real
+   room cards clamp to a uniform strip and overlap into a stacked deck, clipped
+   by the body. area-card.js animates the body height on open/close (FLIP).
+   --floor-peek-card-h / --floor-peek-overlap are tuned by eye. */
+.atrium-floor-body { --floor-peek-card-h: 58px; --floor-peek-overlap: 9px; transition: height .3s ease; }
+.atrium-floor-body.is-collapsed { cursor: pointer; }
+.atrium-floor-body.is-collapsed .atrium-col { gap: 0; }
+.atrium-floor-body.is-collapsed .atrium-room {
+  max-height: var(--floor-peek-card-h);
+  position: relative;
+  z-index: calc(1000 - var(--i, 0));
+  pointer-events: none;
+}
+.atrium-floor-body.is-collapsed .atrium-col > .atrium-room:not(:first-child) {
+  margin-top: calc(var(--floor-peek-overlap) - var(--floor-peek-card-h));
+}
 .atrium-floor-label { display: flex; align-items: center; gap: 8px; padding: 14px 4px 4px; font-size: 12px; color: var(--secondary-text-color, #9aa0aa); letter-spacing: .6px; text-transform: uppercase; font-weight: 600; grid-column: 1 / -1; }
 .atrium-floor-label > .line { flex: 1; height: 1px; background: var(--divider-color, rgba(127,127,127,0.18)); }
 
