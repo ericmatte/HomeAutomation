@@ -3,18 +3,20 @@
 // per-ref identity-gated updaters in `area-card-updaters.js` handle it.
 
 const _v = new URL(import.meta.url).search;
-const [popoverMod, hassUtilsMod, sharedMod, buildersMod, updatersMod, accordionMod] = await Promise.all([
+const [popoverMod, hassUtilsMod, sharedMod, buildersMod, updatersMod, accordionMod, deviceSensorsMod] = await Promise.all([
   import(`../lib/popover.js${_v}`),
   import(`../lib/hass-utils.js${_v}`),
   import(`./area-card-shared.js${_v}`),
   import(`./area-card-builders.js${_v}`),
   import(`./area-card-updaters.js${_v}`),
   import(`../lib/floor-accordion.js${_v}`),
+  import(`../lib/device-sensors.js${_v}`),
 ]);
 const { closePopoverFor } = popoverMod;
 const { sameRegistries } = hassUtilsMod;
 const { TONE, STYLE, matchesAny, fmtCoverPct } = sharedMod;
 const { floorAccordion } = accordionMod;
+const { groupDeviceSensors } = deviceSensorsMod;
 
 // Body-height collapse/expand transition, in ms. Kept in sync with the
 // `.atrium-floor-body` transition duration in area-card.css.
@@ -166,9 +168,10 @@ class AtriumAreaCard extends HTMLElement {
       scenes: [],
       inputSelects: [],
       mediaPlayers: [],
-      sensors: { motion: [], leak: [], soil: [], propane: [], temp: null, humid: null, extras: [] },
+      sensors: { motion: [], leak: [], soil: [], propane: [], temp: null, humid: null, extras: [], other: [] },
       automations: [],
       scripts: [],
+      deviceSensors: new Map(),
     };
   }
 
@@ -183,6 +186,7 @@ class AtriumAreaCard extends HTMLElement {
     if (want.has("lights")) {
       out.lights = data.lights;
       out.switches = data.switches;
+      out.deviceSensors = data.deviceSensors;
     }
     if (want.has("covers")) out.covers = data.covers;
     if (want.has("climate")) {
@@ -249,6 +253,7 @@ class AtriumAreaCard extends HTMLElement {
         if (dc === "motion" || dc === "occupancy" || dc === "presence") out.sensors.motion.push(e);
         else if (dc === "moisture") out.sensors.leak.push(e);
         else if (dc === "door" || dc === "garage_door" || dc === "window" || dc === "opening") out.doors.push(e);
+        else out.sensors.other.push(e);
       } else if (domain === "sensor") {
         const isSoil =
           matchesAny(e.entity_id, ["soil", "plant"]) &&
@@ -280,6 +285,16 @@ class AtriumAreaCard extends HTMLElement {
         }
       }
     }
+
+    const grouped = groupDeviceSensors({
+      lights: out.lights,
+      switches: out.switches,
+      extras: out.sensors.extras,
+      other: out.sensors.other,
+    });
+    out.sensors.extras = grouped.extras;
+    out.sensors.other = grouped.other;
+    out.deviceSensors = grouped.deviceSensors;
 
     return out;
   }
