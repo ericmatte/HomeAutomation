@@ -267,7 +267,11 @@ export function _buildDeviceSensorCaret(area, entity, sensors) {
   // caret would also start that tile's press/drag/long-press sequence.
   caret.addEventListener("pointerdown", (e) => e.stopPropagation());
 
-  const rows = sensors.map((s) => this._buildSensorTile(area, s));
+  // Keyed per target entity: when a device has 2+ lights/switches sharing
+  // this sensor, groupDeviceSensors attaches it to every target, so this
+  // caret's build runs once per target. Without a per-target map key, each
+  // run's ref would clobber the previous one in the shared `ar.sensors` map.
+  const rows = sensors.map((s) => this._buildSensorTile(area, s, `${entity.entity_id}::${s.entity_id}`));
 
   caret.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -468,7 +472,13 @@ export function _buildSensorsSection(area, sensors) {
   return this._section("Sensors", grid);
 }
 
-export function _buildSensorTile(area, sensor) {
+// `mapKey` defaults to the entity_id, but callers that build the same
+// sensor's tile more than once for one area (e.g. _buildDeviceSensorCaret,
+// where one physical sensor is attached to every sibling light/switch on its
+// device) must pass a unique key — otherwise each duplicate ref would
+// overwrite the previous one in `ar.sensors`, leaving the earlier tile's DOM
+// node orphaned from the `_updateSensorRef` refresh loop.
+export function _buildSensorTile(area, sensor, mapKey = sensor.entity_id) {
   // Header-chip style: swatch icon + name + current reading. Tap → more-info.
   const tile = document.createElement("div");
   tile.className = "atrium-sensor";
@@ -505,8 +515,8 @@ export function _buildSensorTile(area, sensor) {
   row.append(icon, name, value);
   tile.appendChild(row);
 
-  const ref = { tile, value };
-  this._refs.areas.get(area.area_id).sensors.set(sensor.entity_id, ref);
+  const ref = { tile, value, entityId: sensor.entity_id };
+  this._refs.areas.get(area.area_id).sensors.set(mapKey, ref);
   return tile;
 }
 
