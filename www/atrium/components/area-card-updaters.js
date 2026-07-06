@@ -141,14 +141,18 @@ export function _updateQuickButtons(ar) {
   ar.coverBtn.classList.toggle("on-cover", openCount > 0);
 }
 
-export function _updateLightRef(ref, entityId) {
+// Shared on/off tile updater for lights and switches — mirrors the
+// `_buildToggleTile` unification on the builder side. `canDim` says whether
+// this kind can ever dim (only lights); `icon` is the swatch fallback when
+// neither the entity registry nor the state carry one.
+export function _updateToggleRef(ref, entityId, { canDim: supportsDim, icon: defaultIcon }) {
   const hass = this._hass;
   const st = hass.states?.[entityId];
   if (!st) return;
-  if (this._dragState.has(entityId)) return; // pointer event owns the visuals
+  if (supportsDim && this._dragState.has(entityId)) return; // pointer event owns the visuals
   if (unchangedState(ref, "_lastState", st)) return;
 
-  const icon = hass.entities?.[entityId]?.icon ?? st.attributes?.icon ?? ICONS.bulb;
+  const icon = hass.entities?.[entityId]?.icon ?? st.attributes?.icon ?? defaultIcon;
   if (icon !== ref._icon) {
     ref._icon = icon;
     ref.iconEl.setAttribute("icon", icon);
@@ -156,8 +160,8 @@ export function _updateLightRef(ref, entityId) {
   const unavailable = st.state === "unavailable";
   ref.tile.classList.toggle("unavailable", unavailable);
   const on = st.state === "on";
-  const canDim = canDimLight(st);
-  const pct = fmtBrightnessPct(st);
+  const canDim = supportsDim && canDimLight(st);
+  const pct = canDim ? fmtBrightnessPct(st) : 0;
   ref.tile.classList.toggle("no-dim", !canDim);
   ref.fill.style.width = on ? `${canDim ? pct : 100}%` : "0%";
   ref.thumb.style.left = `calc(${pct}% - 2px)`;
@@ -169,7 +173,8 @@ export function _updateLightRef(ref, entityId) {
   ref.state.textContent = st.last_updated ? `${stateText} - ${fmtTimeAgoShort(st.last_updated)}` : stateText;
 
   // True color modes get the bulb's live rgb_color; white-temperature modes
-  // fall back to the default yellow tint via the CSS var defaults.
+  // fall back to the default yellow tint via the CSS var defaults. Switches
+  // never carry a color_mode attribute, so this is a no-op for them.
   const cm = st.attributes?.color_mode;
   const rgb = st.attributes?.rgb_color;
   const colorModes = ["rgb", "hs", "xy", "rgbw", "rgbww"];
@@ -188,26 +193,12 @@ export function _updateLightRef(ref, entityId) {
   }
 }
 
-export function _updateSwitchRef(ref, entityId) {
-  const hass = this._hass;
-  const st = hass.states?.[entityId];
-  if (!st) return;
-  if (unchangedState(ref, "_lastState", st)) return;
+export function _updateLightRef(ref, entityId) {
+  this._updateToggleRef(ref, entityId, { canDim: true, icon: ICONS.bulb });
+}
 
-  const icon = hass.entities?.[entityId]?.icon ?? st.attributes?.icon ?? ICONS.toggle;
-  if (icon !== ref._icon) {
-    ref._icon = icon;
-    ref.iconEl.setAttribute("icon", icon);
-  }
-  const unavailable = st.state === "unavailable";
-  ref.tile.classList.toggle("unavailable", unavailable);
-  // Switches never dim: the fill is a binary on/off wash, no thumb.
-  ref.tile.classList.add("no-dim");
-  const on = st.state === "on";
-  ref.fill.style.width = on ? "100%" : "0%";
-  ref.swatch.classList.toggle("on-light", on && !unavailable);
-  const stateText = unavailable ? "Unavailable" : on ? "On" : "Off";
-  ref.state.textContent = st.last_updated ? `${stateText} - ${fmtTimeAgoShort(st.last_updated)}` : stateText;
+export function _updateSwitchRef(ref, entityId) {
+  this._updateToggleRef(ref, entityId, { canDim: false, icon: ICONS.toggle });
 }
 
 export function _updateSensorRef(ref, entityId) {
