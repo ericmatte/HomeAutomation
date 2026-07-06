@@ -141,14 +141,18 @@ export function _updateQuickButtons(ar) {
   ar.coverBtn.classList.toggle("on-cover", openCount > 0);
 }
 
-export function _updateLightRef(ref, entityId) {
+// Shared on/off tile updater for lights and switches — mirrors the
+// `_buildToggleTile` unification on the builder side. `canDim` says whether
+// this kind can ever dim (only lights); `icon` is the swatch fallback when
+// neither the entity registry nor the state carry one.
+export function _updateToggleRef(ref, entityId, { canDim: supportsDim, icon: defaultIcon }) {
   const hass = this._hass;
   const st = hass.states?.[entityId];
   if (!st) return;
-  if (this._dragState.has(entityId)) return; // pointer event owns the visuals
+  if (supportsDim && this._dragState.has(entityId)) return; // pointer event owns the visuals
   if (unchangedState(ref, "_lastState", st)) return;
 
-  const icon = hass.entities?.[entityId]?.icon ?? st.attributes?.icon ?? ICONS.bulb;
+  const icon = hass.entities?.[entityId]?.icon ?? st.attributes?.icon ?? defaultIcon;
   if (icon !== ref._icon) {
     ref._icon = icon;
     ref.iconEl.setAttribute("icon", icon);
@@ -156,8 +160,8 @@ export function _updateLightRef(ref, entityId) {
   const unavailable = st.state === "unavailable";
   ref.tile.classList.toggle("unavailable", unavailable);
   const on = st.state === "on";
-  const canDim = canDimLight(st);
-  const pct = fmtBrightnessPct(st);
+  const canDim = supportsDim && canDimLight(st);
+  const pct = canDim ? fmtBrightnessPct(st) : 0;
   ref.tile.classList.toggle("no-dim", !canDim);
   ref.fill.style.width = on ? `${canDim ? pct : 100}%` : "0%";
   ref.thumb.style.left = `calc(${pct}% - 2px)`;
@@ -169,7 +173,8 @@ export function _updateLightRef(ref, entityId) {
   ref.state.textContent = st.last_updated ? `${stateText} - ${fmtTimeAgoShort(st.last_updated)}` : stateText;
 
   // True color modes get the bulb's live rgb_color; white-temperature modes
-  // fall back to the default yellow tint via the CSS var defaults.
+  // fall back to the default yellow tint via the CSS var defaults. Switches
+  // never carry a color_mode attribute, so this is a no-op for them.
   const cm = st.attributes?.color_mode;
   const rgb = st.attributes?.rgb_color;
   const colorModes = ["rgb", "hs", "xy", "rgbw", "rgbww"];
@@ -186,6 +191,14 @@ export function _updateLightRef(ref, entityId) {
     ref.tile.style.removeProperty("--tile-fill");
     ref.tile.style.removeProperty("--tile-fill-pressed");
   }
+}
+
+export function _updateLightRef(ref, entityId) {
+  this._updateToggleRef(ref, entityId, { canDim: true, icon: ICONS.bulb });
+}
+
+export function _updateSwitchRef(ref, entityId) {
+  this._updateToggleRef(ref, entityId, { canDim: false, icon: ICONS.toggle });
 }
 
 export function _updateSensorRef(ref, entityId) {
@@ -404,9 +417,12 @@ export function _bindSwipeTile(tile, fill, thumb, swatch, stateEl, entityId, kin
       const dy = ev.clientY - ref.startY;
       if (!ref.dragging && Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) {
         clearTimeout(ref.lpTimer);
-        ref.moved = true;
         const st = this._hass.states?.[entityId];
+        // on/off-only entities have nothing to drag; leave ref.moved false so
+        // pointerup still resolves this as a tap-toggle instead of a dead swipe.
         if (kind === "light" && !canDimLight(st)) return;
+        if (kind === "switch") return;
+        ref.moved = true;
         ref.dragging = true;
       }
       if (ref.dragging) {
@@ -458,6 +474,9 @@ export function _bindSwipeTile(tile, fill, thumb, swatch, stateEl, entityId, kin
           if (st?.state === "on") this._call("light", "turn_off", { entity_id: entityId });
           else if (canDimLight(st)) this._call("light", "turn_on", { entity_id: entityId, brightness_pct: 100 });
           else this._call("light", "turn_on", { entity_id: entityId });
+        } else if (kind === "switch") {
+          const st = this._hass.states?.[entityId];
+          this._call("switch", st?.state === "on" ? "turn_off" : "turn_on", { entity_id: entityId });
         } else {
           const pct = fmtCoverPct(this._hass.states?.[entityId] || { attributes: {} });
           this._call("cover", pct > 5 ? "close_cover" : "open_cover", { entity_id: entityId });

@@ -1,10 +1,12 @@
 const _v = new URL(import.meta.url).search;
-const [hassUtilsMod, shellMod] = await Promise.all([
+const [hassUtilsMod, shellMod, accordionMod] = await Promise.all([
   import(`../lib/hass-utils.js${_v}`),
   import(`../lib/shell.js${_v}`),
+  import(`../lib/floor-accordion.js${_v}`),
 ]);
 const { sameRegistries } = hassUtilsMod;
 const { SHELL_TONE, SHELL_STYLE } = shellMod;
+const { floorAccordion } = accordionMod;
 
 class AtriumFloorLabel extends HTMLElement {
   constructor() {
@@ -20,6 +22,8 @@ class AtriumFloorLabel extends HTMLElement {
     // `floor: null` targets areas not assigned to any floor.
     this.floorId = config.floor === null ? null : config.floor;
     this._showControls = config.show_controls !== false;
+    // Single-floor dashboards pass collapsible:false → no chevron/toggle.
+    this._collapsible = config.collapsible !== false;
   }
 
   connectedCallback() {
@@ -32,6 +36,15 @@ class AtriumFloorLabel extends HTMLElement {
     this.style.top =
       "calc(var(--header-height, 0px) + var(--atrium-shell-header-height, 0px))";
     this.style.zIndex = "1";
+    if (this._collapsible) {
+      this._unsub = floorAccordion.subscribe(() => this._reflectOpen());
+      if (this._mounted) this._reflectOpen();
+    }
+  }
+
+  disconnectedCallback() {
+    this._unsub?.();
+    this._unsub = null;
   }
 
   set hass(hass) {
@@ -89,9 +102,10 @@ class AtriumFloorLabel extends HTMLElement {
     if (this._mounted) return;
     this.innerHTML = `
       <style>${SHELL_STYLE}</style>
-      <div class="atrium-shell-floor-label">
+      <div class="atrium-shell-floor-label"${this._collapsible ? ` role="button" tabindex="0" aria-expanded="false"` : ""}>
         ${this._icon ? `<ha-icon class="atrium-shell-fl-icon" icon="${this._icon}"></ha-icon>` : ""}
         <span class="atrium-shell-fl-name"></span>
+        ${this._collapsible ? `<ha-icon class="atrium-shell-fl-chev" icon="mdi:chevron-down"></ha-icon>` : ""}
         <div class="atrium-shell-fl-line"></div>
         ${this._showControls ? `
         <div class="atrium-shell-fl-controls">
@@ -111,7 +125,21 @@ class AtriumFloorLabel extends HTMLElement {
     `;
     this._nameEl = this.querySelector(".atrium-shell-fl-name");
     this._lineEl = this.querySelector(".atrium-shell-fl-line");
+    this._labelEl = this.querySelector(".atrium-shell-floor-label");
     this._nameEl.textContent = this._name;
+
+    // The whole label row toggles the floor; the light controls keep their
+    // own actions by not letting their clicks bubble up to the row.
+    if (this._collapsible) {
+      this._labelEl.addEventListener("click", () => this._toggleOpen());
+      this._labelEl.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          this._toggleOpen();
+        }
+      });
+    }
+
     if (this._showControls) {
       this._controlsEl = this.querySelector(".atrium-shell-fl-controls");
       this._countEl = this.querySelector(".atrium-shell-fl-count");
@@ -119,10 +147,23 @@ class AtriumFloorLabel extends HTMLElement {
       this._fillEl = this.querySelector(".atrium-shell-fl-dimmer-fill");
       this._thumbEl = this.querySelector(".atrium-shell-fl-dimmer-thumb");
       this._btnEl = this.querySelector(".atrium-shell-fl-bulb");
+      this._controlsEl.addEventListener("click", (e) => e.stopPropagation());
       this._bindPointer();
       this._btnEl.addEventListener("click", () => this._toggleAll());
     }
     this._mounted = true;
+    this._reflectOpen();
+  }
+
+  _toggleOpen() {
+    floorAccordion.toggle(this.floorId);
+  }
+
+  _reflectOpen() {
+    if (!this._labelEl || !this._collapsible) return;
+    const open = floorAccordion.isOpen(this.floorId);
+    this._labelEl.classList.toggle("is-open", open);
+    this._labelEl.setAttribute("aria-expanded", open ? "true" : "false");
   }
 
   _computeVisibleState(lightIds) {

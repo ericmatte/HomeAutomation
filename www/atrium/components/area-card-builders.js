@@ -19,8 +19,10 @@ export function _buildRoomCard(area, data) {
   // handler so the row reads as static info.
   const hasBody =
     data.lights.length > 0 ||
+    data.switches.length > 0 ||
     data.climates.length > 0 ||
     data.sensors.extras.length > 0 ||
+    data.sensors.other.length > 0 ||
     data.inputSelects.length > 0 ||
     data.scenes.length > 0 ||
     data.automations.length > 0 ||
@@ -35,6 +37,7 @@ export function _buildRoomCard(area, data) {
   const areaRef = {
     card, data,
     lights: new Map(),
+    switches: new Map(),
     climates: new Map(), automations: new Map(),
     inputSelects: new Map(),
     sensors: new Map(),
@@ -146,9 +149,15 @@ export function _buildRoomBody(area, data) {
   bodyInner.className = "atrium-body-inner";
 
   const sections = [];
-  if (data.lights.length) sections.push(this._buildLightsSection(area, data.lights));
+  if (data.lights.length) sections.push(this._buildLightsSection(area, data.lights, data.deviceSensors));
+  if (data.switches.length) sections.push(this._buildSwitchesSection(area, data.switches, data.deviceSensors));
   if (data.climates.length) sections.push(this._buildClimateSection(area, data.climates, data.sensors));
-  if (data.sensors.extras.length) sections.push(this._buildSensorsSection(area, data.sensors.extras));
+  // `other` holds binary_sensor entities not device-linked to any light/switch
+  // (see groupDeviceSensors) — surface them alongside extras rather than
+  // silently dropping them, which would otherwise hide a room whose only
+  // content is one of these.
+  const genericSensors = [...data.sensors.extras, ...data.sensors.other];
+  if (genericSensors.length) sections.push(this._buildSensorsSection(area, genericSensors));
   if (data.inputSelects.length) sections.push(this._buildInputSelectsSection(area, data.inputSelects));
   if (data.scenes.length) sections.push(this._buildScenesSection(area, data.scenes));
   const routines = this._buildAutomationsSection(area, data.automations, data.scripts);
@@ -173,17 +182,40 @@ export function _section(title, children) {
   return wrap;
 }
 
-export function _buildLightsSection(area, lights) {
+export function _buildLightsSection(area, lights, deviceSensors) {
   const grid = document.createElement("div");
   grid.className = "atrium-grid " + (lights.length === 1 ? "cols-1" : "cols-2");
-  for (const light of lights) grid.appendChild(this._buildLightTile(area, light));
+  for (const light of lights) grid.appendChild(this._buildLightTile(area, light, deviceSensors));
   return this._section("Lights", grid);
 }
 
-export function _buildLightTile(area, light) {
+export function _buildLightTile(area, light, deviceSensors) {
+  return this._buildToggleTile(area, light, { kind: "light", icon: ICONS.bulb, refKey: "lights" }, deviceSensors);
+}
+
+export function _buildSwitchesSection(area, switches, deviceSensors) {
+  const grid = document.createElement("div");
+  grid.className = "atrium-grid " + (switches.length === 1 ? "cols-1" : "cols-2");
+  for (const s of switches) grid.appendChild(this._buildSwitchTile(area, s, deviceSensors));
+  return this._section("Switches", grid);
+}
+
+// A switch is a light tile minus dimming: same DOM/classes, but tap toggles
+// and a swipe never dims (see `_bindSwipeTile`'s "switch" kind).
+export function _buildSwitchTile(area, entity, deviceSensors) {
+  return this._buildToggleTile(area, entity, { kind: "switch", icon: ICONS.toggle, refKey: "switches" }, deviceSensors);
+}
+
+// Shared on/off tile for lights and switches. `kind` drives the swipe/tap
+// behavior in `_bindSwipeTile`; `icon` is the swatch fallback; `refKey`
+// selects which per-area ref map the matching updater reads. `deviceSensors`
+// (optional) is the area's Map<entityId, sensorEntity[]> — when this entity
+// has an entry, a caret button is appended that opens those sensors in a
+// popover instead of them rendering in the generic Sensors section.
+export function _buildToggleTile(area, entity, { kind, icon, refKey }, deviceSensors) {
   const tile = document.createElement("div");
   tile.className = "atrium-tile";
-  tile.dataset.entity = light.entity_id;
+  tile.dataset.entity = entity.entity_id;
 
   const fill = document.createElement("div");
   fill.className = "atrium-tile-fill light";
@@ -198,25 +230,74 @@ export function _buildLightTile(area, light) {
   const swatch = document.createElement("div");
   swatch.className = "atrium-swatch";
   swatch.innerHTML =
-    `<ha-icon icon="${ICONS.bulb}" style="--mdc-icon-size:20px"></ha-icon>` +
+    `<ha-icon icon="${icon}" style="--mdc-icon-size:20px"></ha-icon>` +
     `<span class="atrium-unavail-dot">!</span>`;
   const iconEl = swatch.querySelector("ha-icon");
   const text = document.createElement("div");
   text.className = "atrium-tile-text";
   const name = document.createElement("div");
   name.className = "atrium-tile-name";
-  name.textContent = nameWithoutAreaPrefix(this._entityName(light), area);
+  name.textContent = nameWithoutAreaPrefix(this._entityName(entity), area);
   const state = document.createElement("div");
   state.className = "atrium-tile-state";
   text.append(name, state);
   body.append(swatch, text);
+
+  const linkedSensors = deviceSensors?.get(entity.entity_id);
+  if (linkedSensors?.length) {
+    body.appendChild(this._buildDeviceSensorCaret(area, entity, linkedSensors));
+  }
+
   tile.appendChild(body);
 
-  this._bindSwipeTile(tile, fill, thumb, swatch, state, light.entity_id, "light");
+  this._bindSwipeTile(tile, fill, thumb, swatch, state, entity.entity_id, kind);
 
   const ref = { tile, fill, thumb, swatch, iconEl, state, name };
-  this._refs.areas.get(area.area_id).lights.set(light.entity_id, ref);
+  this._refs.areas.get(area.area_id)[refKey].set(entity.entity_id, ref);
   return tile;
+}
+
+// Caret button for a light/switch tile whose device also exposes sensor
+// entities (see groupDeviceSensors in lib/device-sensors.js). The sensor
+// tiles are built once, here, eagerly — not lazily on first click — so they
+// register into `ar.sensors` (via _buildSensorTile) and keep receiving
+// _updateSensorRef refreshes whether or not the popover has ever been
+// opened.
+export function _buildDeviceSensorCaret(area, entity, sensors) {
+  const caret = document.createElement("button");
+  caret.type = "button";
+  caret.className = "atrium-tile-caret";
+  caret.innerHTML = `<ha-icon icon="mdi:menu-down"></ha-icon>`;
+  // The tile itself is a swipe/tap surface (see _bindSwipeTile) bound with a
+  // pointerdown listener; without stopping propagation here, pressing the
+  // caret would also start that tile's press/drag/long-press sequence.
+  caret.addEventListener("pointerdown", (e) => e.stopPropagation());
+
+  // Keyed per target entity: when a device has 2+ lights/switches sharing
+  // this sensor, groupDeviceSensors attaches it to every target, so this
+  // caret's build runs once per target. Without a per-target map key, each
+  // run's ref would clobber the previous one in the shared `ar.sensors` map.
+  const rows = sensors.map((s) => this._buildSensorTile(area, s, `${entity.entity_id}::${s.entity_id}`));
+
+  caret.addEventListener("click", (e) => {
+    e.stopPropagation();
+    ensurePopoverItemStyle();
+    const list = document.createElement("div");
+    list.className = "atrium-pop-list-sensors";
+    for (const row of rows) list.appendChild(row);
+    const wrap = document.createElement("div");
+    wrap.appendChild(buildPopoverHeader(this._entityName(entity), String(sensors.length)));
+    wrap.appendChild(list);
+    this._openAnchors.add(caret);
+    openPopover({
+      anchor: caret,
+      content: wrap,
+      width: 280,
+      onClose: () => this._openAnchors.delete(caret),
+    });
+  });
+
+  return caret;
 }
 
 export function _buildClimateSection(area, climates, sensors) {
@@ -397,7 +478,13 @@ export function _buildSensorsSection(area, sensors) {
   return this._section("Sensors", grid);
 }
 
-export function _buildSensorTile(area, sensor) {
+// `mapKey` defaults to the entity_id, but callers that build the same
+// sensor's tile more than once for one area (e.g. _buildDeviceSensorCaret,
+// where one physical sensor is attached to every sibling light/switch on its
+// device) must pass a unique key — otherwise each duplicate ref would
+// overwrite the previous one in `ar.sensors`, leaving the earlier tile's DOM
+// node orphaned from the `_updateSensorRef` refresh loop.
+export function _buildSensorTile(area, sensor, mapKey = sensor.entity_id) {
   // Header-chip style: swatch icon + name + current reading. Tap → more-info.
   const tile = document.createElement("div");
   tile.className = "atrium-sensor";
@@ -406,8 +493,8 @@ export function _buildSensorTile(area, sensor) {
 
   const row = document.createElement("div");
   row.className = "atrium-sensor-row";
-  const swatch = document.createElement("div");
-  swatch.className = "atrium-swatch";
+  const icon = document.createElement("ha-icon");
+  icon.className = "atrium-sensor-icon";
   const st = this._hass.states?.[sensor.entity_id];
   const dc = st?.attributes?.device_class;
   const ICON_BY_DC = {
@@ -424,19 +511,18 @@ export function _buildSensorTile(area, sensor) {
     current: "mdi:current-ac",
     voltage: "mdi:flash-triangle",
   };
-  const icon = st?.attributes?.icon || ICON_BY_DC[dc] || "mdi:gauge";
-  swatch.innerHTML = `<ha-icon icon="${icon}" style="--mdc-icon-size:20px"></ha-icon>`;
+  icon.setAttribute("icon", st?.attributes?.icon || ICON_BY_DC[dc] || "mdi:gauge");
   const name = document.createElement("div");
   name.className = "atrium-sensor-name";
   name.textContent = nameWithoutAreaPrefix(this._entityName(sensor), area);
   const value = document.createElement("div");
   value.className = "atrium-sensor-value";
   value.textContent = fmtSensorValue(st);
-  row.append(swatch, name, value);
+  row.append(icon, name, value);
   tile.appendChild(row);
 
-  const ref = { tile, value };
-  this._refs.areas.get(area.area_id).sensors.set(sensor.entity_id, ref);
+  const ref = { tile, value, entityId: sensor.entity_id };
+  this._refs.areas.get(area.area_id).sensors.set(mapKey, ref);
   return tile;
 }
 

@@ -5,24 +5,6 @@
   "data": {
     "items": [
       {
-        "require_admin": true,
-        "show_in_sidebar": true,
-        "title": "Monitoring",
-        "url_path": "lovelace-monitoring",
-        "mode": "storage",
-        "id": "lovelace_monitoring",
-        "icon": "mdi:server-network"
-      },
-      {
-        "id": "map",
-        "icon": "mdi:map",
-        "title": "Map",
-        "url_path": "map",
-        "require_admin": true,
-        "mode": "storage",
-        "show_in_sidebar": true
-      },
-      {
         "id": "dashboard_home",
         "show_in_sidebar": true,
         "icon": "mdi:home",
@@ -30,15 +12,6 @@
         "require_admin": false,
         "mode": "storage",
         "url_path": "dashboard-home"
-      },
-      {
-        "id": "dashboard_bubble",
-        "show_in_sidebar": true,
-        "icon": "mdi:chart-bubble",
-        "title": "Bubble",
-        "require_admin": false,
-        "mode": "storage",
-        "url_path": "dashboard-bubble"
       },
       {
         "id": "lovelace",

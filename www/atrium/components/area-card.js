@@ -3,16 +3,24 @@
 // per-ref identity-gated updaters in `area-card-updaters.js` handle it.
 
 const _v = new URL(import.meta.url).search;
-const [popoverMod, hassUtilsMod, sharedMod, buildersMod, updatersMod] = await Promise.all([
+const [popoverMod, hassUtilsMod, sharedMod, buildersMod, updatersMod, accordionMod, deviceSensorsMod] = await Promise.all([
   import(`../lib/popover.js${_v}`),
   import(`../lib/hass-utils.js${_v}`),
   import(`./area-card-shared.js${_v}`),
   import(`./area-card-builders.js${_v}`),
   import(`./area-card-updaters.js${_v}`),
+  import(`../lib/floor-accordion.js${_v}`),
+  import(`../lib/device-sensors.js${_v}`),
 ]);
 const { closePopoverFor } = popoverMod;
 const { sameRegistries } = hassUtilsMod;
 const { TONE, STYLE, matchesAny, fmtCoverPct } = sharedMod;
+const { floorAccordion } = accordionMod;
+const { groupDeviceSensors } = deviceSensorsMod;
+
+// Body-height collapse/expand transition, in ms. Kept in sync with the
+// `.atrium-floor-body` transition duration in area-card.css.
+const FLOOR_ANIM_MS = 300;
 
 class AtriumAreaCard extends HTMLElement {
   constructor() {
@@ -31,6 +39,8 @@ class AtriumAreaCard extends HTMLElement {
     this._floorId = config.floor === null ? null : config.floor;
     this._showLabel = config.show_floor_label === true;
     this._defaultExpanded = config.default_expanded === true;
+    // Single-floor dashboards pass collapsible:false → always expanded.
+    this._collapsible = config.collapsible !== false;
     // Intent tabs (Climate, Routines, …) pass a section profile so the card
     // renders only the matching categories. Absent → full room view (Home).
     this._sections =
@@ -53,6 +63,10 @@ class AtriumAreaCard extends HTMLElement {
       this._resizeObserver = new ResizeObserver(() => this._onResize());
       this._resizeObserver.observe(this);
     }
+    if (this._collapsible) {
+      this._unsubAccordion = floorAccordion.subscribe(() => this._reflectCollapsed(true));
+    }
+    if (this._bodyEl) this._reflectCollapsed(false);
   }
 
   disconnectedCallback() {
@@ -64,6 +78,14 @@ class AtriumAreaCard extends HTMLElement {
       cancelAnimationFrame(this._resizeRaf);
       this._resizeRaf = 0;
     }
+    if (this._restackRaf) {
+      cancelAnimationFrame(this._restackRaf);
+      this._restackRaf = 0;
+    }
+    this._unsubAccordion?.();
+    this._unsubAccordion = null;
+    this._heightAnim?.cancel();
+    this._heightAnim = null;
   }
 
   _areaFloorId(area) {
@@ -140,6 +162,7 @@ class AtriumAreaCard extends HTMLElement {
   _emptyData() {
     return {
       lights: [],
+      switches: [],
       covers: [],
       doors: [],
       climates: [],
@@ -147,9 +170,10 @@ class AtriumAreaCard extends HTMLElement {
       scenes: [],
       inputSelects: [],
       mediaPlayers: [],
-      sensors: { motion: [], leak: [], soil: [], propane: [], temp: null, humid: null, extras: [] },
+      sensors: { motion: [], leak: [], soil: [], propane: [], temp: null, humid: null, extras: [], other: [] },
       automations: [],
       scripts: [],
+      deviceSensors: new Map(),
     };
   }
 
@@ -161,7 +185,11 @@ class AtriumAreaCard extends HTMLElement {
     if (!this._sections) return data;
     const want = this._sections;
     const out = this._emptyData();
-    if (want.has("lights")) out.lights = data.lights;
+    if (want.has("lights")) {
+      out.lights = data.lights;
+      out.switches = data.switches;
+      out.deviceSensors = data.deviceSensors;
+    }
     if (want.has("covers")) out.covers = data.covers;
     if (want.has("climate")) {
       out.climates = data.climates;
@@ -172,6 +200,7 @@ class AtriumAreaCard extends HTMLElement {
     if (want.has("inputs")) out.inputSelects = data.inputSelects;
     if (want.has("sensors")) {
       out.sensors.extras = data.sensors.extras;
+      out.sensors.other = data.sensors.other;
       out.sensors.soil = data.sensors.soil;
       out.sensors.propane = data.sensors.propane;
     }
@@ -195,7 +224,7 @@ class AtriumAreaCard extends HTMLElement {
       else if (key === "automations") out.automations = [];
       else if (key === "scripts") out.scripts = [];
       else if (key === "scenes") out.scenes = [];
-      else if (key === "lights") out.lights = [];
+      else if (key === "lights") { out.lights = []; out.switches = []; }
       else if (key === "covers") out.covers = [];
       else if (key === "vacuums") out.vacuums = [];
       else if (key === "inputs") out.inputSelects = [];
@@ -212,6 +241,9 @@ class AtriumAreaCard extends HTMLElement {
       const st = hass.states?.[e.entity_id];
       const dc = st?.attributes?.device_class;
       if (domain === "light") out.lights.push(e);
+      // Config/diagnostic switches (device knobs like "LED", "crossfade") would
+      // clutter the room body — only surface primary controls.
+      else if (domain === "switch") { if (!e.entity_category) out.switches.push(e); }
       else if (domain === "cover") out.covers.push(e);
       else if (domain === "climate") out.climates.push(e);
       else if (domain === "vacuum") out.vacuums.push(e);
@@ -224,6 +256,7 @@ class AtriumAreaCard extends HTMLElement {
         if (dc === "motion" || dc === "occupancy" || dc === "presence") out.sensors.motion.push(e);
         else if (dc === "moisture") out.sensors.leak.push(e);
         else if (dc === "door" || dc === "garage_door" || dc === "window" || dc === "opening") out.doors.push(e);
+        else out.sensors.other.push(e);
       } else if (domain === "sensor") {
         const isSoil =
           matchesAny(e.entity_id, ["soil", "plant"]) &&
@@ -255,6 +288,16 @@ class AtriumAreaCard extends HTMLElement {
         }
       }
     }
+
+    const grouped = groupDeviceSensors({
+      lights: out.lights,
+      switches: out.switches,
+      extras: out.sensors.extras,
+      other: out.sensors.other,
+    });
+    out.sensors.extras = grouped.extras;
+    out.sensors.other = grouped.other;
+    out.deviceSensors = grouped.deviceSensors;
 
     return out;
   }
@@ -305,12 +348,32 @@ class AtriumAreaCard extends HTMLElement {
       cards.push(this._buildRoomCard(area, data));
     }
     this._roomCards = cards;
+    // The floor body clips the masonry so a collapsed floor can show a
+    // stacked-deck peek; it also owns the open/close height transition.
+    const body = document.createElement("div");
+    body.className = "atrium-floor-body";
+    body.appendChild(root);
+    // The peek is a click target: while collapsed, a tap anywhere in the
+    // deck opens the floor rather than actuating the card under the finger.
+    body.addEventListener("click", (e) => this._onBodyClick(e), true);
     // Append the (empty) root first so getComputedStyle can resolve the
     // --atrium-cols breakpoint variable before we distribute.
-    this.appendChild(root);
+    this.appendChild(body);
+    this._bodyEl = body;
     this._root = root;
     this._layoutMasonry();
+    this._reflectCollapsed(false);
     this._update();
+    // Card content (icons, tiles, images) can settle a frame or two after the
+    // first layout, leaving the measured stack pulls short — so the collapsed
+    // peek shows no stack until a resize. Recompute once it has settled.
+    if (this._restackRaf) cancelAnimationFrame(this._restackRaf);
+    this._restackRaf = requestAnimationFrame(() => {
+      this._restackRaf = requestAnimationFrame(() => {
+        this._restackRaf = 0;
+        this._restackPeek();
+      });
+    });
   }
 
   // Distribute the room cards into N flex columns (N = --atrium-cols), greedily
@@ -319,6 +382,10 @@ class AtriumAreaCard extends HTMLElement {
   _layoutMasonry() {
     const root = this._root;
     if (!root) return;
+    // Measure natural card heights: the collapsed deck clamps rooms to a
+    // uniform strip, which would skew the shortest-column packing.
+    const wasCollapsed = this._bodyEl?.classList.contains("is-collapsed");
+    if (wasCollapsed) this._bodyEl.classList.remove("is-collapsed");
     const colCount = this._colsFromCss(root);
     this._colCount = colCount;
     root.replaceChildren();
@@ -335,6 +402,33 @@ class AtriumAreaCard extends HTMLElement {
       }
       shortest.appendChild(card);
     }
+    if (wasCollapsed) this._bodyEl.classList.add("is-collapsed");
+    this._restackPeek();
+  }
+
+  // Recompute each collapsed card's upward pull so only a header strip of the
+  // one before it shows: pull = strip - prevCardHeight (a fixed margin can't,
+  // since heights vary). --i drives the z-order (first at back, last in front)
+  // so cards' own positioned children can't break the paint order. Split out
+  // from _layoutMasonry so it can re-run when card heights settle (async
+  // content) or change, without redistributing columns. offsetHeight is
+  // margin-independent, so this is correct whether or not the floor is
+  // collapsed.
+  _restackPeek() {
+    if (!this._cols || !this._bodyEl) return;
+    const strip =
+      parseFloat(getComputedStyle(this._bodyEl).getPropertyValue("--floor-peek-strip")) || 48;
+    // Read all heights before writing any styles to avoid per-card reflows.
+    const colCards = this._cols.map((col) => Array.from(col.querySelectorAll(":scope > .atrium-room")));
+    const colHeights = colCards.map((cards) => cards.map((card) => card.offsetHeight));
+    colCards.forEach((cards, colIndex) => {
+      let prevH = 0;
+      cards.forEach((card, i) => {
+        card.style.setProperty("--i", i);
+        card.style.setProperty("--stack-mt", i === 0 ? "0px" : `${strip - prevH}px`);
+        prevH = colHeights[colIndex][i];
+      });
+    });
   }
 
   _colsFromCss(root) {
@@ -352,12 +446,14 @@ class AtriumAreaCard extends HTMLElement {
       this._resizeRaf = 0;
       if (!this._root) return;
       if (this._colsFromCss(this._root) !== this._colCount) this._layoutMasonry();
+      else this._restackPeek();
     });
   }
 
   _areaIsEmpty(d) {
     return (
       d.lights.length === 0 &&
+      d.switches.length === 0 &&
       d.covers.length === 0 &&
       d.doors.length === 0 &&
       d.climates.length === 0 &&
@@ -372,7 +468,8 @@ class AtriumAreaCard extends HTMLElement {
       d.sensors.leak.length === 0 &&
       d.sensors.soil.length === 0 &&
       d.sensors.propane.length === 0 &&
-      d.sensors.extras.length === 0
+      d.sensors.extras.length === 0 &&
+      d.sensors.other.length === 0
     );
   }
 
@@ -429,6 +526,87 @@ class AtriumAreaCard extends HTMLElement {
     });
   }
 
+  // A tap on the collapsed deck opens the floor instead of actuating the
+  // card under the finger. Capture-phase, so inner controls never see it.
+  _onBodyClick(e) {
+    if (!this._bodyEl?.classList.contains("is-collapsed")) return;
+    e.preventDefault();
+    e.stopPropagation();
+    floorAccordion.toggle(this._floorId);
+  }
+
+  // Reflect the shared accordion state onto this floor's body. `animate`
+  // runs a FLIP height transition; otherwise it snaps (initial build).
+  _reflectCollapsed(animate) {
+    const body = this._bodyEl;
+    if (!body) return;
+    // Not collapsible → stay expanded regardless of the accordion.
+    if (!this._collapsible) {
+      body.classList.remove("is-collapsed");
+      body.style.height = "";
+      body.style.overflow = "";
+      return;
+    }
+    const open = floorAccordion.isOpen(this._floorId);
+    const wasOpen = !body.classList.contains("is-collapsed");
+    if (this._collapsedInit && open === wasOpen) return;
+    this._collapsedInit = true;
+
+    if (!animate) {
+      this._heightAnim?.cancel();
+      this._heightAnim = null;
+      body.classList.remove("is-animating");
+      body.classList.toggle("is-collapsed", !open);
+      body.style.height = "";
+      body.style.overflow = open ? "" : "hidden";
+      return;
+    }
+
+    const from = body.offsetHeight;
+    this._heightAnim?.cancel();
+    this._heightAnim = null;
+
+    const collapsedTarget = !open;
+    const peek =
+      parseFloat(getComputedStyle(body).getPropertyValue("--floor-peek-height")) || 128;
+
+    // Target resting height, measured with the per-card margins snapped to the
+    // target (is-animating off) so it isn't read mid-transition (which read the
+    // still-compressed layout and made open grow short then jump).
+    body.classList.remove("is-animating");
+    body.classList.toggle("is-collapsed", collapsedTarget);
+    let to = peek;
+    if (open) {
+      body.style.height = "";
+      to = body.offsetHeight;
+    }
+
+    // Reset to the start state and commit it (margins still snapped), then turn
+    // on is-animating and switch to the target so the cards' margins transition.
+    body.classList.toggle("is-collapsed", !collapsedTarget);
+    void body.offsetHeight;
+    body.classList.add("is-animating");
+    body.classList.toggle("is-collapsed", collapsedTarget);
+    body.style.overflow = "hidden";
+    body.style.height = "";
+
+    // Drive the body height with the Web Animations API. CSS height transitions
+    // raced with the measurement reflows and snapped on close; WAAPI is
+    // deterministic, and animating height reflows the floors below in step.
+    this._heightAnim = body.animate(
+      [{ height: `${from}px` }, { height: `${to}px` }],
+      { duration: FLOOR_ANIM_MS, easing: "ease-in-out" }
+    );
+    this._heightAnim.onfinish = () => {
+      this._heightAnim = null;
+      body.classList.remove("is-animating");
+      body.style.height = "";
+      // Keep clipping only while collapsed so open floors don't cut off
+      // popovers/graphs that overflow their room card.
+      body.style.overflow = open ? "" : "hidden";
+    };
+  }
+
   _toggleExpanded(areaId) {
     if (!buildersMod.COLLAPSIBLE) return;
     const ar = this._refs.areas.get(areaId);
@@ -480,10 +658,11 @@ class AtriumAreaCard extends HTMLElement {
       this._updateQuickButtons(ar);
 
       for (const [entId, ref] of ar.lights) this._updateLightRef(ref, entId);
+      if (ar.switches) for (const [entId, ref] of ar.switches) this._updateSwitchRef(ref, entId);
       for (const [entId, ref] of ar.climates) this._updateClimateRef(ref, entId, isExpanded);
       if (ar.inputSelects) for (const [entId, ref] of ar.inputSelects) this._updateInputSelectRef(ref, entId);
       for (const [entId, ref] of ar.automations) this._updateAutomationRef(ref, entId);
-      if (ar.sensors) for (const [entId, ref] of ar.sensors) this._updateSensorRef(ref, entId);
+      if (ar.sensors) for (const ref of ar.sensors.values()) this._updateSensorRef(ref, ref.entityId);
     }
   }
 

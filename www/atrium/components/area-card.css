@@ -5,6 +5,41 @@
 @media (min-width: 900px) { .atrium-root { --atrium-cols: 2; } }
 @media (min-width: 1380px) { .atrium-root { --atrium-cols: 3; } }
 .atrium-col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+
+/* Collapsible floor. Open: the body is just the masonry. Collapsed: the real
+   room cards keep their full height, but each is pulled up so only its header
+   strip (--floor-peek-strip) shows, stacking into a deck; the body clips to a
+   short peek window with a bottom fade. The per-card pull (--stack-mt) is
+   computed in area-card.js from each card's natural height — a fixed margin
+   can't do it since card heights vary. Explicit z-index (per-column --i) keeps
+   the paint order clean despite cards' own positioned children: first/top card
+   at the back, last/bottom card in front. area-card.js animates the body
+   height on open/close (FLIP).
+   --floor-peek-height = height of the collapsed peek window
+   --floor-peek-strip  = how much of each stacked card's header shows
+   Both are tuned by eye. */
+.atrium-floor-body { --floor-peek-height: 128px; --floor-peek-strip: 48px; transition: height .3s ease; }
+.atrium-floor-body.is-collapsed {
+  height: var(--floor-peek-height);
+  overflow: hidden;
+  cursor: pointer;
+  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
+  mask-image: linear-gradient(to bottom, #000 55%, transparent);
+}
+.atrium-floor-body.is-collapsed .atrium-col { gap: 0; }
+.atrium-floor-body.is-collapsed .atrium-room {
+  pointer-events: none;
+  position: relative;
+  z-index: var(--i, 0);
+}
+.atrium-floor-body.is-collapsed .atrium-col > .atrium-room:not(:first-child) {
+  margin-top: var(--stack-mt, 0px);
+}
+/* During open/close, animate the per-card pull too, so the cards visibly
+   slide into/out of the stack instead of the container just shedding empty
+   space (which reads as no animation on close). Gated to the animating window
+   so the initial collapse at build time still snaps. */
+.atrium-floor-body.is-animating .atrium-room { transition: margin-top .3s ease; }
 .atrium-floor-label { display: flex; align-items: center; gap: 8px; padding: 14px 4px 4px; font-size: 12px; color: var(--secondary-text-color, #9aa0aa); letter-spacing: .6px; text-transform: uppercase; font-weight: 600; grid-column: 1 / -1; }
 .atrium-floor-label > .line { flex: 1; height: 1px; background: var(--divider-color, rgba(127,127,127,0.18)); }
 
@@ -72,6 +107,7 @@
 .atrium-tile-state { font-size: 12px; line-height: 14px; margin-top: 2px; color: color-mix(in srgb, var(--secondary-text-color, #9aa0aa) 70%, transparent); transition: color .25s ease; }
 .atrium-tile-state.on-cover { color: var(--state-cover-active-color, #9b7fd1); }
 .atrium-tile-state.on-heat { color: var(--state-climate-heat-color, #ff8a5b); }
+.atrium-tile-caret { flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; background: none; border: none; padding: 4px; margin: -4px -6px -4px 0; cursor: pointer; color: var(--secondary-text-color, #9aa0aa); --mdc-icon-size: 18px; }
 .atrium-unavail-dot { display: none; position: absolute; top: -4px; right: -4px; width: 14px; height: 14px; border-radius: 999px; background: var(--warning-color, #f0b13a); color: #fff; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; line-height: 1; border: 2px solid var(--ha-card-background, var(--card-background-color, #16181d)); box-sizing: content-box; }
 .atrium-tile.unavailable .atrium-unavail-dot { display: flex; }
 .atrium-tile.unavailable .atrium-swatch { opacity: .55; }
@@ -95,11 +131,11 @@
 .atrium-climate-menu-btn ha-icon { --mdc-icon-size: 13px; }
 .atrium-climate-menu-btn .label { line-height: 14px; text-transform: capitalize; }
 
-.atrium-sensor { min-width: 0; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 3%, transparent); border-radius: 12px; padding: 10px 12px; cursor: pointer; }
-.atrium-sensor-row { display: flex; align-items: center; gap: 8px; }
-.atrium-sensor .atrium-swatch { width: 32px; height: 32px; border-radius: 8px; }
-.atrium-sensor-name { flex: 1; min-width: 0; font-size: 13.5px; line-height: 16px; color: var(--primary-text-color, #e8e9ec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.atrium-sensor-value { flex-shrink: 0; font-size: 13.5px; line-height: 16px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--primary-text-color, #e8e9ec); }
+.atrium-sensor { min-width: 0; height: 32px; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 3%, transparent); border-radius: 9px; padding: 0 10px 0 8px; cursor: pointer; }
+.atrium-sensor-row { display: flex; align-items: center; gap: 6px; height: 100%; }
+.atrium-sensor-icon { --mdc-icon-size: 15px; flex-shrink: 0; color: var(--secondary-text-color, #9aa0aa); }
+.atrium-sensor-name { flex: 1; min-width: 0; font-size: 12px; line-height: 14px; color: var(--primary-text-color, #e8e9ec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.atrium-sensor-value { flex-shrink: 0; font-size: 12px; line-height: 14px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--primary-text-color, #e8e9ec); }
 
 .atrium-select { width: 100%; min-width: 0; height: 32px; padding: 0 8px; display: flex; align-items: center; gap: 6px; border: none; border-radius: 9px; cursor: pointer; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 5%, transparent); color: var(--primary-text-color, #e8e9ec); font-family: inherit; font-size: 12px; line-height: 14px; transition: background .2s ease, color .2s ease; }
 .atrium-select:hover, .atrium-select.atrium-pop-open { background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 8%, transparent); }

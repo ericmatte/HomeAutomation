@@ -19,3 +19,10 @@
 .atrium-pop-menu-item:hover { background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 5%, transparent); }
 .atrium-pop-menu-item.active { color: var(--state-climate-cool-color, #5cc6ff); }
 .atrium-pop-menu-item ha-icon { --mdc-icon-size: 14px; flex-shrink: 0; }
+
+.atrium-pop-list-sensors { display: flex; flex-direction: column; gap: 8px; }
+.atrium-pop-list-sensors .atrium-sensor { min-width: 0; height: 32px; background: color-mix(in srgb, var(--primary-text-color, #e8e9ec) 3%, transparent); border-radius: 9px; padding: 0 10px 0 8px; cursor: pointer; }
+.atrium-pop-list-sensors .atrium-sensor-row { display: flex; align-items: center; gap: 6px; height: 100%; }
+.atrium-pop-list-sensors .atrium-sensor-icon { --mdc-icon-size: 15px; flex-shrink: 0; color: var(--secondary-text-color, #9aa0aa); }
+.atrium-pop-list-sensors .atrium-sensor-name { flex: 1; min-width: 0; font-size: 12px; line-height: 14px; color: var(--primary-text-color, #e8e9ec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.atrium-pop-list-sensors .atrium-sensor-value { flex-shrink: 0; font-size: 12px; line-height: 14px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--primary-text-color, #e8e9ec); }
