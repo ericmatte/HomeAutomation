@@ -184,42 +184,7 @@ export function _buildLightsSection(area, lights) {
 }
 
 export function _buildLightTile(area, light) {
-  const tile = document.createElement("div");
-  tile.className = "atrium-tile";
-  tile.dataset.entity = light.entity_id;
-
-  const fill = document.createElement("div");
-  fill.className = "atrium-tile-fill light";
-  tile.appendChild(fill);
-  const thumb = document.createElement("div");
-  thumb.className = "atrium-tile-thumb light";
-  thumb.style.display = "none";
-  tile.appendChild(thumb);
-
-  const body = document.createElement("div");
-  body.className = "atrium-tile-body";
-  const swatch = document.createElement("div");
-  swatch.className = "atrium-swatch";
-  swatch.innerHTML =
-    `<ha-icon icon="${ICONS.bulb}" style="--mdc-icon-size:20px"></ha-icon>` +
-    `<span class="atrium-unavail-dot">!</span>`;
-  const iconEl = swatch.querySelector("ha-icon");
-  const text = document.createElement("div");
-  text.className = "atrium-tile-text";
-  const name = document.createElement("div");
-  name.className = "atrium-tile-name";
-  name.textContent = nameWithoutAreaPrefix(this._entityName(light), area);
-  const state = document.createElement("div");
-  state.className = "atrium-tile-state";
-  text.append(name, state);
-  body.append(swatch, text);
-  tile.appendChild(body);
-
-  this._bindSwipeTile(tile, fill, thumb, swatch, state, light.entity_id, "light");
-
-  const ref = { tile, fill, thumb, swatch, iconEl, state, name };
-  this._refs.areas.get(area.area_id).lights.set(light.entity_id, ref);
-  return tile;
+  return this._buildToggleTile(area, light, { kind: "light", icon: ICONS.bulb, refKey: "lights" });
 }
 
 export function _buildSwitchesSection(area, switches) {
@@ -229,11 +194,16 @@ export function _buildSwitchesSection(area, switches) {
   return this._section("Switches", grid);
 }
 
-// Same tile as a light but on/off only: no brightness fill/thumb drag, tap
-// toggles, long-press opens more-info (handled by `_bindSwipeTile`'s "switch"
-// kind). Reuses the light tile's `.light` fill/swatch classes for an
-// identical look.
+// A switch is a light tile minus dimming: same DOM/classes, but tap toggles
+// and a swipe never dims (see `_bindSwipeTile`'s "switch" kind).
 export function _buildSwitchTile(area, entity) {
+  return this._buildToggleTile(area, entity, { kind: "switch", icon: ICONS.toggle, refKey: "switches" });
+}
+
+// Shared on/off tile for lights and switches. `kind` drives the swipe/tap
+// behavior in `_bindSwipeTile`; `icon` is the swatch fallback; `refKey`
+// selects which per-area ref map the matching updater reads.
+export function _buildToggleTile(area, entity, { kind, icon, refKey }) {
   const tile = document.createElement("div");
   tile.className = "atrium-tile";
   tile.dataset.entity = entity.entity_id;
@@ -251,7 +221,7 @@ export function _buildSwitchTile(area, entity) {
   const swatch = document.createElement("div");
   swatch.className = "atrium-swatch";
   swatch.innerHTML =
-    `<ha-icon icon="${ICONS.toggle}" style="--mdc-icon-size:20px"></ha-icon>` +
+    `<ha-icon icon="${icon}" style="--mdc-icon-size:20px"></ha-icon>` +
     `<span class="atrium-unavail-dot">!</span>`;
   const iconEl = swatch.querySelector("ha-icon");
   const text = document.createElement("div");
@@ -265,10 +235,10 @@ export function _buildSwitchTile(area, entity) {
   body.append(swatch, text);
   tile.appendChild(body);
 
-  this._bindSwipeTile(tile, fill, thumb, swatch, state, entity.entity_id, "switch");
+  this._bindSwipeTile(tile, fill, thumb, swatch, state, entity.entity_id, kind);
 
   const ref = { tile, fill, thumb, swatch, iconEl, state, name };
-  this._refs.areas.get(area.area_id).switches.set(entity.entity_id, ref);
+  this._refs.areas.get(area.area_id)[refKey].set(entity.entity_id, ref);
   return tile;
 }
 
