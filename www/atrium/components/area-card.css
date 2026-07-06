@@ -107,6 +107,7 @@
 .atrium-tile-state { font-size: 12px; line-height: 14px; margin-top: 2px; color: color-mix(in srgb, var(--secondary-text-color, #9aa0aa) 70%, transparent); transition: color .25s ease; }
 .atrium-tile-state.on-cover { color: var(--state-cover-active-color, #9b7fd1); }
 .atrium-tile-state.on-heat { color: var(--state-climate-heat-color, #ff8a5b); }
+.atrium-tile-caret { flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; background: none; border: none; padding: 4px; margin: -4px -6px -4px 0; cursor: pointer; color: var(--secondary-text-color, #9aa0aa); --mdc-icon-size: 18px; }
 .atrium-unavail-dot { display: none; position: absolute; top: -4px; right: -4px; width: 14px; height: 14px; border-radius: 999px; background: var(--warning-color, #f0b13a); color: #fff; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; line-height: 1; border: 2px solid var(--ha-card-background, var(--card-background-color, #16181d)); box-sizing: content-box; }
 .atrium-tile.unavailable .atrium-unavail-dot { display: flex; }
 .atrium-tile.unavailable .atrium-swatch { opacity: .55; }
