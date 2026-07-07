@@ -863,7 +863,7 @@
       - sensor.downstairs_motion_humidity
       - sensor.office_motion_humidity
       - sensor.workshop_temperature_humidity_humidity
-      threshold: 70
+      threshold: 60
       for_duration:
         hours: 0
         minutes: 10
@@ -1156,6 +1156,7 @@
     entity_id:
     - binary_sensor.door_sensor_contact
     - binary_sensor.front_door_open
+    - binary_sensor.patio_door_contact
     to:
     - 'on'
   conditions:
@@ -1650,25 +1651,6 @@
         priority: high
       title: "\U0001F4A6 Leak d'eau détecté ❗️"
       message: Au niveau de la tank d'eau chaude
-  mode: single
-- id: '1763754630684'
-  alias: Lights on when making coffee
-  description: ''
-  triggers:
-  - trigger: state
-    entity_id:
-    - binary_sensor.kitchen_door_sensor_contact
-    to:
-    - 'on'
-  conditions: []
-  actions:
-  - action: light.turn_on
-    metadata: {}
-    data:
-      transition: 1
-      brightness_pct: 100
-    target:
-      area_id: kitchen
   mode: single
 - id: '1766619133791'
   alias: Heat intervals

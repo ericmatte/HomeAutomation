@@ -25,6 +25,11 @@
         "type": "module"
       },
       {
+        "id": "ad5000bf608b43cb82b82f81384e54f1",
+        "url": "/local/area-bubble-auto-card.js?v0.1",
+        "type": "module"
+      },
+      {
         "id": "62b84c296b574e538739ca55766c31b9",
         "url": "/hacsfiles/lovelace-card-mod/card-mod.js?hacstag=190927524421",
         "type": "module"
@@ -36,7 +41,7 @@
       },
       {
         "id": "13b428ca35fc44e5b0f06f5512b6a281",
-        "url": "/local/atrium/strategy.js?v=1.61",
+        "url": "/local/atrium/strategy.js?v=1.71",
         "type": "module"
       },
       {
