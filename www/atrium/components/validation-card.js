@@ -4,7 +4,7 @@
 // HA client. See ../../CLAUDE.md for the authoring convention.
 const _v = new URL(import.meta.url).search;
 const [domUtilsMod] = await Promise.all([import(`../lib/dom-utils.js${_v}`)]);
-const { haIcon } = domUtilsMod;
+const { haIcon, fireMoreInfo } = domUtilsMod;
 const STYLE = await fetch(new URL(`./validation-card.css${_v}`, import.meta.url)).then((r) => r.text());
 const MANIFEST_URL = new URL(`../validation-checklists.json${_v}`, import.meta.url);
 
@@ -308,9 +308,7 @@ class AtriumValidationCard extends HTMLElement {
   }
 
   _openEntityMore(entityId) {
-    const ev = new Event("hass-more-info", { bubbles: true, composed: true });
-    ev.detail = { entityId };
-    this.dispatchEvent(ev);
+    fireMoreInfo(this, entityId);
   }
 
   async _toggleItem(todoItem, level, checked) {

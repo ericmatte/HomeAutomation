@@ -1,18 +1,18 @@
+const _v = new URL(import.meta.url).search;
+const { TONE } = await import(`./tone.js${_v}`);
+
+// The shell only needs a subset of the canonical palette; derive it so both
+// stay in lockstep.
 export const SHELL_TONE = {
-  bg: "var(--primary-background-color, #0e0f12)",
-  text: "var(--primary-text-color, #e8e9ec)",
-  textDim: "var(--secondary-text-color, #9aa0aa)",
-  textMute: "color-mix(in srgb, var(--secondary-text-color, #9aa0aa) 70%, transparent)",
-  line: "var(--divider-color, rgba(127,127,127,0.18))",
-  light: "var(--state-light-active-color, #f5c451)",
-  curtain: "var(--state-cover-active-color, #9b7fd1)",
-  cool: "var(--state-climate-cool-color, #5cc6ff)",
-  warn: "var(--warning-color, #f0b13a)",
-  danger: "var(--error-color, #ff5252)",
-  good: "var(--success-color, #7dc97a)",
+  text: TONE.text,
+  textMute: TONE.textMute,
+  light: TONE.light,
+  cool: TONE.cool,
+  warn: TONE.warn,
+  danger: TONE.danger,
+  good: TONE.good,
 };
 
-const _v = new URL(import.meta.url).search;
 export const SHELL_STYLE = await fetch(new URL(`./shell.css${_v}`, import.meta.url)).then((r) => r.text());
 
 // Strip the redundant "Battery"/"Level" tokens and normalize to sentence

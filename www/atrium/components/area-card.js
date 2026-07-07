@@ -3,9 +3,11 @@
 // per-ref identity-gated updaters in `area-card-updaters.js` handle it.
 
 const _v = new URL(import.meta.url).search;
-const [popoverMod, hassUtilsMod, sharedMod, buildersMod, updatersMod, accordionMod, deviceSensorsMod] = await Promise.all([
+const [popoverMod, hassUtilsMod, domUtilsMod, haActionsMod, sharedMod, buildersMod, updatersMod, accordionMod, deviceSensorsMod] = await Promise.all([
   import(`../lib/popover.js${_v}`),
   import(`../lib/hass-utils.js${_v}`),
+  import(`../lib/dom-utils.js${_v}`),
+  import(`../lib/ha-actions.js${_v}`),
   import(`./area-card-shared.js${_v}`),
   import(`./area-card-builders.js${_v}`),
   import(`./area-card-updaters.js${_v}`),
@@ -13,7 +15,9 @@ const [popoverMod, hassUtilsMod, sharedMod, buildersMod, updatersMod, accordionM
   import(`../lib/device-sensors.js${_v}`),
 ]);
 const { closePopoverFor } = popoverMod;
-const { sameRegistries } = hassUtilsMod;
+const { sameRegistries, areaIdForEntity, entityDisplayName } = hassUtilsMod;
+const { fireMoreInfo } = domUtilsMod;
+const { callService, toggleLights } = haActionsMod;
 const { TONE, STYLE, matchesAny, fmtCoverPct } = sharedMod;
 const { floorAccordion } = accordionMod;
 const { groupDeviceSensors } = deviceSensorsMod;
@@ -25,7 +29,6 @@ const FLOOR_ANIM_MS = 300;
 class AtriumAreaCard extends HTMLElement {
   constructor() {
     super();
-    this._expanded = new Set();
     this._dragState = new Map();
     this._lastSig = "";
     this._floorId = null;
@@ -37,8 +40,6 @@ class AtriumAreaCard extends HTMLElement {
   setConfig(config) {
     if (config.floor === undefined) throw new Error("floor is required");
     this._floorId = config.floor === null ? null : config.floor;
-    this._showLabel = config.show_floor_label === true;
-    this._defaultExpanded = config.default_expanded === true;
     // Single-floor dashboards pass collapsible:false → always expanded.
     this._collapsible = config.collapsible !== false;
     // Intent tabs (Climate, Routines, …) pass a section profile so the card
@@ -122,7 +123,7 @@ class AtriumAreaCard extends HTMLElement {
       parts.push(`A:${a.area_id}:${a.picture || ""}`);
     }
     for (const e of Object.values(hass.entities)) {
-      const areaId = e.area_id || hass.devices?.[e.device_id]?.area_id;
+      const areaId = areaIdForEntity(hass, e);
       if (!areaId) continue;
       const area = hass.areas[areaId];
       if (!area || this._areaFloorId(area) !== this._floorId) continue;
@@ -141,8 +142,7 @@ class AtriumAreaCard extends HTMLElement {
     return Object.values(hass.entities)
       .filter((e) => {
         if (e.hidden) return false;
-        const areaId = e.area_id || hass.devices?.[e.device_id]?.area_id;
-        return areaId === area.area_id;
+        return areaIdForEntity(hass, e) === area.area_id;
       });
   }
 
@@ -153,8 +153,7 @@ class AtriumAreaCard extends HTMLElement {
         if (!e.hidden) return false;
         const domain = e.entity_id.split(".")[0];
         if (domain !== "automation" && domain !== "script") return false;
-        const areaId = e.area_id || hass.devices?.[e.device_id]?.area_id;
-        return areaId === area.area_id;
+        return areaIdForEntity(hass, e) === area.area_id;
       })
       .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
   }
@@ -169,7 +168,6 @@ class AtriumAreaCard extends HTMLElement {
       vacuums: [],
       scenes: [],
       inputSelects: [],
-      mediaPlayers: [],
       sensors: { motion: [], leak: [], soil: [], propane: [], temp: null, humid: null, extras: [], other: [] },
       automations: [],
       scripts: [],
@@ -249,7 +247,6 @@ class AtriumAreaCard extends HTMLElement {
       else if (domain === "vacuum") out.vacuums.push(e);
       else if (domain === "scene") out.scenes.push(e);
       else if (domain === "input_select") out.inputSelects.push(e);
-      else if (domain === "media_player") out.mediaPlayers.push(e);
       else if (domain === "automation") out.automations.push(e);
       else if (domain === "script") out.scripts.push(e);
       else if (domain === "binary_sensor") {
@@ -303,18 +300,11 @@ class AtriumAreaCard extends HTMLElement {
   }
 
   _call(domain, service, data) {
-    if (!this._hass) return;
-    return this._hass.callService(domain, service, data);
+    return callService(this._hass, domain, service, data);
   }
 
   _moreInfo(entityId) {
-    this.dispatchEvent(
-      new CustomEvent("hass-more-info", {
-        bubbles: true,
-        composed: true,
-        detail: { entityId },
-      })
-    );
+    fireMoreInfo(this, entityId);
   }
 
   _build() {
@@ -332,11 +322,6 @@ class AtriumAreaCard extends HTMLElement {
     this._refs = { areas: new Map() };
 
     const areas = this._areasOnFloor();
-    // Seed default-expanded once so manual collapses survive rebuilds.
-    if (this._defaultExpanded && !this._seededDefault) {
-      for (const a of areas) this._expanded.add(a.area_id);
-      this._seededDefault = true;
-    }
     const cards = [];
     for (const area of areas) {
       const entities = this._entitiesForArea(area);
@@ -607,31 +592,9 @@ class AtriumAreaCard extends HTMLElement {
     };
   }
 
-  _toggleExpanded(areaId) {
-    if (!buildersMod.COLLAPSIBLE) return;
-    const ar = this._refs.areas.get(areaId);
-    if (!ar) return;
-    const card = ar.card;
-    if (this._expanded.has(areaId)) {
-      this._expanded.delete(areaId);
-      card.classList.remove("expanded");
-    } else {
-      this._expanded.add(areaId);
-      card.classList.add("expanded");
-      for (const [, cref] of ar.climates) this._wakeClimateGraph(cref);
-      // Wait out the 250ms body transition, then nudge the page enough to
-      // reveal any overflow at the bottom of the now-expanded card.
-      setTimeout(() => {
-        card.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      }, 270);
-    }
-  }
-
   _toggleAllLights(lights) {
     if (!lights.length) return;
-    const ids = lights.map((l) => l.entity_id);
-    const anyOn = ids.some((id) => this._hass.states?.[id]?.state === "on");
-    this._call("light", anyOn ? "turn_off" : "turn_on", { entity_id: ids });
+    toggleLights(this._hass, lights.map((l) => l.entity_id));
   }
 
   _toggleAllCovers(covers) {
@@ -642,39 +605,22 @@ class AtriumAreaCard extends HTMLElement {
   }
 
   _entityName(entity) {
-    if (entity.name) return entity.name;
-    const st = this._hass.states?.[entity.entity_id];
-    return (
-      st?.attributes?.friendly_name ||
-      entity.entity_id.split(".").pop().replace(/_/g, " ")
-    );
+    return entityDisplayName(this._hass, entity);
   }
 
   _update() {
     if (!this._refs) return;
-    for (const [areaId, ar] of this._refs.areas) {
-      const isExpanded = buildersMod.COLLAPSIBLE ? this._expanded.has(areaId) : true;
+    for (const [, ar] of this._refs.areas) {
       this._updateChips(ar);
       this._updateQuickButtons(ar);
 
       for (const [entId, ref] of ar.lights) this._updateLightRef(ref, entId);
       if (ar.switches) for (const [entId, ref] of ar.switches) this._updateSwitchRef(ref, entId);
-      for (const [entId, ref] of ar.climates) this._updateClimateRef(ref, entId, isExpanded);
+      for (const [entId, ref] of ar.climates) this._updateClimateRef(ref, entId, true);
       if (ar.inputSelects) for (const [entId, ref] of ar.inputSelects) this._updateInputSelectRef(ref, entId);
       for (const [entId, ref] of ar.automations) this._updateAutomationRef(ref, entId);
       if (ar.sensors) for (const ref of ar.sensors.values()) this._updateSensorRef(ref, ref.entityId);
     }
-  }
-
-  _fmtTimeAgo(ts) {
-    const d = new Date(ts);
-    const now = Date.now();
-    const diff = (now - d.getTime()) / 1000;
-    if (diff < 60) return "just now";
-    if (diff < 3600) return `${Math.round(diff / 60)} minutes ago`;
-    if (diff < 86400) return `${Math.round(diff / 3600)} hours ago`;
-    if (diff < 86400 * 30) return `${Math.round(diff / 86400)} days ago`;
-    return d.toLocaleDateString();
   }
 
   static getConfigElement() { return null; }
