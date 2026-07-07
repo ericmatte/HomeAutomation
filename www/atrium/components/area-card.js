@@ -3,9 +3,11 @@
 // per-ref identity-gated updaters in `area-card-updaters.js` handle it.
 
 const _v = new URL(import.meta.url).search;
-const [popoverMod, hassUtilsMod, sharedMod, buildersMod, updatersMod, accordionMod, deviceSensorsMod] = await Promise.all([
+const [popoverMod, hassUtilsMod, domUtilsMod, haActionsMod, sharedMod, buildersMod, updatersMod, accordionMod, deviceSensorsMod] = await Promise.all([
   import(`../lib/popover.js${_v}`),
   import(`../lib/hass-utils.js${_v}`),
+  import(`../lib/dom-utils.js${_v}`),
+  import(`../lib/ha-actions.js${_v}`),
   import(`./area-card-shared.js${_v}`),
   import(`./area-card-builders.js${_v}`),
   import(`./area-card-updaters.js${_v}`),
@@ -13,7 +15,9 @@ const [popoverMod, hassUtilsMod, sharedMod, buildersMod, updatersMod, accordionM
   import(`../lib/device-sensors.js${_v}`),
 ]);
 const { closePopoverFor } = popoverMod;
-const { sameRegistries } = hassUtilsMod;
+const { sameRegistries, areaIdForEntity, entityDisplayName } = hassUtilsMod;
+const { fireMoreInfo } = domUtilsMod;
+const { callService, toggleLights } = haActionsMod;
 const { TONE, STYLE, matchesAny, fmtCoverPct } = sharedMod;
 const { floorAccordion } = accordionMod;
 const { groupDeviceSensors } = deviceSensorsMod;
@@ -119,7 +123,7 @@ class AtriumAreaCard extends HTMLElement {
       parts.push(`A:${a.area_id}:${a.picture || ""}`);
     }
     for (const e of Object.values(hass.entities)) {
-      const areaId = e.area_id || hass.devices?.[e.device_id]?.area_id;
+      const areaId = areaIdForEntity(hass, e);
       if (!areaId) continue;
       const area = hass.areas[areaId];
       if (!area || this._areaFloorId(area) !== this._floorId) continue;
@@ -138,8 +142,7 @@ class AtriumAreaCard extends HTMLElement {
     return Object.values(hass.entities)
       .filter((e) => {
         if (e.hidden) return false;
-        const areaId = e.area_id || hass.devices?.[e.device_id]?.area_id;
-        return areaId === area.area_id;
+        return areaIdForEntity(hass, e) === area.area_id;
       });
   }
 
@@ -150,8 +153,7 @@ class AtriumAreaCard extends HTMLElement {
         if (!e.hidden) return false;
         const domain = e.entity_id.split(".")[0];
         if (domain !== "automation" && domain !== "script") return false;
-        const areaId = e.area_id || hass.devices?.[e.device_id]?.area_id;
-        return areaId === area.area_id;
+        return areaIdForEntity(hass, e) === area.area_id;
       })
       .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
   }
@@ -298,18 +300,11 @@ class AtriumAreaCard extends HTMLElement {
   }
 
   _call(domain, service, data) {
-    if (!this._hass) return;
-    return this._hass.callService(domain, service, data);
+    return callService(this._hass, domain, service, data);
   }
 
   _moreInfo(entityId) {
-    this.dispatchEvent(
-      new CustomEvent("hass-more-info", {
-        bubbles: true,
-        composed: true,
-        detail: { entityId },
-      })
-    );
+    fireMoreInfo(this, entityId);
   }
 
   _build() {
@@ -599,9 +594,7 @@ class AtriumAreaCard extends HTMLElement {
 
   _toggleAllLights(lights) {
     if (!lights.length) return;
-    const ids = lights.map((l) => l.entity_id);
-    const anyOn = ids.some((id) => this._hass.states?.[id]?.state === "on");
-    this._call("light", anyOn ? "turn_off" : "turn_on", { entity_id: ids });
+    toggleLights(this._hass, lights.map((l) => l.entity_id));
   }
 
   _toggleAllCovers(covers) {
@@ -612,12 +605,7 @@ class AtriumAreaCard extends HTMLElement {
   }
 
   _entityName(entity) {
-    if (entity.name) return entity.name;
-    const st = this._hass.states?.[entity.entity_id];
-    return (
-      st?.attributes?.friendly_name ||
-      entity.entity_id.split(".").pop().replace(/_/g, " ")
-    );
+    return entityDisplayName(this._hass, entity);
   }
 
   _update() {
@@ -633,17 +621,6 @@ class AtriumAreaCard extends HTMLElement {
       for (const [entId, ref] of ar.automations) this._updateAutomationRef(ref, entId);
       if (ar.sensors) for (const ref of ar.sensors.values()) this._updateSensorRef(ref, ref.entityId);
     }
-  }
-
-  _fmtTimeAgo(ts) {
-    const d = new Date(ts);
-    const now = Date.now();
-    const diff = (now - d.getTime()) / 1000;
-    if (diff < 60) return "just now";
-    if (diff < 3600) return `${Math.round(diff / 60)} minutes ago`;
-    if (diff < 86400) return `${Math.round(diff / 3600)} hours ago`;
-    if (diff < 86400 * 30) return `${Math.round(diff / 86400)} days ago`;
-    return d.toLocaleDateString();
   }
 
   static getConfigElement() { return null; }

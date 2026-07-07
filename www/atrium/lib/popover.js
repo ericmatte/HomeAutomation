@@ -168,7 +168,7 @@ export function buildPopoverEmpty(text) {
 // Callers inject their own item stylesheet and track the anchor via `onClose`.
 export function openListPopover({
   anchor, title, countLabel, items, buildItem,
-  emptyText, extraContent, listClass = "atrium-pop-list", width, onClose,
+  emptyText, extraContent, listClass = "atrium-pop-list", listStyle, width, onClose,
 }) {
   const root = document.createElement("div");
   root.appendChild(buildPopoverHeader(title, countLabel));
@@ -176,6 +176,7 @@ export function openListPopover({
 
   const list = document.createElement("div");
   list.className = listClass;
+  if (listStyle) list.style.cssText = listStyle;
   if (!items.length && emptyText != null) {
     list.appendChild(buildPopoverEmpty(emptyText));
   } else {

@@ -1,12 +1,14 @@
 const _v = new URL(import.meta.url).search;
-const [popoverMod, sharedMod] = await Promise.all([
+const [popoverMod, domUtilsMod, sharedMod] = await Promise.all([
   import(`../lib/popover.js${_v}`),
+  import(`../lib/dom-utils.js${_v}`),
   import(`./area-card-shared.js${_v}`),
 ]);
-const { openPopover, closePopoverFor, buildPopoverHeader } = popoverMod;
+const { openPopover, closePopoverFor, openListPopover } = popoverMod;
+const { haIcon, tint, bindLongPress } = domUtilsMod;
 const {
   TONE, ICONS,
-  iconForArea, iconForScene,
+  iconForArea, iconForScene, iconForSensor,
   nameWithoutAreaPrefix, nameWithoutStairs,
   ensurePopoverItemStyle,
   fmtSensorValue,
@@ -63,7 +65,7 @@ export function _buildRoomHeader(area, data) {
     icon.classList.add("has-img");
     icon.style.backgroundImage = `url("${area.picture}")`;
   } else {
-    icon.innerHTML = `<ha-icon icon="${iconForArea(area)}" style="--mdc-icon-size:28px"></ha-icon>`;
+    icon.innerHTML = haIcon(iconForArea(area), 28);
   }
 
   const mid = document.createElement("div");
@@ -77,7 +79,7 @@ export function _buildRoomHeader(area, data) {
   const motionPill = document.createElement("div");
   motionPill.className = "atrium-motion-pill";
   motionPill.style.display = "none";
-  motionPill.innerHTML = `<ha-icon icon="mdi:motion-sensor" style="--mdc-icon-size:14px"></ha-icon><span>motion</span>`;
+  motionPill.innerHTML = `${haIcon("mdi:motion-sensor", 14)}<span>motion</span>`;
   titleRow.appendChild(motionPill);
   mid.appendChild(titleRow);
 
@@ -90,33 +92,18 @@ export function _buildRoomHeader(area, data) {
   const bulbBtn = document.createElement("button");
   bulbBtn.className = "atrium-quick-btn";
   bulbBtn.style.display = data.lights.length ? "inline-flex" : "none";
-  bulbBtn.innerHTML = `<ha-icon icon="mdi:lightbulb" style="--mdc-icon-size:20px"></ha-icon><span class="count" style="font-size:12px;font-weight:600;display:none"></span>`;
+  bulbBtn.innerHTML = `${haIcon("mdi:lightbulb", 20)}<span class="count" style="font-size:12px;font-weight:600;display:none"></span>`;
   bulbBtn.addEventListener("click", (e) => { e.stopPropagation(); this._toggleAllLights(data.lights); });
   const bulbCountEl = bulbBtn.querySelector(".count");
   actions.appendChild(bulbBtn);
   const coverBtn = document.createElement("button");
   coverBtn.className = "atrium-quick-btn";
   coverBtn.style.display = data.covers.length ? "inline-flex" : "none";
-  coverBtn.innerHTML = `<ha-icon icon="mdi:blinds-horizontal" style="--mdc-icon-size:20px"></ha-icon>`;
-  {
-    let lpTimer = 0, didLongPress = false;
-    coverBtn.addEventListener("pointerdown", (e) => {
-      e.stopPropagation();
-      didLongPress = false;
-      lpTimer = setTimeout(() => {
-        didLongPress = true;
-        if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(15);
-        if (data.covers.length) this._moreInfo(data.covers[0].entity_id);
-      }, 480);
-    });
-    coverBtn.addEventListener("pointerup", (e) => {
-      e.stopPropagation();
-      clearTimeout(lpTimer);
-      if (!didLongPress) this._toggleAllCovers(data.covers);
-    });
-    coverBtn.addEventListener("pointercancel", () => clearTimeout(lpTimer));
-    coverBtn.addEventListener("click", (e) => e.stopPropagation());
-  }
+  coverBtn.innerHTML = haIcon("mdi:blinds-horizontal", 20);
+  bindLongPress(coverBtn, {
+    onTap: () => this._toggleAllCovers(data.covers),
+    onLongPress: () => { if (data.covers.length) this._moreInfo(data.covers[0].entity_id); },
+  });
   actions.appendChild(coverBtn);
 
   row.append(icon, mid, actions);
@@ -215,9 +202,7 @@ export function _buildToggleTile(area, entity, { kind, icon, refKey }, deviceSen
   body.className = "atrium-tile-body";
   const swatch = document.createElement("div");
   swatch.className = "atrium-swatch";
-  swatch.innerHTML =
-    `<ha-icon icon="${icon}" style="--mdc-icon-size:20px"></ha-icon>` +
-    `<span class="atrium-unavail-dot">!</span>`;
+  swatch.innerHTML = haIcon(icon, 20) + `<span class="atrium-unavail-dot">!</span>`;
   const iconEl = swatch.querySelector("ha-icon");
   const text = document.createElement("div");
   text.className = "atrium-tile-text";
@@ -253,7 +238,7 @@ export function _buildDeviceSensorCaret(area, entity, sensors) {
   const caret = document.createElement("button");
   caret.type = "button";
   caret.className = "atrium-tile-caret";
-  caret.innerHTML = `<ha-icon icon="mdi:menu-down"></ha-icon>`;
+  caret.innerHTML = haIcon("mdi:menu-down");
   // The tile itself is a swipe/tap surface (see _bindSwipeTile) bound with a
   // pointerdown listener; without stopping propagation here, pressing the
   // caret would also start that tile's press/drag/long-press sequence.
@@ -268,16 +253,14 @@ export function _buildDeviceSensorCaret(area, entity, sensors) {
   caret.addEventListener("click", (e) => {
     e.stopPropagation();
     ensurePopoverItemStyle();
-    const list = document.createElement("div");
-    list.className = "atrium-pop-list-sensors";
-    for (const row of rows) list.appendChild(row);
-    const wrap = document.createElement("div");
-    wrap.appendChild(buildPopoverHeader(this._entityName(entity), String(sensors.length)));
-    wrap.appendChild(list);
     this._openAnchors.add(caret);
-    openPopover({
+    openListPopover({
       anchor: caret,
-      content: wrap,
+      title: this._entityName(entity),
+      countLabel: String(sensors.length),
+      items: rows,
+      buildItem: (row) => row,
+      listClass: "atrium-pop-list-sensors",
       width: 280,
       onClose: () => this._openAnchors.delete(caret),
     });
@@ -325,8 +308,8 @@ export function _buildClimateTile(area, climate, sensors) {
   swatch.className = "atrium-swatch";
   swatch.style.cursor = "pointer";
   swatch.innerHTML =
-    `<ha-icon icon="${ICONS.thermo}" style="--mdc-icon-size:20px"></ha-icon>` +
-    `<span class="atrium-swatch-caret"><ha-icon icon="mdi:menu-down"></ha-icon></span>`;
+    haIcon(ICONS.thermo, 20) +
+    `<span class="atrium-swatch-caret">${haIcon("mdi:menu-down")}</span>`;
   const text = document.createElement("div");
   text.style.flex = "1";
   const name = document.createElement("button");
@@ -356,13 +339,13 @@ export function _buildClimateTile(area, climate, sensors) {
   setpointRow.className = "atrium-climate-target";
   const minus = document.createElement("button");
   minus.className = "atrium-tiny-btn";
-  minus.innerHTML = `<ha-icon icon="${ICONS.minus}" style="--mdc-icon-size:20px"></ha-icon>`;
+  minus.innerHTML = haIcon(ICONS.minus, 20);
   minus.addEventListener("click", (e) => { e.stopPropagation(); this._adjustClimate(climate.entity_id, -0.5); });
   const temp = document.createElement("div");
   temp.className = "atrium-climate-temp";
   const plus = document.createElement("button");
   plus.className = "atrium-tiny-btn";
-  plus.innerHTML = `<ha-icon icon="${ICONS.plus}" style="--mdc-icon-size:20px"></ha-icon>`;
+  plus.innerHTML = haIcon(ICONS.plus, 20);
   plus.addEventListener("click", (e) => { e.stopPropagation(); this._adjustClimate(climate.entity_id, 0.5); });
   setpointRow.append(minus, temp, plus);
   content.appendChild(setpointRow);
@@ -415,7 +398,7 @@ export function _openClimateMenu(anchor, items, current, onPick) {
     const b = document.createElement("button");
     b.type = "button";
     b.className = "atrium-pop-menu-item" + (it.id === current ? " active" : "");
-    b.innerHTML = `<ha-icon icon="${it.icon || ICONS.thermo}"></ha-icon><span>${it.label}</span>`;
+    b.innerHTML = `${haIcon(it.icon || ICONS.thermo)}<span>${it.label}</span>`;
     b.addEventListener("click", (e) => {
       e.stopPropagation();
       closePopoverFor(anchor);
@@ -437,7 +420,7 @@ export function _buildClimateMenu(kind, entityId) {
   btn.className = "atrium-climate-menu-btn";
   const iconMap = { mode: ICONS.thermo, fan: ICONS.fan, swing: ICONS.swing };
   const icon = iconMap[kind] || ICONS.cogs;
-  btn.innerHTML = `<ha-icon icon="${icon}"></ha-icon><span class="label"></span>`;
+  btn.innerHTML = `${haIcon(icon)}<span class="label"></span>`;
 
   let cachedItems = [], cachedCurrent = null, cachedOnPick = () => {};
   btn.addEventListener("click", (e) => {
@@ -482,22 +465,7 @@ export function _buildSensorTile(area, sensor, mapKey = sensor.entity_id) {
   const icon = document.createElement("ha-icon");
   icon.className = "atrium-sensor-icon";
   const st = this._hass.states?.[sensor.entity_id];
-  const dc = st?.attributes?.device_class;
-  const ICON_BY_DC = {
-    temperature: "mdi:thermometer",
-    humidity: "mdi:water-percent",
-    illuminance: "mdi:brightness-5",
-    pressure: "mdi:gauge",
-    power: "mdi:flash",
-    energy: "mdi:lightning-bolt",
-    co2: "mdi:molecule-co2",
-    carbon_dioxide: "mdi:molecule-co2",
-    voc: "mdi:air-filter",
-    pm25: "mdi:air-filter",
-    current: "mdi:current-ac",
-    voltage: "mdi:flash-triangle",
-  };
-  icon.setAttribute("icon", st?.attributes?.icon || ICON_BY_DC[dc] || "mdi:gauge");
+  icon.setAttribute("icon", iconForSensor(st));
   const name = document.createElement("div");
   name.className = "atrium-sensor-name";
   name.textContent = nameWithoutAreaPrefix(this._entityName(sensor), area);
@@ -552,27 +520,13 @@ export function _buildInputSelectTile(area, entity) {
   let cachedItems = [], cachedCurrent = null;
   // Short tap → option picker; long press → more-info dialog, mirroring the
   // light tile / cover button long-press.
-  let lpTimer = 0, didLongPress = false;
-  btn.addEventListener("pointerdown", (e) => {
-    e.stopPropagation();
-    didLongPress = false;
-    lpTimer = setTimeout(() => {
-      didLongPress = true;
-      if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(15);
-      this._moreInfo(entity.entity_id);
-    }, 480);
-  });
-  btn.addEventListener("pointerup", (e) => {
-    e.stopPropagation();
-    clearTimeout(lpTimer);
-    if (!didLongPress) {
+  bindLongPress(btn, {
+    onTap: () =>
       this._openClimateMenu(btn, cachedItems, cachedCurrent, (option) =>
         this._call("input_select", "select_option", { entity_id: entity.entity_id, option })
-      );
-    }
+      ),
+    onLongPress: () => this._moreInfo(entity.entity_id),
   });
-  btn.addEventListener("pointercancel", () => clearTimeout(lpTimer));
-  btn.addEventListener("click", (e) => e.stopPropagation());
 
   const setItems = (items, current) => {
     cachedItems = items;
@@ -622,7 +576,7 @@ export function _buildScenesSection(area, scenes) {
     btn.className = "atrium-scene-btn";
     const sceneName = this._entityName(s);
     btn.title = sceneName;
-    btn.innerHTML = `<ha-icon icon="${iconForScene(s, sceneName)}"></ha-icon><span class="atrium-scene-btn-name"></span>`;
+    btn.innerHTML = `${haIcon(iconForScene(s, sceneName))}<span class="atrium-scene-btn-name"></span>`;
     btn.querySelector(".atrium-scene-btn-name").textContent = nameWithoutAreaPrefix(sceneName, area);
     btn.addEventListener("click", (e) => {
       if (dragMoved) { e.preventDefault(); return; }
@@ -649,8 +603,7 @@ export function _buildAutomationsSection(area, automations, scripts) {
   // row styles live in area-card.css (card scope); the surface background is
   // inlined since .atrium-pop-list-rooms only exists in the popover stylesheet.
   const list = document.createElement("div");
-  list.style.cssText =
-    "background:color-mix(in srgb, var(--primary-text-color, #e8e9ec) 6%, transparent);border-radius:12px;overflow:hidden";
+  list.style.cssText = `background:${tint(TONE.text, 6)};border-radius:12px;overflow:hidden`;
   for (const item of items) list.appendChild(this._buildAutomationRow(area, item));
   return this._section(title, list);
 }
@@ -675,7 +628,7 @@ export function _buildAutomationRow(area, item) {
   if (isScript) {
     swatch = document.createElement("div");
     swatch.className = "atrium-auto-swatch script";
-    swatch.innerHTML = `<ha-icon icon="${customIcon || ICONS.script}" style="--mdc-icon-size:15px"></ha-icon>`;
+    swatch.innerHTML = haIcon(customIcon || ICONS.script, 15);
   } else {
     // Stock HA toggle: animated, and reflects enable/disable directly. Setting
     // `.checked` from the updater doesn't re-fire `change`, so no feedback loop.
@@ -697,7 +650,7 @@ export function _buildAutomationRow(area, item) {
   name.className = "atrium-auto-name" + (enabled ? "" : " disabled");
   if (!isScript && customIcon) {
     name.className += " has-icon";
-    name.innerHTML = `<ha-icon icon="${customIcon}" style="--mdc-icon-size:13px"></ha-icon>`;
+    name.innerHTML = haIcon(customIcon, 13);
     name.appendChild(document.createTextNode(this._entityName(item)));
   } else {
     name.textContent = this._entityName(item);
@@ -711,7 +664,7 @@ export function _buildAutomationRow(area, item) {
   const play = document.createElement("button");
   play.className = "atrium-auto-play" + (!enabled ? " disabled" : "");
   play.title = isScript ? "" : "Trigger automation";
-  play.innerHTML = `<ha-icon icon="${isScript ? ICONS.play_circle : ICONS.play}" style="--mdc-icon-size:${isScript ? 16 : 13}px"></ha-icon>`;
+  play.innerHTML = haIcon(isScript ? ICONS.play_circle : ICONS.play, isScript ? 16 : 13);
   play.addEventListener("click", (e) => {
     if (isScript) return; // bubbles to the row, which opens the more-info dialog
     e.stopPropagation();
@@ -735,23 +688,21 @@ export function _buildHiddenRoutinesBtn(area, hiddenItems) {
   btn.className = "atrium-autos-trigger";
   const count = hiddenItems.length;
   btn.innerHTML =
-    `<span class="atrium-autos-trigger-iconwrap"><ha-icon icon="mdi:eye-off-outline" style="--mdc-icon-size:20px"></ha-icon></span>` +
+    `<span class="atrium-autos-trigger-iconwrap">${haIcon("mdi:eye-off-outline", 20)}</span>` +
     `<span class="atrium-autos-trigger-label">${count} hidden</span>`;
 
   btn.addEventListener("click", (e) => {
     e.stopPropagation();
     ensurePopoverItemStyle();
-    const list = document.createElement("div");
-    list.className = "atrium-pop-list-rooms";
-    list.style.cssText = "border-radius:12px;overflow:hidden";
-    for (const row of rows) list.appendChild(row);
-    const wrap = document.createElement("div");
-    wrap.appendChild(buildPopoverHeader("Hidden routines", String(count)));
-    wrap.appendChild(list);
     this._openAnchors.add(btn);
-    openPopover({
+    openListPopover({
       anchor: btn,
-      content: wrap,
+      title: "Hidden routines",
+      countLabel: String(count),
+      items: rows,
+      buildItem: (row) => row,
+      listClass: "atrium-pop-list-rooms",
+      listStyle: "border-radius:12px;overflow:hidden",
       width: 320,
       onClose: () => this._openAnchors.delete(btn),
     });

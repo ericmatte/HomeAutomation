@@ -1,16 +1,18 @@
 const _v = new URL(import.meta.url).search;
-const [hassUtilsMod, sharedMod] = await Promise.all([
+const [hassUtilsMod, domUtilsMod, sharedMod] = await Promise.all([
   import(`../lib/hass-utils.js${_v}`),
+  import(`../lib/dom-utils.js${_v}`),
   import(`./area-card-shared.js${_v}`),
 ]);
 const { unchangedState, unchangedStates } = hassUtilsMod;
+const { haIcon, tint, vibrate, pctFromPointerX, DRAG_THRESHOLD_PX, LONG_PRESS_MS } = domUtilsMod;
 const {
   TONE, ICONS,
   CLIMATE_ACCENT, CLIMATE_LABELS, CLIMATE_ICONS,
   capitalize,
-  canDimLight, fmtBrightnessPct, fmtCoverPct, fmtSensorValue, fmtTimeAgoShort,
+  canDimLight, fmtBrightnessPct, fmtCoverPct, fmtSensorValue, fmtTimeAgoShort, fmtTimeAgoLong,
   iconForFanMode, iconForSwingMode,
-  levelColor,
+  levelColor, lightRgbTriple,
   labelDescriptor,
 } = sharedMod;
 
@@ -50,7 +52,7 @@ export function _updateChips(ar) {
     span.className = "atrium-chip" + (opts.bg ? " has-bg" : "") + (opts.pulse ? " pulse" : "") + (opts.entityId ? " clickable" : "");
     if (opts.bg) span.style.background = opts.bg;
     span.style.color = color;
-    span.innerHTML = `<ha-icon icon="${icon}"></ha-icon><span>${text}</span>`;
+    span.innerHTML = `${haIcon(icon)}<span>${text}</span>`;
     if (opts.entityId) {
       span.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -75,7 +77,7 @@ export function _updateChips(ar) {
   if (data.sensors.leak.length) {
     const leaky = data.sensors.leak.find((s) => hass.states?.[s.entity_id]?.state === "on");
     if (leaky) {
-      addSpan(ICONS.leak, TONE.danger, "Leak!", { bg: "color-mix(in srgb, var(--error-color, #ff5252) 16%, transparent)", pulse: true, entityId: leaky.entity_id });
+      addSpan(ICONS.leak, TONE.danger, "Leak!", { bg: tint(TONE.danger, 16), pulse: true, entityId: leaky.entity_id });
     } else {
       addSpan(ICONS.leak, TONE.textDim, "Dry", { entityId: data.sensors.leak[0].entity_id });
     }
@@ -84,10 +86,10 @@ export function _updateChips(ar) {
     const isOpen = hass.states?.[d.entity_id]?.state === "on";
     const span = document.createElement("span");
     span.className = "atrium-chip clickable" + (isOpen ? " has-bg" : "");
-    if (isOpen) span.style.background = "color-mix(in srgb, var(--state-climate-heat-color, #ff8a5b) 16%, transparent)";
+    if (isOpen) span.style.background = tint(TONE.heat, 16);
     span.style.color = isOpen ? TONE.heat : TONE.textDim;
     span.title = this._entityName(d);
-    span.innerHTML = `<ha-icon icon="${isOpen ? ICONS.door_open : ICONS.door_closed}"></ha-icon>`;
+    span.innerHTML = haIcon(isOpen ? ICONS.door_open : ICONS.door_closed);
     span.addEventListener("click", (e) => {
       e.stopPropagation();
       this._moreInfo(d.entity_id);
@@ -99,7 +101,7 @@ export function _updateChips(ar) {
     if (st && st.state !== "unavailable") {
       const pct = Math.round(parseFloat(st.state));
       const c = levelColor(pct);
-      addSpan(ICONS.propane, c, `${pct}%`, { bg: `color-mix(in srgb, ${c} 12%, transparent)`, entityId: p.entity_id });
+      addSpan(ICONS.propane, c, `${pct}%`, { bg: tint(c), entityId: p.entity_id });
     }
   }
   const VACUUM_CHIP_COLOR = {
@@ -114,10 +116,10 @@ export function _updateChips(ar) {
     const active = st.state === "cleaning" || st.state === "returning";
     const span = document.createElement("span");
     span.className = "atrium-chip clickable" + (active ? " has-bg" : "") + (st.state === "error" ? " pulse" : "");
-    if (active) span.style.background = `color-mix(in srgb, ${color} 16%, transparent)`;
+    if (active) span.style.background = tint(color, 16);
     span.style.color = color;
     span.title = this._entityName(v);
-    span.innerHTML = `<ha-icon icon="${ICONS.vacuum}"></ha-icon>`;
+    span.innerHTML = haIcon(ICONS.vacuum);
     span.addEventListener("click", (e) => {
       e.stopPropagation();
       this._moreInfo(v.entity_id);
@@ -175,11 +177,8 @@ export function _updateToggleRef(ref, entityId, { canDim: supportsDim, icon: def
   // True color modes get the bulb's live rgb_color; white-temperature modes
   // fall back to the default yellow tint via the CSS var defaults. Switches
   // never carry a color_mode attribute, so this is a no-op for them.
-  const cm = st.attributes?.color_mode;
-  const rgb = st.attributes?.rgb_color;
-  const colorModes = ["rgb", "hs", "xy", "rgbw", "rgbww"];
-  const isColorMode = on && !unavailable && cm && colorModes.includes(cm) && Array.isArray(rgb) && rgb.length >= 3;
-  if (isColorMode) {
+  const rgb = on && !unavailable ? lightRgbTriple(st) : null;
+  if (rgb) {
     const [r, g, b] = rgb;
     ref.tile.style.setProperty("--tile-accent", `rgb(${r},${g},${b})`);
     ref.tile.style.setProperty("--tile-swatch-bg", `rgba(${r},${g},${b},0.20)`);
@@ -251,11 +250,11 @@ export function _updateClimateRef(ref, entityId, isExpanded) {
   const attrs = st.attributes || {};
   const accent = CLIMATE_ACCENT[mode] || TONE.cool;
 
-  ref.swatch.style.background = `color-mix(in srgb, ${accent} 14%, transparent)`;
+  ref.swatch.style.background = tint(accent, 14);
   ref.swatch.style.color = accent;
   ref.swatch.innerHTML =
-    `<ha-icon icon="${CLIMATE_ICONS[mode] || ICONS.thermo}" style="--mdc-icon-size:20px"></ha-icon>` +
-    `<span class="atrium-swatch-caret"><ha-icon icon="mdi:menu-down"></ha-icon></span>`;
+    haIcon(CLIMATE_ICONS[mode] || ICONS.thermo, 20) +
+    `<span class="atrium-swatch-caret">${haIcon("mdi:menu-down")}</span>`;
   ref.tile.style.opacity = mode === "off" ? "0.85" : "1";
 
   const cur = attrs.current_temperature;
@@ -269,7 +268,7 @@ export function _updateClimateRef(ref, entityId, isExpanded) {
   const subLabel = `${(CLIMATE_LABELS[mode] || mode.replace("_", " "))}${cur != null ? ` · ${cur}°` : ""}`;
   ref.sub.innerHTML = `<span style="color:${labelColor}">${subLabel}</span>` +
     (hum != null
-      ? `<span style="color:${TONE.textDim};display:inline-flex;align-items:center;gap:3px;text-transform:none"><ha-icon icon="${ICONS.drop}" style="--mdc-icon-size:10px"></ha-icon>${Math.round(hum)}%</span>`
+      ? `<span style="color:${TONE.textDim};display:inline-flex;align-items:center;gap:3px;text-transform:none">${haIcon(ICONS.drop, 10)}${Math.round(hum)}%</span>`
       : "");
 
   if (tgt != null && mode !== "off" && mode !== "fan_only") {
@@ -351,7 +350,7 @@ export function _updateAutomationRef(ref, entityId) {
     ref.swatch.checked = enabled;
   }
   const lastTs = st.attributes?.last_triggered;
-  ref.last.textContent = lastTs ? `Last triggered: ${this._fmtTimeAgo(lastTs)}` : "Never triggered";
+  ref.last.textContent = lastTs ? `Last triggered: ${fmtTimeAgoLong(lastTs)}` : "Never triggered";
   ref.labels.innerHTML = "";
   const ent = hass.entities[entityId];
   const labelIds = ent?.labels || [];
@@ -362,7 +361,7 @@ export function _updateAutomationRef(ref, entityId) {
     chip.className = "atrium-auto-label";
     chip.style.background = desc.bg;
     chip.style.color = desc.color;
-    chip.innerHTML = `<ha-icon icon="${desc.icon}" style="--mdc-icon-size:9px"></ha-icon>${desc.name}`;
+    chip.innerHTML = `${haIcon(desc.icon, 9)}${desc.name}`;
     ref.labels.appendChild(chip);
   }
   ref.play.classList.toggle("disabled", !enabled);
@@ -407,15 +406,15 @@ export function _bindSwipeTile(tile, fill, thumb, swatch, stateEl, entityId, kin
       ref.moved = false;
       this._dragState.delete(entityId);
       resetVisuals();
-      if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(15);
+      vibrate();
       this._moreInfo(entityId);
-    }, 480);
+    }, LONG_PRESS_MS);
 
     ref.onMove = (ev) => {
       if (ev.pointerId !== ref.pointerId) return;
       const dx = ev.clientX - ref.startX;
       const dy = ev.clientY - ref.startY;
-      if (!ref.dragging && Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) {
+      if (!ref.dragging && Math.abs(dx) > DRAG_THRESHOLD_PX && Math.abs(dx) > Math.abs(dy)) {
         clearTimeout(ref.lpTimer);
         const st = this._hass.states?.[entityId];
         // on/off-only entities have nothing to drag; leave ref.moved false so
@@ -426,8 +425,7 @@ export function _bindSwipeTile(tile, fill, thumb, swatch, stateEl, entityId, kin
         ref.dragging = true;
       }
       if (ref.dragging) {
-        const r = tile.getBoundingClientRect();
-        const pct = Math.max(0, Math.min(100, Math.round(((ev.clientX - r.left) / r.width) * 100)));
+        const pct = pctFromPointerX(tile, ev.clientX);
         this._dragState.set(entityId, { pct, kind });
         // Disable easing on both fill and thumb so they track the pointer
         // together during the live preview.
