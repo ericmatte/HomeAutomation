@@ -41,13 +41,20 @@ condition:
 variables:
   changed_light: "{{ trigger.entity_id }}"
   all_lights: !input lights
-  brightness: "{{ trigger.to_state.attributes.brightness | int(0) }}"
+
+  brightness: >
+    {% if trigger.to_state.state == 'on' %}
+      {{ trigger.to_state.attributes.get('brightness', 255) | int }}
+    {% else %}
+      0
+    {% endif %}
+
   target_entity_ids: >
     {{ all_lights | reject('eq', changed_light) | list }}
 
 action:
   - choose:
-      # If turned off → turn others off
+      # Source light turned off
       - conditions:
           - condition: template
             value_template: "{{ trigger.to_state.state == 'off' }}"
@@ -57,7 +64,7 @@ action:
               entity_id: "{{ target_entity_ids }}"
 
     default:
-      # Otherwise → turn on + sync brightness
+      # Source light turned on
       - service: light.turn_on
         target:
           entity_id: "{{ target_entity_ids }}"

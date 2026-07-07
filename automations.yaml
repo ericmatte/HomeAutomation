@@ -2764,3 +2764,12 @@
     target:
       entity_id: light.outside_outlet
   mode: single
+- id: '1783462897621'
+  alias: Sync lights
+  description: ''
+  use_blueprint:
+    path: ericmatte/lights_sync.yaml
+    input:
+      lights:
+      - light.rgbw_dimmer
+      - light.upstairs_bathroom_mirror_lights
