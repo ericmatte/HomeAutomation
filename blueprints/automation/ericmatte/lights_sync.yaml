@@ -69,4 +69,3 @@ action:
           entity_id: "{{ target_entity_ids }}"
         data:
           brightness: "{{ brightness }}"
-          color_temp_kelvin: 3000
