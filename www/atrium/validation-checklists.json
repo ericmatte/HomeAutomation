@@ -10,6 +10,22 @@
       {
         "id": "no-manual-override-block",
         "text": "✋ Un climate.turn_off ou un changement de consigne fait à la main ne bloque plus l'automation jusqu'à minuit — elle reprend au prochain déclencheur prévu"
+      },
+      {
+        "id": "summer-single-setpoint",
+        "text": "🎯 La climatisation été utilise une seule consigne (summer_target_temp) — plus de variantes pré-cool/nuit/jour, et les inputs pre_cool_start_time / bedtime ont disparu"
+      },
+      {
+        "id": "fan-boost-high",
+        "text": "💨 Intérieur ≥ summer_target_temp + 2°C en été → le ventilateur de la thermopompe passe à high (au lieu du mode configuré), puis revient au mode configuré une fois redescendu"
+      },
+      {
+        "id": "heat-pump-trigger-responsive",
+        "text": "🌀 Un changement de current_temperature sur la thermopompe redéclenche bien l'automation rapidement, sans boucle de re-déclenchements causée par les propres actions de l'automation"
+      },
+      {
+        "id": "use-target-from-winter-only",
+        "text": "❄️ use_target_from ne pilote plus que la plage confort hiver — son déplacement dans la section hiver des inputs n'a rien changé au comportement réel"
       }
     ],
     "ongoing": [
@@ -18,8 +34,8 @@
         "text": "🥵 Journée chaude : la climatisation démarre quand l'extérieur atteint summer_target_temp"
       },
       {
-        "id": "summer-night-setpoint",
-        "text": "🌙 Nuit d'été : la consigne nuit (cible +2°C) s'applique correctement entre le coucher et le début de la plage confort"
+        "id": "fan-boost-hot-day",
+        "text": "💨 Journée très chaude : le ventilateur de la thermopompe passe à high quand l'intérieur dépasse summer_target_temp + 2°C, puis revient au mode configuré une fois la cible atteinte"
       },
       {
         "id": "manual-change-recovers",
