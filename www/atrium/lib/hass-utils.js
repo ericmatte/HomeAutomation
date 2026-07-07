@@ -3,8 +3,8 @@
 
 export function sameRegistries(host, slot, hass, extraKey) {
   const s = (host[slot] ??= {});
-  if (s.e === hass.entities && s.a === hass.areas && s.d === hass.devices && s.k === extraKey) return true;
-  s.e = hass.entities; s.a = hass.areas; s.d = hass.devices; s.k = extraKey;
+  if (s.entities === hass.entities && s.areas === hass.areas && s.devices === hass.devices && s.key === extraKey) return true;
+  s.entities = hass.entities; s.areas = hass.areas; s.devices = hass.devices; s.key = extraKey;
   return false;
 }
 

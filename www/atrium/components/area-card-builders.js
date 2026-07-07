@@ -454,7 +454,6 @@ export function _buildSensorsSection(area, sensors) {
 // overwrite the previous one in `ar.sensors`, leaving the earlier tile's DOM
 // node orphaned from the `_updateSensorRef` refresh loop.
 export function _buildSensorTile(area, sensor, mapKey = sensor.entity_id) {
-  // Header-chip style: swatch icon + name + current reading. Tap → more-info.
   const tile = document.createElement("div");
   tile.className = "atrium-sensor";
   tile.dataset.entity = sensor.entity_id;

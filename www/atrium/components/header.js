@@ -34,6 +34,11 @@ function ensurePopoverItemStyle() {
   injectStyleOnce("atrium-popover-item-style", POPOVER_ITEM_STYLE);
 }
 
+// Reject obviously-bogus sensor readings (disconnected probes report extreme
+// values) before they skew the header's temperature range.
+const MIN_PLAUSIBLE_TEMP_C = -40;
+const MAX_PLAUSIBLE_TEMP_C = 60;
+
 class AtriumHeader extends HTMLElement {
   constructor() {
     super();
@@ -231,7 +236,7 @@ class AtriumHeader extends HTMLElement {
         if (Number.isFinite(t)) temps.push(t);
       } else if (domain === "sensor" && dc === "temperature" && inTempScope) {
         const t = Number(st.state);
-        if (Number.isFinite(t) && t > -40 && t < 60) temps.push(t);
+        if (Number.isFinite(t) && t > MIN_PLAUSIBLE_TEMP_C && t < MAX_PLAUSIBLE_TEMP_C) temps.push(t);
       } else if (domain === "sensor" && dc === "battery") {
         const v = Number(st.state);
         if (Number.isFinite(v) && v >= 0 && v <= 100) {

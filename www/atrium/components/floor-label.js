@@ -12,6 +12,12 @@ const { toggleLights, setLightsBrightness } = haActionsMod;
 const { SHELL_TONE, SHELL_STYLE } = shellMod;
 const { floorAccordion } = accordionMod;
 
+// After a drag, hold the slider at the requested value for a moment so it
+// doesn't snap back to the (lagging) hass average while the bulbs ramp; release
+// early once the live average lands within tolerance.
+const OPTIMISTIC_HOLD_MS = 1500;
+const OPTIMISTIC_TOLERANCE_PCT = 5;
+
 class AtriumFloorLabel extends HTMLElement {
   constructor() {
     super();
@@ -72,7 +78,7 @@ class AtriumFloorLabel extends HTMLElement {
               onStates.length /
               2.55
           );
-          if (Math.abs(avg - this._optimisticPct) <= 5) {
+          if (Math.abs(avg - this._optimisticPct) <= OPTIMISTIC_TOLERANCE_PCT) {
             this._optimisticPct = null;
             this._optimisticUntil = 0;
           }
@@ -255,10 +261,8 @@ class AtriumFloorLabel extends HTMLElement {
       this._dragPct = null;
       if (commit) {
         if (wasDrag) {
-          // Hold the visual for ~1.5s so the bar doesn't snap to the
-          // (lagging) hass average while bulbs ramp up.
           this._optimisticPct = finalPct;
-          this._optimisticUntil = Date.now() + 1500;
+          this._optimisticUntil = Date.now() + OPTIMISTIC_HOLD_MS;
           this._applyBrightness(finalPct);
         } else {
           this._toggleAll();

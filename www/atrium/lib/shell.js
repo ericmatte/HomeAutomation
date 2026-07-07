@@ -4,13 +4,9 @@ const { TONE } = await import(`./tone.js${_v}`);
 // The shell only needs a subset of the canonical palette; derive it so both
 // stay in lockstep.
 export const SHELL_TONE = {
-  bg: TONE.bg,
   text: TONE.text,
-  textDim: TONE.textDim,
   textMute: TONE.textMute,
-  line: TONE.line,
   light: TONE.light,
-  curtain: TONE.curtain,
   cool: TONE.cool,
   warn: TONE.warn,
   danger: TONE.danger,
