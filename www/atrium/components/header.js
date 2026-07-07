@@ -1,15 +1,17 @@
 const _v = new URL(import.meta.url).search;
-const [popoverMod, hassUtilsMod, domUtilsMod, shellMod, sharedMod] = await Promise.all([
+const [popoverMod, hassUtilsMod, domUtilsMod, haActionsMod, shellMod, sharedMod] = await Promise.all([
   import(`../lib/popover.js${_v}`),
   import(`../lib/hass-utils.js${_v}`),
   import(`../lib/dom-utils.js${_v}`),
+  import(`../lib/ha-actions.js${_v}`),
   import(`../lib/shell.js${_v}`),
   import(`./area-card-shared.js${_v}`),
 ]);
-const { openPopover, closePopoverFor, buildPopoverHeader, buildPopoverEmpty } = popoverMod;
-const { sameRegistries } = hassUtilsMod;
-const { haIcon } = domUtilsMod;
-const { canDimLight, fmtBrightnessPct } = sharedMod;
+const { closePopoverFor, openListPopover } = popoverMod;
+const { sameRegistries, areaIdForEntity, areaForEntity, friendlyName } = hassUtilsMod;
+const { haIcon, injectStyleOnce, fireMoreInfo, tint } = domUtilsMod;
+const { callService } = haActionsMod;
+const { canDimLight, fmtBrightnessPct, lightRgbTriple } = sharedMod;
 const {
   SHELL_TONE,
   SHELL_STYLE,
@@ -29,11 +31,7 @@ const {
 const POPOVER_ITEM_STYLE = await fetch(new URL(`./header.css${_v}`, import.meta.url)).then((r) => r.text());
 
 function ensurePopoverItemStyle() {
-  if (document.getElementById("atrium-popover-item-style")) return;
-  const style = document.createElement("style");
-  style.id = "atrium-popover-item-style";
-  style.textContent = POPOVER_ITEM_STYLE;
-  document.head.appendChild(style);
+  injectStyleOnce("atrium-popover-item-style", POPOVER_ITEM_STYLE);
 }
 
 class AtriumHeader extends HTMLElement {
@@ -184,7 +182,7 @@ class AtriumHeader extends HTMLElement {
       const entityId = ent.entity_id;
       if (entityId.startsWith("person.") && !ent.hidden) personIds.push(entityId);
       if (ent.hidden) continue;
-      const areaId = ent.area_id || hass.devices?.[ent.device_id]?.area_id;
+      const areaId = areaIdForEntity(hass, ent);
       if (!areaId) continue;
       const area = hass.areas?.[areaId];
       if (!area) continue;
@@ -259,9 +257,7 @@ class AtriumHeader extends HTMLElement {
       const ar = this._areaForEntity(a.id)?.name || "";
       const br = this._areaForEntity(b.id)?.name || "";
       if (ar !== br) return ar.localeCompare(br);
-      const an = a.state?.attributes?.friendly_name || a.id;
-      const bn = b.state?.attributes?.friendly_name || b.id;
-      return an.localeCompare(bn);
+      return friendlyName(a.state, a.id).localeCompare(friendlyName(b.state, b.id));
     });
     this._lightsOn = activeLights;
 
@@ -269,20 +265,14 @@ class AtriumHeader extends HTMLElement {
     // each tier so the order is stable across hass ticks.
     problems.sort((a, b) => {
       if (a.kind !== b.kind) return a.kind === "problem" ? -1 : 1;
-      const an = a.state?.attributes?.friendly_name || a.id;
-      const bn = b.state?.attributes?.friendly_name || b.id;
-      return an.localeCompare(bn);
+      return friendlyName(a.state, a.id).localeCompare(friendlyName(b.state, b.id));
     });
     this._problems = problems;
 
     const persons = personIds
       .map((id) => states[id])
       .filter(Boolean)
-      .sort((a, b) => {
-        const an = a.attributes?.friendly_name || a.entity_id;
-        const bn = b.attributes?.friendly_name || b.entity_id;
-        return an.localeCompare(bn);
-      });
+      .sort((a, b) => friendlyName(a, a.entity_id).localeCompare(friendlyName(b, b.entity_id)));
 
     // Signature gate so we skip the pill recreation + replaceChildren when
     // nothing displayed actually changed.
@@ -340,7 +330,7 @@ class AtriumHeader extends HTMLElement {
     }
     el.innerHTML = `
       <span class="atrium-shell-stat-icon" style="color:${color}">
-        <ha-icon icon="${icon}"></ha-icon>
+        ${haIcon(icon)}
       </span>
       <span class="atrium-shell-stat-label"></span>
     `;
@@ -350,7 +340,7 @@ class AtriumHeader extends HTMLElement {
 
   _personPill(state) {
     const status = shellPersonStatus(state);
-    const fullName = state.attributes?.friendly_name || state.entity_id.split(".")[1] || "";
+    const fullName = friendlyName(state, state.entity_id.split(".")[1] || "");
     const picture = state.attributes?.entity_picture;
 
     const btn = document.createElement("button");
@@ -367,7 +357,7 @@ class AtriumHeader extends HTMLElement {
     }
     const dot = document.createElement("span");
     dot.className = "atrium-shell-avatar-dot";
-    dot.innerHTML = `<ha-icon icon="mdi:home"></ha-icon>`;
+    dot.innerHTML = haIcon("mdi:home");
     avatar.appendChild(dot);
 
     btn.append(avatar);
@@ -376,33 +366,20 @@ class AtriumHeader extends HTMLElement {
   }
 
   _openEntityMore(entityId) {
-    const ev = new Event("hass-more-info", { bubbles: true, composed: true });
-    ev.detail = { entityId };
-    this.dispatchEvent(ev);
+    fireMoreInfo(this, entityId);
   }
 
   _openBatteryPopover(anchor) {
     ensurePopoverItemStyle();
-
-    const root = document.createElement("div");
-    const total = (this._batteries || []).length;
-    root.appendChild(buildPopoverHeader("Batteries & levels", `${total} total`));
-
-    const listEl = document.createElement("div");
-    listEl.className = "atrium-pop-list";
-    if (total === 0) {
-      listEl.appendChild(buildPopoverEmpty("No batteries reported."));
-    } else {
-      for (const b of this._batteries) {
-        listEl.appendChild(this._batteryItem(b, anchor));
-      }
-    }
-    root.appendChild(listEl);
-
+    const batteries = this._batteries || [];
     this._batteryAnchor = anchor;
-    openPopover({
+    openListPopover({
       anchor,
-      content: root,
+      title: "Batteries & levels",
+      countLabel: `${batteries.length} total`,
+      items: batteries,
+      buildItem: (b) => this._batteryItem(b, anchor),
+      emptyText: "No batteries reported.",
       width: 320,
       onClose: () => { if (this._batteryAnchor === anchor) this._batteryAnchor = null; },
     });
@@ -410,46 +387,37 @@ class AtriumHeader extends HTMLElement {
 
   _openLightsPopover(anchor) {
     ensurePopoverItemStyle();
+    const lights = this._lightsOn || [];
 
-    const root = document.createElement("div");
-    const total = (this._lightsOn || []).length;
-    root.appendChild(buildPopoverHeader("Lights on", `${total} total`));
-
-    if (total > 0) {
+    let extraContent;
+    if (lights.length) {
       const turnOffAllBtn = document.createElement("button");
       turnOffAllBtn.type = "button";
       turnOffAllBtn.className = "atrium-turn-off-all-btn";
       turnOffAllBtn.innerHTML = `${haIcon("mdi:lightbulb-off")} Turn off all`;
       turnOffAllBtn.addEventListener("click", () => {
-        const entityIds = this._lightsOn.map(l => l.id);
-        this._hass.callService("light", "turn_off", { entity_id: entityIds });
+        callService(this._hass, "light", "turn_off", { entity_id: lights.map((l) => l.id) });
         closePopoverFor(anchor);
       });
-      root.appendChild(turnOffAllBtn);
+      extraContent = turnOffAllBtn;
     }
-
-    const listEl = document.createElement("div");
-    listEl.className = "atrium-pop-list";
-    if (total === 0) {
-      listEl.appendChild(buildPopoverEmpty("No lights are on."));
-    } else {
-      for (const light of this._lightsOn) {
-        listEl.appendChild(this._lightItem(light, anchor));
-      }
-    }
-    root.appendChild(listEl);
 
     this._lightsAnchor = anchor;
-    openPopover({
+    openListPopover({
       anchor,
-      content: root,
+      title: "Lights on",
+      countLabel: `${lights.length} total`,
+      items: lights,
+      buildItem: (light) => this._lightItem(light, anchor),
+      emptyText: "No lights are on.",
+      extraContent,
       width: 320,
       onClose: () => { if (this._lightsAnchor === anchor) this._lightsAnchor = null; },
     });
   }
 
   _popoverItem({ entityId, icon, color, name, suffixHTML, anchor }) {
-    const tone = `color-mix(in srgb, ${color} 10%, transparent)`;
+    const tone = tint(color, 10);
     const room = this._areaForEntity(entityId);
     const roomHTML = room
       ? `${haIcon(room.icon)}<span class="room-name"></span>`
@@ -480,7 +448,7 @@ class AtriumHeader extends HTMLElement {
   _batteryItem(battery, anchor) {
     const pct = Math.round(battery.value);
     const color = shellBatteryColor(pct);
-    const rawName = battery.state?.attributes?.friendly_name || battery.id;
+    const rawName = friendlyName(battery.state, battery.id);
     const suffixHTML = `
       <span class="atrium-shell-pop-item-bar">
         <span class="atrium-shell-pop-item-bar-fill" style="width:${pct}%;background:${color}"></span>
@@ -502,7 +470,7 @@ class AtriumHeader extends HTMLElement {
     const pct = fmtBrightnessPct(st);
     const color = this._lightColor(st);
     const dimmable = canDimLight(st);
-    const tone = `color-mix(in srgb, ${color} 10%, transparent)`;
+    const tone = tint(color, 10);
     const room = this._areaForEntity(light.id);
     const roomHTML = room
       ? `${haIcon(room.icon)}<span class="room-name"></span>`
@@ -529,7 +497,7 @@ class AtriumHeader extends HTMLElement {
         ${suffixHTML}
       </button>
     `;
-    row.querySelector(".atrium-shell-pop-item-name").textContent = st?.attributes?.friendly_name || light.id;
+    row.querySelector(".atrium-shell-pop-item-name").textContent = friendlyName(st, light.id);
     if (room) row.querySelector(".room-name").textContent = room.name;
     row.querySelector(".atrium-shell-pop-item-swatch").addEventListener("click", (e) => {
       e.stopPropagation();
@@ -539,45 +507,27 @@ class AtriumHeader extends HTMLElement {
     row.querySelector(".atrium-shell-pop-item-action").addEventListener("click", (e) => {
       e.stopPropagation();
       closePopoverFor(anchor);
-      this._hass.callService("light", "turn_off", { entity_id: light.id });
+      callService(this._hass, "light", "turn_off", { entity_id: light.id });
     });
     return row;
   }
 
   _lightColor(st) {
-    const attrs = st?.attributes || {};
-    const cm = attrs.color_mode;
-    const rgb = attrs.rgb_color;
-    const colorModes = ["rgb", "hs", "xy", "rgbw", "rgbww"];
-    if (cm && colorModes.includes(cm) && Array.isArray(rgb) && rgb.length >= 3) {
-      const [r, g, b] = rgb;
-      return `rgb(${r},${g},${b})`;
-    }
-    return SHELL_TONE.light;
+    const rgb = lightRgbTriple(st);
+    return rgb ? `rgb(${rgb[0]},${rgb[1]},${rgb[2]})` : SHELL_TONE.light;
   }
 
   _openProblemPopover(anchor) {
     ensurePopoverItemStyle();
-
-    const root = document.createElement("div");
-    const total = (this._problems || []).length;
-    root.appendChild(buildPopoverHeader("Problems & offline", `${total} total`));
-
-    const listEl = document.createElement("div");
-    listEl.className = "atrium-pop-list";
-    if (total === 0) {
-      listEl.appendChild(buildPopoverEmpty("Nothing to report."));
-    } else {
-      for (const p of this._problems) {
-        listEl.appendChild(this._problemItem(p, anchor));
-      }
-    }
-    root.appendChild(listEl);
-
+    const problems = this._problems || [];
     this._problemAnchor = anchor;
-    openPopover({
+    openListPopover({
       anchor,
-      content: root,
+      title: "Problems & offline",
+      countLabel: `${problems.length} total`,
+      items: problems,
+      buildItem: (p) => this._problemItem(p, anchor),
+      emptyText: "Nothing to report.",
       width: 320,
       onClose: () => { if (this._problemAnchor === anchor) this._problemAnchor = null; },
     });
@@ -592,21 +542,15 @@ class AtriumHeader extends HTMLElement {
       entityId: problem.id,
       icon: shellProblemIcon(problem.state),
       color,
-      name: problem.state?.attributes?.friendly_name || problem.id,
+      name: friendlyName(problem.state, problem.id),
       suffixHTML,
       anchor,
     });
   }
 
   _areaForEntity(entityId) {
-    const hass = this._hass;
-    if (!hass) return null;
-    const ent = hass.entities?.[entityId];
-    const areaId = ent?.area_id || hass.devices?.[ent?.device_id]?.area_id;
-    if (!areaId) return null;
-    const area = hass.areas?.[areaId];
-    if (!area) return null;
-    return { name: area.name, icon: area.icon || "mdi:floor-plan" };
+    const area = this._hass ? areaForEntity(this._hass, entityId) : null;
+    return area ? { name: area.name, icon: area.icon || "mdi:floor-plan" } : null;
   }
 
   getCardSize() {

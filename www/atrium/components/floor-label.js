@@ -1,10 +1,14 @@
 const _v = new URL(import.meta.url).search;
-const [hassUtilsMod, shellMod, accordionMod] = await Promise.all([
+const [hassUtilsMod, domUtilsMod, haActionsMod, shellMod, accordionMod] = await Promise.all([
   import(`../lib/hass-utils.js${_v}`),
+  import(`../lib/dom-utils.js${_v}`),
+  import(`../lib/ha-actions.js${_v}`),
   import(`../lib/shell.js${_v}`),
   import(`../lib/floor-accordion.js${_v}`),
 ]);
-const { sameRegistries } = hassUtilsMod;
+const { sameRegistries, areaIdForEntity } = hassUtilsMod;
+const { tint, pctFromPointerX, DRAG_THRESHOLD_PX } = domUtilsMod;
+const { toggleLights, setLightsBrightness } = haActionsMod;
 const { SHELL_TONE, SHELL_STYLE } = shellMod;
 const { floorAccordion } = accordionMod;
 
@@ -88,7 +92,7 @@ class AtriumFloorLabel extends HTMLElement {
     for (const ent of Object.values(hass.entities)) {
       if (!ent.entity_id?.startsWith("light.")) continue;
       if (ent.hidden) continue;
-      const areaId = ent.area_id || hass.devices?.[ent.device_id]?.area_id;
+      const areaId = areaIdForEntity(hass, ent);
       if (!areaId) continue;
       const area = hass.areas?.[areaId];
       if (!area || (area.floor_id ?? null) !== this.floorId) continue;
@@ -224,9 +228,7 @@ class AtriumFloorLabel extends HTMLElement {
       ? "none"
       : "left .2s ease, background .2s ease";
 
-    this._btnEl.style.background = isOn
-      ? `color-mix(in srgb, var(--state-light-active-color, #f5c451) 16%, transparent)`
-      : `color-mix(in srgb, var(--primary-text-color, #e8e9ec) 5%, transparent)`;
+    this._btnEl.style.background = isOn ? tint(SHELL_TONE.light, 16) : tint(SHELL_TONE.text, 5);
     this._btnEl.style.color = isOn ? accent : SHELL_TONE.textMute;
   }
 
@@ -237,13 +239,7 @@ class AtriumFloorLabel extends HTMLElement {
     let dragStarted = false;
     let activePointerId = null;
 
-    const pctFromEvent = (e) => {
-      const r = target.getBoundingClientRect();
-      return Math.max(
-        0,
-        Math.min(100, Math.round(((e.clientX - r.left) / r.width) * 100))
-      );
-    };
+    const pctFromEvent = (e) => pctFromPointerX(target, e.clientX);
 
     const endDrag = (e, commit) => {
       if (!pointerDown) return;
@@ -280,7 +276,7 @@ class AtriumFloorLabel extends HTMLElement {
     });
     target.addEventListener("pointermove", (e) => {
       if (!pointerDown || e.pointerId !== activePointerId) return;
-      if (Math.abs(e.clientX - startX) < 6 && !dragStarted) return;
+      if (Math.abs(e.clientX - startX) < DRAG_THRESHOLD_PX && !dragStarted) return;
       dragStarted = true;
       this._dragging = true;
       this._dragPct = pctFromEvent(e);
@@ -306,24 +302,14 @@ class AtriumFloorLabel extends HTMLElement {
     if (!this._hass) return;
     const ids = this.floorLights();
     if (ids.length === 0) return;
-    const anyOn = ids.some((id) => this._hass.states[id]?.state === "on");
-    this._hass.callService("light", anyOn ? "turn_off" : "turn_on", {
-      entity_id: ids,
-    });
+    toggleLights(this._hass, ids);
   }
 
   _applyBrightness(pct) {
     if (!this._hass) return;
     const ids = this.floorLights();
     if (ids.length === 0) return;
-    if (pct <= 0) {
-      this._hass.callService("light", "turn_off", { entity_id: ids });
-    } else {
-      this._hass.callService("light", "turn_on", {
-        entity_id: ids,
-        brightness_pct: pct,
-      });
-    }
+    setLightsBrightness(this._hass, ids, pct);
   }
 
   getCardSize() {
