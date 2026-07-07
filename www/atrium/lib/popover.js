@@ -163,3 +163,25 @@ export function buildPopoverEmpty(text) {
   e.textContent = text;
   return e;
 }
+
+// Header + optional extra content + a list of items (or an empty placeholder).
+// Callers inject their own item stylesheet and track the anchor via `onClose`.
+export function openListPopover({
+  anchor, title, countLabel, items, buildItem,
+  emptyText, extraContent, listClass = "atrium-pop-list", width, onClose,
+}) {
+  const root = document.createElement("div");
+  root.appendChild(buildPopoverHeader(title, countLabel));
+  if (extraContent) root.appendChild(extraContent);
+
+  const list = document.createElement("div");
+  list.className = listClass;
+  if (!items.length && emptyText != null) {
+    list.appendChild(buildPopoverEmpty(emptyText));
+  } else {
+    for (const item of items) list.appendChild(buildItem(item));
+  }
+  root.appendChild(list);
+
+  return openPopover({ anchor, content: root, width, onClose });
+}

@@ -1,27 +1,6 @@
-export const TONE = {
-  bg: "var(--primary-background-color, #0e0f12)",
-  surface: "var(--ha-card-background, var(--card-background-color, #16181d))",
-  surface2: "color-mix(in srgb, var(--primary-text-color, #e8e9ec) 6%, transparent)",
-  surface3: "color-mix(in srgb, var(--primary-text-color, #e8e9ec) 10%, transparent)",
-  line: "var(--divider-color, rgba(127,127,127,0.18))",
-  line2: "color-mix(in srgb, var(--primary-text-color, #e8e9ec) 10%, transparent)",
-  text: "var(--primary-text-color, #e8e9ec)",
-  textDim: "var(--secondary-text-color, #9aa0aa)",
-  textMute: "color-mix(in srgb, var(--secondary-text-color, #9aa0aa) 70%, transparent)",
-  light: "var(--state-light-active-color, #f5c451)",
-  lightBg: "color-mix(in srgb, var(--state-light-active-color, #f5c451) 14%, transparent)",
-  curtain: "var(--state-cover-active-color, #9b7fd1)",
-  curtainBg: "color-mix(in srgb, var(--state-cover-active-color, #9b7fd1) 14%, transparent)",
-  motion: "var(--state-binary_sensor-motion-color, #5cc6ff)",
-  motionBg: "color-mix(in srgb, var(--state-binary_sensor-motion-color, #5cc6ff) 12%, transparent)",
-  heat: "var(--state-climate-heat-color, #ff8a5b)",
-  cool: "var(--state-climate-cool-color, #5cc6ff)",
-  warn: "var(--warning-color, #f0b13a)",
-  danger: "var(--error-color, #ff5252)",
-  good: "var(--success-color, #7dc97a)",
-};
-
 const _v = new URL(import.meta.url).search;
+export const { TONE } = await import(`../lib/tone.js${_v}`);
+
 export const STYLE = await fetch(new URL(`./area-card.css${_v}`, import.meta.url)).then((r) => r.text());
 export const AREA_POPOVER_ITEM_STYLE = await fetch(new URL(`./area-card-popover.css${_v}`, import.meta.url)).then((r) => r.text());
 
@@ -180,6 +159,37 @@ export function canDimLight(state) {
   return (Number(attrs.supported_features) & 1) === 1 || attrs.brightness != null;
 }
 
+// Live rgb_color of a light in a true color mode → [r, g, b], else null.
+// White-temperature modes return null so callers fall back to the yellow tint.
+const RGB_COLOR_MODES = ["rgb", "hs", "xy", "rgbw", "rgbww"];
+export function lightRgbTriple(state) {
+  const attrs = state?.attributes || {};
+  const rgb = attrs.rgb_color;
+  if (attrs.color_mode && RGB_COLOR_MODES.includes(attrs.color_mode) && Array.isArray(rgb) && rgb.length >= 3) {
+    return [rgb[0], rgb[1], rgb[2]];
+  }
+  return null;
+}
+
+const SENSOR_ICON_BY_DC = {
+  temperature: "mdi:thermometer",
+  humidity: "mdi:water-percent",
+  illuminance: "mdi:brightness-5",
+  pressure: "mdi:gauge",
+  power: "mdi:flash",
+  energy: "mdi:lightning-bolt",
+  co2: "mdi:molecule-co2",
+  carbon_dioxide: "mdi:molecule-co2",
+  voc: "mdi:air-filter",
+  pm25: "mdi:air-filter",
+  current: "mdi:current-ac",
+  voltage: "mdi:flash-triangle",
+};
+export function iconForSensor(state) {
+  const attrs = state?.attributes || {};
+  return attrs.icon || SENSOR_ICON_BY_DC[attrs.device_class] || "mdi:gauge";
+}
+
 export function fmtTimeAgoShort(ts) {
   const d = new Date(ts);
   const diff = (Date.now() - d.getTime()) / 1000;
@@ -188,6 +198,17 @@ export function fmtTimeAgoShort(ts) {
   if (diff < 86400) return `${Math.round(diff / 3600)}h`;
   if (diff < 86400 * 30) return `${Math.round(diff / 86400)}d`;
   return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+// Long spelled-out form for automation "last triggered" lines.
+export function fmtTimeAgoLong(ts) {
+  const d = new Date(ts);
+  const diff = (Date.now() - d.getTime()) / 1000;
+  if (diff < 60) return "just now";
+  if (diff < 3600) return `${Math.round(diff / 60)} minutes ago`;
+  if (diff < 86400) return `${Math.round(diff / 3600)} hours ago`;
+  if (diff < 86400 * 30) return `${Math.round(diff / 86400)} days ago`;
+  return d.toLocaleDateString();
 }
 
 export function fmtCoverPct(state) {
