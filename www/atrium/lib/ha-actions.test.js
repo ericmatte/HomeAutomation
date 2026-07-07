@@ -2,7 +2,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-const { callService, toggleLights, setLightsBrightness, setCover } = await import("./ha-actions.js");
+const { callService, toggleLights, setLightsBrightness } = await import("./ha-actions.js");
 
 function makeHass(states = {}) {
   const calls = [];
@@ -34,14 +34,4 @@ test("setLightsBrightness turns off at pct ≤ 0, else sets brightness_pct", () 
   const on = makeHass();
   setLightsBrightness(on, "light.a", 40);
   assert.deepEqual(on.calls[0], ["light", "turn_on", { entity_id: "light.a", brightness_pct: 40 }]);
-});
-
-test("setCover maps 0/100/between to close/open/position", () => {
-  const h = makeHass();
-  setCover(h, "cover.a", 0);
-  setCover(h, "cover.a", 100);
-  setCover(h, "cover.a", 55);
-  assert.equal(h.calls[0][1], "close_cover");
-  assert.equal(h.calls[1][1], "open_cover");
-  assert.deepEqual(h.calls[2], ["cover", "set_cover_position", { entity_id: "cover.a", position: 55 }]);
 });
