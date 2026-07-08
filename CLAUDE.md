@@ -7,10 +7,17 @@ do it; the user runs all visual/live testing.
 
 # Validation checklists
 
-This repo tracks a two-level validation checklist per automation/blueprint in
-`www/atrium/validation-checklists.json`, surfaced as checkable items in the
-Atrium dashboard's Routines tab (see `www/atrium/components/validation-card.js`
-for the implementation):
+The Atrium dashboard itself now lives in the separate
+[ha-atrium-dashboard](https://github.com/ericmatte/ha-atrium-dashboard) repo,
+installed via HACS. This repo tracks a two-level validation checklist per
+automation/blueprint in `atrium-validation-checklists.json`, surfaced as
+checkable items in the Atrium dashboard's Routines tab (see
+`components/validation-card.js` in that repo for the implementation).
+
+After installing or updating the dashboard via HACS, copy
+`atrium-validation-checklists.json` over
+`/config/www/community/ha-atrium-dashboard/validation-checklists.json` — HACS
+ships an empty manifest, so an update would otherwise reset it.
 
 - `change` — items to validate for the specific change just made. Checking
   one off just marks it done (struck through) — it stays visible. Remove it
@@ -22,7 +29,7 @@ for the implementation):
 **Whenever you change an automation or blueprint in this repo** (new
 behavior, changed thresholds/setpoints, removed logic, etc.), add or update
 the relevant `change` and `ongoing` entries for that automation in
-`www/atrium/validation-checklists.json` before considering the change done.
+`atrium-validation-checklists.json` before considering the change done.
 Use the automation/blueprint's snake_case key (matching its filename) as the
 top-level key in the JSON.
 

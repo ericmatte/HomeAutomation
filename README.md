@@ -10,10 +10,13 @@ I also have left my configuration files to give you some examples.
 ## HACS Projects
 
 - [ad-media-lights-sync](https://github.com/ericmatte/ad-media-lights-sync): Synchronize the color of RGB lights with the thumbnail of a media player
+- [ha-atrium-dashboard](https://github.com/ericmatte/ha-atrium-dashboard): Fully dynamic Lovelace dashboard (floors/rooms/entities read live from HA, no per-room YAML)
 
 ## Atrium Dashboard
 
-See [`www/atrium/README.md`](www/atrium/README.md) for setup instructions.
+Moved to its own repo, [ha-atrium-dashboard](https://github.com/ericmatte/ha-atrium-dashboard), installable via HACS. See that repo's README for setup instructions.
+
+This household's validation checklist content (for the optional checklist widget) lives in [`atrium-validation-checklists.json`](atrium-validation-checklists.json) — see [`CLAUDE.md`](CLAUDE.md) for the authoring convention. After installing or updating the dashboard via HACS, copy this file over `/config/www/community/ha-atrium-dashboard/validation-checklists.json` (HACS ships an empty manifest, so updates would otherwise reset it).
 
 ## Sub Projects
 
