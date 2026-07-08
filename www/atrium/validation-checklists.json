@@ -21,7 +21,7 @@
       },
       {
         "id": "heat-pump-trigger-responsive",
-        "text": "🌀 Un changement de current_temperature sur la thermopompe redéclenche bien l'automation rapidement, sans boucle de re-déclenchements causée par les propres actions de l'automation"
+        "text": "⏱️ L'automation se redéclenche seulement quand current_temperature franchit le seuil summer_target_temp + 2°C (pas à chaque petite variation de température), avec un jeu de ±0,5°C entre l'activation et la désactivation pour éviter le flicker, et sans boucle causée par les propres actions de l'automation"
       },
       {
         "id": "use-target-from-winter-only",

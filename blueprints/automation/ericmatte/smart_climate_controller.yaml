@@ -10,6 +10,7 @@ blueprint:
     - ✋ **Actions manuelles** : changer la consigne ou couper la thermopompe ne déclenche pas l'automation ; elle reprend seulement au prochain déclencheur prévu.
     - 🌀 **Anti-cycle court** : en été, si intérieur ≤ consigne − 1 °C → thermopompe OFF temporairement, évite les démarrages/arrêts rapprochés autour du setpoint intérieur.
     - ⏱️ **Anti-flicker seuil extérieur** : la température extérieure doit rester du même côté du seuil pendant 5 min avant de déclencher ON/OFF — pas d'oscillation quand la valeur frôle le seuil.
+    - ⏱️ **Anti-flicker boost ventilateur** : le déclencheur du boost a un jeu de ±0,5 °C (active à consigne +2,5 °C, désactive à consigne +1,5 °C) pour éviter le spam de déclenchements si l'intérieur oscille pile autour de +2 °C.
 
     ```
                           ┌──────────────────┐
@@ -211,16 +212,22 @@ trigger:
     for:
       minutes: 5
 
-  # Réactivité été : current_temperature est un attribut d'état de la thermopompe —
-  # ce trigger capte ses variations pour réagir vite au boost ventilateur.
-  # Scope volontairement limité à cet attribut (pas platform: state générique) pour
-  # éviter que les propres appels climate.set_temperature / climate.set_fan_mode de
-  # cette automation (qui touchent 'temperature' et 'fan_mode', pas 'current_temperature')
-  # ne se re-déclenchent eux-mêmes. Inoffensif en hiver (branche hiver n'utilise pas
-  # inside_temp).
-  - platform: state
+  # Réactivité été : boost ventilateur quand l'intérieur franchit summer_target_temp + 2°C.
+  # numeric_state (pas platform: state) pour ne déclencher QUE sur le franchissement du
+  # seuil, pas à chaque variation de current_temperature. value_template soustrait la marge
+  # pour comparer directement à summer_target_temp (déjà un !input numérique).
+  # Jeu de ±0.5°C entre les deux triggers (2.5 à la hausse, 1.5 à la baisse) pour éviter le
+  # flicker si l'intérieur oscille pile autour du seuil +2°C.
+  # Inoffensif en hiver (branche hiver n'utilise pas inside_temp).
+  - platform: numeric_state
     entity_id: !input heat_pump
-    attribute: current_temperature
+    value_template: "{{ (state.attributes.current_temperature | float(0)) - 2.5 }}"
+    above: !input summer_target_temp
+
+  - platform: numeric_state
+    entity_id: !input heat_pump
+    value_template: "{{ (state.attributes.current_temperature | float(0)) - 1.5 }}"
+    below: !input summer_target_temp
 
 variables:
   heat_pump: !input heat_pump
