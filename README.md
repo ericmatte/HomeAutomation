@@ -16,8 +16,6 @@ I also have left my configuration files to give you some examples.
 
 Moved to its own repo, [ha-atrium-dashboard](https://github.com/ericmatte/ha-atrium-dashboard), installable via HACS. See that repo's README for setup instructions.
 
-This household's validation checklist content (for the optional checklist widget) lives in [`atrium-validation-checklists.json`](atrium-validation-checklists.json) — see [`CLAUDE.md`](CLAUDE.md) for the authoring convention. After installing or updating the dashboard via HACS, copy this file over `/config/www/community/ha-atrium-dashboard/validation-checklists.json` (HACS ships an empty manifest, so updates would otherwise reset it).
-
 ## Sub Projects
 
 - [esphome](esphome): Small projects using ESP8266 devices
