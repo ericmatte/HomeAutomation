@@ -35,3 +35,35 @@ JS sources live in [`www/atrium/`](www/atrium/):
    ```
 
 6. Save. The dashboard rebuilds itself on every load from your HA floors/areas/entities.
+
+## Custom tabs
+
+`Home`, `Climate`, and `Routines` are auto-discovered from your HA floors/areas. Anything beyond that (energy monitoring, system health, etc.) is manual and config-driven via a `tabs` list on the strategy — there are zero of these until you add some, and each one you add is appended as its own tab, in order, after `Routines`:
+
+```yaml
+strategy:
+  type: custom:atrium
+  tabs:
+    - title: Energy
+      icon: mdi:lightning-bolt
+      cards:
+        - type: vertical-stack
+          cards: [...]
+    - title: Maintenance
+      icon: mdi:wrench
+      cards:
+        - type: entities
+          title: System Info
+          entities: [...]
+```
+
+Per tab:
+
+- `title` (required) — shown on the tab and as the view's header title.
+- `icon` (optional) — tab icon, defaults to `mdi:view-dashboard`.
+- `path` (optional) — URL path segment, defaults to `title` slugified (e.g. `Energy` → `energy`).
+- `cards` (optional) — any Lovelace cards, rendered as-is below the header.
+- `entities` (optional) — a plain list of entity IDs, rendered as a single `entities` card above `cards`.
+- `entities_title` (optional) — title for that `entities` card; defaults to the tab's `title`.
+
+There's no limit on how many tabs you add.

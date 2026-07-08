@@ -166,47 +166,43 @@ class AtriumStrategy {
     });
     routinesView.cards[0].cards.splice(1, 0, { type: "custom:atrium-validation-card" });
 
-    // Energy & Maintenance are aggregate/manual tabs: only what the user adds
-    // via YAML (no auto-discovery — the header pill covers batteries, and the
-    // user supplies their own energy cards). No floor/area accordion.
-    const energyView = baseView({
-      title: "Energy",
-      path: "energy",
-      icon: "mdi:lightning-bolt",
-      cards: [
-        stack([
-          headerCard(ALL_FLOOR_KEY, "Energy"),
-          paddedStack([
-            entitiesCard("Energy", cfgList(cfg.energy?.entities)),
-            ...cfgList(cfg.energy?.cards),
-          ]),
-        ]),
-      ],
-    });
+    // Custom tabs are aggregate/manual: only what the user adds via YAML (no
+    // auto-discovery — the header pill covers batteries, and the user
+    // supplies their own cards). No floor/area accordion. Fully config-driven
+    // so the dashboard ships with zero of them until `tabs` is populated.
+    const slugify = (title) =>
+      title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "") || "tab";
 
-    const maintenanceView = baseView({
-      title: "Maintenance",
-      path: "maintenance",
-      icon: "mdi:wrench",
-      cards: [
-        stack([
-          headerCard(ALL_FLOOR_KEY, "Maintenance"),
-          paddedStack([
-            entitiesCard("System", cfgList(cfg.maintenance?.entities)),
-            ...cfgList(cfg.maintenance?.cards),
+    const customTabView = (tab) => {
+      const title = tab.title || "Tab";
+      return baseView({
+        title,
+        path: tab.path || slugify(title),
+        icon: tab.icon || "mdi:view-dashboard",
+        cards: [
+          stack([
+            headerCard(ALL_FLOOR_KEY, title),
+            paddedStack([
+              entitiesCard(tab.entities_title || title, cfgList(tab.entities)),
+              ...cfgList(tab.cards),
+            ]),
           ]),
-        ]),
-      ],
-    });
+        ],
+      });
+    };
+
+    const customTabs = cfgList(cfg.tabs).map(customTabView);
 
     return {
       title: "Atrium",
       views: [
         homeView,
         climateView,
-        energyView,
-        maintenanceView,
         routinesView,
+        ...customTabs,
       ],
     };
   }
