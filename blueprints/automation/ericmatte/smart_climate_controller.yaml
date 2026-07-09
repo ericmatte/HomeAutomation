@@ -175,38 +175,47 @@ blueprint:
 mode: single
 
 trigger:
-  # ---- Triggers communs (hérités) ----
-  - platform: state
+  # ---- Triggers communs (both modes) ----
+  - id: anybody_home
+    platform: state
     entity_id:
       - !input anybody_home
 
-  - platform: numeric_state
+  - id: summer_mode_toggle
+    platform: state
+    entity_id: !input summer_mode
+
+  # ---- Triggers hiver ----
+  - id: outside_below_min
+    platform: numeric_state
     entity_id: !input outside_temp_sensor
     below: !input min_outside_temp
 
-  - platform: numeric_state
+  - id: outside_above_min
+    platform: numeric_state
     entity_id: !input outside_temp_sensor
     above: !input min_outside_temp
 
-  - platform: time
+  - id: time_from
+    platform: time
     at: !input use_target_from
 
-  - platform: time
+  - id: time_until
+    platform: time
     at: !input use_target_until
 
   # ---- Triggers été ----
-  - platform: state
-    entity_id: !input summer_mode
-
   # Debounce 5 min : évite le flicker quand la temp extérieure oscille autour du seuil.
   # Constante interne (non exposée en input).
-  - platform: numeric_state
+  - id: outside_above_summer
+    platform: numeric_state
     entity_id: !input outside_temp_sensor
     above: !input summer_target_temp
     for:
       minutes: 5
 
-  - platform: numeric_state
+  - id: outside_below_summer
+    platform: numeric_state
     entity_id: !input outside_temp_sensor
     below: !input summer_target_temp
     for:
@@ -218,13 +227,14 @@ trigger:
   # pour comparer directement à summer_target_temp (déjà un !input numérique).
   # Jeu de ±0.5°C entre les deux triggers (2.5 à la hausse, 1.5 à la baisse) pour éviter le
   # flicker si l'intérieur oscille pile autour du seuil +2°C.
-  # Inoffensif en hiver (branche hiver n'utilise pas inside_temp).
-  - platform: numeric_state
+  - id: fan_boost_on
+    platform: numeric_state
     entity_id: !input heat_pump
     value_template: "{{ (state.attributes.current_temperature | float(0)) - 2.5 }}"
     above: !input summer_target_temp
 
-  - platform: numeric_state
+  - id: fan_boost_off
+    platform: numeric_state
     entity_id: !input heat_pump
     value_template: "{{ (state.attributes.current_temperature | float(0)) - 1.5 }}"
     below: !input summer_target_temp
@@ -247,6 +257,11 @@ variables:
   summer_fan_boost_threshold: "{{ (summer_target_temp | float) + 2 }}"
   cool_off_margin: 1
   aux_summer_floor: !input aux_summer_floor
+  # Triggers valides par mode : un trigger propre à l'autre saison ne doit pas
+  # continuer l'exécution (ex. use_target_until ne doit pas agir en été).
+  common_trigger_ids: ["anybody_home", "summer_mode_toggle"]
+  summer_trigger_ids: "{{ common_trigger_ids + ['outside_above_summer', 'outside_below_summer', 'fan_boost_on', 'fan_boost_off'] }}"
+  winter_trigger_ids: "{{ common_trigger_ids + ['outside_below_min', 'outside_above_min', 'time_from', 'time_until'] }}"
   # Determine which target temperature to use (winter)
   effective_target_temp: >
     {% if use_target_from <= now().strftime('%H:%M:%S') < use_target_until and not is_state(anybody_home, 'off') %}
@@ -266,7 +281,7 @@ action:
       # ===================== SUMMER MODE =====================
       - conditions:
           - condition: template
-            value_template: "{{ is_summer }}"
+            value_template: "{{ is_summer and trigger.id in summer_trigger_ids }}"
         sequence:
           - variables:
               inside_temp: "{{ state_attr(heat_pump, 'current_temperature') | float(0) }}"
@@ -335,7 +350,7 @@ action:
       # ===================== WINTER MODE (logique originale, intacte) =====================
       - conditions:
           - condition: template
-            value_template: "{{ not is_summer }}"
+            value_template: "{{ not is_summer and trigger.id in winter_trigger_ids }}"
         sequence:
           - choose:
               # CASE 1: Too cold for heat pump
