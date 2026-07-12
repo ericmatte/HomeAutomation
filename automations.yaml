@@ -355,7 +355,7 @@
           temperature: 19
   mode: single
 - id: '1755723366418'
-  alias: Hidden 3-buttons remote
+  alias: Hidden 3-buttons remote + 1
   description: ''
   triggers:
   - trigger: state
@@ -407,12 +407,29 @@
           value_template: '{{ wait.completed }}'
           alias: Quick click
         then:
-        - action: light.toggle
-          metadata: {}
-          data:
-            transition: 1
-          target:
-            area_id: bedroom
+        - if:
+          - condition: light.is_on
+            target:
+              entity_id: light.bedroom_2
+            options:
+              behavior: any
+              for: 00:00:00
+          then:
+          - action: light.turn_off
+            metadata: {}
+            target:
+              area_id: bedroom
+            data:
+              transition: 1
+          else:
+          - action: light.turn_on
+            metadata: {}
+            target:
+              entity_id:
+              - light.caro_bedside_table
+              - light.eric_bedside_table
+            data:
+              transition: 1
         else:
         - if:
           - condition: state
@@ -1428,42 +1445,11 @@
     id: 'Off'
   conditions: []
   actions:
-  - if:
-    - condition: state
-      entity_id: light.rgbw_dimmer
-      state: 'off'
-    then:
-    - sequence:
-      - action: light.turn_on
-        metadata: {}
-        data:
-          brightness_pct: 100
-          rgbw_color:
-          - 130
-          - 59
-          - 0
-          - 255
-          transition: 1
-        target:
-          area_id: upstairs_bathroom
-      - delay:
-          hours: 1
-          minutes: 0
-          seconds: 0
-          milliseconds: 0
-      - action: light.turn_off
-        metadata: {}
-        data:
-          transition: 4
-        target:
-          area_id: upstairs_bathroom
-    else:
-    - action: light.turn_off
-      metadata: {}
-      data:
-        transition: 1
-      target:
-        area_id: upstairs_bathroom
+  - action: light.toggle
+    metadata: {}
+    target:
+      entity_id: light.upstairs_bathroom_open_closet
+    data: {}
   - choose:
     - conditions:
       - condition: trigger
@@ -2774,3 +2760,67 @@
       lights:
       - light.rgbw_dimmer
       - light.upstairs_bathroom_mirror_lights
+- id: '1783520549643'
+  alias: No heat when patio door is open
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.patio_door_contact
+    for:
+      seconds: 30
+    from:
+  conditions:
+  - condition: state
+    entity_id: binary_sensor.anybody
+    state: 'on'
+  actions:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: binary_sensor.patio_door_contact
+        state: 'on'
+      sequence:
+      - action: homeassistant.turn_off
+        target:
+          entity_id:
+          - climate.heat_pump
+          - automation.smart_heat_controller
+    default:
+    - action: automation.turn_on
+      target:
+        entity_id: automation.smart_heat_controller
+    - action: automation.trigger
+      target:
+        entity_id: automation.smart_heat_controller
+      data:
+        skip_condition: true
+  mode: single
+- id: '1783604527238'
+  alias: Dehumidifier at night
+  description: ''
+  triggers:
+  - trigger: time
+    at: 02:00:00
+    id: start
+  - trigger: time
+    at: 06:00:00
+  conditions: []
+  actions:
+  - if:
+    - condition: trigger
+      id:
+      - start
+    then:
+    - action: switch.turn_on
+      metadata: {}
+      target:
+        entity_id: switch.dehumidifier
+      data: {}
+    else:
+    - action: switch.turn_off
+      metadata: {}
+      target:
+        entity_id: switch.dehumidifier
+      data: {}
+  mode: single
