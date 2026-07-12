@@ -1085,6 +1085,7 @@
       fan_mode: auto
       summer_mode: input_boolean.climate_summer_mode
       summer_target_temp: 20
+      summer_min_outside_temp: 15
       aux_summer_floor: 16
 - id: '1760485855717'
   alias: Light on when opening workshop door
