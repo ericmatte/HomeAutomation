@@ -142,6 +142,40 @@ template:
         icon: mdi:flash-alert
         state: "{{ states('sensor.hydro_sherbrooke_daily_consumption') | float(0) > 40 }}"
 
+  - button:
+      - name: "Fan power"
+        unique_id: fan_power
+        icon: mdi:power
+        press:
+          - service: remote.send_command
+            target:
+              entity_id: remote.rm4
+            data:
+              device: fan
+              command: power
+
+      - name: "Fan speed"
+        unique_id: fan_speed
+        icon: mdi:fan-speed-2
+        press:
+          - service: remote.send_command
+            target:
+              entity_id: remote.rm4
+            data:
+              device: fan
+              command: speed
+
+      - name: "Fan swing"
+        unique_id: fan_swing
+        icon: mdi:arrow-oscillating
+        press:
+          - service: remote.send_command
+            target:
+              entity_id: remote.rm4
+            data:
+              device: fan
+              command: swing
+
 automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
