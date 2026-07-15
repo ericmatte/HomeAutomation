@@ -2824,3 +2824,48 @@
         entity_id: switch.dehumidifier
       data: {}
   mode: single
+- id: '1768488000000'
+  alias: Dehumidifier idle alert
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - switch.dehumidifier
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 30
+      seconds: 0
+  - trigger: numeric_state
+    entity_id:
+    - sensor.dehumidifier_power
+    below: 5
+    for:
+      hours: 0
+      minutes: 30
+      seconds: 0
+  conditions:
+  - condition: state
+    entity_id: switch.dehumidifier
+    state: 'on'
+    for:
+      hours: 0
+      minutes: 30
+      seconds: 0
+  - condition: numeric_state
+    entity_id: sensor.dehumidifier_power
+    below: 5
+    for:
+      hours: 0
+      minutes: 30
+      seconds: 0
+  actions:
+  - action: notify.send_message
+    target:
+      device_id:
+      - 8ee3772d771cbe4afa821d73874df182
+    data:
+      title: "\U0001F4A7 Déshumidificateur inactif"
+      message: Le déshumidificateur est allumé depuis 30 min mais ne consomme presque
+        rien. Le réservoir est peut-être plein.
+  mode: single
