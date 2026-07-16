@@ -2572,7 +2572,7 @@
       entity_id: cover.office_curtain
   mode: single
 - id: '1777033425146'
-  alias: Sync dining room with living room
+  alias: Sync entrance with living room
   description: ''
   use_blueprint:
     path: ericmatte/lights_sync.yaml
@@ -2580,7 +2580,7 @@
       lights:
       - light.left_floor_lamp
       - light.right_floor_lamp
-      - light.dining_room_pendants
+      - light.chandelier
       extra_conditions:
       - condition: sun
         after: sunset
