@@ -2697,6 +2697,7 @@
   - trigger: numeric_state
     entity_id:
     - sensor.dehumidifier_power
+    above: 0
     below: 5
     for:
       hours: 0
@@ -2712,6 +2713,7 @@
       seconds: 0
   - condition: numeric_state
     entity_id: sensor.dehumidifier_power
+    above: 0
     below: 5
   actions:
   - action: notify.send_message
