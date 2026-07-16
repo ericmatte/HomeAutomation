@@ -2713,10 +2713,6 @@
   - condition: numeric_state
     entity_id: sensor.dehumidifier_power
     below: 5
-    for:
-      hours: 0
-      minutes: 30
-      seconds: 0
   actions:
   - action: notify.send_message
     target:
