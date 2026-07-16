@@ -2686,14 +2686,6 @@
   alias: Dehumidifier idle alert
   description: ''
   triggers:
-  - trigger: state
-    entity_id:
-    - switch.dehumidifier
-    to: 'on'
-    for:
-      hours: 0
-      minutes: 30
-      seconds: 0
   - trigger: numeric_state
     entity_id:
     - sensor.dehumidifier_power
