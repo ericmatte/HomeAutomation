@@ -8,10 +8,8 @@ blueprint:
     - 🎯 **Action été** : auxiliaires épinglés au plancher (jamais de chauffage), puis cooling piloté par la température **intérieure** — la température extérieure ne sert plus qu'à un verrou bas.
     - 🌡️ **Bande morte été** : intérieur ≥ consigne + 0,5 °C → cooling ; intérieur ≤ consigne − 1 °C → OFF ; entre les deux → on garde l'état courant. Évite les cycles courts autour du setpoint.
     - 🔒 **Verrou extérieur été** : sous `summer_min_outside_temp`, climatiser n'a plus de sens (ouvrir les fenêtres suffit) → thermopompe OFF, même s'il fait encore chaud dedans. Hystérésis de +1 °C avant de relancer.
-    - 💨 **Ventilateur boosté** : en été, si l'intérieur atteint la consigne été + 2 °C, le ventilateur passe à `high` (au lieu du mode configuré) le temps de rattraper le retard.
     - ✋ **Actions manuelles** : changer la consigne ou couper la thermopompe ne déclenche pas l'automation ; elle reprend seulement au prochain déclencheur prévu.
     - ⏱️ **Anti-flicker seuil extérieur** : la température extérieure doit rester du même côté du seuil pendant 5 min avant de déclencher ON/OFF — pas d'oscillation quand la valeur frôle le seuil.
-    - ⏱️ **Anti-flicker boost ventilateur** : le déclencheur du boost a un jeu de ±0,5 °C (active à consigne +2,5 °C, désactive à consigne +1,5 °C) pour éviter le spam de déclenchements si l'intérieur oscille pile autour de +2 °C.
 
     ```
                           ┌──────────────────┐
@@ -39,8 +37,6 @@ blueprint:
                                             │HP OFF│ │ int ≥ cible + 0,5 → COOL  │
                                             └──────┘ │ int ≤ cible − 1   → OFF   │
                                                      │ sinon → état inchangé     │
-                                                     │ + boost ventilo           │
-                                                     │   si int ≥ cible + 2 °C   │
                                                      └───────────────────────────┘
     ```
 
@@ -255,21 +251,6 @@ trigger:
     value_template: "{{ (state.attributes.current_temperature | float(0)) + 1 }}"
     below: !input summer_target_temp
 
-  # Boost ventilateur quand l'intérieur franchit summer_target_temp + 2°C.
-  # Jeu de ±0.5°C entre les deux triggers (2.5 à la hausse, 1.5 à la baisse) pour éviter le
-  # flicker si l'intérieur oscille pile autour du seuil +2°C.
-  - id: fan_boost_on
-    platform: numeric_state
-    entity_id: !input heat_pump
-    value_template: "{{ (state.attributes.current_temperature | float(0)) - 2.5 }}"
-    above: !input summer_target_temp
-
-  - id: fan_boost_off
-    platform: numeric_state
-    entity_id: !input heat_pump
-    value_template: "{{ (state.attributes.current_temperature | float(0)) - 1.5 }}"
-    below: !input summer_target_temp
-
 variables:
   heat_pump: !input heat_pump
   aux_thermostats: !input aux_thermostats
@@ -286,14 +267,13 @@ variables:
   summer_mode: !input summer_mode
   summer_target_temp: !input summer_target_temp
   summer_min_outside_temp: !input summer_min_outside_temp
-  summer_fan_boost_threshold: "{{ (summer_target_temp | float) + 2 }}"
   cool_on_margin: 0.5
   cool_off_margin: 1
   aux_summer_floor: !input aux_summer_floor
   # Triggers valides par mode : un trigger propre à l'autre saison ne doit pas
   # continuer l'exécution (ex. use_target_until ne doit pas agir en été).
   common_trigger_ids: ["anybody_home", "summer_mode_toggle"]
-  summer_trigger_ids: "{{ common_trigger_ids + ['outside_lockout_on', 'outside_lockout_off', 'inside_above_target', 'inside_below_target', 'fan_boost_on', 'fan_boost_off'] }}"
+  summer_trigger_ids: "{{ common_trigger_ids + ['outside_lockout_on', 'outside_lockout_off', 'inside_above_target', 'inside_below_target'] }}"
   winter_trigger_ids: "{{ common_trigger_ids + ['outside_below_min', 'outside_above_min', 'time_from', 'time_until'] }}"
   # Determine which target temperature to use (winter)
   effective_target_temp: >
@@ -355,19 +335,15 @@ action:
                   temperature: "{{ summer_target_temp }}"
                   hvac_mode: cool
 
-              # Boost ventilo si l'intérieur traîne loin au-dessus de la cible
-              - variables:
-                  summer_fan_target: "{{ 'high' if inside_temp >= (summer_fan_boost_threshold | float) else fan_mode }}"
-
               - delay:
                   seconds: 2
               - condition: template
-                value_template: "{{ state_attr(heat_pump, 'fan_mode') != summer_fan_target }}"
+                value_template: "{{ state_attr(heat_pump, 'fan_mode') != fan_mode }}"
               - service: climate.set_fan_mode
                 target:
                   entity_id: "{{ heat_pump }}"
                 data:
-                  fan_mode: "{{ summer_fan_target }}"
+                  fan_mode: "{{ fan_mode }}"
 
       # ===================== WINTER MODE (logique originale, intacte) =====================
       - conditions:
