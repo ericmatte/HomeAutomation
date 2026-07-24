@@ -491,7 +491,7 @@ git commit -am "feat(mystery): dialogues des trois suspects (TTS localisé)"
   conditions:
     - condition: state
       entity_id: input_select.mystery_phase
-      state: ["investigation", "autopsy_done"]
+      state: ["investigation"]
   actions:
     - action: script.mystery_suspect_speak
       data:
@@ -948,27 +948,31 @@ git commit -am "feat(mystery): bouton téléphone lance l'accusation"
 
 ---
 
-### Task 12 : Intégration, désactivation de la v1, partie complète
+### Task 12 : Intégration et partie complète
 
 **Files:**
-- Modify : `automations.yaml` (désactiver les automations v1 de l'escape room)
 - Modify : `docs/escape-room-v2/todo-physical-setup.md` (cocher ce qui est fait)
 
 **Interfaces:**
 - Consumes : tout ce qui précède.
-- Produces : une partie complète jouable de bout en bout ; v1 désactivée pour
-  éviter les interférences (via `automation.turn_off` / désactivation registre,
-  **jamais** en supprimant la config v1).
+- Produces : une partie complète jouable de bout en bout.
 
-- [ ] **Step 1 : Désactiver les automations v1** (registre ou
-  `automation.turn_off`) : `Escape room - Part 2`, `Phone call` — pour qu'elles
-  n'interceptent pas les capteurs/bouton pendant une partie v2.
+> **La v1 est intégralement conservée et n'est PAS désactivée.** v1 et v2
+> coexistent et restent toutes deux jouables. La cohabitation des éléments
+> physiques partagés (bouton Zigbee, capteur de vibration) est gérée
+> **manuellement par Eric** (il déplace le capteur / n'active qu'un jeu à la
+> fois) — **aucun code de cohabitation n'est requis**.
 
-- [ ] **Step 2 : Partie complète (Eric)** — `script.mystery_reset`, puis
+- [ ] **Step 1 : Partie complète (Eric)** — `script.mystery_reset`, puis
   `script.mystery_start` (delay 0). Jouer : intro police → interroger les 3
   suspects (Echo/Sonos/Google Home) → trouver le vin empoisonné → rappel
   autopsie → bouton téléphone → accusation Majordome/poison/salle à manger →
   dénouement victoire. Vérifier Roby en cours de route.
+
+- [ ] **Step 2 : Calibrer Roby** — Claude pilote Roby via le MCP
+  (`vacuum.send_command` / `app_goto_target`), Eric observe où il s'arrête, on
+  affine `COORD_DINING` (départ `[18500, 25500]`). Mettre à jour le script
+  `mystery_roby_to_dining` et `design.md`.
 
 - [ ] **Step 3 : Vérifier le reset** — `script.mystery_reset` remet tout à zéro
   (phase idle, booleans off, médias stop, motion automations on, Roby au dock).
@@ -976,10 +980,142 @@ git commit -am "feat(mystery): bouton téléphone lance l'accusation"
 - [ ] **Step 4 : Mettre à jour la todo** — cocher les éléments réalisés,
   consigner la coordonnée Roby calibrée.
 
-- [ ] **Step 5 : Commit**
+- [ ] **Step 5 : Commit** (uniquement les docs mis à jour)
 
 ```bash
-git commit -am "feat(mystery): intégration finale + désactivation escape room v1"
+git commit -am "docs(mystery): cocher la todo + coordonnée Roby calibrée"
+```
+
+---
+
+### Task 13 : Fausse piste du tiroir à couteaux (Majordome)
+
+**Files:**
+- Modify : `automations.yaml`
+
+**Interfaces:**
+- Consumes : `binary_sensor.closed_closet_sensor_contact` (capteur du closet de la
+  chambre, **déplacé physiquement par Eric sur le tiroir à couteaux de la
+  cuisine**), `media_player.google_home_mini`, TTS, `input_select.mystery_phase`.
+- Produces : quand on ouvre le tiroir à couteaux pendant l'enquête, la voix du
+  Majordome (Google Home) feint l'innocence — fausse piste vers le couteau.
+
+- [ ] **Step 1 : Écrire l'automation**
+
+```yaml
+- id: mystery_knife_drawer
+  alias: "Mystery - Knife drawer red herring"
+  mode: single
+  triggers:
+    - trigger: state
+      entity_id: binary_sensor.closed_closet_sensor_contact
+      to: "on"
+  conditions:
+    - condition: state
+      entity_id: input_select.mystery_phase
+      state: ["investigation"]
+  actions:
+    - action: media_player.volume_set
+      target: { entity_id: media_player.google_home_mini }
+      data: { volume_level: 0.6 }
+    - action: tts.speak
+      target: { entity_id: tts.home_assistant_cloud }
+      data:
+        cache: true
+        language: fr-FR
+        media_player_entity_id: media_player.google_home_mini
+        message: >-
+          Un couteau manquant dans ce tiroir ? Mon Dieu... Je n'y toucherais
+          jamais, voyons. Le service, uniquement le service. C'est le Jardinier
+          qui passe son temps dans cette cuisine, pas moi.
+```
+
+- [ ] **Step 2 : Valider** — `python3 -c "import yaml; yaml.safe_load(open('automations.yaml'))"` sans erreur.
+
+- [ ] **Step 3 : Checkpoint live (Eric)** — phase `investigation`, ouvrir le
+  tiroir à couteaux (capteur closet déplacé) → le Majordome feint l'innocence.
+
+- [ ] **Step 4 : Commit**
+
+```bash
+git commit -am "feat(mystery): fausse piste du tiroir à couteaux (Majordome)"
+```
+
+---
+
+### Task 14 : Cohabitation v1 ↔ v2 (garde par input_boolean)
+
+Empêche que le bouton Zigbee et le capteur de vibration, **partagés** entre la
+v1 et la v2, déclenchent la v1 pendant une partie v2. **La v1 n'est ni
+supprimée ni désactivée** : on lui ajoute seulement une *condition de garde*.
+
+**Files:**
+- Modify : `configuration.yaml` (ajouter `input_boolean.escape_v2_active`)
+- Modify : `scripts.yaml` (`mystery_start` allume le flag, `mystery_reset`
+  l'éteint)
+- Modify : `automations.yaml` (ajouter une condition de garde aux 2 automations
+  v1 qui partagent le bouton/vibration)
+
+**Interfaces:**
+- Produces : `input_boolean.escape_v2_active` — `on` pendant une partie v2, `off`
+  sinon. Les automations v1 `Escape room - Part 2` et `Phone call` ne se
+  déclenchent que lorsque le flag est `off`.
+- Note : la v2 est déjà isolée dans l'autre sens par sa garde de phase
+  (`mystery_phase` doit valoir `investigation`/`autopsy_done`/`accusation`), donc
+  une partie v1 (phase `idle`) ne déclenche jamais la v2. Le flag couvre le sens
+  v2 → bloque v1.
+
+- [ ] **Step 1 : Ajouter le helper** dans `configuration.yaml`, dans la section
+  `input_boolean:` existante :
+
+```yaml
+  escape_v2_active:
+    name: Escape v2 Active
+    icon: mdi:incognito
+```
+
+- [ ] **Step 2 : `mystery_start` allume le flag** — insérer tout au début du
+  `sequence:` de `mystery_start` (avant le `delay`) :
+
+```yaml
+    - action: input_boolean.turn_on
+      target: { entity_id: input_boolean.escape_v2_active }
+```
+
+- [ ] **Step 3 : `mystery_reset` éteint le flag** — ajouter dans la séquence de
+  `mystery_reset` (par ex. juste après la remise de phase à `idle`) :
+
+```yaml
+    - action: input_boolean.turn_off
+      target: { entity_id: input_boolean.escape_v2_active }
+```
+
+- [ ] **Step 4 : Garde sur les automations v1** — dans `automations.yaml`, aux
+  automations `Escape room - Part 2` (id `1768618057000`) et `Phone call`
+  (id `1768185894945`), ajouter dans leur bloc `conditions:` (qui est
+  actuellement `[]`) :
+
+```yaml
+  conditions:
+    - condition: state
+      entity_id: input_boolean.escape_v2_active
+      state: "off"
+```
+
+  Ne modifier QUE le bloc `conditions:` de ces deux automations — ne toucher ni
+  à leurs triggers, ni à leurs actions.
+
+- [ ] **Step 5 : Valider** — `python3 -c "import yaml; yaml.safe_load(open('automations.yaml'))"` et
+  `yaml.safe_load` du bloc ajouté à `configuration.yaml` ; `scripts.yaml` parse.
+
+- [ ] **Step 6 : Checkpoint live (Eric)** — lancer une partie v2 : le bouton et
+  la vibration ne déclenchent plus la v1. Après `mystery_reset`, la v1 redevient
+  jouable normalement.
+
+- [ ] **Step 7 : Commit**
+
+```bash
+git commit -am "feat(mystery): garde de cohabitation v1/v2 (input_boolean)"
 ```
 
 ---

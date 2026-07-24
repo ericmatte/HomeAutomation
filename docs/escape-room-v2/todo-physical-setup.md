@@ -24,6 +24,9 @@ jeu tourne. Le code (scripts, automations, scènes) est géré séparément.
 - [ ] **Porte de l'atelier** (`binary_sensor.door_sensor_contact`) — utilisée
       telle quelle pour déclencher le Jardinier. ✔️
 - [ ] **Déclencheur du salon** (Héritière) : le même bouton que dans Escape Room v1 (bouton Zigbee) qui appelait le Echo avec "hey par ici..."
+- [ ] **Capteur du closet de la chambre** (`binary_sensor.closed_closet_sensor_contact`)
+      — **déplacer sur le tiroir à couteaux de la cuisine**. L'ouvrir déclenche
+      une réplique trompeuse du Majordome (fausse piste vers le couteau).
 
 ## 🎭 3. Objets physiques à préparer
 
