@@ -2744,3 +2744,28 @@
     - action: script.mystery_suspect_speak
       data:
         suspect: "{{ trigger.id }}"
+- id: mystery_wine_evidence
+  alias: "Mystery - Wine bottle evidence"
+  mode: single
+  triggers:
+    - trigger: state
+      entity_id: binary_sensor.vibration_sensor_vibration
+      to: "on"
+  conditions:
+    - condition: state
+      entity_id: input_select.mystery_phase
+      state: ["investigation", "autopsy_done"]
+  actions:
+    - action: media_player.volume_set
+      target: { entity_id: media_player.google_home_mini }
+      data: { volume_level: 0.6 }
+    - action: tts.speak
+      target: { entity_id: tts.home_assistant_cloud }
+      data:
+        cache: true
+        language: fr-FR
+        media_player_entity_id: media_player.google_home_mini
+        message: >-
+          Attention... cette bouteille de vin. L'analyse révèle des traces de
+          poison. Quelqu'un a versé une substance mortelle dans le vin de la
+          victime.
