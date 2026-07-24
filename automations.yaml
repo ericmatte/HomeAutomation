@@ -2717,3 +2717,30 @@
       message: Le déshumidificateur est allumé depuis 30 min mais ne consomme presque
         rien. Le réservoir est peut-être plein.
   mode: single
+- id: mystery_suspect_triggers
+  alias: "Mystery - Suspect triggers"
+  mode: queued
+  max: 5
+  triggers:
+    - trigger: state
+      entity_id: binary_sensor.door_sensor_contact
+      to: "on"
+      id: gardener
+    - trigger: state
+      entity_id: binary_sensor.patio_door_contact
+      to: "on"
+      id: butler
+    - trigger: device
+      domain: mqtt
+      device_id: 8317fbc3ea314ec40186f0d8ec39998d
+      type: action
+      subtype: single
+      id: heiress
+  conditions:
+    - condition: state
+      entity_id: input_select.mystery_phase
+      state: ["investigation", "autopsy_done"]
+  actions:
+    - action: script.mystery_suspect_speak
+      data:
+        suspect: "{{ trigger.id }}"
