@@ -788,3 +788,66 @@ mystery_accusation:
       continue_on_error: true
       data:
         success: "{{ solved }}"
+
+mystery_denouement:
+  alias: "Mystery - Denouement"
+  mode: single
+  fields:
+    success:
+      name: Success
+      selector: { boolean: {} }
+      default: false
+  sequence:
+    - if: "{{ success }}"
+      then:
+        - action: input_select.select_option
+          target: { entity_id: input_select.mystery_phase }
+          data: { option: solved }
+        - action: assist_satellite.announce
+          target: { entity_id: assist_satellite.192_168_0_160 }
+          data:
+            preannounce: false
+            message: >-
+              Bravo, détective ! C'est exact : le Majordome a empoisonné le vin
+              dans la salle à manger. Affaire classée. La maison vous doit une
+              fière chandelle.
+        - action: media_player.play_media
+          target: { entity_id: media_player.sonos }
+          data:
+            media_content_type: audio/mpeg
+            media_content_id: "media-source://media_source/local/Dramatic Reveal.mp3"
+        - delay: { seconds: 4 }
+        - action: media_player.play_media
+          target: { entity_id: media_player.sonos }
+          data:
+            media_content_type: audio/mpeg
+            media_content_id: "media-source://media_source/local/Victory Theme.mp3"
+        - action: light.turn_on
+          target:
+            entity_id: [light.left_floor_lamp, light.right_floor_lamp]
+          data: { rgb_color: [0, 255, 0], brightness_pct: 100, transition: 2 }
+        - action: cover.open_cover
+          target:
+            entity_id:
+              - cover.theatre_middle_shade
+              - cover.theatre_left_shade
+              - cover.theatre_right_shade
+          continue_on_error: true
+      else:
+        - action: input_select.select_option
+          target: { entity_id: input_select.mystery_phase }
+          data: { option: autopsy_done }
+        - action: media_player.play_media
+          target: { entity_id: media_player.sonos }
+          data:
+            media_content_type: audio/mpeg
+            media_content_id: "media-source://media_source/local/Wrong Answer Sting.mp3"
+        - delay: { seconds: 2 }
+        - action: assist_satellite.announce
+          target: { entity_id: assist_satellite.192_168_0_160 }
+          data:
+            preannounce: false
+            message: >-
+              Hmm... ça ne colle pas, détective. Reprenez les indices : le vin,
+              le rapport d'autopsie, les alibis. Revenez me voir quand vous
+              serez sûr.
