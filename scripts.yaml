@@ -638,6 +638,14 @@ mystery_start:
     - action: input_select.select_option
       target: { entity_id: input_select.mystery_phase }
       data: { option: investigation }
+    - action: media_player.volume_set
+      target: { entity_id: media_player.sonos }
+      data: { volume_level: 0.25 }
+    - action: media_player.play_media
+      target: { entity_id: media_player.sonos }
+      data:
+        media_content_type: audio/mpeg
+        media_content_id: "media-source://media_source/local/Investigation Ambience.mp3"
     - action: script.mystery_roby_to_dining
       continue_on_error: true
 mystery_suspect_speak:
@@ -683,36 +691,54 @@ mystery_suspect_speak:
       {% else %}
       Le service, toujours le service. Le vin était... parfait.
       {% endif %}
+    is_heiress: "{{ suspect == 'heiress' }}"
+    line: "{{ first_line if is_state(done_flag, 'off') else repeat_line }}"
   sequence:
+    - if: "{{ is_heiress }}"
+      then:
+        - action: media_player.media_pause
+          target: { entity_id: media_player.sonos }
+          continue_on_error: true
+        - delay: { milliseconds: 300 }
     - action: media_player.volume_set
       target: { entity_id: "{{ speaker }}" }
       data: { volume_level: 0.6 }
-    - if:
-        - condition: template
-          value_template: "{{ is_state(done_flag, 'off') }}"
+    - action: tts.speak
+      target: { entity_id: tts.home_assistant_cloud }
+      data:
+        cache: true
+        language: fr-FR
+        media_player_entity_id: "{{ speaker }}"
+        message: "{{ line }}"
+    - if: "{{ is_state(done_flag, 'off') }}"
       then:
-        - action: tts.speak
-          target: { entity_id: tts.home_assistant_cloud }
-          data:
-            cache: true
-            language: fr-FR
-            media_player_entity_id: "{{ speaker }}"
-            message: "{{ first_line }}"
         - action: input_boolean.turn_on
           target: { entity_id: "{{ done_flag }}" }
-      else:
-        - action: tts.speak
-          target: { entity_id: tts.home_assistant_cloud }
-          data:
-            cache: true
-            language: fr-FR
-            media_player_entity_id: "{{ speaker }}"
-            message: "{{ repeat_line }}"
+    - if: "{{ is_heiress }}"
+      then:
+        - delay: { seconds: 1 }
+        - wait_template: "{{ not is_state('media_player.sonos', 'playing') }}"
+          timeout: "00:00:30"
+          continue_on_timeout: true
+        - if: "{{ is_state('input_select.mystery_phase', 'investigation') }}"
+          then:
+            - action: media_player.volume_set
+              target: { entity_id: media_player.sonos }
+              data: { volume_level: 0.25 }
+            - action: media_player.media_play
+              target: { entity_id: media_player.sonos }
+              continue_on_error: true
 
 mystery_police_callback:
   alias: "Mystery - Police callback (autopsy)"
   mode: single
   sequence:
+    - action: media_player.media_stop
+      target: { entity_id: media_player.sonos }
+      continue_on_error: true
+    - action: input_select.select_option
+      target: { entity_id: input_select.mystery_phase }
+      data: { option: autopsy_done }
     - action: media_player.play_media
       target: { entity_id: media_player.sonos }
       data:
@@ -729,9 +755,6 @@ mystery_police_callback:
           EMPOISONNÉE. Oubliez le fusil et la scie, ce sont des diversions.
           Cherchez ce que la victime a bu ou mangé. Quand vous aurez tout
           rassemblé, revenez me voir pour l'accusation.
-    - action: input_select.select_option
-      target: { entity_id: input_select.mystery_phase }
-      data: { option: autopsy_done }
 
 mystery_accusation:
   alias: "Mystery - Accusation"
