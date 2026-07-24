@@ -534,3 +534,94 @@ mystery_reset:
       entity_id: scene.reset_after_escape_room
     data:
       transition: 2
+mystery_start:
+  alias: "Mystery - Start"
+  mode: restart
+  fields:
+    start_delay:
+      name: Initial delay (seconds)
+      selector:
+        number: { min: 0, max: 300, step: 1 }
+      default: 0
+  sequence:
+    - delay: { seconds: "{{ start_delay | int }}" }
+    # Désactiver l'éclairage automatique par mouvement pendant le jeu
+    - action: automation.turn_off
+      data: { stop_actions: true }
+      target:
+        entity_id: "{{ label_entities('motions') }}"
+    - action: input_select.select_option
+      target: { entity_id: input_select.mystery_phase }
+      data: { option: idle }
+    # --- PHASE 0 : la police arrive ---
+    - action: light.turn_off
+      target:
+        entity_id: all
+      data: { transition: 2 }
+    - delay: { seconds: 2 }
+    - action: media_player.volume_set
+      target: { entity_id: media_player.sonos }
+      data: { volume_level: 0.5 }
+    - action: media_player.play_media
+      target: { entity_id: media_player.sonos }
+      data:
+        media_content_type: audio/mpeg
+        media_content_id: "media-source://media_source/local/Police Sirens.mp3"
+    # Gyrophares bleu/rouge alternés (~15 s)
+    - repeat:
+        count: 15
+        sequence:
+          - action: light.turn_on
+            target: { entity_id: light.left_floor_lamp }
+            data: { rgb_color: [0, 0, 255], brightness_pct: 100 }
+          - action: light.turn_on
+            target: { entity_id: light.right_floor_lamp }
+            data: { rgb_color: [255, 0, 0], brightness_pct: 100 }
+          - delay: { milliseconds: 500 }
+          - action: light.turn_on
+            target: { entity_id: light.left_floor_lamp }
+            data: { rgb_color: [255, 0, 0], brightness_pct: 100 }
+          - action: light.turn_on
+            target: { entity_id: light.right_floor_lamp }
+            data: { rgb_color: [0, 0, 255], brightness_pct: 100 }
+          - delay: { milliseconds: 500 }
+    - action: media_player.play_media
+      target: { entity_id: media_player.sonos }
+      data:
+        media_content_type: audio/mpeg
+        media_content_id: "media-source://media_source/local/Police Radio Chatter.mp3"
+    - delay: { seconds: 12 }
+    - action: media_player.play_media
+      target: { entity_id: media_player.sonos }
+      data:
+        media_content_type: audio/mpeg
+        media_content_id: "media-source://media_source/local/Car Drive Away.mp3"
+    - action: light.turn_off
+      target: { entity_id: [light.left_floor_lamp, light.right_floor_lamp] }
+      data: { transition: 2 }
+    - delay: { seconds: 3 }
+    # --- PHASE 0→1 : le téléphone sonne ---
+    - action: media_player.play_media
+      target: { entity_id: media_player.sonos }
+      data:
+        media_content_type: audio/mpeg
+        media_content_id: "media-source://media_source/local/Phone Ringing.mp3"
+    - delay: { seconds: 3 }
+    # --- PHASE 1 : briefing de l'inspecteur (téléphone) ---
+    - action: assist_satellite.announce
+      target: { entity_id: assist_satellite.192_168_0_160 }
+      data:
+        preannounce: false
+        message: >-
+          Allô ? Ici l'inspecteur Lumière. Un meurtre a eu lieu chez vous ce
+          soir, et votre maison a tout enregistré. J'ai besoin de vous comme
+          détective. Trois choses à découvrir : QUI est le coupable, AVEC QUOI,
+          et OÙ. Il y a trois suspects dans la maison : le Jardinier, l'Héritière
+          et le Majordome. Allez les interroger : entrez dans une pièce et
+          faites-les parler. Revenez me voir quand vous serez prêt à accuser.
+          Bonne chance.
+    - action: input_select.select_option
+      target: { entity_id: input_select.mystery_phase }
+      data: { option: investigation }
+    - action: script.mystery_roby_to_dining
+      continue_on_error: true
