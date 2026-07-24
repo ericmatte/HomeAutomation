@@ -2795,3 +2795,18 @@
   actions:
     - delay: { seconds: 5 }
     - action: script.mystery_police_callback
+- id: mystery_phone_button
+  alias: "Mystery - Phone button"
+  mode: single
+  triggers:
+    - trigger: device
+      domain: mqtt
+      device_id: 8317fbc3ea314ec40186f0d8ec39998d
+      type: action
+      subtype: single
+  conditions:
+    - condition: state
+      entity_id: input_select.mystery_phase
+      state: ["autopsy_done", "accusation"]
+  actions:
+    - action: script.mystery_accusation
