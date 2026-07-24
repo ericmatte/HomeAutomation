@@ -625,3 +625,71 @@ mystery_start:
       data: { option: investigation }
     - action: script.mystery_roby_to_dining
       continue_on_error: true
+mystery_suspect_speak:
+  alias: "Mystery - Suspect speaks"
+  mode: queued
+  max: 5
+  fields:
+    suspect:
+      name: Suspect
+      selector:
+        select:
+          options: ["gardener", "heiress", "butler"]
+      required: true
+  variables:
+    speaker: >-
+      {{ {'gardener': 'media_player.workshop_echo',
+          'heiress': 'media_player.sonos',
+          'butler': 'media_player.google_home_mini'}[suspect] }}
+    done_flag: >-
+      {{ {'gardener': 'input_boolean.mystery_gardener_done',
+          'heiress': 'input_boolean.mystery_heiress_done',
+          'butler': 'input_boolean.mystery_butler_done'}[suspect] }}
+    first_line: >-
+      {% if suspect == 'gardener' %}
+      Ah, un détective... Moi, le Jardinier ? J'étais à l'atelier toute la
+      soirée à affûter ma scie. Je n'ai rien vu. Mais si vous voulez mon avis,
+      le Majordome n'arrêtait pas de rôder dans la salle à manger avec sa
+      bouteille de vin.
+      {% elif suspect == 'heiress' %}
+      Moi, l'Héritière ? J'étais au salon, seule, à ne rien faire du tout.
+      Certainement pas avec mon fusil. Le Jardinier, lui, semblait bien nerveux
+      avec sa scie ce soir.
+      {% else %}
+      Je faisais mon devoir, Monsieur. Je servais le vin en salle à manger,
+      comme toujours. Un service irréprochable. L'Héritière, en revanche,
+      détestait la victime : une sordide histoire d'héritage.
+      {% endif %}
+    repeat_line: >-
+      {% if suspect == 'gardener' %}
+      Je vous l'ai dit, j'étais à l'atelier. Regardez plutôt du côté du vin.
+      {% elif suspect == 'heiress' %}
+      J'étais au salon, un point c'est tout. Mon fusil n'a jamais servi.
+      {% else %}
+      Le service, toujours le service. Le vin était... parfait.
+      {% endif %}
+  sequence:
+    - action: media_player.volume_set
+      target: { entity_id: "{{ speaker }}" }
+      data: { volume_level: 0.6 }
+    - if:
+        - condition: template
+          value_template: "{{ is_state(done_flag, 'off') }}"
+      then:
+        - action: tts.speak
+          target: { entity_id: tts.home_assistant_cloud }
+          data:
+            cache: true
+            language: fr-FR
+            media_player_entity_id: "{{ speaker }}"
+            message: "{{ first_line }}"
+        - action: input_boolean.turn_on
+          target: { entity_id: "{{ done_flag }}" }
+      else:
+        - action: tts.speak
+          target: { entity_id: tts.home_assistant_cloud }
+          data:
+            cache: true
+            language: fr-FR
+            media_player_entity_id: "{{ speaker }}"
+            message: "{{ repeat_line }}"
