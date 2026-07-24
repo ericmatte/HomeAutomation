@@ -176,6 +176,29 @@ template:
               device: fan
               command: swing
 
+input_select:
+  mystery_phase:
+    name: Mystery Phase
+    icon: mdi:magnify-scan
+    options:
+      - idle
+      - investigation
+      - autopsy_done
+      - accusation
+      - solved
+    initial: idle
+
+input_boolean:
+  mystery_gardener_done:
+    name: Mystery Gardener Done
+    icon: mdi:account-question
+  mystery_heiress_done:
+    name: Mystery Heiress Done
+    icon: mdi:account-question
+  mystery_butler_done:
+    name: Mystery Butler Done
+    icon: mdi:account-question
+
 automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
