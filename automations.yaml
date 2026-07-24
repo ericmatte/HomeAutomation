@@ -1613,7 +1613,10 @@
     subtype: single
     trigger: device
     id: single press
-  conditions: []
+  conditions:
+  - condition: state
+    entity_id: input_boolean.escape_v2_active
+    state: "off"
   actions:
   - action: assist_satellite.ask_question
     metadata: {}
@@ -1731,7 +1734,10 @@
     to:
     - 'on'
     id: treasure
-  conditions: []
+  conditions:
+  - condition: state
+    entity_id: input_boolean.escape_v2_active
+    state: "off"
   actions:
   - choose:
     - conditions:

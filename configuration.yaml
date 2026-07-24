@@ -198,6 +198,9 @@ input_boolean:
   mystery_butler_done:
     name: Mystery Butler Done
     icon: mdi:account-question
+  escape_v2_active:
+    name: Escape v2 Active
+    icon: mdi:incognito
 
 automation: !include automations.yaml
 script: !include scripts.yaml

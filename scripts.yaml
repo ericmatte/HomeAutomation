@@ -518,6 +518,9 @@ mystery_reset:
       option: idle
   - action: input_boolean.turn_off
     target:
+      entity_id: input_boolean.escape_v2_active
+  - action: input_boolean.turn_off
+    target:
       entity_id:
       - input_boolean.mystery_gardener_done
       - input_boolean.mystery_heiress_done
@@ -554,6 +557,8 @@ mystery_start:
         number: { min: 0, max: 300, step: 1 }
       default: 0
   sequence:
+    - action: input_boolean.turn_on
+      target: { entity_id: input_boolean.escape_v2_active }
     - delay: { seconds: "{{ start_delay | int }}" }
     # Désactiver l'éclairage automatique par mouvement pendant le jeu
     - action: automation.turn_off
