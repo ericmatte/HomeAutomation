@@ -727,3 +727,64 @@ mystery_police_callback:
     - action: input_select.select_option
       target: { entity_id: input_select.mystery_phase }
       data: { option: autopsy_done }
+
+mystery_accusation:
+  alias: "Mystery - Accusation"
+  mode: single
+  variables:
+    yesno:
+      - id: "yes"
+        sentences: ["oui", "yes"]
+      - id: "no"
+        sentences: ["non", "no"]
+  sequence:
+    - action: input_select.select_option
+      target: { entity_id: input_select.mystery_phase }
+      data: { option: accusation }
+    # --- QUI ---
+    - action: assist_satellite.ask_question
+      target: { entity_id: assist_satellite.192_168_0_160 }
+      data:
+        preannounce: false
+        question: "Passons à l'accusation. Le coupable est-il le Jardinier ? Répondez oui ou non."
+        answers: "{{ yesno }}"
+      response_variable: a_gardener
+    - if: "{{ a_gardener.id == 'yes' }}"
+      then:
+        - variables: { culprit: gardener }
+      else:
+        - action: assist_satellite.ask_question
+          target: { entity_id: assist_satellite.192_168_0_160 }
+          data:
+            preannounce: false
+            question: "Est-ce l'Héritière ? Oui ou non."
+            answers: "{{ yesno }}"
+          response_variable: a_heiress
+        - if: "{{ a_heiress.id == 'yes' }}"
+          then:
+            - variables: { culprit: heiress }
+          else:
+            - variables: { culprit: butler }
+    # --- AVEC QUOI ---
+    - action: assist_satellite.ask_question
+      target: { entity_id: assist_satellite.192_168_0_160 }
+      data:
+        preannounce: false
+        question: "L'arme du crime est-elle le poison ? Oui ou non."
+        answers: "{{ yesno }}"
+      response_variable: a_poison
+    # --- OÙ ---
+    - action: assist_satellite.ask_question
+      target: { entity_id: assist_satellite.192_168_0_160 }
+      data:
+        preannounce: false
+        question: "Et le crime a-t-il eu lieu dans la salle à manger ? Oui ou non."
+        answers: "{{ yesno }}"
+      response_variable: a_dining
+    - variables:
+        solved: >-
+          {{ culprit == 'butler' and a_poison.id == 'yes' and a_dining.id == 'yes' }}
+    - action: script.mystery_denouement
+      continue_on_error: true
+      data:
+        success: "{{ solved }}"
