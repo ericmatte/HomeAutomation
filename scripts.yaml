@@ -496,3 +496,41 @@ reset_after_escape_roome:
     data: {}
   alias: Reset after escape room
   description: ''
+mystery_reset:
+  alias: "Mystery - Reset"
+  mode: restart
+  sequence:
+  - action: media_player.media_stop
+    target:
+      entity_id:
+      - media_player.sonos
+      - media_player.workshop_echo
+      - media_player.google_home_mini
+    continue_on_error: true
+  - action: media_player.turn_off
+    target:
+      entity_id: media_player.theatre_tv
+    continue_on_error: true
+  - action: input_select.select_option
+    target:
+      entity_id: input_select.mystery_phase
+    data:
+      option: idle
+  - action: input_boolean.turn_off
+    target:
+      entity_id:
+      - input_boolean.mystery_gardener_done
+      - input_boolean.mystery_heiress_done
+      - input_boolean.mystery_butler_done
+  - action: automation.turn_on
+    target:
+      entity_id: "{{ label_entities('motions') }}"
+  - action: vacuum.return_to_base
+    target:
+      entity_id: vacuum.roborock_s5_7c79_robot_cleaner
+    continue_on_error: true
+  - action: scene.turn_on
+    target:
+      entity_id: scene.reset_after_escape_room
+    data:
+      transition: 2
