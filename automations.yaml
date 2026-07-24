@@ -2810,3 +2810,28 @@
       state: ["autopsy_done", "accusation"]
   actions:
     - action: script.mystery_accusation
+- id: mystery_knife_drawer
+  alias: "Mystery - Knife drawer red herring"
+  mode: single
+  triggers:
+    - trigger: state
+      entity_id: binary_sensor.closed_closet_sensor_contact
+      to: "on"
+  conditions:
+    - condition: state
+      entity_id: input_select.mystery_phase
+      state: ["investigation"]
+  actions:
+    - action: media_player.volume_set
+      target: { entity_id: media_player.google_home_mini }
+      data: { volume_level: 0.6 }
+    - action: tts.speak
+      target: { entity_id: tts.home_assistant_cloud }
+      data:
+        cache: true
+        language: fr-FR
+        media_player_entity_id: media_player.google_home_mini
+        message: >-
+          Un couteau manquant dans ce tiroir ? Mon Dieu... Je n'y toucherais
+          jamais, voyons. Le service, uniquement le service. C'est le Jardinier
+          qui passe son temps dans cette cuisine, pas moi.
