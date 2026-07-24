@@ -703,3 +703,27 @@ mystery_suspect_speak:
             language: fr-FR
             media_player_entity_id: "{{ speaker }}"
             message: "{{ repeat_line }}"
+
+mystery_police_callback:
+  alias: "Mystery - Police callback (autopsy)"
+  mode: single
+  sequence:
+    - action: media_player.play_media
+      target: { entity_id: media_player.sonos }
+      data:
+        media_content_type: audio/mpeg
+        media_content_id: "media-source://media_source/local/Phone Ringing.mp3"
+    - delay: { seconds: 3 }
+    - action: assist_satellite.announce
+      target: { entity_id: assist_satellite.192_168_0_160 }
+      data:
+        preannounce: false
+        message: >-
+          Inspecteur Lumière à nouveau. Le rapport du légiste vient d'arriver :
+          aucune blessure par balle, aucune trace de lame. La victime a été
+          EMPOISONNÉE. Oubliez le fusil et la scie, ce sont des diversions.
+          Cherchez ce que la victime a bu ou mangé. Quand vous aurez tout
+          rassemblé, revenez me voir pour l'accusation.
+    - action: input_select.select_option
+      target: { entity_id: input_select.mystery_phase }
+      data: { option: autopsy_done }

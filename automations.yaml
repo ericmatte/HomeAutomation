@@ -2769,3 +2769,29 @@
           Attention... cette bouteille de vin. L'analyse révèle des traces de
           poison. Quelqu'un a versé une substance mortelle dans le vin de la
           victime.
+- id: mystery_auto_autopsy
+  alias: "Mystery - Auto autopsy"
+  mode: single
+  triggers:
+    - trigger: state
+      entity_id:
+        - input_boolean.mystery_gardener_done
+        - input_boolean.mystery_heiress_done
+        - input_boolean.mystery_butler_done
+      to: "on"
+  conditions:
+    - condition: state
+      entity_id: input_select.mystery_phase
+      state: investigation
+    - condition: state
+      entity_id: input_boolean.mystery_gardener_done
+      state: "on"
+    - condition: state
+      entity_id: input_boolean.mystery_heiress_done
+      state: "on"
+    - condition: state
+      entity_id: input_boolean.mystery_butler_done
+      state: "on"
+  actions:
+    - delay: { seconds: 5 }
+    - action: script.mystery_police_callback
