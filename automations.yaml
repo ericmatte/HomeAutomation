@@ -2739,7 +2739,7 @@
   conditions:
     - condition: state
       entity_id: input_select.mystery_phase
-      state: ["investigation", "autopsy_done"]
+      state: ["investigation"]
   actions:
     - action: script.mystery_suspect_speak
       data:
