@@ -1120,6 +1120,177 @@ git commit -am "feat(mystery): garde de cohabitation v1/v2 (input_boolean)"
 
 ---
 
+### Task 15 : Musique d'ambiance d'enquête (Sonos, pause pour l'Héritière)
+
+Ambiance de fond pendant la phase `investigation`. Comme l'Héritière parle sur
+le **même** Sonos, on met l'ambiance en pause le temps de sa réplique puis on
+reprend. Les autres suspects (Echo / Google Home) sont sur d'autres enceintes :
+l'ambiance continue pendant qu'ils parlent.
+
+**Files:**
+- Modify : `scripts.yaml` (`mystery_start`, `mystery_suspect_speak`,
+  `mystery_police_callback`)
+
+**Interfaces:**
+- Consumes : `media_player.sonos`, `input_select.mystery_phase`, fichier
+  `Investigation Ambience.mp3`.
+- Produces : ambiance lancée à l'entrée en `investigation`, mise en pause/reprise
+  autour de la voix de l'Héritière, arrêtée quand l'autopsie démarre.
+
+> ⚠️ La **reprise du Sonos après un TTS** (`media_play` sur une file en pause)
+> dépend du comportement du Sonos. À valider en live (Step 4). Fallback si la
+> reprise échoue : remplacer le `media_play` par un `play_media` du fichier
+> d'ambiance.
+
+- [ ] **Step 1 : `mystery_start`** — juste après le passage en phase
+  `investigation` (avant l'appel à `mystery_roby_to_dining`), insérer :
+
+```yaml
+    - action: media_player.volume_set
+      target: { entity_id: media_player.sonos }
+      data: { volume_level: 0.25 }
+    - action: media_player.play_media
+      target: { entity_id: media_player.sonos }
+      data:
+        media_content_type: audio/mpeg
+        media_content_id: "media-source://media_source/local/Investigation Ambience.mp3"
+```
+
+- [ ] **Step 2 : `mystery_suspect_speak`** — remplacer TOUT le bloc du script par
+  cette version (ajoute `is_heiress` + `line`, pause/reprise Sonos pour
+  l'Héritière) :
+
+```yaml
+mystery_suspect_speak:
+  alias: "Mystery - Suspect speaks"
+  mode: queued
+  max: 5
+  fields:
+    suspect:
+      name: Suspect
+      selector:
+        select:
+          options: ["gardener", "heiress", "butler"]
+      required: true
+  variables:
+    speaker: >-
+      {{ {'gardener': 'media_player.workshop_echo',
+          'heiress': 'media_player.sonos',
+          'butler': 'media_player.google_home_mini'}[suspect] }}
+    done_flag: >-
+      {{ {'gardener': 'input_boolean.mystery_gardener_done',
+          'heiress': 'input_boolean.mystery_heiress_done',
+          'butler': 'input_boolean.mystery_butler_done'}[suspect] }}
+    first_line: >-
+      {% if suspect == 'gardener' %}
+      Ah, un détective... Moi, le Jardinier ? J'étais à l'atelier toute la
+      soirée à affûter ma scie. Je n'ai rien vu. Mais si vous voulez mon avis,
+      le Majordome n'arrêtait pas de rôder dans la salle à manger avec sa
+      bouteille de vin.
+      {% elif suspect == 'heiress' %}
+      Moi, l'Héritière ? J'étais au salon, seule, à ne rien faire du tout.
+      Certainement pas avec mon fusil. Le Jardinier, lui, semblait bien nerveux
+      avec sa scie ce soir.
+      {% else %}
+      Je faisais mon devoir, Monsieur. Je servais le vin en salle à manger,
+      comme toujours. Un service irréprochable. L'Héritière, en revanche,
+      détestait la victime : une sordide histoire d'héritage.
+      {% endif %}
+    repeat_line: >-
+      {% if suspect == 'gardener' %}
+      Je vous l'ai dit, j'étais à l'atelier. Regardez plutôt du côté du vin.
+      {% elif suspect == 'heiress' %}
+      J'étais au salon, un point c'est tout. Mon fusil n'a jamais servi.
+      {% else %}
+      Le service, toujours le service. Le vin était... parfait.
+      {% endif %}
+    is_heiress: "{{ suspect == 'heiress' }}"
+    line: "{{ first_line if is_state(done_flag, 'off') else repeat_line }}"
+  sequence:
+    - if: "{{ is_heiress }}"
+      then:
+        - action: media_player.media_pause
+          target: { entity_id: media_player.sonos }
+          continue_on_error: true
+        - delay: { milliseconds: 300 }
+    - action: media_player.volume_set
+      target: { entity_id: "{{ speaker }}" }
+      data: { volume_level: 0.6 }
+    - action: tts.speak
+      target: { entity_id: tts.home_assistant_cloud }
+      data:
+        cache: true
+        language: fr-FR
+        media_player_entity_id: "{{ speaker }}"
+        message: "{{ line }}"
+    - if: "{{ is_state(done_flag, 'off') }}"
+      then:
+        - action: input_boolean.turn_on
+          target: { entity_id: "{{ done_flag }}" }
+    - if: "{{ is_heiress }}"
+      then:
+        - delay: { seconds: 1 }
+        - wait_template: "{{ not is_state('media_player.sonos', 'playing') }}"
+          timeout: "00:00:30"
+          continue_on_timeout: true
+        - if: "{{ is_state('input_select.mystery_phase', 'investigation') }}"
+          then:
+            - action: media_player.volume_set
+              target: { entity_id: media_player.sonos }
+              data: { volume_level: 0.25 }
+            - action: media_player.media_play
+              target: { entity_id: media_player.sonos }
+              continue_on_error: true
+```
+
+- [ ] **Step 3 : `mystery_police_callback`** — remplacer TOUT le bloc par cette
+  version (coupe l'ambiance et passe la phase à `autopsy_done` **au début**, pour
+  éviter que la reprise de l'Héritière rallume l'ambiance pendant l'autopsie) :
+
+```yaml
+mystery_police_callback:
+  alias: "Mystery - Police callback (autopsy)"
+  mode: single
+  sequence:
+    - action: media_player.media_stop
+      target: { entity_id: media_player.sonos }
+      continue_on_error: true
+    - action: input_select.select_option
+      target: { entity_id: input_select.mystery_phase }
+      data: { option: autopsy_done }
+    - action: media_player.play_media
+      target: { entity_id: media_player.sonos }
+      data:
+        media_content_type: audio/mpeg
+        media_content_id: "media-source://media_source/local/Phone Ringing.mp3"
+    - delay: { seconds: 3 }
+    - action: assist_satellite.announce
+      target: { entity_id: assist_satellite.192_168_0_160 }
+      data:
+        preannounce: false
+        message: >-
+          Inspecteur Lumière à nouveau. Le rapport du légiste vient d'arriver :
+          aucune blessure par balle, aucune trace de lame. La victime a été
+          EMPOISONNÉE. Oubliez le fusil et la scie, ce sont des diversions.
+          Cherchez ce que la victime a bu ou mangé. Quand vous aurez tout
+          rassemblé, revenez me voir pour l'accusation.
+```
+
+- [ ] **Step 4 : Valider** — `python3 -c "import yaml; yaml.safe_load(open('scripts.yaml'))"` sans erreur.
+
+- [ ] **Step 5 : Checkpoint live (Eric)** — ambiance en fond pendant l'enquête ;
+  quand l'Héritière parle, l'ambiance se coupe puis **reprend** (vérifier ce
+  point précis) ; les autres suspects n'interrompent pas l'ambiance ; l'ambiance
+  s'arrête au rappel de la police.
+
+- [ ] **Step 6 : Commit**
+
+```bash
+git commit -am "feat(mystery): musique d'ambiance d'enquête (pause pour l'Héritière)"
+```
+
+---
+
 ## Auto-revue (couverture du design)
 
 - Phase 0 (police) → Task 3 ✔ | Phase 1 (briefing) → Task 3 ✔

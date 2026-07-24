@@ -54,7 +54,7 @@ Uploader dans **Paramètres → Media → local** (chemin
 | `Police Radio Chatter.mp3`   | Phase 0 — brouhaha des policiers (**enregistré par Eric**) | à enregistrer |
 | `Car Drive Away.mp3`         | Phase 0 — la police repart                       | non          |
 | `Phone Ringing.mp3`          | Phase 0→1 — le téléphone sonne                   | non          |
-| ~~`Investigation Ambience.mp3`~~ | Phase 2 — **non utilisé par le code actuel** (le Sonos sert à la voix de l'Héritière ; musique d'ambiance écartée pour éviter le conflit). Optionnel à rajouter plus tard. | — |
+| `Investigation Ambience.mp3` | Phase 2 — musique d'enquête en fond (Sonos), mise en pause pendant que l'Héritière parle. **Prends un fichier assez long** (5-10 min) : il n'est pas mis en boucle (pour éviter que la sonnerie/révélation bouclent aussi). | non |
 | `Dramatic Reveal.mp3`        | Phase 5 — révélation du coupable                 | non          |
 | `Victory Theme.mp3`          | Phase 5 — victoire                               | non          |
 | `Wrong Answer Sting.mp3`     | Phase 4 — mauvaise accusation (court)            | non          |
