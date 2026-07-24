@@ -30,7 +30,7 @@ détectives. Objectif façon Cluedo : **QUI · AVEC QUOI · OÙ**.
 | Suspect | Lieu (pièce) | Arme (fausse piste) | Voix (haut-parleur) | Déclencheur |
 |---|---|---|---|---|
 | 🌿 **Le Jardinier** | Atelier / établi (`workshop`) | Scie à main | `media_player.workshop_echo` (Echo, déjà là) | `binary_sensor.door_sensor_contact` (porte atelier) |
-| 💎 **L'Héritière** | Salon (`living_room`) | Fusil (BB gun) | `media_player.sonos` | capteur à ajouter au salon (voir besoins) |
+| 💎 **L'Héritière** | Salon (`living_room`) | Fusil (BB gun) | `media_player.sonos` | bouton Zigbee de la v1 (device `8317fbc3ea314ec40186f0d8ec39998d`) |
 | 🤵 **Le Majordome** | Salle à manger (`dining_room`) | **Poison (verre de vin)** | `media_player.google_home_mini` (à déplacer en salle à manger) | `binary_sensor.patio_door_contact` + vibration |
 
 **Solution (cachée aux joueurs) : le Majordome · le poison · la salle à manger.**
@@ -74,7 +74,8 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
   `patio_door`, bouteille de vin (vibration).
 - 🔧 **Atelier / établi** (`workshop`) — Jardinier / scie — Echo, porte atelier.
 - 🎬 **Théâtre** (`theatre`) — **grand final** — TV, volets, lumières.
-- 📞 Le **téléphone** (inspecteur) = point de départ/retour.
+- 📞 Le **téléphone** (inspecteur) = **au salon, près du Sonos** → le salon est
+  le hub central (départ/retour, gyrophares, dock de Roby, Héritière).
 - 🛏️ **Chambre = no-go** (jamais utilisée).
 
 ## Entités clés (référence)
@@ -90,6 +91,7 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
 | Preuve arme | `binary_sensor.vibration_sensor_vibration` (→ bouteille de vin) |
 | Déclencheur salle à manger | `binary_sensor.patio_door_contact` |
 | Déclencheur atelier | `binary_sensor.door_sensor_contact` |
+| Déclencheur salon (Héritière) | bouton Zigbee device `8317fbc3ea314ec40186f0d8ec39998d` |
 | Robot | `vacuum.roborock_s5_7c79_robot_cleaner` |
 | Volets final | `cover.theatre_middle_shade`, `cover.theatre_left_shade`, `cover.theatre_right_shade` |
 | Bouton téléphone (MQTT) | device `8317fbc3ea314ec40186f0d8ec39998d` |
@@ -97,9 +99,10 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
 ## Robot Roby — déplacement
 
 `vacuum.send_command` / `command: app_goto_target` / `params: [x, y]` (mm,
-origine dock ≈ `25500, 25500`, `1000 ≈ 1 m`). Coordonnées de la salle à manger
-`COORD_DINING` à **calibrer** à l'implémentation (piloter via MCP + observer, ou
-via la carte HACS `xiaomi-vacuum-map-card`).
+origine dock = `25500, 25500`, `1000 ≈ 1 m`). Repère fourni par Eric :
+`[23500, 25500]` = 2 m en arrière du dock (X décroissant) ; la salle à manger
+est +5 m de plus dans la même direction → **`COORD_DINING = [18500, 25500]`**
+(estimation, à affiner au calibrage MCP).
 
 ## Architecture technique
 
@@ -116,10 +119,20 @@ via la carte HACS `xiaomi-vacuum-map-card`).
 - **Reset** propre : réactive les automatisations de mouvement désactivées
   pendant le jeu, remet Roby au dock, restaure les lumières.
 
-## Points ouverts (à finaliser avec l'utilisateur)
+## Décisions finalisées
 
-1. **Déclencheur du salon** (Héritière) : déplacer un capteur de mouvement au
-   salon **ou** dédier un bouton Zigbee. → décision requise.
-2. **Coordonnées Roby** : calibrage à l'implémentation.
-3. **Trames sonores** : voir `todo-physical-setup.md` (noms de fichiers).
-4. Position physique du **téléphone** (point de départ/retour).
+1. **Déclencheur du salon** (Héritière) = bouton Zigbee de la v1 (device
+   `8317fbc3ea314ec40186f0d8ec39998d`). ✔️
+2. **Coordonnées Roby** : `COORD_DINING = [18500, 25500]` (à affiner au
+   calibrage MCP). ✔️
+3. **Téléphone** : au salon, près du Sonos. ✔️
+4. **Brouhaha des policiers** (phase 0) = **fichier audio enregistré par Eric**
+   (`Police Radio Chatter.mp3`). ✔️
+
+## Reste à faire côté Eric (voir `todo-physical-setup.md`)
+
+- Déplacer le Google Home Mini en salle à manger, le capteur de vibration sur la
+  bouteille de vin.
+- Uploader les **trames sonores** (7 fichiers ; noms exacts dans la todo).
+- Préparer les objets physiques (bouteille, fiole, épice « poison », gants,
+  fusil, scie, labels).

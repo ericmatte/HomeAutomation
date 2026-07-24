@@ -48,7 +48,7 @@ Uploader dans **Paramètres → Media → local** (chemin
 | Nom de fichier exact         | Usage                                            | As-tu déjà ? |
 | ---------------------------- | ------------------------------------------------ | ------------ |
 | `Police Sirens.mp3`          | Phase 0 — gyrophares/sirènes                     | non          |
-| `Police Radio Chatter.mp3`   | Phase 0 — brouhaha des policiers (si pas en TTS) | non          |
+| `Police Radio Chatter.mp3`   | Phase 0 — brouhaha des policiers (**enregistré par Eric**) | à enregistrer |
 | `Car Drive Away.mp3`         | Phase 0 — la police repart                       | non          |
 | `Phone Ringing.mp3`          | Phase 0→1 — le téléphone sonne                   | non          |
 | `Investigation Ambience.mp3` | Phase 2 — musique d'enquête tendue (boucle)      | non          |
