@@ -534,6 +534,16 @@ mystery_reset:
       entity_id: scene.reset_after_escape_room
     data:
       transition: 2
+mystery_roby_to_dining:
+  alias: "Mystery - Roby goes to dining room"
+  mode: single
+  sequence:
+    - action: vacuum.send_command
+      target:
+        entity_id: vacuum.roborock_s5_7c79_robot_cleaner
+      data:
+        command: app_goto_target
+        params: [18500, 25500]
 mystery_start:
   alias: "Mystery - Start"
   mode: restart
