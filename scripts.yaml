@@ -640,7 +640,7 @@ mystery_start:
       data: { option: investigation }
     - action: media_player.volume_set
       target: { entity_id: media_player.sonos }
-      data: { volume_level: 0.25 }
+      data: { volume_level: 0.4 }
     - action: media_player.play_media
       target: { entity_id: media_player.sonos }
       data:
@@ -694,15 +694,15 @@ mystery_suspect_speak:
     is_heiress: "{{ suspect == 'heiress' }}"
     line: "{{ first_line if is_state(done_flag, 'off') else repeat_line }}"
   sequence:
-    - if: "{{ is_heiress }}"
+    # L'Héritière parle sur le Sonos qui joue déjà l'ambiance : le TTS duck
+    # automatiquement la musique (comportement natif Sonos, comme en v1), donc
+    # on ne touche pas au volume du Sonos. Les autres suspects sont sur leur
+    # propre enceinte : on monte leur volume pour la clarté.
+    - if: "{{ not is_heiress }}"
       then:
-        - action: media_player.media_pause
-          target: { entity_id: media_player.sonos }
-          continue_on_error: true
-        - delay: { milliseconds: 300 }
-    - action: media_player.volume_set
-      target: { entity_id: "{{ speaker }}" }
-      data: { volume_level: 0.6 }
+        - action: media_player.volume_set
+          target: { entity_id: "{{ speaker }}" }
+          data: { volume_level: 0.6 }
     - action: tts.speak
       target: { entity_id: tts.home_assistant_cloud }
       data:
@@ -714,20 +714,6 @@ mystery_suspect_speak:
       then:
         - action: input_boolean.turn_on
           target: { entity_id: "{{ done_flag }}" }
-    - if: "{{ is_heiress }}"
-      then:
-        - delay: { seconds: 1 }
-        - wait_template: "{{ not is_state('media_player.sonos', 'playing') }}"
-          timeout: "00:00:30"
-          continue_on_timeout: true
-        - if: "{{ is_state('input_select.mystery_phase', 'investigation') }}"
-          then:
-            - action: media_player.volume_set
-              target: { entity_id: media_player.sonos }
-              data: { volume_level: 0.25 }
-            - action: media_player.media_play
-              target: { entity_id: media_player.sonos }
-              continue_on_error: true
 
 mystery_police_callback:
   alias: "Mystery - Police callback (autopsy)"
