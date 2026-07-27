@@ -13,68 +13,76 @@ jeu tourne. Le code (scripts, automations, scènes) est géré séparément.
       salle à manger** (Majordome). Actuellement dans le bureau.
 - [x] **Téléphone** (inspecteur) — Dans le salon, près du Sonos.
 
-## 🚪 2. Capteurs
+## 🚪 2. Capteurs et déclencheurs (carte finale)
 
-- [ ] **Capteur de vibration** (`binary_sensor.vibration_sensor_vibration`) —
-      **déplacer sur une bouteille de vin** en salle à manger (comme la boîte
-      de thé en v1). Ajuster la sensibilité si besoin
-      (`number.vibration_sensor_sensitivity`).
-- [ ] **`patio_door`** (salle à manger) — utilisé tel quel comme « porte/tiroir
-      à ouvrir ». ✔️ rien à déplacer.
-- [ ] **Porte de l'atelier** (`binary_sensor.door_sensor_contact`) — utilisée
-      telle quelle pour déclencher le Jardinier. ✔️
-- [ ] **Déclencheur du salon** (Héritière) : le même bouton que dans Escape Room v1 (bouton Zigbee) qui appelait le Echo avec "hey par ici..."
-- [ ] **Capteur du closet de la chambre** (`binary_sensor.closed_closet_sensor_contact`)
-      — **déplacer sur le tiroir à couteaux de la cuisine**. L'ouvrir déclenche
-      une réplique trompeuse du Majordome (fausse piste vers le couteau).
+| Déclencheur | Entité HA | Emplacement à installer | Effet en jeu |
+|---|---|---|---|
+| Porte atelier | `binary_sensor.door_sensor_contact` | Atelier (inchangé) | Jardinier parle |
+| **Capteur de vibration** | `binary_sensor.vibration_sensor_vibration` | **Trappe d'aération du foyer** (où est caché le BB gun) | **Héritière paniquée** |
+| **Bouton Zigbee** | device `8317fbc3ea314ec40186f0d8ec39998d` | **Étagère à vins / spiritueux**, label **« cliquer pour service »** | Majordome « service » (marque le Majordome interrogé) |
+| Porte-patio | `binary_sensor.patio_door_contact` | Salle à manger (inchangé) | Majordome « départ » (indice : étagère + tiroirs) |
+| Capteur closet chambre | `binary_sensor.closed_closet_sensor_contact` | **Tiroir à couteaux (cuisine)** | Majordome feint l'innocence (fausse piste) |
+
+- [ ] Déplacer le **capteur de vibration** sur la **trappe du foyer**. Ajuster
+      la sensibilité si besoin (`number.vibration_sensor_sensitivity`).
+- [ ] Déplacer le **bouton Zigbee** sur l'**étagère à vins** + label
+      « cliquer pour service ».
+- [ ] Déplacer le **capteur closet** sur le **tiroir à couteaux**.
+- [x] Porte atelier et porte-patio : rien à déplacer.
+
+> ⚠️ Le bouton Zigbee et le capteur de vibration sont **partagés avec la v1**.
+> La garde `input_boolean.escape_v2_active` empêche la v1 de réagir pendant une
+> partie v2. **Termine toujours une partie v2 par `script.mystery_reset`**,
+> sinon la v1 reste bloquée.
 
 ## 🎭 3. Objets physiques à préparer
 
-- [ ] **Bouteille de vin** (avec le capteur de vibration dessous/dessus) — salle
-      à manger. C'est l'arme réelle (poison dans le vin).
-- [ ] **Verre de vin** (déco, sur la table). Optionnel.
-- [ ] **Fiole de poison** cachée derrière `patio_door` / dans le tiroir équipé.
+- [ ] **Bouteille de vin** sur l'étagère avec un **label** expliquant l'étape
+      suivante (ex. « ce vin a un goût étrange… inspectez l'assaisonnement »).
+- [ ] **BB gun (fusil)** caché dans la **trappe d'aération du foyer** (capteur
+      de vibration dessus) — fausse piste de l'Héritière.
+- [ ] **Fiole de poison** cachée (tiroir / derrière la porte-patio).
 - [ ] **Rack d'épices** avec une épice étiquetée **« POISON »** (source du
-      poison). Idée validée par Eric.
+      poison).
 - [ ] **Gants tachés** du Majordome (indice coupable) — salle à manger.
-- [ ] **BB gun (fusil)** bien visible au **salon** (fausse piste de l'Héritière).
 - [ ] **Scie à main** bien visible à l'**atelier** (fausse piste du Jardinier).
-- [ ] **Cartes / labels imprimés** : noms des suspects, éventuelles énigmes,
-      « scène de crime » — à finaliser une fois le script écrit.
+- [ ] **Cartes / labels imprimés** : noms des suspects, label « cliquer pour
+      service » sur l'étagère, énigmes.
 
-## 🎵 4. Trames sonores à uploader dans Home Assistant
+## 📺 4. CCTV — setup manuel dans le bureau d'Eric (avant la partie)
 
-Uploader dans **Paramètres → Media → local** (chemin
-`media-source://media_source/local/`). **Nomme les fichiers EXACTEMENT ainsi**
-(le code les référencera par ces noms) :
+Aucun code HA pour cette partie — préparation manuelle :
 
-| Nom de fichier exact         | Usage                                            | As-tu déjà ? |
-| ---------------------------- | ------------------------------------------------ | ------------ |
-| `Police Sirens.mp3`          | Phase 0 — gyrophares/sirènes                     | non          |
-| `Police Radio Chatter.mp3`   | Phase 0 — brouhaha des policiers (**enregistré par Eric**) | à enregistrer |
-| `Car Drive Away.mp3`         | Phase 0 — la police repart                       | non          |
-| `Phone Ringing.mp3`          | Phase 0→1 — le téléphone sonne                   | non          |
-| `Investigation Ambience.mp3` | Phase 2 — musique d'enquête en fond (Sonos). Le TTS de l'Héritière la *duck* automatiquement (natif Sonos). **Prends un fichier assez long** (5-10 min) : il n'est pas mis en boucle. | non |
-| `Dramatic Reveal.mp3`        | Phase 5 — révélation du coupable                 | non          |
-| `Victory Theme.mp3`          | Phase 5 — victoire                               | non          |
-| `Wrong Answer Sting.mp3`     | Phase 4 — mauvaise accusation (court)            | non          |
+- [ ] Ouvrir sur les **2 écrans PC** (plein écran) :
+      <https://www.whitescreen.online/hacker-simulator/>.
+- [ ] Un **dossier Explorateur** nommé **« CCTV - Vidéos de surveillance »**
+      avec **3 fichiers .mp4** ouvrables : 1 par suspect, chacun le montrant
+      interagir (flou/mystérieux) avec son arme potentielle.
 
-> Les **dialogues des suspects et de l'inspecteur** sont générés en **TTS** :
-> aucun fichier à fournir pour eux. Le brouhaha des policiers (phase 0) peut
-> aussi être scripté en TTS multi-voix si tu préfères ne pas chercher un
-> fichier — à décider.
+## 🎵 5. Trames sonores à uploader dans Home Assistant
 
-**Coche la colonne « As-tu déjà ? »** et dis-moi lesquels manquent ; on
-ajustera (je peux aussi adapter les noms si tu as déjà des fichiers proches).
+Uploader dans **Paramètres → Media → local** (`media-source://media_source/local/`).
+**Nomme les fichiers EXACTEMENT ainsi** :
 
-## 🤖 5. Roby (calibrage des coordonnées)
+| Nom de fichier exact | Usage | As-tu déjà ? |
+| --- | --- | --- |
+| `Police Sirens.mp3` | Phase 0 — gyrophares/sirènes | non |
+| `Police Radio Chatter.mp3` | Phase 0 — brouhaha policiers (**enregistré par Eric**) | à enregistrer |
+| `Car Drive Away.mp3` | Phase 0 — la police repart | non |
+| `Phone Ringing.mp3` | Phase 0→1 + rappel autopsie — le téléphone sonne | non |
+| `Investigation Ambience.mp3` | Enquête — musique de fond (Sonos, duckée par le TTS). **Fichier long** (5-10 min), pas de boucle. | non |
+| `Wrong Answer Sting.mp3` | Mauvaise accusation (court) | non |
+| `Final Reveal.mp4` | **Final gagnant — vidéo de révélation du Majordome** sur la TV du théâtre (rideaux baissés, lumière rouge). Vidéo produite par Eric. | à produire |
 
-- [ ] À l'implémentation : on calibre `COORD_DINING` ensemble (je pilote Roby
-      via le MCP, tu regardes où il s'arrête, on affine). Rien à préparer
-      d'avance, sauf t'assurer que le dock est accessible et la carte à jour.
+> Les **dialogues des suspects et de l'inspecteur** sont en **TTS** : aucun
+> fichier à fournir. `Dramatic Reveal.mp3` / `Victory Theme.mp3` ne sont
+> **plus utilisés** (le final passe par la vidéo `Final Reveal.mp4`).
 
-## ✅ 6. Décisions rapides attendues de ta part
+## 🤖 6. Roby (calibrage des coordonnées)
 
-1. Déclencheur du **salon** : capteur de mouvement déplacé **ou** bouton Zigbee ?
-2. Trames sonores : lesquelles as-tu déjà (tableau ci-dessus) ?
-3. Brouhaha policiers phase 0 : **fichier audio** ou **TTS scripté** ?
+- [ ] Calibrer `COORD_DINING` ensemble (je pilote Roby via le MCP, tu regardes
+      où il s'arrête, on affine ; départ `[18500, 25500]`). Roby part vers le
+      vin **quand on interroge le Jardinier**, puis fait `locate`
+      (« Hi! I'm over here! »). Ajuster aussi le **délai de trajet** (18 s par
+      défaut dans `mystery_roby_to_dining`) pour que le `locate` sonne à
+      l'arrivée.
