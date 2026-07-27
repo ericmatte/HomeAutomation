@@ -140,9 +140,9 @@ est +5 m de plus dans la même direction → **`COORD_DINING = [18500, 25500]`**
 7. **Coordonnées Roby** : `COORD_DINING = [18500, 25500]` (à affiner au calibrage).
 8. **v1 conservée** et jouable : garde `input_boolean.escape_v2_active`.
 
-## Reste à faire côté Eric (voir `todo-physical-setup.md`)
+## Reste à faire (voir le dossier `todo/`)
 
-- Déplacer : Google Home → salle à manger ; vibration → trappe fusil ; bouton
-  Zigbee → étagère à vins ; capteur closet → tiroir couteaux.
-- Uploader les trames sonores + produire `Final Reveal.mp4` + le setup CCTV.
-- Préparer les objets physiques et les labels.
+- `todo/manual-before-first-test.md` — préparation manuelle (déploiement,
+  capteurs, objets, médias, CCTV).
+- `todo/with-claude.md` — à régler avec Claude (calibrage Roby, débrief live,
+  clôture de branche).
