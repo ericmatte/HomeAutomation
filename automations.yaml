@@ -2733,15 +2733,15 @@
       to: "on"
       id: gardener
     - trigger: state
-      entity_id: binary_sensor.patio_door_contact
+      entity_id: binary_sensor.vibration_sensor_vibration
       to: "on"
-      id: butler
+      id: heiress
     - trigger: device
       domain: mqtt
       device_id: 8317fbc3ea314ec40186f0d8ec39998d
       type: action
       subtype: single
-      id: heiress
+      id: butler
   conditions:
     - condition: state
       entity_id: input_select.mystery_phase
@@ -2750,17 +2750,17 @@
     - action: script.mystery_suspect_speak
       data:
         suspect: "{{ trigger.id }}"
-- id: mystery_wine_evidence
-  alias: "Mystery - Wine bottle evidence"
+- id: mystery_butler_patio
+  alias: "Mystery - Butler at patio door"
   mode: single
   triggers:
     - trigger: state
-      entity_id: binary_sensor.vibration_sensor_vibration
+      entity_id: binary_sensor.patio_door_contact
       to: "on"
   conditions:
     - condition: state
       entity_id: input_select.mystery_phase
-      state: ["investigation", "autopsy_done"]
+      state: ["investigation"]
   actions:
     - action: media_player.volume_set
       target: { entity_id: media_player.google_home_mini }
@@ -2772,9 +2772,10 @@
         language: fr-FR
         media_player_entity_id: media_player.google_home_mini
         message: >-
-          Attention... cette bouteille de vin. L'analyse révèle des traces de
-          poison. Quelqu'un a versé une substance mortelle dans le vin de la
-          victime.
+          Oh, vous partez déjà voir le Jardinier ? Avant cela... prenez donc le
+          temps d'examiner l'étagère à vins, et les tiroirs de la cuisine. On
+          trouve parfois des choses surprenantes dans une maison. Moi je n'ai
+          rien à cacher, bien entendu.
 - id: mystery_auto_autopsy
   alias: "Mystery - Auto autopsy"
   mode: single
@@ -2801,20 +2802,25 @@
   actions:
     - delay: { seconds: 5 }
     - action: script.mystery_police_callback
-- id: mystery_phone_button
-  alias: "Mystery - Phone button"
+- id: mystery_call_inspector
+  alias: "Mystery - Call inspector"
   mode: single
   triggers:
-    - trigger: device
-      domain: mqtt
-      device_id: 8317fbc3ea314ec40186f0d8ec39998d
-      type: action
-      subtype: single
+    - trigger: conversation
+      command:
+        - inspecteur
+        - "{a}inspecteur"
+        - "inspecteur{b}"
+        - "{a}inspecteur{b}"
   conditions:
     - condition: state
       entity_id: input_select.mystery_phase
-      state: ["autopsy_done", "accusation"]
+      state: ["autopsy_done"]
   actions:
+    - set_conversation_response: >-
+        Parfait, détective. Je vais dire à l'inspecteur de vous rappeler tout
+        de suite.
+    - delay: { seconds: 4 }
     - action: script.mystery_accusation
 - id: mystery_knife_drawer
   alias: "Mystery - Knife drawer red herring"

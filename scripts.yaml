@@ -538,7 +538,7 @@ mystery_reset:
     data:
       transition: 2
 mystery_roby_to_dining:
-  alias: "Mystery - Roby goes to dining room"
+  alias: "Mystery - Roby goes to the wine"
   mode: single
   sequence:
     - action: vacuum.send_command
@@ -547,6 +547,13 @@ mystery_roby_to_dining:
       data:
         command: app_goto_target
         params: [18500, 25500]
+    # Laisse à Roby le temps d'arriver près du vin, puis il appelle les
+    # joueurs (« Hi! I'm over here! »). Délai à ajuster au calibrage.
+    - delay: { seconds: 18 }
+    - action: vacuum.locate
+      target:
+        entity_id: vacuum.roborock_s5_7c79_robot_cleaner
+      continue_on_error: true
 mystery_start:
   alias: "Mystery - Start"
   mode: restart
@@ -646,8 +653,6 @@ mystery_start:
       data:
         media_content_type: audio/mpeg
         media_content_id: "media-source://media_source/local/Investigation Ambience.mp3"
-    - action: script.mystery_roby_to_dining
-      continue_on_error: true
 mystery_suspect_speak:
   alias: "Mystery - Suspect speaks"
   mode: queued
@@ -673,23 +678,26 @@ mystery_suspect_speak:
       Ah, un détective... Moi, le Jardinier ? J'étais à l'atelier toute la
       soirée à affûter ma scie. Je n'ai rien vu. Mais si vous voulez mon avis,
       le Majordome n'arrêtait pas de rôder dans la salle à manger avec sa
-      bouteille de vin.
+      bouteille de vin. Tenez, mon robot vous montrera où regarder.
       {% elif suspect == 'heiress' %}
-      Moi, l'Héritière ? J'étais au salon, seule, à ne rien faire du tout.
-      Certainement pas avec mon fusil. Le Jardinier, lui, semblait bien nerveux
-      avec sa scie ce soir.
+      Mon fusil ?! Non, non, ce n'est pas ce que vous croyez ! Oui, je l'ai
+      caché dans la trappe du foyer, mais je ne m'en suis jamais servie, je le
+      jure ! Demandez plutôt au Majordome ce qu'il versait dans les verres ce
+      soir.
       {% else %}
-      Je faisais mon devoir, Monsieur. Je servais le vin en salle à manger,
-      comme toujours. Un service irréprochable. L'Héritière, en revanche,
-      détestait la victime : une sordide histoire d'héritage.
+      Vous avez sonné pour le service ? À votre entière disposition. J'ai servi
+      le vin toute la soirée, comme il se doit. Un service irréprochable.
+      L'Héritière, en revanche, ne décolérait pas contre la victime : une
+      sordide histoire d'héritage.
       {% endif %}
     repeat_line: >-
       {% if suspect == 'gardener' %}
-      Je vous l'ai dit, j'étais à l'atelier. Regardez plutôt du côté du vin.
+      Je vous l'ai dit, j'étais à l'atelier. Suivez mon robot, regardez du côté
+      du vin.
       {% elif suspect == 'heiress' %}
-      J'étais au salon, un point c'est tout. Mon fusil n'a jamais servi.
+      Laissez ce fusil tranquille ! Il n'a jamais servi, je vous dis.
       {% else %}
-      Le service, toujours le service. Le vin était... parfait.
+      Le service, toujours le service. Le vin était... parfait. Enfin, presque.
       {% endif %}
     is_heiress: "{{ suspect == 'heiress' }}"
     line: "{{ first_line if is_state(done_flag, 'off') else repeat_line }}"
@@ -714,6 +722,12 @@ mystery_suspect_speak:
       then:
         - action: input_boolean.turn_on
           target: { entity_id: "{{ done_flag }}" }
+        # À la 1re rencontre du Jardinier, Roby part vers le vin et appelle
+        # les joueurs pour les guider vers la salle à manger.
+        - if: "{{ suspect == 'gardener' }}"
+          then:
+            - action: script.mystery_roby_to_dining
+              continue_on_error: true
 
 mystery_police_callback:
   alias: "Mystery - Police callback (autopsy)"
@@ -746,62 +760,44 @@ mystery_accusation:
   alias: "Mystery - Accusation"
   mode: single
   variables:
-    yesno:
-      - id: "yes"
-        sentences: ["oui", "yes"]
-      - id: "no"
-        sentences: ["non", "no"]
+    suspects:
+      - id: gardener
+        sentences:
+          - "[le] jardinier"
+          - "{a} jardinier"
+          - "jardinier {b}"
+          - "{a} jardinier {b}"
+      - id: heiress
+        sentences:
+          - "[l'] héritière"
+          - "{a} héritière"
+          - "héritière {b}"
+          - "{a} héritière {b}"
+      - id: butler
+        sentences:
+          - "[le] majordome"
+          - "{a} majordome"
+          - "majordome {b}"
+          - "{a} majordome {b}"
   sequence:
     - action: input_select.select_option
       target: { entity_id: input_select.mystery_phase }
       data: { option: accusation }
-    # --- QUI ---
+    # L'inspecteur rappelle et demande le nom du coupable ; le joueur le
+    # prononce (le Jardinier / l'Héritière / le Majordome).
     - action: assist_satellite.ask_question
       target: { entity_id: assist_satellite.192_168_0_160 }
       data:
         preannounce: false
-        question: "Passons à l'accusation. Le coupable est-il le Jardinier ? Répondez oui ou non."
-        answers: "{{ yesno }}"
-      response_variable: a_gardener
-    - if: "{{ a_gardener.id == 'yes' }}"
-      then:
-        - variables: { culprit: gardener }
-      else:
-        - action: assist_satellite.ask_question
-          target: { entity_id: assist_satellite.192_168_0_160 }
-          data:
-            preannounce: false
-            question: "Est-ce l'Héritière ? Oui ou non."
-            answers: "{{ yesno }}"
-          response_variable: a_heiress
-        - if: "{{ a_heiress.id == 'yes' }}"
-          then:
-            - variables: { culprit: heiress }
-          else:
-            - variables: { culprit: butler }
-    # --- AVEC QUOI ---
-    - action: assist_satellite.ask_question
-      target: { entity_id: assist_satellite.192_168_0_160 }
-      data:
-        preannounce: false
-        question: "L'arme du crime est-elle le poison ? Oui ou non."
-        answers: "{{ yesno }}"
-      response_variable: a_poison
-    # --- OÙ ---
-    - action: assist_satellite.ask_question
-      target: { entity_id: assist_satellite.192_168_0_160 }
-      data:
-        preannounce: false
-        question: "Et le crime a-t-il eu lieu dans la salle à manger ? Oui ou non."
-        answers: "{{ yesno }}"
-      response_variable: a_dining
-    - variables:
-        solved: >-
-          {{ culprit == 'butler' and a_poison.id == 'yes' and a_dining.id == 'yes' }}
+        question: >-
+          Eh alors, détective ! Avez-vous trouvé le coupable ? Dites-moi son
+          nom : est-ce le Jardinier, l'Héritière, ou le Majordome ?
+        answers: "{{ suspects }}"
+      response_variable: accused
     - action: script.mystery_denouement
       continue_on_error: true
       data:
-        success: "{{ solved }}"
+        success: "{{ (accused.id | default('')) == 'butler' }}"
 
 mystery_denouement:
   alias: "Mystery - Denouement"
@@ -817,35 +813,37 @@ mystery_denouement:
         - action: input_select.select_option
           target: { entity_id: input_select.mystery_phase }
           data: { option: solved }
+        - action: media_player.media_stop
+          target: { entity_id: media_player.sonos }
+          continue_on_error: true
         - action: assist_satellite.announce
           target: { entity_id: assist_satellite.192_168_0_160 }
           data:
             preannounce: false
             message: >-
-              Bravo, détective ! C'est exact : le Majordome a empoisonné le vin
-              dans la salle à manger. Affaire classée. La maison vous doit une
-              fière chandelle.
-        - action: media_player.play_media
-          target: { entity_id: media_player.sonos }
-          data:
-            media_content_type: audio/mpeg
-            media_content_id: "media-source://media_source/local/Dramatic Reveal.mp3"
-        - delay: { seconds: 4 }
-        - action: media_player.play_media
-          target: { entity_id: media_player.sonos }
-          data:
-            media_content_type: audio/mpeg
-            media_content_id: "media-source://media_source/local/Victory Theme.mp3"
-        - action: light.turn_on
-          target:
-            entity_id: [light.left_floor_lamp, light.right_floor_lamp]
-          data: { rgb_color: [0, 255, 0], brightness_pct: 100, transition: 2 }
-        - action: cover.open_cover
+              Le Majordome... c'est exact, détective ! Rendez-vous au théâtre :
+              les caméras de surveillance ne mentent pas. Regardez l'écran.
+        # Mise en scène cinéma : rideaux baissés + lumière rouge + vidéo de
+        # révélation sur la TV du théâtre.
+        - action: cover.close_cover
           target:
             entity_id:
               - cover.theatre_middle_shade
               - cover.theatre_left_shade
               - cover.theatre_right_shade
+          continue_on_error: true
+        - action: light.turn_on
+          target: { entity_id: light.theatre }
+          data: { rgb_color: [255, 0, 0], brightness_pct: 60, transition: 2 }
+        - delay: { seconds: 3 }
+        - action: media_player.turn_on
+          target: { entity_id: media_player.theatre_tv }
+          continue_on_error: true
+        - action: media_player.play_media
+          target: { entity_id: media_player.theatre_tv }
+          data:
+            media_content_type: video/mp4
+            media_content_id: "media-source://media_source/local/Final Reveal.mp4"
           continue_on_error: true
       else:
         - action: input_select.select_option
