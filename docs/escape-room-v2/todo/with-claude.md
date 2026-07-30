@@ -23,7 +23,41 @@ visuel/live — Eric joue et observe, Claude ajuste le code).
       d'avance, à valider : il faut que les joueurs soient remontés de
       l'atelier avant le 1ᵉʳ `locate`).
 
-## 🧪 2. Débrief après le premier test live (Eric joue → Claude corrige)
+## 🎙️ 2. Choisir les voix TTS des 3 suspects
+
+Aujourd'hui `mystery_suspect_speak` appelle `tts.speak` **sans option `voice`** :
+les 3 suspects parlent donc avec **exactement la même voix par défaut**. Pour
+un Cluedo où il faut distinguer les personnages, c'est un vrai manque.
+
+Il suffit d'ajouter au `tts.speak` du script :
+
+```yaml
+options:
+  voice: HenriNeural
+```
+
+Voix disponibles sur `tts.home_assistant_cloud` (récupérées en live) :
+
+- **fr-FR** — hommes : `AlainNeural`, `ClaudeNeural`, `HenriNeural`,
+  `JeromeNeural`, `MauriceNeural`, `YvesNeural` · femmes : `BrigitteNeural`,
+  `CelesteNeural`, `CoralieNeural`, `DeniseNeural`, `EloiseNeural`,
+  `JacquelineNeural`, `JosephineNeural`, `YvetteNeural`.
+- **fr-CA** — `AntoineNeural`, `JeanNeural`, `ThierryNeural`, `SylvieNeural`.
+- **Variantes émotionnelles** (fr-FR seulement, suffixe `||`) :
+  `DeniseNeural||excited`, `||sad`, `||whispering`, `||cheerful`, et les mêmes
+  pour `HenriNeural`.
+
+Pistes à valider à l'oreille :
+
+- [ ] 🌿 **Jardinier** — bourru, terre à terre : `MauriceNeural` ou `YvesNeural`.
+- [ ] 💎 **Héritière** — paniquée : `DeniseNeural||excited` sur sa réplique du
+      fusil. ⚠️ demande de rendre la voix **variable** dans le script, puisque
+      sa réplique de rappel est plus calme (`DeniseNeural` simple).
+- [ ] 🤵 **Majordome** — guindé, onctueux : `ClaudeNeural` ou `AlainNeural`.
+- [ ] Vérifier que les voix restent **distinctes** entre elles et de celle de
+      l'inspecteur (qui passe par le pipeline du téléphone, pas par ce script).
+
+## 🧪 3. Débrief après le premier test live (Eric joue → Claude corrige)
 
 Points à valider en live, à corriger ensuite si besoin :
 
@@ -39,7 +73,7 @@ Points à valider en live, à corriger ensuite si besoin :
       auto après les 3 suspects → accusation → final).
 - [ ] Ajustements de **dialogues / délais / volumes** selon le ressenti.
 
-## 🏁 3. Clôture de la branche
+## 🏁 4. Clôture de la branche
 
 - [ ] Décider quoi faire de la branche `escape-2` une fois le jeu validé en
       live : garder / ouvrir une PR / merger sur `main`.
