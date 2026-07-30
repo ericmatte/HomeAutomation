@@ -111,11 +111,14 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
 - Le dock **n'est pas** à `25500, 25500` : il est à ≈ **`[24500, 22500]`**.
 - **+Y = vers l'arrière** (du salon vers la salle à manger).
 - **−X = vers la gauche** (en regardant depuis le dock).
-- **`COORD_DINING = [23500, 31500]`** = 9 m arrière, 1 m à gauche → près de
-  l'étagère à vins. C'est le point retenu.
-- `[23000, 31500]` et `[22500, 31500]` (plus à gauche, donc plus près du vin)
-  renvoient **« could not reach target »** : la table de la salle à manger
-  bloque le passage. Inutile de réessayer.
+- **`COORD_DINING = [23500, 31500]`** = 9 m arrière, 1 m à gauche → à ~1 m de
+  l'étagère d'alcools forts et de vins. **C'est le point retenu**, et c'est
+  amplement suffisant : la cible est une étagère entière, Roby n'a qu'à
+  attirer les joueurs dans la bonne zone.
+- Tout ce qui est **plus à gauche est refusé** (« could not reach target ») —
+  la table de la salle à manger bloque. Essais épuisés, inutile de les
+  refaire : `[23000, 31500]`, `[22500, 31500]`, `[22500, 31000]`,
+  `[22500, 32500]` (tentative de contournement par l'arrière).
 - ⚠️ L'état HA du robot **traîne de plusieurs secondes** sur la réalité : ne
   jamais attendre un changement d'état pour synchroniser, garder un `delay:`
   fixe.
