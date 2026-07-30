@@ -528,6 +528,12 @@ mystery_reset:
   - action: automation.turn_on
     target:
       entity_id: "{{ label_entities('motions') }}"
+  # Le trajet de Roby tourne en tâche de fond : on le coupe avant de le
+  # renvoyer au dock, sinon il repartirait vers le vin après le reset.
+  - action: script.turn_off
+    target:
+      entity_id: script.mystery_roby_to_dining
+    continue_on_error: true
   - action: vacuum.return_to_base
     target:
       entity_id: vacuum.roborock_s5_7c79_robot_cleaner
@@ -547,9 +553,9 @@ mystery_roby_to_dining:
       data:
         command: app_goto_target
         params: [23500, 31500]
-    # Laisse à Roby le temps d'arriver près du vin, puis il appelle les
-    # joueurs (« Hi! I'm over here! »). Délai à ajuster au calibrage.
-    - delay: { seconds: 18 }
+    # Trajet chronométré en live : ~60 s du dock jusqu'à l'étagère. On attend
+    # qu'il soit arrivé avant qu'il appelle les joueurs (« Hi! I'm over here! »).
+    - delay: { seconds: 65 }
     - action: vacuum.locate
       target:
         entity_id: vacuum.roborock_s5_7c79_robot_cleaner
@@ -723,10 +729,13 @@ mystery_suspect_speak:
         - action: input_boolean.turn_on
           target: { entity_id: "{{ done_flag }}" }
         # À la 1re rencontre du Jardinier, Roby part vers le vin et appelle
-        # les joueurs pour les guider vers la salle à manger.
+        # les joueurs pour les guider vers la salle à manger. On passe par
+        # script.turn_on : son trajet dure ~1 min et un appel direct bloquerait
+        # ce script (mode queued), rendant les autres suspects muets d'ici là.
         - if: "{{ suspect == 'gardener' }}"
           then:
-            - action: script.mystery_roby_to_dining
+            - action: script.turn_on
+              target: { entity_id: script.mystery_roby_to_dining }
               continue_on_error: true
 
 mystery_police_callback:

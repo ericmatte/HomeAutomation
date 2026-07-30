@@ -9,10 +9,10 @@ visuel/live — Eric joue et observe, Claude ajuste le code).
       [23500, 31500]`** (9 m arrière, 1 m à gauche du dock). Voir la section
       « Robot Roby » du `design.md` pour le repère complet de la carte.
       Plus à gauche = bloqué par la table de la salle à manger.
-- [ ] Ajuster le **délai de trajet** (18 s par défaut dans
-      `mystery_roby_to_dining`) pour que le `locate` (« Hi! I'm over here! »)
-      sonne **une fois Roby arrivé**, pas avant. Il faut chronométrer un trajet
-      complet **depuis le dock**.
+- [x] **Délai de trajet** calé : ~60 s chronométrées du dock à l'étagère, donc
+      `delay: 65 s` avant le `locate` (« Hi! I'm over here! »).
+      Comme le trajet dure une minute, Roby est lancé via `script.turn_on`
+      (non bloquant) et `mystery_reset` coupe son script au passage.
 
 ## 🧪 2. Débrief après le premier test live (Eric joue → Claude corrige)
 

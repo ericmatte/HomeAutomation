@@ -119,6 +119,10 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
   la table de la salle à manger bloque. Essais épuisés, inutile de les
   refaire : `[23000, 31500]`, `[22500, 31500]`, `[22500, 31000]`,
   `[22500, 32500]` (tentative de contournement par l'arrière).
+- **Durée du trajet : ~60 s** depuis le dock (chronométré) → `delay: 65 s`
+  avant le `vacuum.locate`. Roby est lancé en tâche de fond
+  (`script.turn_on`), sinon `mystery_suspect_speak` (mode `queued`) resterait
+  bloqué une minute et les autres suspects seraient muets.
 - ⚠️ L'état HA du robot **traîne de plusieurs secondes** sur la réalité : ne
   jamais attendre un changement d'état pour synchroniser, garder un `delay:`
   fixe.
