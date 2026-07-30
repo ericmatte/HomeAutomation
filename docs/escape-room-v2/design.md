@@ -106,10 +106,19 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
 ## Robot Roby — déplacement
 
 `vacuum.send_command` / `command: app_goto_target` / `params: [x, y]` (mm,
-origine dock = `25500, 25500`, `1000 ≈ 1 m`). Repère fourni par Eric :
-`[23500, 25500]` = 2 m en arrière du dock (X décroissant) ; la salle à manger
-est +5 m de plus dans la même direction → **`COORD_DINING = [18500, 25500]`**
-(estimation, à affiner au calibrage MCP).
+`1000 = 1 m`). Repère **calibré en live** (29 juillet 2026) :
+
+- Le dock **n'est pas** à `25500, 25500` : il est à ≈ **`[24500, 22500]`**.
+- **+Y = vers l'arrière** (du salon vers la salle à manger).
+- **−X = vers la gauche** (en regardant depuis le dock).
+- **`COORD_DINING = [23500, 31500]`** = 9 m arrière, 1 m à gauche → près de
+  l'étagère à vins. C'est le point retenu.
+- `[23000, 31500]` et `[22500, 31500]` (plus à gauche, donc plus près du vin)
+  renvoient **« could not reach target »** : la table de la salle à manger
+  bloque le passage. Inutile de réessayer.
+- ⚠️ L'état HA du robot **traîne de plusieurs secondes** sur la réalité : ne
+  jamais attendre un changement d'état pour synchroniser, garder un `delay:`
+  fixe.
 
 ## Architecture technique
 
@@ -137,7 +146,7 @@ est +5 m de plus dans la même direction → **`COORD_DINING = [18500, 25500]`**
 4. **Final gagnant** = rideaux baissés + `light.theatre` rouge + `Final Reveal.mp4`.
 5. **Roby** part vers le vin + `locate` **quand on interroge le Jardinier**.
 6. **CCTV** = setup manuel PC dans le bureau (hors HA) ; 3 mp4 flous par suspect.
-7. **Coordonnées Roby** : `COORD_DINING = [18500, 25500]` (à affiner au calibrage).
+7. **Coordonnées Roby** : `COORD_DINING = [23500, 31500]` (calibré en live).
 8. **v1 conservée** et jouable : garde `input_boolean.escape_v2_active`.
 
 ## Reste à faire (voir le dossier `todo/`)

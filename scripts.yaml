@@ -546,7 +546,7 @@ mystery_roby_to_dining:
         entity_id: vacuum.roborock_s5_7c79_robot_cleaner
       data:
         command: app_goto_target
-        params: [18500, 25500]
+        params: [23500, 31500]
     # Laisse à Roby le temps d'arriver près du vin, puis il appelle les
     # joueurs (« Hi! I'm over here! »). Délai à ajuster au calibrage.
     - delay: { seconds: 18 }

@@ -5,14 +5,14 @@ visuel/live — Eric joue et observe, Claude ajuste le code).
 
 ## 🤖 1. Calibrer les coordonnées de Roby
 
-- [ ] Trouver la bonne cible `app_goto_target` pour que Roby s'arrête **près du
-      vin** (salle à manger). Départ : `COORD_DINING = [18500, 25500]` dans
-      `script.mystery_roby_to_dining`.
-      → Claude pilote Roby via le MCP (`vacuum.send_command`), Eric regarde où il
-      s'arrête, on affine en quelques essais, puis on met à jour le script.
+- [x] Cible `app_goto_target` calibrée en live : **`COORD_DINING =
+      [23500, 31500]`** (9 m arrière, 1 m à gauche du dock). Voir la section
+      « Robot Roby » du `design.md` pour le repère complet de la carte.
+      Plus à gauche = bloqué par la table de la salle à manger.
 - [ ] Ajuster le **délai de trajet** (18 s par défaut dans
       `mystery_roby_to_dining`) pour que le `locate` (« Hi! I'm over here! »)
-      sonne **une fois Roby arrivé**, pas avant.
+      sonne **une fois Roby arrivé**, pas avant. Il faut chronométrer un trajet
+      complet **depuis le dock**.
 
 ## 🧪 2. Débrief après le premier test live (Eric joue → Claude corrige)
 
