@@ -13,6 +13,15 @@ visuel/live — Eric joue et observe, Claude ajuste le code).
       `delay: 65 s` avant le `locate` (« Hi! I'm over here! »).
       Comme le trajet dure une minute, Roby est lancé via `script.turn_on`
       (non bloquant) et `mystery_reset` coupe son script au passage.
+- [ ] ⚠️ **Calibrer le 2ᵉ parcours (`spices`, rack d'épices)** — la coordonnée
+      `[26500, 31500]` dans `script.mystery_roby_goto` est un **placeholder
+      inventé**, il va très probablement répondre « could not reach target ».
+      Même méthode qu'avant : Eric dit la position du rack d'épices par rapport
+      au dock (distance vers l'arrière + gauche/droite), Claude envoie les
+      `app_goto_target` via le MCP, on affine.
+      Chronométrer aussi le trajet pour ajuster `travel_seconds` (100 s posés
+      d'avance, à valider : il faut que les joueurs soient remontés de
+      l'atelier avant le 1ᵉʳ `locate`).
 
 ## 🧪 2. Débrief après le premier test live (Eric joue → Claude corrige)
 

@@ -529,10 +529,10 @@ mystery_reset:
     target:
       entity_id: "{{ label_entities('motions') }}"
   # Le trajet de Roby tourne en tâche de fond : on le coupe avant de le
-  # renvoyer au dock, sinon il repartirait vers le vin après le reset.
+  # renvoyer au dock, sinon il repartirait vers son indice après le reset.
   - action: script.turn_off
     target:
-      entity_id: script.mystery_roby_to_dining
+      entity_id: script.mystery_roby_goto
     continue_on_error: true
   - action: vacuum.return_to_base
     target:
@@ -543,23 +543,47 @@ mystery_reset:
       entity_id: scene.reset_after_escape_room
     data:
       transition: 2
-mystery_roby_to_dining:
-  alias: "Mystery - Roby goes to the wine"
-  mode: single
+mystery_roby_goto:
+  alias: "Mystery - Roby drives to a clue"
+  # restart : les deux parcours partagent le même robot, le second annule
+  # simplement le premier si les joueurs interrogent les suspects dans le
+  # désordre.
+  mode: restart
+  fields:
+    destination:
+      name: Destination
+      selector:
+        select:
+          options: ["wine", "spices"]
+      required: true
+  variables:
+    # wine   : étagère d'alcools et de vins (calibré en live, ~60 s du dock).
+    # spices : rack d'épices — ⚠️ COORDONNÉES NON CALIBRÉES, à faire avec Eric.
+    coords: >-
+      {{ {'wine': [23500, 31500],
+          'spices': [26500, 31500]}[destination] }}
+    # Parcours 1 : les joueurs suivent Roby en direct, le locate ne sert qu'à
+    # marquer l'arrivée. Parcours 2 : il part discrètement pendant qu'ils sont
+    # à l'atelier, donc on attend qu'ils soient remontés avant de l'appeler,
+    # et on répète pour qu'ils puissent le localiser à l'oreille.
+    travel_seconds: "{{ 65 if destination == 'wine' else 100 }}"
+    locate_calls: "{{ 1 if destination == 'wine' else 4 }}"
   sequence:
     - action: vacuum.send_command
       target:
         entity_id: vacuum.roborock_s5_7c79_robot_cleaner
       data:
         command: app_goto_target
-        params: [23500, 31500]
-    # Trajet chronométré en live : ~60 s du dock jusqu'à l'étagère. On attend
-    # qu'il soit arrivé avant qu'il appelle les joueurs (« Hi! I'm over here! »).
-    - delay: { seconds: 65 }
-    - action: vacuum.locate
-      target:
-        entity_id: vacuum.roborock_s5_7c79_robot_cleaner
-      continue_on_error: true
+        params: "{{ coords }}"
+    - delay: { seconds: "{{ travel_seconds | int }}" }
+    - repeat:
+        count: "{{ locate_calls | int }}"
+        sequence:
+          - action: vacuum.locate
+            target:
+              entity_id: vacuum.roborock_s5_7c79_robot_cleaner
+            continue_on_error: true
+          - delay: { seconds: 25 }
 mystery_start:
   alias: "Mystery - Start"
   mode: restart
@@ -684,12 +708,12 @@ mystery_suspect_speak:
       Ah, un détective... Moi, le Jardinier ? J'étais à l'atelier toute la
       soirée à affûter ma scie. Je n'ai rien vu. Mais si vous voulez mon avis,
       le Majordome n'arrêtait pas de rôder dans la salle à manger avec sa
-      bouteille de vin. Tenez, mon robot vous montrera où regarder.
+      bouteille de vin. Ne faites pas attention à mon robot, il fait sa ronde.
       {% elif suspect == 'heiress' %}
       Mon fusil ?! Non, non, ce n'est pas ce que vous croyez ! Oui, je l'ai
       caché dans la trappe du foyer, mais je ne m'en suis jamais servie, je le
       jure ! Demandez plutôt au Majordome ce qu'il versait dans les verres ce
-      soir.
+      soir. Tenez — même le robot y va. Suivez-le !
       {% else %}
       Vous avez sonné pour le service ? À votre entière disposition. J'ai servi
       le vin toute la soirée, comme il se doit. Un service irréprochable.
@@ -698,8 +722,7 @@ mystery_suspect_speak:
       {% endif %}
     repeat_line: >-
       {% if suspect == 'gardener' %}
-      Je vous l'ai dit, j'étais à l'atelier. Suivez mon robot, regardez du côté
-      du vin.
+      Je vous l'ai dit, j'étais à l'atelier toute la soirée. Cherchez ailleurs.
       {% elif suspect == 'heiress' %}
       Laissez ce fusil tranquille ! Il n'a jamais servi, je vous dis.
       {% else %}
@@ -728,14 +751,22 @@ mystery_suspect_speak:
       then:
         - action: input_boolean.turn_on
           target: { entity_id: "{{ done_flag }}" }
-        # À la 1re rencontre du Jardinier, Roby part vers le vin et appelle
-        # les joueurs pour les guider vers la salle à manger. On passe par
-        # script.turn_on : son trajet dure ~1 min et un appel direct bloquerait
-        # ce script (mode queued), rendant les autres suspects muets d'ici là.
-        - if: "{{ suspect == 'gardener' }}"
+        # Roby a deux parcours, chacun déclenché par une 1re rencontre :
+        #  - Héritière (salon, à côté du dock) : il part vers le vin sous les
+        #    yeux des joueurs, qui le suivent jusqu'au bouton « service ».
+        #  - Jardinier (atelier, en bas) : il file discrètement vers le rack
+        #    d'épices pendant qu'ils sont en bas ; en remontant, ils le
+        #    cherchent et le retrouvent au son du locate.
+        # On passe par script.turn_on : un trajet dure plus d'une minute et un
+        # appel direct bloquerait ce script (mode queued), rendant les autres
+        # suspects muets d'ici là.
+        - if: "{{ suspect in ['heiress', 'gardener'] }}"
           then:
             - action: script.turn_on
-              target: { entity_id: script.mystery_roby_to_dining }
+              target: { entity_id: script.mystery_roby_goto }
+              data:
+                variables:
+                  destination: "{{ 'wine' if suspect == 'heiress' else 'spices' }}"
               continue_on_error: true
 
 mystery_police_callback:

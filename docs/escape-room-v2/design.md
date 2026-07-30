@@ -66,7 +66,7 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
 |---|---|---|
 | **0. La police arrive** | Script (délai optionnel). Toutes lumières éteintes → floor lamps salon alternent **bleu/rouge** (gyrophares) → Sonos : **sirènes + brouhaha de policiers** parlant du meurtre, ils disent qu'ils **rappelleront** avec plus de détails, puis repartent (**voiture qui démarre**, floor lamps s'éteignent) → **le téléphone sonne** | `light.left_floor_lamp`, `light.right_floor_lamp`, `media_player.sonos`, toutes lumières |
 | **1. Briefing** | L'**inspecteur** (téléphone) explique le meurtre et la mission (QUI/QUOI/OÙ), lance sur la 1ʳᵉ piste. Interaction : « Prêt ? » → oui/non | `assist_satellite` (téléphone, TTS), lumière de guidage |
-| **2. Enquête** | Explorer les pièces. Chaque capteur/bouton fait parler un suspect. **Quand on interroge le Jardinier, Roby part vers le vin et appelle les joueurs** (`vacuum.locate`, « Hi! I'm over here! »). Musique d'ambiance en fond sur le Sonos (duckée par le TTS de l'Héritière). Fausses pistes : fusil (vibration → Héritière paniquée), tiroir couteaux (Majordome innocent) | capteurs (porte/vibration), bouton Zigbee, haut-parleurs localisés, **robot aspirateur** |
+| **2. Enquête** | Explorer les pièces. Chaque capteur/bouton fait parler un suspect. **Roby fait deux parcours** : vers le vin quand parle l'Héritière (les joueurs le suivent), vers le rack d'épices quand parle le Jardinier (en douce, retrouvé au `vacuum.locate` en remontant). Musique d'ambiance en fond sur le Sonos (duckée par le TTS de l'Héritière). Fausses pistes : fusil (vibration → Héritière paniquée), tiroir couteaux (Majordome innocent) | capteurs (porte/vibration), bouton Zigbee, haut-parleurs localisés, **robot aspirateur** |
 | **3. Rappel de la police** | Une fois les 3 suspects entendus, la police **rappelle** automatiquement avec le **rapport d'autopsie** → empoisonnement → élimine fusil + scie | téléphone / Sonos |
 | **4. Accusation** | Le joueur dit **« inspecteur »** au téléphone → l'inspecteur rappelle et demande **le nom du coupable** ; le joueur le prononce (Jardinier / Héritière / Majordome). Seul **QUI** est demandé | téléphone (`assist_satellite`) |
 | **5. Dénouement** | Bon coupable → **final cinéma au théâtre** : **rideaux baissés**, **lumière rouge**, **vidéo de révélation** (`Final Reveal.mp4`) sur la TV. Mauvais → l'inspecteur recadre, retour en `autopsy_done`, on retente | `media_player.theatre_tv`, volets théâtre, `light.theatre` |
@@ -123,13 +123,26 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
   avant le `vacuum.locate`. Roby est lancé en tâche de fond
   (`script.turn_on`), sinon `mystery_suspect_speak` (mode `queued`) resterait
   bloqué une minute et les autres suspects seraient muets.
+
+### Les deux parcours de Roby
+
+`script.mystery_roby_goto` (mode `restart`, champ `destination`) :
+
+| Parcours | Déclencheur | Destination | Effet voulu |
+|---|---|---|---|
+| **`wine`** (visible) | 1ʳᵉ réplique de l'**Héritière** (salon, à côté du dock) | étagère d'alcools, `[23500, 31500]` | Roby démarre **sous les yeux des joueurs**, qui le suivent jusqu'au bouton « cliquer pour service » → réveille le Majordome. `locate` × 1 à l'arrivée. |
+| **`spices`** (subtil) | 1ʳᵉ réplique du **Jardinier** (atelier, en bas) | rack d'épices, **⚠️ non calibré** | Pendant que les joueurs sont en bas, Roby file **sans bruit** vers le 2ᵉ indice. En remontant ils se demandent où il est passé → `locate` × 4 espacés de 25 s pour le retrouver à l'oreille. |
+
+Le mode `restart` fait que si les suspects sont interrogés dans le désordre,
+le 2ᵉ parcours annule proprement le 1ᵉʳ — un seul robot, un seul trajet à la
+fois.
 - ⚠️ L'état HA du robot **traîne de plusieurs secondes** sur la réalité : ne
   jamais attendre un changement d'état pour synchroniser, garder un `delay:`
   fixe.
 
 ## Architecture technique
 
-- Scripts `mystery_*` (start, reset, suspect_speak, roby_to_dining,
+- Scripts `mystery_*` (start, reset, suspect_speak, roby_goto,
   police_callback, accusation, denouement) + automations `Mystery - *`
   (suspect triggers, butler patio, auto autopsy, call inspector, knife drawer).
 - Les suspects parlent via **TTS localisé** (`tts.speak` ciblant le haut-parleur
@@ -151,7 +164,9 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
    porte-patio (départ) + tiroir couteaux (fausse piste).
 3. **Accusation** = dire « inspecteur » → rappel → nommer le coupable (QUI seul).
 4. **Final gagnant** = rideaux baissés + `light.theatre` rouge + `Final Reveal.mp4`.
-5. **Roby** part vers le vin + `locate` **quand on interroge le Jardinier**.
+5. **Roby** a **deux parcours** : vers le vin quand on interroge l'**Héritière**
+   (visible, les joueurs le suivent), et vers le rack d'épices quand on
+   interroge le **Jardinier** (subtil, retrouvé au `locate` en remontant).
 6. **CCTV** = setup manuel PC dans le bureau (hors HA) ; 3 mp4 flous par suspect.
 7. **Coordonnées Roby** : `COORD_DINING = [23500, 31500]` (calibré en live).
 8. **v1 conservée** et jouable : garde `input_boolean.escape_v2_active`.
