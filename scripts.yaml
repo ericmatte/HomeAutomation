@@ -681,13 +681,14 @@ mystery_start:
       data:
         preannounce: false
         message: >-
-          Allô ? Ici l'inspecteur Lumière. Un meurtre a eu lieu chez vous ce
-          soir, et votre maison a tout enregistré. J'ai besoin de vous comme
-          détective. Trois choses à découvrir : QUI est le coupable, AVEC QUOI,
-          et OÙ. Il y a trois suspects dans la maison : le Jardinier, l'Héritière
-          et le Majordome. Allez les interroger : entrez dans une pièce et
-          faites-les parler. Revenez me voir quand vous serez prêt à accuser.
-          Bonne chance.
+          Allô ? Ici l'inspecteur Henri-Onésime de Beauchamp-Latulippe. Oui,
+          de Beauchamp-Latulippe, avec le trait d'union. Un meurtre a eu lieu
+          chez vous ce soir, et votre maison a tout enregistré. J'ai besoin de
+          vous comme détective. Trois choses à découvrir : QUI est le coupable,
+          AVEC QUOI, et OÙ. Il y a trois suspects dans la maison : le Jardinier,
+          l'Héritière et le Majordome. Allez les interroger : entrez dans une
+          pièce et faites-les parler. Revenez me voir quand vous serez prêt à
+          accuser. Bonne chance.
     - action: input_select.select_option
       target: { entity_id: input_select.mystery_phase }
       data: { option: investigation }
@@ -835,7 +836,8 @@ mystery_police_callback:
       data:
         preannounce: false
         message: >-
-          Inspecteur Lumière à nouveau. Le rapport du légiste vient d'arriver :
+          Inspecteur Henri-Onésime de Beauchamp-Latulippe à nouveau. Le nom
+          complet, s'il vous plaît. Le rapport du légiste vient d'arriver :
           aucune blessure par balle, aucune trace de lame. La victime a été
           EMPOISONNÉE. Oubliez le fusil et la scie, ce sont des diversions.
           Cherchez ce que la victime a bu ou mangé. Quand vous aurez tout
@@ -876,8 +878,9 @@ mystery_accusation:
       data:
         preannounce: false
         question: >-
-          Eh alors, détective ! Avez-vous trouvé le coupable ? Dites-moi son
-          nom : est-ce le Jardinier, l'Héritière, ou le Majordome ?
+          Eh alors, détective ! Henri-Onésime de Beauchamp-Latulippe à
+          l'appareil. Avez-vous trouvé le coupable ? Dites-moi son nom :
+          est-ce le Jardinier, l'Héritière, ou le Majordome ?
         answers: "{{ suspects }}"
       response_variable: accused
     - action: script.mystery_denouement
@@ -908,8 +911,10 @@ mystery_denouement:
           data:
             preannounce: false
             message: >-
-              Le Majordome... c'est exact, détective ! Rendez-vous au théâtre :
-              les caméras de surveillance ne mentent pas. Regardez l'écran.
+              Le Majordome... c'est exact, détective ! Du beau travail. Vous
+              pouvez m'appeler Henri, maintenant, vous l'avez mérité. Rendez-vous
+              au théâtre : les caméras de surveillance ne mentent pas. Regardez
+              l'écran.
         # Mise en scène cinéma : rideaux baissés + lumière rouge + vidéo de
         # révélation sur la TV du théâtre.
         - action: cover.close_cover
@@ -947,6 +952,7 @@ mystery_denouement:
           data:
             preannounce: false
             message: >-
-              Hmm... ça ne colle pas, détective. Reprenez les indices : le vin,
-              le rapport d'autopsie, les alibis. Revenez me voir quand vous
-              serez sûr.
+              Hmm... ça ne colle pas, détective. Et c'est Henri-Onésime de
+              Beauchamp-Latulippe, pas « monsieur l'inspecteur ». Reprenez les
+              indices : le vin, le rapport d'autopsie, les alibis. Revenez me
+              voir quand vous serez sûr.
