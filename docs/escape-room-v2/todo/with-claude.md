@@ -13,15 +13,13 @@ visuel/live — Eric joue et observe, Claude ajuste le code).
       `delay: 65 s` avant le `locate` (« Hi! I'm over here! »).
       Comme le trajet dure une minute, Roby est lancé via `script.turn_on`
       (non bloquant) et `mystery_reset` coupe son script au passage.
-- [ ] ⚠️ **Calibrer le 2ᵉ parcours (`spices`, rack d'épices)** — la coordonnée
-      `[26500, 31500]` dans `script.mystery_roby_goto` est un **placeholder
-      inventé**, il va très probablement répondre « could not reach target ».
-      Même méthode qu'avant : Eric dit la position du rack d'épices par rapport
-      au dock (distance vers l'arrière + gauche/droite), Claude envoie les
-      `app_goto_target` via le MCP, on affine.
-      Chronométrer aussi le trajet pour ajuster `travel_seconds` (100 s posés
-      d'avance, à valider : il faut que les joueurs soient remontés de
-      l'atelier avant le 1ᵉʳ `locate`).
+- [x] **2ᵉ parcours (`spices`, rack d'épices)** calibré en live :
+      **`[26700, 31200]`** = 8,7 m arrière, 2,2 m à droite du dock.
+      Atteint par paliers depuis un point intermédiaire, l'envoi direct à 9 m
+      partant dans la mauvaise direction.
+- [ ] **Chronométrer le trajet du dock au rack d'épices** pour ajuster
+      `travel_seconds` (100 s posés d'avance, jamais mesurés). Il faut que les
+      joueurs soient remontés de l'atelier avant le 1ᵉʳ `locate`.
 
 ## 🎙️ 2. Voix TTS des 3 suspects
 
@@ -60,11 +58,12 @@ Le fr-CA n'a **aucune variante émotionnelle** (elles n'existent qu'en fr-FR,
 pour Denise et Henri). L'effet « voix paniquée » de l'Héritière passe donc
 uniquement par **le texte**, pas par la voix.
 
-Reste à faire :
-
-- [ ] Vérifier que les 3 voix restent distinctes de celle de **l'inspecteur**,
-      qui vient du pipeline Assist du téléphone (réglé séparément dans
-      Paramètres → Assistants) et non de ces `tts.speak`.
+- [x] **Voix de l'inspecteur** vérifiée via l'API : le pipeline préféré
+      « EscapeRoomer » utilise `DeniseNeural||whispering` (fr-FR).
+      **Aucune collision** avec Sylvie, Thierry ou la voix Alexa.
+- [ ] 💭 **L'inspecteur chuchote** — c'est la persona « maison » héritée de la
+      v1, qui colle mal à un inspecteur de police. `AntoineNeural` (fr-CA,
+      autoritaire, encore libre) serait plus juste. Décision d'Eric.
 
 ## 🧪 3. Débrief après le premier test live (Eric joue → Claude corrige)
 
@@ -75,7 +74,15 @@ Points à valider en live, à corriger ensuite si besoin :
 - [ ] **Reconnaissance des noms à l'accusation** (`ask_question` : Jardinier /
       Héritière / Majordome) — vérifier que les 3 noms sont bien captés ; sinon
       enrichir les `sentences`.
-- [ ] **Trigger vocal « inspecteur »** lance bien le rappel + l'accusation.
+- [ ] ⚠️ **Trigger vocal « inspecteur »** — **le point le plus fragile du jeu**.
+      Le pipeline préféré (« EscapeRoomer ») utilise
+      `conversation.google_ai_conversation` : si Gemini répond avant que HA ne
+      matche la phrase locale, `mystery_call_inspector` ne se déclenchera
+      **jamais** et la partie restera bloquée en `autopsy_done`.
+      `prefer_local_intents: true` est censé l'éviter — à confirmer en live.
+      Plan B si ça échoue : basculer le téléphone sur un pipeline dont l'agent
+      est `conversation.home_assistant`, ou remplacer le déclencheur vocal par
+      un capteur physique.
 - [ ] **Vidéo finale** `Final Reveal.mp4` : lecture OK sur `media_player.theatre_tv`
       (sinon ajuster `media_content_type` / la source).
 - [ ] **Enchaînement des phases** de bout en bout (intro → enquête → autopsie

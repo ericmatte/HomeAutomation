@@ -565,11 +565,13 @@ mystery_roby_goto:
           options: ["wine", "spices"]
       required: true
   variables:
-    # wine   : étagère d'alcools et de vins (calibré en live, ~60 s du dock).
-    # spices : rack d'épices — ⚠️ COORDONNÉES NON CALIBRÉES, à faire avec Eric.
+    # Les deux cibles sont calibrées en live. Repère : dock ≈ [24500, 22500],
+    # +Y = vers l'arrière (salle à manger), −X = vers la gauche, 1000 = 1 m.
+    # wine   : étagère d'alcools et de vins — 9 m arrière, 1 m à gauche.
+    # spices : rack d'épices — 8,7 m arrière, 2,2 m à droite.
     coords: >-
       {{ {'wine': [23500, 31500],
-          'spices': [26500, 31500]}[destination] }}
+          'spices': [26700, 31200]}[destination] }}
     # Parcours 1 : les joueurs suivent Roby en direct, le locate ne sert qu'à
     # marquer l'arrivée. Parcours 2 : il part discrètement pendant qu'ils sont
     # à l'atelier, donc on attend qu'ils soient remontés avant de l'appeler,

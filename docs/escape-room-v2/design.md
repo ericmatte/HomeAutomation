@@ -131,7 +131,7 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
 | Parcours | Déclencheur | Destination | Effet voulu |
 |---|---|---|---|
 | **`wine`** (visible) | 1ʳᵉ réplique de l'**Héritière** (salon, à côté du dock) | étagère d'alcools, `[23500, 31500]` | Roby démarre **sous les yeux des joueurs**, qui le suivent jusqu'au bouton « cliquer pour service » → réveille le Majordome. `locate` × 1 à l'arrivée. |
-| **`spices`** (subtil) | 1ʳᵉ réplique du **Jardinier** (atelier, en bas) | rack d'épices, **⚠️ non calibré** | Pendant que les joueurs sont en bas, Roby file **sans bruit** vers le 2ᵉ indice. En remontant ils se demandent où il est passé → `locate` × 4 espacés de 25 s pour le retrouver à l'oreille. |
+| **`spices`** (subtil) | 1ʳᵉ réplique du **Jardinier** (atelier, en bas) | rack d'épices, `[26700, 31200]` | Pendant que les joueurs sont en bas, Roby file **sans bruit** vers le 2ᵉ indice. En remontant ils se demandent où il est passé → `locate` × 4 espacés de 25 s pour le retrouver à l'oreille. |
 
 Le mode `restart` fait que si les suspects sont interrogés dans le désordre,
 le 2ᵉ parcours annule proprement le 1ᵉʳ — un seul robot, un seul trajet à la
