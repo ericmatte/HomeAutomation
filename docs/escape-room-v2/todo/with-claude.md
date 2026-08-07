@@ -64,12 +64,16 @@ Le fr-CA n'a **aucune variante émotionnelle** (elles n'existent qu'en fr-FR,
 pour Denise et Henri). L'effet « voix paniquée » de l'Héritière passe donc
 uniquement par **le texte**, pas par la voix.
 
-- [x] **Voix de l'inspecteur** vérifiée via l'API : le pipeline préféré
-      « EscapeRoomer » utilise `DeniseNeural||whispering` (fr-FR).
-      **Aucune collision** avec Sylvie, Thierry ou la voix Alexa.
-- [ ] 💭 **L'inspecteur chuchote** — c'est la persona « maison » héritée de la
-      v1, qui colle mal à un inspecteur de police. `AntoineNeural` (fr-CA,
-      autoritaire, encore libre) serait plus juste. Décision d'Eric.
+- [x] **Voix de l'inspecteur** : `HenriNeural` (fr-FR), voix d'homme, distincte
+      des 3 suspects. Il s'appelle désormais **Henri-Onésime de
+      Beauchamp-Latulippe** — nom pompeux devenu gag récurrent (il exige son
+      nom complet, s'agace, puis lâche « appelez-moi Henri » à la victoire).
+- [x] **Deux pipelines séparés** (`Escape Room V1: Denise` /
+      `Escape Room V2 - Henri`) : chaque jeu bascule
+      `select.192_168_0_160_assistant` sur le sien au démarrage.
+      `assist_satellite.announce` n'acceptant **aucune** option de voix, c'est
+      la seule façon de la choisir — et ça évite que les deux escape rooms se
+      contaminent.
 
 ## 🧪 3. Débrief après le premier test live (Eric joue → Claude corrige)
 
@@ -80,15 +84,12 @@ Points à valider en live, à corriger ensuite si besoin :
 - [ ] **Reconnaissance des noms à l'accusation** (`ask_question` : Jardinier /
       Héritière / Majordome) — vérifier que les 3 noms sont bien captés ; sinon
       enrichir les `sentences`.
-- [ ] ⚠️ **Trigger vocal « inspecteur »** — **le point le plus fragile du jeu**.
-      Le pipeline préféré (« EscapeRoomer ») utilise
-      `conversation.google_ai_conversation` : si Gemini répond avant que HA ne
-      matche la phrase locale, `mystery_call_inspector` ne se déclenchera
-      **jamais** et la partie restera bloquée en `autopsy_done`.
-      `prefer_local_intents: true` est censé l'éviter — à confirmer en live.
-      Plan B si ça échoue : basculer le téléphone sur un pipeline dont l'agent
-      est `conversation.home_assistant`, ou remplacer le déclencheur vocal par
-      un capteur physique.
+- [ ] **Trigger vocal « inspecteur »** lance bien le rappel + l'accusation.
+      Le risque principal a été levé : le pipeline v2 utilise maintenant
+      `conversation.home_assistant` et non plus Gemini, qui aurait pu avaler la
+      phrase avant que `mystery_call_inspector` ne la matche. Reste à confirmer
+      en live. Plan B si ça échoue malgré tout : remplacer le déclencheur vocal
+      par un capteur physique.
 - [ ] **Vidéo finale** `Final Reveal.mp4` : lecture OK sur `media_player.theatre_tv`
       (sinon ajuster `media_content_type` / la source).
 - [ ] **Enchaînement des phases** de bout en bout (intro → enquête → autopsie
