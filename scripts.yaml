@@ -654,14 +654,8 @@ mystery_start:
       target: { entity_id: [light.left_floor_lamp, light.right_floor_lamp] }
       data: { transition: 2 }
     - delay: { seconds: 3 }
-    # --- PHASE 0→1 : le téléphone sonne ---
-    - action: media_player.play_media
-      target: { entity_id: media_player.sonos }
-      data:
-        media_content_type: audio/mpeg
-        media_content_id: "media-source://media_source/local/Phone Ringing.mp3"
-    - delay: { seconds: 3 }
     # --- PHASE 1 : briefing de l'inspecteur (téléphone) ---
+    # Pas de sonnerie à jouer : le téléphone sonne déjà de lui-même à l'appel.
     - action: assist_satellite.announce
       target: { entity_id: assist_satellite.192_168_0_160 }
       data:
@@ -811,12 +805,7 @@ mystery_police_callback:
     - action: input_select.select_option
       target: { entity_id: input_select.mystery_phase }
       data: { option: autopsy_done }
-    - action: media_player.play_media
-      target: { entity_id: media_player.sonos }
-      data:
-        media_content_type: audio/mpeg
-        media_content_id: "media-source://media_source/local/Phone Ringing.mp3"
-    - delay: { seconds: 3 }
+    # Pas de sonnerie à jouer : le téléphone sonne déjà de lui-même à l'appel.
     - action: assist_satellite.announce
       target: { entity_id: assist_satellite.192_168_0_160 }
       data:
