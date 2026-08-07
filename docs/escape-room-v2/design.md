@@ -69,7 +69,7 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
 | **2. Enquête** | Explorer les pièces. Chaque capteur/bouton fait parler un suspect. **Roby fait deux parcours** : vers le vin quand parle l'Héritière (les joueurs le suivent), vers le rack d'épices quand parle le Jardinier (en douce, retrouvé au `vacuum.locate` en remontant). Musique d'ambiance en fond sur le Sonos (duckée par le TTS de l'Héritière). Fausses pistes : fusil (vibration → Héritière paniquée), tiroir couteaux (Majordome innocent) | capteurs (porte/vibration), bouton Zigbee, haut-parleurs localisés, **robot aspirateur** |
 | **3. Rappel de la police** | Une fois les 3 suspects entendus, la police **rappelle** automatiquement avec le **rapport d'autopsie** → empoisonnement → élimine fusil + scie | téléphone / Sonos |
 | **4. Accusation** | Le joueur dit **« inspecteur »** au téléphone → l'inspecteur rappelle et demande **le nom du coupable** ; le joueur le prononce (Jardinier / Héritière / Majordome). Seul **QUI** est demandé | téléphone (`assist_satellite`) |
-| **5. Dénouement** | Bon coupable → **final cinéma au théâtre** : **rideaux baissés**, **lumière rouge**, **vidéo de révélation** (`Final Reveal.mp4`) sur la TV. Mauvais → l'inspecteur recadre, retour en `autopsy_done`, on retente | `media_player.theatre_tv`, volets théâtre, `light.theatre` |
+| **5. Dénouement** | Bon coupable → **final cinéma au théâtre** : **rideaux baissés**, **lumière rouge**, puis musique. ⏸️ En attendant que `Final Reveal.mp4` soit produit, c'est un **rickroll sur le Sonos** comme en v1. Mauvais → l'inspecteur recadre, retour en `autopsy_done`, on retente | volets théâtre, `light.theatre`, `media_player.sonos` |
 
 ## Terrain de jeu (pièces en jeu)
 

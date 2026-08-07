@@ -77,7 +77,7 @@ Dans **Paramètres → Media → local** (`media-source://media_source/local/`).
 | ~~`Phone Ringing.mp3`~~      | ❌ **Plus nécessaire** — le téléphone sonne déjà de lui-même à l'appel             | —             |
 | `Investigation Ambience.mp3` | Enquête — musique de fond (Sonos, duckée par le TTS). **Fichier long** (5-10 min), pas de boucle. | à trouver     |
 | `Wrong Answer Sting.mp3`     | Mauvaise accusation (court)                                                                       | à trouver     |
-| `Final Reveal.mp4`           | **Final gagnant** — vidéo de révélation du Majordome (TV théâtre)                                 | à produire    |
+| `Final Reveal.mp4`           | **Final gagnant** — vidéo de révélation du Majordome (TV théâtre). ⏸️ **Reporté** : en attendant, le final rickroll sur le Sonos (`Never Gonna Give You Up.mp3`, comme la v1). Rideaux et lumière rouge restent en place. | à produire    |
 
 > Les dialogues des suspects et de l'inspecteur sont en **TTS** : aucun fichier
 > à fournir.
@@ -94,12 +94,18 @@ Télécharger en MP3, puis **renommer exactement** comme dans le tableau ci-dess
 | `Investigation Ambience.mp3` | [Cinematic Dark Ambient](https://pixabay.com/music/horror-scene-cinematic-dark-ambient-503450/)          | 7:24  | [Dark Ambient Soundscape](https://pixabay.com/music/horror-scene-dark-ambient-soundscape-575774/) (5:05) · [Dark Scary Ambience](https://pixabay.com/music/ambient-dark-scary-ambience-567213/) (4:50) |
 | `Wrong Answer Sting.mp3`     | [Appearance 010](https://pixabay.com/sound-effects/film-special-effects-appearance-010-141077/)          | 0:03  | [Suspense sting](https://pixabay.com/sound-effects/film-special-effects-suspense-sting-377243/) (0:05) · [Horror sting](https://pixabay.com/sound-effects/horror-horror-sting-25237/) (0:14) |
 
-⏱️ **Contraintes de durée** imposées par `script.mystery_start` (les
-`play_media` successifs sur le Sonos se coupent les uns les autres) :
+⏱️ **Durées mesurées et délais du script** — `script.mystery_start` est
+maintenant calé sur **tes** fichiers (sur le Sonos, chaque `play_media` coupe
+le précédent) :
 
-| Son                    | Fenêtre avant d'être coupé | Note                                                                 |
-| ---------------------- | -------------------------- | -------------------------------------------------------------------- |
-| `Police Sirens`        | ~18-20 s (gyrophares)      | 0:18 tombe pile ; un fichier plus long est coupé net, sans gravité.  |
-| `Police Radio Chatter` | 12 s                       | Viser ~12 s à l'enregistrement.                                      |
-| `Car Drive Away`       | ~3 s                       | Un 0:07 est coupé en plein fade-out → **rogner à ~3 s** (Audacity).  |
-| `Wrong Answer Sting`   | 2 s                        | Prendre un sting court (≤ 3 s).                                      |
+| Son                          | Durée   | Fenêtre | Note                                              |
+| ---------------------------- | ------- | ------- | ------------------------------------------------- |
+| `Police Sirens`              | 18,5 s  | 19 s    | boucle gyrophares allongée de 15 à 19 cycles      |
+| `Police Radio Chatter`       | 24 s    | 25 s    | `delay` passé de 12 à 25 s pour l'entendre entier |
+| `Car Drive Away`             | 11,5 s  | 12 s    | `delay` passé de 3 à 12 s                         |
+| `Wrong Answer Sting`         | 14,3 s  | 3 s     | volontairement coupé net, seule l'attaque compte  |
+| `Investigation Ambience`     | 47 min  | —       | couvre largement la partie                        |
+
+> ⚠️ L'inspecteur parle dans le **téléphone**, pas sur le Sonos : sa voix ne
+> coupe donc rien. Un son trop long déborde par-dessus lui — c'est ce que ces
+> délais évitent. La phase 0 dure désormais **~58 s** avant son appel.
