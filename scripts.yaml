@@ -157,6 +157,12 @@ escape_room:
           step: 1
       default: 0
   sequence:
+  - alias: Voix du téléphone pour la v1
+    action: select.select_option
+    target:
+      entity_id: select.192_168_0_160_assistant
+    data:
+      option: 'Escape Room V1: Denise'
   - delay:
       seconds: '{{ start_delay }}'
   - alias: 'Phase 1: Game instructions'
@@ -599,6 +605,13 @@ mystery_start:
   sequence:
     - action: input_boolean.turn_on
       target: { entity_id: input_boolean.escape_v2_active }
+    # La voix de l'inspecteur vient du pipeline Assist du téléphone :
+    # assist_satellite.announce n'accepte aucune option de voix. On bascule
+    # donc le select avant de parler, ce qui laisse la v1 intacte.
+    - alias: Voix du téléphone pour la v2
+      action: select.select_option
+      target: { entity_id: select.192_168_0_160_assistant }
+      data: { option: "Escape Room V2 - Henri" }
     - delay: { seconds: "{{ start_delay | int }}" }
     # Désactiver l'éclairage automatique par mouvement pendant le jeu
     - action: automation.turn_off
