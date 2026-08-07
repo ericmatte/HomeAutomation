@@ -822,6 +822,17 @@ mystery_police_callback:
           EMPOISONNÉE. Oubliez le fusil et la scie, ce sont des diversions.
           Cherchez ce que la victime a bu ou mangé. Quand vous aurez tout
           rassemblé, revenez me voir pour l'accusation.
+    # L'ambiance a été coupée plus haut pour ne pas couvrir l'inspecteur : on la
+    # relance, sinon l'enquête se poursuit dans le silence.
+    - action: media_player.volume_set
+      target: { entity_id: media_player.sonos }
+      data: { volume_level: 0.4 }
+    - action: media_player.play_media
+      target: { entity_id: media_player.sonos }
+      data:
+        media_content_type: audio/mpeg
+        media_content_id: "media-source://media_source/local/Investigation Ambience.mp3"
+      continue_on_error: true
 
 mystery_accusation:
   alias: "Mystery - Accusation"
@@ -944,3 +955,14 @@ mystery_denouement:
               Beauchamp-Latulippe, pas « monsieur l'inspecteur ». Reprenez les
               indices : le vin, le rapport d'autopsie, les alibis. Revenez me
               voir quand vous serez sûr.
+        # Le sting a remplacé l'ambiance sur le Sonos : on la relance, sinon la
+        # partie continue sans musique après une mauvaise accusation.
+        - action: media_player.volume_set
+          target: { entity_id: media_player.sonos }
+          data: { volume_level: 0.4 }
+        - action: media_player.play_media
+          target: { entity_id: media_player.sonos }
+          data:
+            media_content_type: audio/mpeg
+            media_content_id: "media-source://media_source/local/Investigation Ambience.mp3"
+          continue_on_error: true

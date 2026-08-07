@@ -103,9 +103,16 @@ le précédent) :
 | `Police Sirens`              | 18,5 s  | 19 s    | boucle gyrophares allongée de 15 à 19 cycles      |
 | `Police Radio Chatter`       | 24 s    | 25 s    | `delay` passé de 12 à 25 s pour l'entendre entier |
 | `Car Drive Away`             | 11,5 s  | 12 s    | `delay` passé de 3 à 12 s                         |
-| `Wrong Answer Sting`         | 14,3 s  | 3 s     | volontairement coupé net, seule l'attaque compte  |
+| `Wrong Answer Sting`         | 14,3 s  | 3 s     | `media_stop` après 3 s, seule l'attaque compte    |
 | `Investigation Ambience`     | 47 min  | —       | couvre largement la partie                        |
 
 > ⚠️ L'inspecteur parle dans le **téléphone**, pas sur le Sonos : sa voix ne
 > coupe donc rien. Un son trop long déborde par-dessus lui — c'est ce que ces
 > délais évitent. La phase 0 dure désormais **~58 s** avant son appel.
+>
+> 🎵 L'ambiance est **relancée** après le rappel d'autopsie et après une
+> mauvaise accusation (les deux coupent le Sonos). Elle repart du début du
+> fichier : normal, et sans conséquence vu ses 47 min.
+
+**Aucun fichier n'a besoin d'être rogné** — tout est géré par les délais et les
+`media_stop` du script.
