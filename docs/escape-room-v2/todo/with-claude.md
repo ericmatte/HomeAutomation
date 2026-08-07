@@ -5,10 +5,11 @@ visuel/live — Eric joue et observe, Claude ajuste le code).
 
 ## 🤖 1. Calibrer les coordonnées de Roby
 
-- [x] Cible `app_goto_target` calibrée en live : **`COORD_DINING =
-      [23500, 31500]`** (9 m arrière, 1 m à gauche du dock). Voir la section
-      « Robot Roby » du `design.md` pour le repère complet de la carte.
-      Plus à gauche = bloqué par la table de la salle à manger.
+- [x] Cible du vin calibrée en live : **`[23000, 31500]`** (9 m arrière,
+      1,5 m à gauche du dock). Voir la section « Robot Roby » du `design.md`
+      pour le repère complet de la carte.
+      Les échecs à gauche venaient d'une **no-go zone** de l'app Roborock, pas
+      de la table — zone ajustée par Eric, la cible passe maintenant.
 - [x] **Délai de trajet** calé : ~60 s chronométrées du dock à l'étagère, donc
       `delay: 65 s` avant le `locate` (« Hi! I'm over here! »).
       Comme le trajet dure une minute, Roby est lancé via `script.turn_on`

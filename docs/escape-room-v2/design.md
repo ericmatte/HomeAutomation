@@ -111,14 +111,20 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
 - Le dock **n'est pas** à `25500, 25500` : il est à ≈ **`[24500, 22500]`**.
 - **+Y = vers l'arrière** (du salon vers la salle à manger).
 - **−X = vers la gauche** (en regardant depuis le dock).
-- **`COORD_DINING = [23500, 31500]`** = 9 m arrière, 1 m à gauche → à ~1 m de
-  l'étagère d'alcools forts et de vins. **C'est le point retenu**, et c'est
-  amplement suffisant : la cible est une étagère entière, Roby n'a qu'à
-  attirer les joueurs dans la bonne zone.
-- Tout ce qui est **plus à gauche est refusé** (« could not reach target ») —
-  la table de la salle à manger bloque. Essais épuisés, inutile de les
-  refaire : `[23000, 31500]`, `[22500, 31500]`, `[22500, 31000]`,
-  `[22500, 32500]` (tentative de contournement par l'arrière).
+- **`COORD wine = [23000, 31500]`** = 9 m arrière, 1,5 m à gauche → devant
+  l'étagère d'alcools forts et de vins.
+- **`COORD spices = [26700, 31200]`** = 8,7 m arrière, 2,2 m à droite → au rack
+  d'épices.
+- 🚧 **Attention aux no-go zones.** Une longue série de cibles à gauche a
+  échoué (« could not reach target ») : ce n'était **pas** la table de la salle
+  à manger comme on l'avait d'abord cru, mais une **zone interdite tracée dans
+  l'app Roborock**. `app_goto_target` hérite de ces zones et refuse d'y entrer.
+  Après ajustement de la zone par Eric, `[23000, 31500]` passe. Si une cible
+  est refusée sans obstacle physique évident, **vérifier les no-go zones avant
+  de conclure**.
+- Envoyer Roby directement à 9 m peut le faire partir dans la mauvaise
+  direction ; procéder **par paliers** depuis un point intermédiaire fonctionne
+  mieux pour calibrer.
 - **Durée du trajet : ~60 s** depuis le dock (chronométré) → `delay: 65 s`
   avant le `vacuum.locate`. Roby est lancé en tâche de fond
   (`script.turn_on`), sinon `mystery_suspect_speak` (mode `queued`) resterait
@@ -130,7 +136,7 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
 
 | Parcours | Déclencheur | Destination | Effet voulu |
 |---|---|---|---|
-| **`wine`** (visible) | 1ʳᵉ réplique de l'**Héritière** (salon, à côté du dock) | étagère d'alcools, `[23500, 31500]` | Roby démarre **sous les yeux des joueurs**, qui le suivent jusqu'au bouton « cliquer pour service » → réveille le Majordome. `locate` × 1 à l'arrivée. |
+| **`wine`** (visible) | 1ʳᵉ réplique de l'**Héritière** (salon, à côté du dock) | étagère d’alcools, `[23000, 31500]` | Roby démarre **sous les yeux des joueurs**, qui le suivent jusqu'au bouton « cliquer pour service » → réveille le Majordome. `locate` × 1 à l'arrivée. |
 | **`spices`** (subtil) | 1ʳᵉ réplique du **Jardinier** (atelier, en bas) | rack d'épices, `[26700, 31200]` | Pendant que les joueurs sont en bas, Roby file **sans bruit** vers le 2ᵉ indice. En remontant ils se demandent où il est passé → `locate` × 4 espacés de 25 s pour le retrouver à l'oreille. |
 
 Le mode `restart` fait que si les suspects sont interrogés dans le désordre,
@@ -177,7 +183,8 @@ fois.
    (visible, les joueurs le suivent), et vers le rack d'épices quand on
    interroge le **Jardinier** (subtil, retrouvé au `locate` en remontant).
 6. **CCTV** = setup manuel PC dans le bureau (hors HA) ; 3 mp4 flous par suspect.
-7. **Coordonnées Roby** : `COORD_DINING = [23500, 31500]` (calibré en live).
+7. **Coordonnées Roby** (calibrées en live) : vin `[23000, 31500]`,
+   épices `[26700, 31200]`.
 8. **v1 conservée** et jouable : garde `input_boolean.escape_v2_active`.
 
 ## Reste à faire (voir le dossier `todo/`)

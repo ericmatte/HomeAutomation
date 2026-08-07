@@ -567,10 +567,10 @@ mystery_roby_goto:
   variables:
     # Les deux cibles sont calibrées en live. Repère : dock ≈ [24500, 22500],
     # +Y = vers l'arrière (salle à manger), −X = vers la gauche, 1000 = 1 m.
-    # wine   : étagère d'alcools et de vins — 9 m arrière, 1 m à gauche.
+    # wine   : étagère d'alcools et de vins — 9 m arrière, 1,5 m à gauche.
     # spices : rack d'épices — 8,7 m arrière, 2,2 m à droite.
     coords: >-
-      {{ {'wine': [23500, 31500],
+      {{ {'wine': [23000, 31500],
           'spices': [26700, 31200]}[destination] }}
     # Parcours 1 : les joueurs suivent Roby en direct, le locate ne sert qu'à
     # marquer l'arrivée. Parcours 2 : il part discrètement pendant qu'ils sont
