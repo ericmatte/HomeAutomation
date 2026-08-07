@@ -88,7 +88,7 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
 | Rôle | Entity ID |
 |---|---|
 | Inspecteur (voix bidirectionnelle) | `assist_satellite.192_168_0_160` (Phone) |
-| Voix Jardinier | `media_player.workshop_echo` |
+| Voix Jardinier | `notify.echo_speak` (⚠️ **pas** `tts.speak` — voir ci-dessous) |
 | Voix Héritière + intro police | `media_player.sonos` |
 | Voix Majordome | `media_player.google_home_mini` |
 | Final vidéo | `media_player.theatre_tv` (`Final Reveal.mp4`) |
@@ -147,6 +147,15 @@ fois.
   (suspect triggers, butler patio, auto autopsy, call inspector, knife drawer).
 - Les suspects parlent via **TTS localisé** (`tts.speak` ciblant le haut-parleur
   de leur pièce) — pas de fichiers audio requis pour les dialogues.
+- ⚠️ **Exception, le Jardinier** : son Echo utilise l'intégration
+  `alexa_devices`, qui refuse toute URL média
+  (`ValueError('music is not available as a music provider')`). `tts.speak` y
+  échoue **toujours**. Il passe donc par `notify.send_message` →
+  `notify.echo_speak`, c'est-à-dire le TTS d'Amazon : sa voix se choisit dans
+  l'app Alexa, pas dans le code, et l'option `voice` y est sans effet.
+- 🎭 **Registres de langue** volontairement contrastés : l'Héritière parle en
+  joual bien sacrant, le Jardinier en langage de rue, le Majordome dans un
+  français guindé. C'est ce qui distingue les personnages autant que les voix.
 - Les **triggers** : `state` (capteurs portes/vibration), `device` (bouton
   Zigbee), `conversation` (mot « inspecteur » pour lancer l'accusation).
 - **Entrée vocale du joueur** : minimale — surtout des réponses courtes ;

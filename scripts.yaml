@@ -705,10 +705,11 @@ mystery_suspect_speak:
           'butler': 'input_boolean.mystery_butler_done'}[suspect] }}
     first_line: >-
       {% if suspect == 'gardener' %}
-      Ah, un détective... Moi, le Jardinier ? J'étais à l'atelier toute la
-      soirée à affûter ma scie. Je n'ai rien vu. Mais si vous voulez mon avis,
-      le Majordome n'arrêtait pas de rôder dans la salle à manger avec sa
-      bouteille de vin. Ne faites pas attention à mon robot, il fait sa ronde.
+      Yo, c'est quoi ç'te histoire de détective, man ? Moi j'ai rien vu, j'te
+      jure. J'ai passé la soirée dans l'atelier à aiguiser ma scie, tranquille.
+      Mais genre, si tu veux mon avis... le Majordome, y'arrêtait pas de
+      tourner autour d'la salle à manger avec sa bouteille de vin. Louche en
+      tabarnak. Pis fais pas attention à mon robot, y fait sa run.
       {% elif suspect == 'heiress' %}
       Heille, mon fusil ?! Ben voyons donc, c'est pas ça que vous pensez
       pantoute ! OK, oui, je l'ai caché dans la trappe du foyer, mais je m'en
@@ -723,7 +724,8 @@ mystery_suspect_speak:
       {% endif %}
     repeat_line: >-
       {% if suspect == 'gardener' %}
-      Je vous l'ai dit, j'étais à l'atelier toute la soirée. Cherchez ailleurs.
+      Ch'te l'ai dit, man, j'étais dans l'atelier toute la soirée. Cherche
+      ailleurs.
       {% elif suspect == 'heiress' %}
       Heille tabarnak, laisse donc mon fusil tranquille ! Il n'a jamais servi,
       j'te le jure.
@@ -736,29 +738,42 @@ mystery_suspect_speak:
     # indiscernables. ⚠️ Il faut le voice_id de l'API (« SylvieNeural »), pas
     # le nom affiché dans l'UI (« Sylvie ») : un nom invalide est ignoré en
     # silence et HA retombe sur la voix par défaut de la langue.
+    # Le Jardinier n'est pas dans la liste : sa voix vient d'Alexa (voir plus
+    # bas), mais la clé doit exister car le dictionnaire est évalué pour tous.
     voice: >-
-      {{ {'gardener': 'JeanNeural',
+      {{ {'gardener': '',
           'heiress': 'SylvieNeural',
           'butler': 'ThierryNeural'}[suspect] }}
   sequence:
-    # L'Héritière parle sur le Sonos qui joue déjà l'ambiance : le TTS duck
-    # automatiquement la musique (comportement natif Sonos, comme en v1), donc
-    # on ne touche pas au volume du Sonos. Les autres suspects sont sur leur
-    # propre enceinte : on monte leur volume pour la clarté.
-    - if: "{{ not is_heiress }}"
+    # Le Jardinier passe par notify et non par tts.speak : l'intégration
+    # alexa_devices refuse toute URL média (« music is not available as a music
+    # provider »), donc tts.speak échoue systématiquement sur l'Echo. C'est le
+    # TTS d'Alexa qui parle, sa voix se règle dans l'app Alexa, pas ici.
+    - if: "{{ suspect == 'gardener' }}"
       then:
-        - action: media_player.volume_set
-          target: { entity_id: "{{ speaker }}" }
-          data: { volume_level: 0.6 }
-    - action: tts.speak
-      target: { entity_id: tts.home_assistant_cloud }
-      data:
-        cache: true
-        language: fr-CA
-        media_player_entity_id: "{{ speaker }}"
-        message: "{{ line }}"
-        options:
-          voice: "{{ voice }}"
+        - action: notify.send_message
+          target: { entity_id: notify.echo_speak }
+          data:
+            message: "{{ line }}"
+      else:
+        # L'Héritière parle sur le Sonos qui joue déjà l'ambiance : le TTS duck
+        # automatiquement la musique (comportement natif Sonos, comme en v1),
+        # donc on ne touche pas au volume du Sonos. Le Majordome est sur sa
+        # propre enceinte : on fixe son volume pour la clarté.
+        - if: "{{ not is_heiress }}"
+          then:
+            - action: media_player.volume_set
+              target: { entity_id: "{{ speaker }}" }
+              data: { volume_level: 0.8 }
+        - action: tts.speak
+          target: { entity_id: tts.home_assistant_cloud }
+          data:
+            cache: true
+            language: fr-CA
+            media_player_entity_id: "{{ speaker }}"
+            message: "{{ line }}"
+            options:
+              voice: "{{ voice }}"
     - if: "{{ is_state(done_flag, 'off') }}"
       then:
         - action: input_boolean.turn_on

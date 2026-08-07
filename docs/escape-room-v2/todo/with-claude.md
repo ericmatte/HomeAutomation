@@ -30,11 +30,21 @@ Choisies et **validées à l'oreille en live**. Tout le jeu est en **`fr-CA`**
 
 | Suspect | Voix | Intention |
 |---|---|---|
-| 🌿 Jardinier | `JeanNeural` | bourru, terre à terre |
+| 🌿 Jardinier | **voix d'Alexa**, réglée dans l'app Alexa (pas dans le code) | langage de rue, un peu illettré |
 | 💎 Héritière | `SylvieNeural` | seule voix féminine fr-CA ; répliques réécrites en **joual bien sacrant** |
 | 🤵 Majordome | `ThierryNeural` | guindé, onctueux — contraste voulu avec l'Héritière |
 
-`AntoineNeural` est la 4ᵉ voix fr-CA, libre si on veut changer.
+`AntoineNeural` et `JeanNeural` restent libres si on veut changer.
+
+> 🔌 **Le Jardinier ne passe pas par `tts.speak`** mais par
+> `notify.send_message` → `notify.echo_speak`. L'intégration `alexa_devices`
+> refuse toute URL média (`ValueError('music is not available as a music
+> provider')`), donc `tts.speak` échoue **systématiquement** sur l'Echo. C'est
+> le TTS d'Amazon qui parle : aucune voix HA Cloud possible, et l'option
+> `voice` est sans effet sur ce chemin.
+>
+> Le SSML (`<prosody>`, `<voice name="Mathieu">`) a été testé comme
+> alternative — inutile finalement, la voix se règle directement côté Alexa.
 
 > ⚠️ **Piège majeur** : l'option `voice` exige le **`voice_id` de l'API**
 > (`ThierryNeural`), **pas** le nom affiché dans l'UI (`Thierry`). Un nom
