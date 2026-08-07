@@ -671,9 +671,14 @@ mystery_start:
           chez vous ce soir, et votre maison a tout enregistré. J'ai besoin de
           vous comme détective. Trois choses à découvrir : QUI est le coupable,
           AVEC QUOI, et OÙ. Il y a trois suspects dans la maison : le Jardinier,
-          l'Héritière et le Majordome. Allez les interroger : entrez dans une
-          pièce et faites-les parler. Revenez me voir quand vous serez prêt à
-          accuser. Bonne chance.
+          l'Héritière et le Majordome. Écoutez-moi bien, voici comment on
+          procède. Ces trois-là sont nerveux : dès qu'on touche à leurs
+          affaires, ils se trahissent. Alors fouillez partout. Ouvrez les
+          portes, les tiroirs, déplacez ce qui traîne — et tendez l'oreille,
+          ils vous répondront depuis la pièce où ils se trouvent. Commencez
+          donc par le salon. Quand j'aurai les trois témoignages, je vous
+          rappelle. Et si vous avez besoin de moi, décrochez le téléphone et
+          demandez l'inspecteur. Bonne chance.
     - action: input_select.select_option
       target: { entity_id: input_select.mystery_phase }
       data: { option: investigation }
@@ -820,8 +825,9 @@ mystery_police_callback:
           complet, s'il vous plaît. Le rapport du légiste vient d'arriver :
           aucune blessure par balle, aucune trace de lame. La victime a été
           EMPOISONNÉE. Oubliez le fusil et la scie, ce sont des diversions.
-          Cherchez ce que la victime a bu ou mangé. Quand vous aurez tout
-          rassemblé, revenez me voir pour l'accusation.
+          Cherchez ce que la victime a bu ou mangé. Et quand vous saurez qui
+          c'est, décrochez le téléphone et demandez l'inspecteur : je vous
+          rappelle aussitôt pour prendre votre accusation.
     # L'ambiance a été coupée plus haut pour ne pas couvrir l'inspecteur : on la
     # relance, sinon l'enquête se poursuit dans le silence.
     - action: media_player.volume_set

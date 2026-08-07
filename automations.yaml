@@ -2790,7 +2790,10 @@
       entity_id: input_boolean.mystery_butler_done
       state: "on"
   actions:
-    - delay: { seconds: 5 }
+    # Le booléen du suspect bascule dès que tts.speak rend la main, pas à la fin
+    # de sa réplique (20-25 s). Sans cette attente, l'inspecteur appellerait
+    # par-dessus le 3e suspect encore en train de parler.
+    - delay: { seconds: 30 }
     - action: script.mystery_police_callback
 - id: mystery_call_inspector
   alias: "Mystery - Call inspector"
