@@ -71,3 +71,4 @@ zigbee2mqtt/
 image/
 *.pyc
 
+.ha_mcp
