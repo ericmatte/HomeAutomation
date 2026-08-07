@@ -18,9 +18,14 @@ visuel/live — Eric joue et observe, Claude ajuste le code).
       **`[26700, 31200]`** = 8,7 m arrière, 2,2 m à droite du dock.
       Atteint par paliers depuis un point intermédiaire, l'envoi direct à 9 m
       partant dans la mauvaise direction.
-- [ ] **Chronométrer le trajet du dock au rack d'épices** pour ajuster
-      `travel_seconds` (100 s posés d'avance, jamais mesurés). Il faut que les
-      joueurs soient remontés de l'atelier avant le 1ᵉʳ `locate`.
+- [x] **Trajet dock → rack d'épices chronométré : ~50 s.** `travel_seconds`
+      reste à **100 s**, ce qui laisse 2× de marge sur le plancher technique.
+      Le surplus sert au gameplay : les joueurs doivent avoir eu le temps de
+      remonter de l'atelier avant le 1ᵉʳ `locate` (qui se répète ensuite 3 fois
+      à 25 s d'intervalle, soit une fenêtre d'écoute jusqu'à 175 s).
+      ℹ️ C'est bien le départ **depuis le dock** qu'il fallait mesurer, pas
+      depuis le vin : l'ordre d'interrogation dépend des joueurs, et le dock
+      est le pire cas (~9 m contre ~3,7 m depuis le vin).
 
 ## 🎙️ 2. Voix TTS des 3 suspects
 

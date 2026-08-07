@@ -125,10 +125,14 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
 - Envoyer Roby directement à 9 m peut le faire partir dans la mauvaise
   direction ; procéder **par paliers** depuis un point intermédiaire fonctionne
   mieux pour calibrer.
-- **Durée du trajet : ~60 s** depuis le dock (chronométré) → `delay: 65 s`
-  avant le `vacuum.locate`. Roby est lancé en tâche de fond
-  (`script.turn_on`), sinon `mystery_suspect_speak` (mode `queued`) resterait
-  bloqué une minute et les autres suspects seraient muets.
+- **Durées chronométrées depuis le dock** : ~55-60 s vers le vin, ~50 s vers
+  les épices. D'où `delay: 65 s` (vin) et `100 s` (épices, marge volontaire
+  pour laisser aux joueurs le temps de remonter de l'atelier).
+  ⚠️ Toujours mesurer **depuis le dock** : l'ordre d'interrogation dépend des
+  joueurs, et le dock est le pire cas (~9 m, contre ~3,7 m depuis le vin).
+- Roby est lancé en tâche de fond (`script.turn_on`), sinon
+  `mystery_suspect_speak` (mode `queued`) resterait bloqué une minute et les
+  autres suspects seraient muets.
 
 ### Les deux parcours de Roby
 
