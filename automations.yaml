@@ -111,7 +111,9 @@
   mode: single
 - id: '1755658280925'
   alias: Sync heat with lights
-  description: ''
+  description: Monte la consigne du cinema quand la lumiere s'allume apres le coucher
+    du soleil. Neutralisee en mode ete pour ne jamais chauffer pendant que la thermopompe
+    climatise.
   triggers:
   - trigger: state
     entity_id:
@@ -125,7 +127,12 @@
     from: 'on'
     to: 'off'
     id: turn_off
-  conditions: []
+  conditions:
+  - condition: state
+    entity_id: input_boolean.climate_summer_mode
+    state: 'off'
+    note: En ete la plinthe du cinema est epinglee a 16 C par l'automation 'Plancher
+      des plinthes en mode ete'.
   actions:
   - choose:
     - conditions:
@@ -250,23 +257,11 @@
             transition: 1
           target:
             entity_id: scene.bedroom_natural_light
-      - choose:
-        - conditions:
-          - condition: sun
-            before: sunset
-            after: sunrise
-          sequence:
-          - delay:
-              hours: 0
-              minutes: 5
-              seconds: 0
-              milliseconds: 0
-        default:
-        - delay:
-            hours: 1
-            minutes: 0
-            seconds: 0
-            milliseconds: 0
+      - delay:
+          hours: 1
+          minutes: 0
+          seconds: 0
+          milliseconds: 0
       - action: light.turn_off
         metadata: {}
         data:
@@ -598,37 +593,6 @@
       - ae632394cc0506da5e99eed1e5885bc0
       - 54e5c6a92f5b996aeb4875a3fce1f411
       - b0f91e9fca55faafdfaa7d489d4794fd
-- id: '1757464460111'
-  alias: Motion
-  description: ''
-  triggers:
-  - trigger: state
-    entity_id:
-    - binary_sensor.motion_presence
-    to: 'on'
-  conditions:
-  - condition: state
-    entity_id: person.eric
-    state: home
-  - condition: state
-    entity_id: light.office
-    state: 'off'
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 30
-    enabled: true
-  - condition: time
-    after: 06:00:00
-    before: '23:30:00'
-  actions:
-  - action: light.turn_on
-    metadata: {}
-    data:
-      transition: 1
-    target:
-      entity_id: light.office
-  mode: single
 - id: '1757464873639'
   alias: Sync auxiliary light with main light
   description: ''
@@ -826,18 +790,6 @@
       entity_id:
       - light.entrance_lights
       - light.driveway_lantern
-  - if:
-    - condition: trigger
-      id:
-      - a person
-    then:
-    - action: light.turn_on
-      metadata: {}
-      data:
-        transition: 2
-      target:
-        area_id:
-        - entrance
   - delay:
       hours: 0
       minutes: 5
@@ -880,9 +832,9 @@
       - sensor.downstairs_motion_humidity
       - sensor.office_motion_humidity
       - sensor.workshop_temperature_humidity_humidity
-      threshold: 60
+      threshold: 70
       for_duration:
-        hours: 0
+        hours: 1
         minutes: 10
         seconds: 0
 - id: '1759267988873'
@@ -1026,7 +978,8 @@
   mode: single
 - id: '1759638483935'
   alias: Turn up heat while lights are on
-  description: ''
+  description: Monte la consigne du bureau quand la lumiere est allumee en semaine.
+    Neutralisee en mode ete pour ne jamais chauffer pendant que la thermopompe climatise.
   triggers:
   - trigger: state
     entity_id:
@@ -1047,6 +1000,11 @@
       seconds: 0
     id: 'Off'
   conditions:
+  - condition: state
+    entity_id: input_boolean.climate_summer_mode
+    state: 'off'
+    note: En ete la plinthe du bureau est epinglee a 16 C par l'automation 'Plancher
+      des plinthes en mode ete'.
   - condition: state
     entity_id: person.eric
     state: home
@@ -1101,8 +1059,8 @@
       use_target_from: 06:00:00
       fan_mode: auto
       summer_mode: input_boolean.climate_summer_mode
-      summer_target_temp: 20
-      summer_min_outside_temp: 15
+      summer_target_temp: 23
+      summer_min_outside_temp: 19
       aux_summer_floor: 16
 - id: '1760485855717'
   alias: Light on when opening workshop door
@@ -1223,6 +1181,12 @@
   - condition: state
     entity_id: binary_sensor.everybody_is_sleeping
     state: 'off'
+  - condition: switch.is_off
+    target:
+      entity_id: input_boolean.guest_mode
+    options:
+      behavior: any
+      for: 00:00:00
   actions:
   - if:
     - condition: sun
@@ -1364,6 +1328,12 @@
   - condition: state
     entity_id: binary_sensor.everybody_is_sleeping
     state: 'off'
+  - condition: switch.is_off
+    target:
+      entity_id: input_boolean.guest_mode
+    options:
+      behavior: any
+      for: 00:00:00
   actions:
   - action: light.turn_on
     metadata: {}
@@ -2489,14 +2459,29 @@
   triggers:
   - trigger: time
     at: 07:30:00
+    id: morning
+  - trigger: time
+    at: '11:00:00'
   conditions: []
   actions:
-  - action: cover.set_cover_position
-    metadata: {}
-    target:
-      entity_id: cover.bot_curtains
-    data:
-      position: 30
+  - if:
+    - condition: trigger
+      id:
+      - morning
+    then:
+    - action: cover.set_cover_position
+      metadata: {}
+      target:
+        entity_id: cover.bot_curtains
+      data:
+        position: 30
+    else:
+    - action: cover.set_cover_position
+      metadata: {}
+      target:
+        entity_id: cover.bot_curtains
+      data:
+        position: 100
   mode: single
 - id: '1775093882455'
   alias: Motion
@@ -2534,6 +2519,12 @@
       hours: 0
       minutes: 0
       seconds: 15
+  - condition: switch.is_off
+    target:
+      entity_id: input_boolean.guest_mode
+    options:
+      behavior: any
+      for: 00:00:00
   actions:
   - action: light.turn_on
     metadata: {}
@@ -2581,10 +2572,7 @@
       - light.left_floor_lamp
       - light.right_floor_lamp
       - light.chandelier
-      extra_conditions:
-      - condition: sun
-        after: sunset
-        before: sunrise
+      extra_conditions: []
 - id: '1779247445330'
   alias: New automation
   description: ''
@@ -2717,3 +2705,253 @@
       message: Le déshumidificateur est allumé depuis 30 min mais ne consomme presque
         rien. Le réservoir est peut-être plein.
   mode: single
+- id: '1784317521705'
+  alias: Closet motion
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.open_closet_motion_presence
+    to:
+    - 'on'
+  conditions:
+  - condition: state
+    entity_id: binary_sensor.everybody_is_sleeping
+    state: 'off'
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      brightness_pct: 100
+    target:
+      entity_id: light.upstairs_bathroom_open_closet
+  - wait_for_trigger:
+    - trigger: motion.cleared
+      target:
+        entity_id: binary_sensor.open_closet_motion_presence
+      options:
+        behavior: each
+        for:
+          hours: 0
+          minutes: 5
+          seconds: 0
+    - trigger: light.turned_off
+      target:
+        entity_id: light.upstairs_bathroom_open_closet
+      options:
+        behavior: each
+        for: 00:00:00
+    timeout:
+      hours: 0
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+    continue_on_timeout: false
+  mode: restart
+- id: '1784317625421'
+  alias: Closet door
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.closed_closet_sensor_contact
+    to:
+  conditions: []
+  actions:
+  - if:
+    - condition: state
+      entity_id: binary_sensor.closed_closet_sensor_contact
+      state:
+      - 'on'
+    then:
+    - action: light.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id: light.bedroom_closed_closet
+    else:
+    - action: light.turn_off
+      metadata: {}
+      data: {}
+      target:
+        entity_id: light.bedroom_closed_closet
+  mode: single
+- id: '1784319640024'
+  alias: Dimmer button
+  description: ''
+  triggers:
+  - trigger: device
+    domain: mqtt
+    device_id: d20118038553ef72303ef35e0f2e321d
+    type: action
+    subtype: single
+    id: single press
+  - trigger: device
+    domain: mqtt
+    device_id: d20118038553ef72303ef35e0f2e321d
+    type: action
+    subtype: double
+    id: double press
+  - trigger: device
+    domain: mqtt
+    device_id: d20118038553ef72303ef35e0f2e321d
+    type: action
+    subtype: hold
+    id: long press
+  - trigger: mqtt
+    topic: zigbee2mqtt/Dimmer button
+    id: rotate
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: single press
+      sequence:
+      - action: light.toggle
+        target:
+          entity_id: light.theatre
+    - conditions:
+      - condition: trigger
+        id: double press
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.theatre
+        data:
+          brightness_pct: 100
+    - conditions:
+      - condition: trigger
+        id: long press
+      sequence:
+      - if:
+        - condition: state
+          entity_id: input_select.sync_box_settings
+          state:
+          - 'On'
+        then:
+        - action: input_select.select_option
+          target:
+            entity_id: input_select.sync_box_settings
+          data:
+            option: On while playing TV
+        else:
+        - action: input_select.select_option
+          target:
+            entity_id: input_select.sync_box_settings
+          data:
+            option: 'On'
+    - conditions:
+      - condition: trigger
+        id: rotate
+      - condition: template
+        value_template: '{{ trigger.payload_json.action in [''rotate_right'', ''rotate_left'']
+          }}'
+      sequence:
+      - variables:
+          size: '{{ trigger.payload_json.action_step_size | int(13) }}'
+          direction: '{{ 1 if trigger.payload_json.action == ''rotate_right'' else
+            -1 }}'
+          sensitivity: 1.6
+          step: '{{ (direction * ([size * sensitivity, 2] | max)) | round(0) | int
+            }}'
+      - action: light.turn_on
+        target:
+          entity_id: light.theatre
+        data:
+          brightness_step_pct: '{{ step }}'
+  mode: queued
+  max: 20
+- id: '1785501252257'
+  alias: Plancher des plinthes en mode ete
+  description: Les plinthes de la chambre, du bureau et du cinema ne sont pas gerees
+    par le controleur climatique. Sans ce plancher elles chauffent pendant que la
+    thermopompe climatise. Epinglees a 16 C tant que le mode ete est actif, restaurees
+    a leurs consignes d'hiver quand il se termine.
+  triggers:
+  - trigger: state
+    entity_id: input_boolean.climate_summer_mode
+    to: 'on'
+    id: summer_on
+  - trigger: state
+    entity_id: input_boolean.climate_summer_mode
+    to: 'off'
+    id: summer_off
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: summer_on
+      sequence:
+      - action: climate.set_temperature
+        target:
+          entity_id:
+          - climate.bedroom_thermostat
+          - climate.eric_s_office_thermostat
+          - climate.theatre_thermostat
+        data:
+          temperature: 16
+        note: 16 C = meme plancher que aux_summer_floor du controleur climatique.
+    - conditions:
+      - condition: trigger
+        id: summer_off
+      sequence:
+      - action: climate.set_temperature
+        target:
+          entity_id: climate.bedroom_thermostat
+        data:
+          temperature: 19
+      - action: climate.set_temperature
+        target:
+          entity_id:
+          - climate.eric_s_office_thermostat
+          - climate.theatre_thermostat
+        data:
+          temperature: 20
+        note: 20 C = valeur de repli utilisee par 'Turn up heat while lights are on'
+          et 'Sync heat with lights'.
+  mode: single
+- id: '1785700851591'
+  alias: Chandelier on when opening the front door
+  description: Turns on the entrance chandelier when the front door opens, then turns
+    it back off 5 minutes after the last opening — but only when it was not already
+    on.
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.front_door_open
+    to: 'on'
+  conditions:
+  - condition: state
+    entity_id: light.chandelier
+    state: 'off'
+    note: Already on means someone turned it on deliberately — leave it alone.
+  actions:
+  - action: light.turn_on
+    target:
+      entity_id: light.chandelier
+    data:
+      transition: 2
+  - repeat:
+      sequence:
+      - wait_for_trigger:
+        - trigger: state
+          entity_id:
+          - binary_sensor.front_door_open
+          to: 'on'
+        timeout: 00:05:00
+        continue_on_timeout: true
+      until:
+      - condition: template
+        value_template: '{{ not wait.completed }}'
+    note: 'The 5 min restarts inside the run rather than via mode: restart — a restarted
+      run would see the chandelier already on (turned on by us) and would never turn
+      it off.'
+  - action: light.turn_off
+    target:
+      entity_id: light.chandelier
+    data:
+      transition: 2
+  mode: single
+  max_exceeded: silent
