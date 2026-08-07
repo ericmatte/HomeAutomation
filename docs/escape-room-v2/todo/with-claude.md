@@ -23,39 +23,36 @@ visuel/live — Eric joue et observe, Claude ajuste le code).
       d'avance, à valider : il faut que les joueurs soient remontés de
       l'atelier avant le 1ᵉʳ `locate`).
 
-## 🎙️ 2. Choisir les voix TTS des 3 suspects
+## 🎙️ 2. Voix TTS des 3 suspects
 
-Aujourd'hui `mystery_suspect_speak` appelle `tts.speak` **sans option `voice`** :
-les 3 suspects parlent donc avec **exactement la même voix par défaut**. Pour
-un Cluedo où il faut distinguer les personnages, c'est un vrai manque.
+Une voix par suspect est **posée dans `mystery_suspect_speak`** (variable
+`voice`, passée en `options: { voice: ... }`) :
 
-Il suffit d'ajouter au `tts.speak` du script :
+| Suspect | Voix | Intention |
+|---|---|---|
+| 🌿 Jardinier | `Maurice` | bourru, terre à terre |
+| 💎 Héritière | `Denise (excited)` puis `Denise` | paniquée sur la réplique du fusil, calmée au rappel |
+| 🤵 Majordome | `Alain` | guindé, onctueux |
 
-```yaml
-options:
-  voice: HenriNeural
-```
+> ⚠️ Le format attendu est le **nom affiché** (`Denise (excited)`), **pas** le
+> `voice_id` de l'API (`DeniseNeural||excited`). C'est ce que fait la v1
+> (`scripts.yaml`, action « Indice »).
 
-Voix disponibles sur `tts.home_assistant_cloud` (récupérées en live) :
+Autres voix disponibles sur `tts.home_assistant_cloud` si besoin de changer :
 
-- **fr-FR** — hommes : `AlainNeural`, `ClaudeNeural`, `HenriNeural`,
-  `JeromeNeural`, `MauriceNeural`, `YvesNeural` · femmes : `BrigitteNeural`,
-  `CelesteNeural`, `CoralieNeural`, `DeniseNeural`, `EloiseNeural`,
-  `JacquelineNeural`, `JosephineNeural`, `YvetteNeural`.
-- **fr-CA** — `AntoineNeural`, `JeanNeural`, `ThierryNeural`, `SylvieNeural`.
-- **Variantes émotionnelles** (fr-FR seulement, suffixe `||`) :
-  `DeniseNeural||excited`, `||sad`, `||whispering`, `||cheerful`, et les mêmes
-  pour `HenriNeural`.
+- **fr-FR** — hommes : Alain, Claude, Henri, Jerome, Maurice, Yves ·
+  femmes : Brigitte, Celeste, Coralie, Denise, Eloise, Jacqueline, Josephine,
+  Yvette.
+- **fr-CA** (accent québécois, choix plus limité) : Antoine, Jean, Thierry,
+  Sylvie.
+- **Variantes émotionnelles**, pour Denise et Henri seulement : `(cheerful)`,
+  `(sad)`, `(whispering)`, `(excited)`.
 
-Pistes à valider à l'oreille :
+Reste à faire :
 
-- [ ] 🌿 **Jardinier** — bourru, terre à terre : `MauriceNeural` ou `YvesNeural`.
-- [ ] 💎 **Héritière** — paniquée : `DeniseNeural||excited` sur sa réplique du
-      fusil. ⚠️ demande de rendre la voix **variable** dans le script, puisque
-      sa réplique de rappel est plus calme (`DeniseNeural` simple).
-- [ ] 🤵 **Majordome** — guindé, onctueux : `ClaudeNeural` ou `AlainNeural`.
-- [ ] Vérifier que les voix restent **distinctes** entre elles et de celle de
-      l'inspecteur (qui passe par le pipeline du téléphone, pas par ce script).
+- [ ] Valider les 3 voix **à l'oreille** et les changer si elles ne collent pas.
+- [ ] Vérifier qu'elles restent distinctes de celle de **l'inspecteur** (qui
+      passe par le pipeline du téléphone, pas par ce script).
 
 ## 🧪 3. Débrief après le premier test live (Eric joue → Claude corrige)
 

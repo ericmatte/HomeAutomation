@@ -730,6 +730,13 @@ mystery_suspect_speak:
       {% endif %}
     is_heiress: "{{ suspect == 'heiress' }}"
     line: "{{ first_line if is_state(done_flag, 'off') else repeat_line }}"
+    # Une voix distincte par suspect, sinon les 3 personnages sont
+    # indiscernables. L'Héritière passe en « excited » sur sa réplique du
+    # fusil (elle panique) et revient à sa voix normale ensuite.
+    voice: >-
+      {{ {'gardener': 'Maurice',
+          'heiress': 'Denise (excited)' if is_state(done_flag, 'off') else 'Denise',
+          'butler': 'Alain'}[suspect] }}
   sequence:
     # L'Héritière parle sur le Sonos qui joue déjà l'ambiance : le TTS duck
     # automatiquement la musique (comportement natif Sonos, comme en v1), donc
@@ -747,6 +754,8 @@ mystery_suspect_speak:
         language: fr-FR
         media_player_entity_id: "{{ speaker }}"
         message: "{{ line }}"
+        options:
+          voice: "{{ voice }}"
     - if: "{{ is_state(done_flag, 'off') }}"
       then:
         - action: input_boolean.turn_on
