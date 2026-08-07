@@ -25,34 +25,36 @@ visuel/live — Eric joue et observe, Claude ajuste le code).
 
 ## 🎙️ 2. Voix TTS des 3 suspects
 
-Une voix par suspect est **posée dans `mystery_suspect_speak`** (variable
-`voice`, passée en `options: { voice: ... }`) :
+Choisies et **validées à l'oreille en live**. Tout le jeu est en **`fr-CA`**
+(accent québécois) :
 
 | Suspect | Voix | Intention |
 |---|---|---|
-| 🌿 Jardinier | `Maurice` | bourru, terre à terre |
-| 💎 Héritière | `Denise (excited)` puis `Denise` | paniquée sur la réplique du fusil, calmée au rappel |
-| 🤵 Majordome | `Alain` | guindé, onctueux |
+| 🌿 Jardinier | `JeanNeural` | bourru, terre à terre |
+| 💎 Héritière | `SylvieNeural` | seule voix féminine fr-CA ; répliques réécrites en **joual bien sacrant** |
+| 🤵 Majordome | `ThierryNeural` | guindé, onctueux — contraste voulu avec l'Héritière |
 
-> ⚠️ Le format attendu est le **nom affiché** (`Denise (excited)`), **pas** le
-> `voice_id` de l'API (`DeniseNeural||excited`). C'est ce que fait la v1
-> (`scripts.yaml`, action « Indice »).
+`AntoineNeural` est la 4ᵉ voix fr-CA, libre si on veut changer.
 
-Autres voix disponibles sur `tts.home_assistant_cloud` si besoin de changer :
+> ⚠️ **Piège majeur** : l'option `voice` exige le **`voice_id` de l'API**
+> (`ThierryNeural`), **pas** le nom affiché dans l'UI (`Thierry`). Un nom
+> invalide est **ignoré en silence** et HA retombe sur la voix par défaut de
+> la langue — c'est ce qui faisait parler le Majordome avec une voix de femme.
+>
+> 🐛 **Conséquence sur la v1** : `scripts.yaml:363` utilise
+> `voice: Denise (whispering)`. Ça ne chuchote donc **pas** — la v1 joue la
+> voix par défaut depuis toujours. Non corrigé (on ne touche pas à la v1),
+> mais le vrai identifiant serait `DeniseNeural||whispering`.
 
-- **fr-FR** — hommes : Alain, Claude, Henri, Jerome, Maurice, Yves ·
-  femmes : Brigitte, Celeste, Coralie, Denise, Eloise, Jacqueline, Josephine,
-  Yvette.
-- **fr-CA** (accent québécois, choix plus limité) : Antoine, Jean, Thierry,
-  Sylvie.
-- **Variantes émotionnelles**, pour Denise et Henri seulement : `(cheerful)`,
-  `(sad)`, `(whispering)`, `(excited)`.
+Le fr-CA n'a **aucune variante émotionnelle** (elles n'existent qu'en fr-FR,
+pour Denise et Henri). L'effet « voix paniquée » de l'Héritière passe donc
+uniquement par **le texte**, pas par la voix.
 
 Reste à faire :
 
-- [ ] Valider les 3 voix **à l'oreille** et les changer si elles ne collent pas.
-- [ ] Vérifier qu'elles restent distinctes de celle de **l'inspecteur** (qui
-      passe par le pipeline du téléphone, pas par ce script).
+- [ ] Vérifier que les 3 voix restent distinctes de celle de **l'inspecteur**,
+      qui vient du pipeline Assist du téléphone (réglé séparément dans
+      Paramètres → Assistants) et non de ces `tts.speak`.
 
 ## 🧪 3. Débrief après le premier test live (Eric joue → Claude corrige)
 

@@ -2769,8 +2769,10 @@
       target: { entity_id: tts.home_assistant_cloud }
       data:
         cache: true
-        language: fr-FR
+        language: fr-CA
         media_player_entity_id: media_player.google_home_mini
+        options:
+          voice: ThierryNeural
         message: >-
           Oh, vous partez déjà voir le Jardinier ? Avant cela... prenez donc le
           temps d'examiner l'étagère à vins, et les tiroirs de la cuisine. On
@@ -2841,8 +2843,10 @@
       target: { entity_id: tts.home_assistant_cloud }
       data:
         cache: true
-        language: fr-FR
+        language: fr-CA
         media_player_entity_id: media_player.google_home_mini
+        options:
+          voice: ThierryNeural
         message: >-
           Un couteau manquant dans ce tiroir ? Mon Dieu... Je n'y toucherais
           jamais, voyons. Le service, uniquement le service. C'est le Jardinier

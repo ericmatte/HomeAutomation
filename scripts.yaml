@@ -710,10 +710,11 @@ mystery_suspect_speak:
       le Majordome n'arrêtait pas de rôder dans la salle à manger avec sa
       bouteille de vin. Ne faites pas attention à mon robot, il fait sa ronde.
       {% elif suspect == 'heiress' %}
-      Mon fusil ?! Non, non, ce n'est pas ce que vous croyez ! Oui, je l'ai
-      caché dans la trappe du foyer, mais je ne m'en suis jamais servie, je le
-      jure ! Demandez plutôt au Majordome ce qu'il versait dans les verres ce
-      soir. Tenez — même le robot y va. Suivez-le !
+      Heille, mon fusil ?! Ben voyons donc, c'est pas ça que vous pensez
+      pantoute ! OK, oui, je l'ai caché dans la trappe du foyer, mais je m'en
+      suis jamais servie, j'vous le jure ! Allez donc demander au Majordome
+      c'qu'il versait dans les verres à soir. Tiens, même le robot s'en va par
+      là — suivez-le !
       {% else %}
       Vous avez sonné pour le service ? À votre entière disposition. J'ai servi
       le vin toute la soirée, comme il se doit. Un service irréprochable.
@@ -724,19 +725,21 @@ mystery_suspect_speak:
       {% if suspect == 'gardener' %}
       Je vous l'ai dit, j'étais à l'atelier toute la soirée. Cherchez ailleurs.
       {% elif suspect == 'heiress' %}
-      Laissez ce fusil tranquille ! Il n'a jamais servi, je vous dis.
+      Heille tabarnak, laisse donc mon fusil tranquille ! Il n'a jamais servi,
+      j'te le jure.
       {% else %}
       Le service, toujours le service. Le vin était... parfait. Enfin, presque.
       {% endif %}
     is_heiress: "{{ suspect == 'heiress' }}"
     line: "{{ first_line if is_state(done_flag, 'off') else repeat_line }}"
     # Une voix distincte par suspect, sinon les 3 personnages sont
-    # indiscernables. L'Héritière passe en « excited » sur sa réplique du
-    # fusil (elle panique) et revient à sa voix normale ensuite.
+    # indiscernables. ⚠️ Il faut le voice_id de l'API (« SylvieNeural »), pas
+    # le nom affiché dans l'UI (« Sylvie ») : un nom invalide est ignoré en
+    # silence et HA retombe sur la voix par défaut de la langue.
     voice: >-
-      {{ {'gardener': 'Maurice',
-          'heiress': 'Denise (excited)' if is_state(done_flag, 'off') else 'Denise',
-          'butler': 'Alain'}[suspect] }}
+      {{ {'gardener': 'JeanNeural',
+          'heiress': 'SylvieNeural',
+          'butler': 'ThierryNeural'}[suspect] }}
   sequence:
     # L'Héritière parle sur le Sonos qui joue déjà l'ambiance : le TTS duck
     # automatiquement la musique (comportement natif Sonos, comme en v1), donc
@@ -751,7 +754,7 @@ mystery_suspect_speak:
       target: { entity_id: tts.home_assistant_cloud }
       data:
         cache: true
-        language: fr-FR
+        language: fr-CA
         media_player_entity_id: "{{ speaker }}"
         message: "{{ line }}"
         options:
