@@ -2713,6 +2713,7 @@
   mode: single
 - id: mystery_suspect_triggers
   alias: "Mystery - Suspect triggers"
+  icon: mdi:incognito
   mode: queued
   max: 5
   triggers:
@@ -2740,6 +2741,7 @@
         suspect: "{{ trigger.id }}"
 - id: mystery_butler_patio
   alias: "Mystery - Butler at patio door"
+  icon: mdi:incognito
   mode: single
   triggers:
     - trigger: state
@@ -2768,6 +2770,7 @@
           rien à cacher, bien entendu.
 - id: mystery_auto_autopsy
   alias: "Mystery - Auto autopsy"
+  icon: mdi:incognito
   mode: single
   triggers:
     - trigger: state
@@ -2794,6 +2797,7 @@
     - action: script.mystery_police_callback
 - id: mystery_call_inspector
   alias: "Mystery - Call inspector"
+  icon: mdi:incognito
   mode: single
   triggers:
     - trigger: conversation
@@ -2814,6 +2818,7 @@
     - action: script.mystery_accusation
 - id: mystery_knife_drawer
   alias: "Mystery - Knife drawer red herring"
+  icon: mdi:incognito
   mode: single
   triggers:
     - trigger: state

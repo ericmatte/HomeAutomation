@@ -498,6 +498,7 @@ reset_after_escape_roome:
   description: ''
 mystery_reset:
   alias: "Mystery - Reset"
+  icon: mdi:incognito
   mode: restart
   sequence:
   - action: media_player.media_stop
@@ -545,6 +546,7 @@ mystery_reset:
       transition: 2
 mystery_roby_goto:
   alias: "Mystery - Roby drives to a clue"
+  icon: mdi:incognito
   # restart : les deux parcours partagent le même robot, le second annule
   # simplement le premier si les joueurs interrogent les suspects dans le
   # désordre.
@@ -586,6 +588,7 @@ mystery_roby_goto:
           - delay: { seconds: 25 }
 mystery_start:
   alias: "Mystery - Start"
+  icon: mdi:incognito
   mode: restart
   fields:
     start_delay:
@@ -685,6 +688,7 @@ mystery_start:
         media_content_id: "media-source://media_source/local/Investigation Ambience.mp3"
 mystery_suspect_speak:
   alias: "Mystery - Suspect speaks"
+  icon: mdi:incognito
   mode: queued
   max: 5
   fields:
@@ -798,6 +802,7 @@ mystery_suspect_speak:
 
 mystery_police_callback:
   alias: "Mystery - Police callback (autopsy)"
+  icon: mdi:incognito
   mode: single
   sequence:
     - action: media_player.media_stop
@@ -825,6 +830,7 @@ mystery_police_callback:
 
 mystery_accusation:
   alias: "Mystery - Accusation"
+  icon: mdi:incognito
   mode: single
   variables:
     suspects:
@@ -868,6 +874,7 @@ mystery_accusation:
 
 mystery_denouement:
   alias: "Mystery - Denouement"
+  icon: mdi:incognito
   mode: single
   fields:
     success:
