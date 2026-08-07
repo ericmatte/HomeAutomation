@@ -32,7 +32,7 @@ détectives. Objectif façon Cluedo : **QUI · AVEC QUOI · OÙ**.
 |---|---|---|---|---|
 | 🌿 **Le Jardinier** | Atelier / établi (`workshop`) | Scie à main | `media_player.workshop_echo` (Echo, déjà là) | `binary_sensor.door_sensor_contact` (porte atelier) |
 | 💎 **L'Héritière** | Salon (`living_room`) | Fusil (BB gun, caché dans la trappe du foyer) | `media_player.sonos` | `binary_sensor.vibration_sensor_vibration` (déplacé sur la trappe du fusil) → **voix paniquée** |
-| 🤵 **Le Majordome** | Salle à manger (`dining_room`) | **Poison (vin)** | `media_player.google_home_mini` (à déplacer en salle à manger) | **bouton Zigbee** (`8317fbc3ea314ec40186f0d8ec39998d`, étagère à vins, « cliquer pour service »). Répliques secondaires : porte-patio (`patio_door`) + tiroir à couteaux (`closed_closet_sensor_contact`, fausse piste) |
+| 🤵 **Le Majordome** | Salle à manger (`dining_room`) | **Poison (vin)** | `media_player.google_home_mini` (à déplacer en salle à manger) | **bouton Zigbee** (`8317fbc3ea314ec40186f0d8ec39998d`, étagère à vins, « cliquer pour service »). Répliques secondaires : porte-patio (`patio_door`) + tiroir à couteaux (`knife_drawer_contact`, fausse piste) |
 
 **Solution (cachée aux joueurs) : le Majordome · le poison · la salle à manger.**
 
@@ -97,7 +97,7 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
 | Héritière (fusil, trappe foyer) | `binary_sensor.vibration_sensor_vibration` |
 | Majordome « service » | bouton Zigbee device `8317fbc3ea314ec40186f0d8ec39998d` (étagère à vins) |
 | Majordome « départ » | `binary_sensor.patio_door_contact` |
-| Majordome « innocence » (fausse piste) | `binary_sensor.closed_closet_sensor_contact` (tiroir couteaux) |
+| Majordome « innocence » (fausse piste) | `binary_sensor.knife_drawer_contact` (tiroir couteaux) |
 | Jardinier | `binary_sensor.door_sensor_contact` (porte atelier) |
 | Robot | `vacuum.roborock_s5_7c79_robot_cleaner` (goto + `locate`) |
 | Volets final | `cover.theatre_middle_shade`, `cover.theatre_left_shade`, `cover.theatre_right_shade` |

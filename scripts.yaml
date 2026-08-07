@@ -455,8 +455,12 @@ reset_after_escape_roome:
   - action: media_player.media_stop
     metadata: {}
     target:
-      entity_id: media_player.sonos
+      entity_id:
+      - media_player.sonos
+      - media_player.workshop_echo
+      - media_player.google_home_mini
     data: {}
+    continue_on_error: true
   - action: media_player.turn_off
     metadata: {}
     target:
@@ -480,7 +484,35 @@ reset_after_escape_roome:
       - script.rgb_color_loop
       - script.escape_room
       - script.flash_light_twice
+      - script.mystery_start
+      - script.mystery_roby_goto
     data: {}
+  # Remise à zéro de l'escape room v2 : machine à états, suspects interrogés,
+  # garde de cohabitation avec la v1, et retour de Roby au dock.
+  - action: input_select.select_option
+    target:
+      entity_id: input_select.mystery_phase
+    data:
+      option: idle
+  - action: input_boolean.turn_off
+    target:
+      entity_id:
+      - input_boolean.escape_v2_active
+      - input_boolean.mystery_gardener_done
+      - input_boolean.mystery_heiress_done
+      - input_boolean.mystery_butler_done
+  # Chaque escape room impose sa voix au téléphone en démarrant : on rend
+  # l'assistant par défaut pour l'usage quotidien.
+  - action: select.select_option
+    target:
+      entity_id: select.192_168_0_160_assistant
+    data:
+      option: preferred
+    continue_on_error: true
+  - action: vacuum.return_to_base
+    target:
+      entity_id: vacuum.roborock_s5_7c79_robot_cleaner
+    continue_on_error: true
   - delay:
       hours: 0
       minutes: 0
@@ -502,54 +534,6 @@ reset_after_escape_roome:
     data: {}
   alias: Reset after escape room
   description: ''
-mystery_reset:
-  alias: "Mystery - Reset"
-  icon: mdi:incognito
-  mode: restart
-  sequence:
-  - action: media_player.media_stop
-    target:
-      entity_id:
-      - media_player.sonos
-      - media_player.workshop_echo
-      - media_player.google_home_mini
-    continue_on_error: true
-  - action: media_player.turn_off
-    target:
-      entity_id: media_player.theatre_tv
-    continue_on_error: true
-  - action: input_select.select_option
-    target:
-      entity_id: input_select.mystery_phase
-    data:
-      option: idle
-  - action: input_boolean.turn_off
-    target:
-      entity_id: input_boolean.escape_v2_active
-  - action: input_boolean.turn_off
-    target:
-      entity_id:
-      - input_boolean.mystery_gardener_done
-      - input_boolean.mystery_heiress_done
-      - input_boolean.mystery_butler_done
-  - action: automation.turn_on
-    target:
-      entity_id: "{{ label_entities('motions') }}"
-  # Le trajet de Roby tourne en tâche de fond : on le coupe avant de le
-  # renvoyer au dock, sinon il repartirait vers son indice après le reset.
-  - action: script.turn_off
-    target:
-      entity_id: script.mystery_roby_goto
-    continue_on_error: true
-  - action: vacuum.return_to_base
-    target:
-      entity_id: vacuum.roborock_s5_7c79_robot_cleaner
-    continue_on_error: true
-  - action: scene.turn_on
-    target:
-      entity_id: scene.reset_after_escape_room
-    data:
-      transition: 2
 mystery_roby_goto:
   alias: "Mystery - Roby drives to a clue"
   icon: mdi:incognito

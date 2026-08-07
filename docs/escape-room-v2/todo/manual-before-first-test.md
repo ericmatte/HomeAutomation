@@ -14,28 +14,31 @@ code (scripts / automations / helpers) est déjà en place sur la branche.
 - [x] Echo (`media_player.workshop_echo`) — atelier (Jardinier). Déjà en place.
 - [x] Sonos (`media_player.sonos`) — salon (Héritière + intro police). Déjà là.
 - [x] Téléphone (inspecteur) — salon, près du Sonos.
-- [ ] **Google Home Mini** (`media_player.google_home_mini`) — **déplacer en
+- [x] **Google Home Mini** (`media_player.google_home_mini`) — **déplacer en
       salle à manger** (Majordome). Actuellement dans le bureau.
 
 ## 🚪 2. Capteurs / déclencheurs
 
-| À déplacer | Entité | Nouvel emplacement | Effet |
-|---|---|---|---|
-| Capteur de vibration | `binary_sensor.vibration_sensor_vibration` | **Trappe d'aération du foyer** (BB gun caché) | Héritière paniquée |
-| Bouton Zigbee | device `8317fbc3ea314ec40186f0d8ec39998d` | **Étagère à vins**, label « cliquer pour service » | Majordome « service » |
-| Capteur closet chambre | `binary_sensor.closed_closet_sensor_contact` | **Tiroir à couteaux (cuisine)** | Majordome feint l'innocence |
+| À déplacer             | Entité                                       | Nouvel emplacement                                 | Effet                       |
+| ---------------------- | -------------------------------------------- | -------------------------------------------------- | --------------------------- |
+| Capteur de vibration   | `binary_sensor.vibration_sensor_vibration`   | **Trappe d'aération du foyer** (BB gun caché)      | Héritière paniquée          |
+| Bouton Zigbee          | device `8317fbc3ea314ec40186f0d8ec39998d`    | **Étagère à vins**, label « cliquer pour service » | Majordome « service »       |
+| ~~Capteur closet chambre~~ | `binary_sensor.knife_drawer_contact` | **Tiroir à couteaux (cuisine)** — ✅ capteur dédié déjà posé | Majordome feint l'innocence |
 
-- [ ] Déplacer le capteur de vibration sur la trappe du foyer (ajuster
+- [x] Déplacer le capteur de vibration sur la trappe du foyer (ajuster
       `number.vibration_sensor_sensitivity` au besoin).
-- [ ] Déplacer le bouton Zigbee sur l'étagère à vins (+ label).
-- [ ] Déplacer le capteur closet sur le tiroir à couteaux.
+- [x] Déplacer le bouton Zigbee sur l'étagère à vins (+ label).
+- [x] Tiroir à couteaux : capteur **dédié** `binary_sensor.knife_drawer_contact`
+      posé. Plus besoin de déplacer celui du closet, et la porte-patio garde le
+      sien.
 - [x] Porte atelier (`binary_sensor.door_sensor_contact`) et porte-patio
       (`binary_sensor.patio_door_contact`) : rien à déplacer.
 
 > ⚠️ Bouton Zigbee et capteur de vibration sont **partagés avec la v1**. La
 > garde `input_boolean.escape_v2_active` bloque la v1 pendant une partie v2.
-> **Termine toujours une partie par `script.mystery_reset`**, sinon la v1 reste
-> bloquée.
+> **Termine toujours une partie par `script.reset_after_escape_roome`**, sinon
+> la v1 reste bloquée. Ce script remet aussi les deux jeux à zéro et rend au
+> téléphone son assistant par défaut.
 >
 > ℹ️ Ouvrir la porte-patio coupe la thermopompe ~30 s (automation v1
 > préexistante, laissée telle quelle) — comportement attendu, sans gravité.
@@ -66,15 +69,15 @@ code (scripts / automations / helpers) est déjà en place sur la branche.
 Dans **Paramètres → Media → local** (`media-source://media_source/local/`).
 **Noms EXACTS** (référencés par le code) :
 
-| Nom de fichier exact | Usage | Statut |
-|---|---|---|
-| `Police Sirens.mp3` | Phase 0 — sirènes | à trouver |
-| `Police Radio Chatter.mp3` | Phase 0 — brouhaha policiers (enregistré par Eric) | à enregistrer |
-| `Car Drive Away.mp3` | Phase 0 — la police repart | à trouver |
-| `Phone Ringing.mp3` | Phase 0→1 + rappel autopsie | à trouver |
-| `Investigation Ambience.mp3` | Enquête — musique de fond (Sonos, duckée par le TTS). **Fichier long** (5-10 min), pas de boucle. | à trouver |
-| `Wrong Answer Sting.mp3` | Mauvaise accusation (court) | à trouver |
-| `Final Reveal.mp4` | **Final gagnant** — vidéo de révélation du Majordome (TV théâtre) | à produire |
+| Nom de fichier exact         | Usage                                                                                             | Statut        |
+| ---------------------------- | ------------------------------------------------------------------------------------------------- | ------------- |
+| `Police Sirens.mp3`          | Phase 0 — sirènes                                                                                 | à trouver     |
+| `Police Radio Chatter.mp3`   | Phase 0 — brouhaha policiers (enregistré par Eric)                                                | à enregistrer |
+| `Car Drive Away.mp3`         | Phase 0 — la police repart                                                                        | à trouver     |
+| `Phone Ringing.mp3`          | Phase 0→1 + rappel autopsie                                                                       | à trouver     |
+| `Investigation Ambience.mp3` | Enquête — musique de fond (Sonos, duckée par le TTS). **Fichier long** (5-10 min), pas de boucle. | à trouver     |
+| `Wrong Answer Sting.mp3`     | Mauvaise accusation (court)                                                                       | à trouver     |
+| `Final Reveal.mp4`           | **Final gagnant** — vidéo de révélation du Majordome (TV théâtre)                                 | à produire    |
 
 > Les dialogues des suspects et de l'inspecteur sont en **TTS** : aucun fichier
 > à fournir.

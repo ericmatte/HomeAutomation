@@ -13,7 +13,7 @@ visuel/live — Eric joue et observe, Claude ajuste le code).
 - [x] **Délai de trajet** calé : ~60 s chronométrées du dock à l'étagère, donc
       `delay: 65 s` avant le `locate` (« Hi! I'm over here! »).
       Comme le trajet dure une minute, Roby est lancé via `script.turn_on`
-      (non bloquant) et `mystery_reset` coupe son script au passage.
+      (non bloquant) et `reset_after_escape_roome` coupe son script au passage.
 - [x] **2ᵉ parcours (`spices`, rack d'épices)** calibré en live :
       **`[26700, 31200]`** = 8,7 m arrière, 2,2 m à droite du dock.
       Atteint par paliers depuis un point intermédiaire, l'envoi direct à 9 m

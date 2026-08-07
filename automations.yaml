@@ -2822,7 +2822,7 @@
   mode: single
   triggers:
     - trigger: state
-      entity_id: binary_sensor.closed_closet_sensor_contact
+      entity_id: binary_sensor.knife_drawer_contact
       to: "on"
   conditions:
     - condition: state
