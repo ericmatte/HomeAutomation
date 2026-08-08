@@ -1068,10 +1068,10 @@ mystery_suspect_speak:
       pantoute ! OK, oui, je l'ai caché dans la trappe du foyer, mais je m'en
       suis jamais servie, j'vous le jure !
       {% endif %}
-      Si vous voulez la vérité, allez donc demander au Majordome ce qu'il
-      versait dans les verres à soir. Tenez, je pars mon robot : il s'en va
-      vers la vraie piste, à l'étagère à vins de la salle à manger. Suivez-le,
-      vous allez trouver quelque chose là-bas.
+      Si vous cherchez de quoi avancer, c'est pas moi qu'il faut regarder. Moi,
+      j'irais fouiller l'étagère à vins — il doit bien se cacher quelque chose
+      là-dedans. Tenez, je pars mon robot, il s'en va justement par là.
+      Suivez-le.
       {% else %}
       Vous avez sonné pour le service ? À votre entière disposition. J'ai servi
       le vin toute la soirée, comme il se doit. Un service irréprochable.
@@ -1205,21 +1205,36 @@ mystery_hint:
   alias: "Mystery - Hint"
   icon: mdi:lightbulb-question
   mode: single
-  # Le seul texte du jeu qui s'adapte à l'avancement : il évite d'avoir à
-  # deviner ce qu'il reste à faire, principal reproche du premier test.
+  # Le seul texte du jeu qui s'adapte à l'avancement.
+  # ⚠️ Il dit QUI il reste à traiter, jamais OÙ ni COMMENT : donner l'endroit
+  # exact revenait à jouer la partie à leur place. La relance, c'est toujours
+  # « retournez voir les caméras » — c'est là que se trouve la vraie piste.
   variables:
-    pending: >-
-      {% set ns = namespace(todo=[]) %}
+    # « le Jardinier, l'Héritière et le Majordome », avec le « et » final.
+    pending_testimony: >-
+      {% set ns = namespace(who=[]) %}
       {% if is_state('input_boolean.mystery_gardener_done', 'off') %}
-        {% set ns.todo = ns.todo + ["le Jardinier : ouvrez la porte de l'atelier, au sous-sol"] %}
+        {% set ns.who = ns.who + ['le Jardinier'] %}
       {% endif %}
       {% if is_state('input_boolean.mystery_heiress_done', 'off') %}
-        {% set ns.todo = ns.todo + ["l'Héritière : touchez au fusil, dans la trappe du foyer"] %}
+        {% set ns.who = ns.who + ["l'Héritière"] %}
       {% endif %}
       {% if is_state('input_boolean.mystery_butler_done', 'off') %}
-        {% set ns.todo = ns.todo + ["le Majordome : le bouton de service, sur l'étagère à vins"] %}
+        {% set ns.who = ns.who + ['le Majordome'] %}
       {% endif %}
-      {{ ns.todo | join(' ; ') }}
+      {% if ns.who %}{{ ns.who[:-1] | join(', ') }}{{ ' et ' if ns.who | count > 1 }}{{ ns.who | last }}{% endif %}
+    pending_evidence: >-
+      {% set ns = namespace(who=[]) %}
+      {% if is_state('input_boolean.mystery_evidence_saw', 'off') %}
+        {% set ns.who = ns.who + ['le Jardinier'] %}
+      {% endif %}
+      {% if is_state('input_boolean.mystery_evidence_gun', 'off') %}
+        {% set ns.who = ns.who + ["l'Héritière"] %}
+      {% endif %}
+      {% if is_state('input_boolean.mystery_evidence_poison', 'off') %}
+        {% set ns.who = ns.who + ['le Majordome'] %}
+      {% endif %}
+      {% if ns.who %}{{ ns.who[:-1] | join(', ') }}{{ ' et ' if ns.who | count > 1 }}{{ ns.who | last }}{% endif %}
     # Les 3 objets étiquetés d'un code, à enregistrer au terminal du bureau :
     # c'est ce compteur qui commande le déverrouillage du dossier confidentiel.
     evidence_found: >-
@@ -1229,14 +1244,17 @@ mystery_hint:
          | map('states') | select('eq', 'on') | list | count }}
     hint: >-
       {% set phase = states('input_select.mystery_phase') %}
-      {% if phase == 'investigation' and pending | trim %}
-      Il vous reste à faire parler {{ pending | trim }}.
+      {% if phase == 'investigation' and pending_testimony | trim %}
+      Il me manque encore le témoignage de {{ pending_testimony | trim }}.
+      Repassez donc par les caméras du bureau, elles en disent plus long que
+      moi.
       {% elif phase == 'investigation' %}
       Vous avez les trois témoignages. Ne bougez pas, je vous rappelle.
       {% elif phase == 'autopsy_done' and evidence_found | int < 3 %}
       {{ evidence_found }} pièce{{ 's' if evidence_found | int > 1 else '' }} à
-      conviction sur trois. La scie est à l'atelier, le fusil dans la trappe du
-      foyer, le pot d'épices au rack. Tapez leurs codes sur le terminal.
+      conviction sur trois. Il me manque celle de
+      {{ pending_evidence | trim }}. Les caméras du bureau montrent chacun avec
+      son arme — regardez-les encore, vous saurez quoi chercher.
       {% elif phase == 'autopsy_done' %}
       Les trois pièces sont au dossier. Désignez le coupable sur le terminal.
       {% elif phase == 'accusation' %}
