@@ -71,10 +71,10 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
 | **2. Enquête** | Explorer les pièces. Chaque capteur/bouton fait parler un suspect, et **la pièce d'où sort la voix s'éclaire**. L'Héritière n'a pas de lampe dédiée (elle parle sur le Sonos, au milieu de l'ambiance déjà en salon) : à chaque réplique, **le chandelier et la cuisine montent légèrement puis redescendent** (`script.mystery_sonos_glow`), même principe qu'en v1. **Roby fait deux parcours** : vers le vin quand parle l'Héritière (les joueurs le suivent), vers le rack d'épices quand parle le Jardinier (en douce, retrouvé au `vacuum.locate`). Il part **après** la réplique, pour ne pas être manqué. Musique d'ambiance sur le Sonos. Fausses pistes : fusil et coffre à bijoux (Héritière), tiroir couteaux (Majordome innocent) | capteurs (porte/vibration/contact), bouton Zigbee, haut-parleurs localisés, **robot aspirateur**, `light.chandelier`, `light.kitchen_middle_light` |
 | **3. Rappel de la police** | Une fois les 3 suspects entendus, la police **rappelle** automatiquement avec le **rapport d'autopsie** → empoisonnement → élimine fusil + scie comme armes, et demande les **3 pièces à conviction** | téléphone / Sonos |
 | **4. Collecte + accusation** | Au tout premier clic sur l'écran de saisie, l'inspecteur situe le terminal comme poste de commandement. Les 3 objets (scie, fusil, pot d'épices) portent une **étiquette-code**. Les joueurs les tapent sur le **terminal CCTV** : crochet vert, compteur « 2 / 3 », et un mot d'encouragement à 1/3 et 2/3. À 3/3, le **dossier confidentiel** se déverrouille (rien à l'oral, la séquence à l'écran suffit) et ils y **désignent le coupable à l'écran**. C'est le **seul** chemin d'accusation | `input_text.mystery_code_input`, `input_boolean.mystery_evidence_*`, `input_boolean.mystery_terminal_first_touch`, `input_select.mystery_accusation_choice` |
-| **5. Dénouement** | Bon coupable → **final cinéma au théâtre** : les 3 toiles tombent **l'une après l'autre** comme un rideau, noir, puis la **lumière rouge monte** et la musique part sur la **TV du théâtre**, avec les lampes en alternance de couleurs. ⏸️ En attendant `Final Reveal.mp4`, c'est un rickroll. Mauvais → l'inspecteur recadre, retour en `autopsy_done`, on retente | volets théâtre, `light.theatre`, `light.metal_lamp`, `media_player.theatre_tv` |
+| **5. Dénouement** | Bon coupable → **final cinéma au théâtre** : les 3 toiles tombent **l'une après l'autre** comme un rideau, noir, puis la **lumière rouge monte** sur `light.theatre` pendant que les volets finissent de se fermer. La pièce bascule ensuite en **blanc chaud** (`bad_light`/`metal_lamp`/`wooden_lamp`, 4000K), l'inspecteur annonce sur la **TV du théâtre** (`on_tv:` de `script.mystery_inspector_say`) que la révélation va commencer, puis `Final Reveal.mp4` joue. À la fin de la vidéo, la chanson (`Jamie Foxx - Winner ft Justin Timberlake TI.mp3`) part sur la même TV : les toiles remontent partiellement (milieu 30 %, côtés 50 %) et les 3 lampes passent en effet `prism`. Mauvais → l'inspecteur recadre, retour en `autopsy_done`, on retente | volets théâtre, `light.theatre`, `light.bad_light`, `light.metal_lamp`, `light.wooden_lamp`, `media_player.theatre_tv` |
 
-> 🎙️ **Trois canaux pour une seule voix.** `script.mystery_inspector_say` sait
-> parler à trois endroits, avec la même voix `HenriNeural` :
+> 🎙️ **Quatre canaux pour une seule voix.** `script.mystery_inspector_say` sait
+> parler à quatre endroits, avec la même voix `HenriNeural` :
 >
 > - **Sonos** (`on_sonos:`) — tout le groupe entend en même temps. C'est là que
 >   passe le briefing : au téléphone, une seule personne tient le combiné et les
@@ -87,6 +87,8 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
 >   `mystery_terminal_say` (un `input_text` plafonne à 255 caractères, trop
 >   court) ; la carte **affiche le texte** et joue le TTS elle-même, de sorte
 >   qu'un blocage d'autoplay ne fasse pas perdre le message.
+> - **TV du théâtre** (`on_tv:`) — pour l'annonce juste avant `Final
+>   Reveal.mp4` : les joueurs sont déjà au théâtre, face à l'écran.
 
 ## Terrain de jeu (pièces en jeu)
 
@@ -118,8 +120,9 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
 | Voix Jardinier | `notify.echo_speak` (⚠️ **pas** `tts.speak` — voir ci-dessous) |
 | Voix Héritière + intro police | `media_player.sonos` |
 | Voix Majordome | `media_player.google_home_mini` |
-| Final vidéo | `media_player.theatre_tv` (`Final Reveal.mp4`) |
-| Lumière finale théâtre | `light.theatre` (rouge) |
+| Final vidéo + chanson | `media_player.theatre_tv` (`Final Reveal.mp4` puis `Jamie Foxx - Winner ft Justin Timberlake TI.mp3`) |
+| Lumière finale théâtre | `light.theatre` (rouge, avant la vidéo) |
+| Lumière pendant vidéo / chanson finale | `light.bad_light`, `light.metal_lamp`, `light.wooden_lamp` (blanc 4000K puis effet `prism`) |
 | Gyrophares | `light.left_floor_lamp`, `light.right_floor_lamp` |
 | Héritière (fusil, trappe foyer) | `binary_sensor.vibration_sensor_vibration` |
 | Majordome « service » | bouton Zigbee device `8317fbc3ea314ec40186f0d8ec39998d` (étagère à vins) |

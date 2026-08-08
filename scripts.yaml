@@ -727,6 +727,13 @@ mystery_inspector_say:
         sous-sol devant le terminal, le téléphone est au salon.
       selector: { boolean: {} }
       default: false
+    on_tv:
+      name: Parler sur la TV du théâtre
+      description: >-
+        Pour l'annonce juste avant le dénouement : les joueurs sont déjà au
+        théâtre, face à l'écran.
+      selector: { boolean: {} }
+      default: false
   variables:
     # tts.speak ne bloque pas et le prochain média couperait l'inspecteur en
     # plein mot : on estime la durée (~2,3 mots/seconde en français) et on
@@ -764,6 +771,18 @@ mystery_inspector_say:
                 cache: true
                 language: fr-FR
                 media_player_entity_id: media_player.sonos
+                message: "{{ message }}"
+                options: { voice: HenriNeural }
+            - delay: { seconds: "{{ speech_seconds }}" }
+        # TV du théâtre : même voix que le Sonos et le téléphone.
+        - conditions: "{{ on_tv }}"
+          sequence:
+            - action: tts.speak
+              target: { entity_id: tts.home_assistant_cloud }
+              data:
+                cache: true
+                language: fr-FR
+                media_player_entity_id: media_player.theatre_tv
                 message: "{{ message }}"
                 options: { voice: HenriNeural }
             - delay: { seconds: "{{ speech_seconds }}" }
@@ -1489,28 +1508,69 @@ mystery_denouement:
           data: { rgb_color: [255, 0, 0], brightness_pct: 70, transition: 6 }
           continue_on_error: true
         - delay: { seconds: 6 }
-        # TEMPORAIRE : en attendant que « Final Reveal.mp4 » soit produit, on
-        # rickroll les joueurs — sur la TV du théâtre, seul écran de la pièce
-        # où l'inspecteur vient de les envoyer.
+        # La pièce passe en blanc chaud pour la vidéo de révélation, rideaux
+        # déjà fermés.
+        - action: light.turn_on
+          target:
+            entity_id:
+              - light.bad_light
+              - light.metal_lamp
+              - light.wooden_lamp
+          data:
+            transition: 1
+            brightness_pct: 100
+            color_temp_kelvin: 4000
+          continue_on_error: true
+        - action: script.mystery_inspector_say
+          data:
+            on_tv: true
+            message: >-
+              Attention, attention, la révélation finale va commencer sous
+              peu !
+        - delay: { seconds: 2 }
+        - action: media_player.play_media
+          target: { entity_id: media_player.theatre_tv }
+          data:
+            media_content_type: video/mp4
+            media_content_id: "media-source://media_source/local/Final Reveal.mp4"
+          continue_on_error: true
+        # On attend la fin de la vidéo (le Chromecast repasse à "idle") avant
+        # d'enchaîner sur la chanson, avec un filet de sécurité au cas où.
+        - wait_for_trigger:
+            - trigger: media_player.stopped_playing
+              target: { entity_id: media_player.theatre_tv }
+          timeout: { minutes: 5 }
+          continue_on_timeout: true
         - action: media_player.play_media
           target: { entity_id: media_player.theatre_tv }
           data:
             media_content_type: audio/mpeg
-            media_content_id: "media-source://media_source/local/Never Gonna Give You Up.mp3"
+            media_content_id: "media-source://media_source/local/Jamie Foxx - Winner ft Justin Timberlake  TI.mp3"
           continue_on_error: true
-        # La salle bascule en boîte de nuit le temps de la chanson : les deux
-        # lampes se renvoient les couleurs, lentement, chacune à son tour.
-        # Non bloquant, sinon le script resterait pris une minute.
-        - action: script.turn_on
-          target: { entity_id: script.mystery_flash_alternate }
+        # Les toiles remontent partiellement pendant la chanson, la toile du
+        # milieu un peu plus que celles des côtés.
+        - action: cover.set_cover_position
+          target: { entity_id: cover.theatre_middle_shade }
+          data: { position: 30 }
+          continue_on_error: true
+        - action: cover.set_cover_position
+          target:
+            entity_id:
+              - cover.theatre_left_shade
+              - cover.theatre_right_shade
+          data: { position: 50 }
+          continue_on_error: true
+        - action: light.turn_on
+          target:
+            entity_id:
+              - light.bad_light
+              - light.metal_lamp
+              - light.wooden_lamp
           data:
-            variables:
-              light_a: light.theatre
-              light_b: light.metal_lamp
-              color_a: [255, 0, 60]
-              color_b: [0, 120, 255]
-              cycles: 20
-              interval: 0.6
+            effect: prism
+            transition: 1
+            brightness_pct: 100
+          continue_on_error: true
       else:
         - action: input_select.select_option
           target: { entity_id: input_select.mystery_phase }

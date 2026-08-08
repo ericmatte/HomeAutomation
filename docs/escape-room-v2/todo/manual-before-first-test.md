@@ -170,7 +170,8 @@ Dans **Paramètres → Media → local** (`media-source://media_source/local/`).
 | ~~`Phone Ringing.mp3`~~      | ❌ **Plus nécessaire** — le téléphone sonne déjà de lui-même à l'appel             | —             |
 | `Investigation Ambience.mp3` | Enquête — musique de fond (Sonos, duckée par le TTS). **Fichier long** (5-10 min), pas de boucle. | à trouver     |
 | `Wrong Answer Sting.mp3`     | Mauvaise accusation (court)                                                                       | à trouver     |
-| `Final Reveal.mp4`           | **Final gagnant** — vidéo de révélation du Majordome (TV théâtre). ⏸️ **Reporté** : en attendant, le final rickroll sur le Sonos (`Never Gonna Give You Up.mp3`, comme la v1). Rideaux et lumière rouge restent en place. | à produire    |
+| `Final Reveal.mp4`           | **Final gagnant** — vidéo de révélation du Majordome (TV théâtre)                                 | ✅ uploadé    |
+| `Jamie Foxx - Winner ft Justin Timberlake  TI.mp3` | Chanson finale (TV théâtre, effet `prism` sur les lampes), jouée après `Final Reveal.mp4` | ✅ uploadé    |
 
 > Les dialogues des suspects et de l'inspecteur sont en **TTS** : aucun fichier
 > à fournir.
