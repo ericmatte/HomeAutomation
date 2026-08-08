@@ -484,12 +484,15 @@ reset_after_escape_roome:
       - script.rgb_color_loop
       - script.escape_room
       - script.flash_light_twice
-      - script.mystery_start
-      - script.mystery_roby_goto
-      - script.mystery_ambience
-      - script.mystery_guide_path
-      - script.mystery_flash_alternate
     data: {}
+  # Toute la famille mystery_* d'un coup : énumérer les scripts à la main a déjà
+  # laissé passer des oublis (un dénouement en cours relançait ses lumières
+  # par-dessus la scène de reset).
+  - action: script.turn_off
+    target:
+      entity_id: >-
+        {{ states.script | map(attribute='entity_id')
+           | select('search', '^script\.mystery_') | list }}
   # Remise à zéro de l'escape room v2 : machine à états, suspects interrogés,
   # garde de cohabitation avec la v1, et retour de Roby au dock.
   - action: input_select.select_option
@@ -519,6 +522,16 @@ reset_after_escape_roome:
       entity_id: input_text.mystery_code_input
     data:
       value: ""
+  # Les enceintes sont poussées fort pendant la partie : sans ça, la salle à
+  # manger reste à 90 % pour le reste de la semaine.
+  - action: media_player.volume_set
+    target:
+      entity_id:
+      - media_player.sonos
+      - media_player.google_home_mini
+    data:
+      volume_level: 0.35
+    continue_on_error: true
   # Chaque escape room impose sa voix au téléphone en démarrant : on rend
   # l'assistant par défaut pour l'usage quotidien.
   - action: select.select_option
@@ -611,6 +624,27 @@ mystery_flash_alternate:
       target: { entity_id: ["{{ light_a }}", "{{ light_b }}"] }
       data: { transition: 2 }
 
+mystery_inspector_say:
+  alias: "Mystery - Inspector speaks"
+  icon: mdi:phone-in-talk
+  mode: queued
+  max: 3
+  # L'inspecteur parle depuis 6 endroits du scénario. Regrouper l'appel ici
+  # évite d'avoir l'entité du téléphone en dur partout, et garantit que tous ses
+  # messages passent par le même chemin (preannounce désactivé : le téléphone
+  # sonne déjà de lui-même à l'appel).
+  fields:
+    message:
+      name: Message
+      required: true
+      selector: { text: { multiline: true } }
+  sequence:
+    - action: assist_satellite.announce
+      target: { entity_id: assist_satellite.192_168_0_160 }
+      data:
+        preannounce: false
+        message: "{{ message }}"
+
 mystery_guide_path:
   alias: "Mystery - Light trail guidance"
   icon: mdi:map-marker-path
@@ -634,15 +668,18 @@ mystery_guide_path:
           # Le repeat imbriqué masque `repeat.item` : on capture la lampe avant.
           - variables:
               beacon: "{{ repeat.item }}"
+          # Le motif commence par l'extinction et finit allumé : terminer sur un
+          # turn_off enverrait une commande que la veilleuse défait 400 ms plus
+          # tard, et l'appelant attend pendant ce temps.
           - repeat:
               count: 3
               sequence:
+                - action: light.turn_off
+                  target: { entity_id: "{{ beacon }}" }
+                - delay: { milliseconds: 400 }
                 - action: light.turn_on
                   target: { entity_id: "{{ beacon }}" }
                   data: { brightness_pct: 100 }
-                - delay: { milliseconds: 400 }
-                - action: light.turn_off
-                  target: { entity_id: "{{ beacon }}" }
                 - delay: { milliseconds: 400 }
           - action: light.turn_on
             target: { entity_id: "{{ beacon }}" }
@@ -653,6 +690,20 @@ mystery_ambience:
   icon: mdi:candle
   mode: restart
   sequence:
+    # Musique et lumières d'enquête repartent toujours ensemble. Les trois
+    # moments qui coupent le Sonos (intro, rappel d'autopsie, mauvaise
+    # accusation) n'ont donc qu'un seul appel à faire, au lieu de recopier le
+    # volume et le nom du fichier à chaque fois.
+    - action: media_player.volume_set
+      target: { entity_id: media_player.sonos }
+      data: { volume_level: 0.4 }
+      continue_on_error: true
+    - action: media_player.play_media
+      target: { entity_id: media_player.sonos }
+      data:
+        media_content_type: audio/mpeg
+        media_content_id: "media-source://media_source/local/Investigation Ambience.mp3"
+      continue_on_error: true
     # Toute la maison éteinte rendait l'enquête plate et peu praticable : on
     # garde partout une veilleuse tout juste suffisante pour circuler. Les
     # lampes des couloirs sont laissées à mystery_guide_path, qui s'en sert
@@ -667,12 +718,16 @@ mystery_ambience:
       continue_on_error: true
     # Les lampes du salon « respirent » entre deux teintes sombres tant que
     # l'enquête dure. La boucle s'arrête d'elle-même au dénouement : sa
-    # condition suit directement la machine à états.
+    # condition suit directement la machine à états. Le plafond de cycles est le
+    # filet pour la partie abandonnée sans reset : 450 × 16 s ≈ 2 h, au-delà
+    # plus personne ne regarde et ça ne sert qu'à occuper le pont.
     - repeat:
         while:
           - condition: state
             entity_id: input_select.mystery_phase
             state: [investigation, autopsy_done, accusation]
+          - condition: template
+            value_template: "{{ repeat.index <= 450 }}"
         sequence:
           - action: light.turn_on
             target: { entity_id: [light.left_floor_lamp, light.right_floor_lamp] }
@@ -772,9 +827,12 @@ mystery_start:
       target: { entity_id: input_select.mystery_phase }
       data: { option: idle }
     # --- PHASE 0 : la police arrive ---
+    # Les deux étages plutôt que `entity_id: all` : même noir complet côté
+    # joueurs, sans arroser l'extérieur et les lampes hors jeu d'une rafale de
+    # commandes juste avant les gyrophares.
     - action: light.turn_off
       target:
-        entity_id: all
+        floor_id: [basement, first_floor]
       data: { transition: 2 }
     - delay: { seconds: 2 }
     - action: media_player.volume_set
@@ -817,10 +875,8 @@ mystery_start:
     # Pas de sonnerie à jouer : le téléphone sonne déjà de lui-même à l'appel.
     # ⚠️ Pas de mots en majuscules dans les messages TTS : « QUI / AVEC QUOI /
     # OÙ » étaient épelés lettre à lettre et rendaient la consigne inaudible.
-    - action: assist_satellite.announce
-      target: { entity_id: assist_satellite.192_168_0_160 }
+    - action: script.mystery_inspector_say
       data:
-        preannounce: false
         message: >-
           Allô ? Ici l'inspecteur Henri-Onésime de Beauchamp-Latulippe. Oui,
           de Beauchamp-Latulippe, avec le trait d'union. Un meurtre a eu lieu
@@ -844,18 +900,10 @@ mystery_start:
     - action: input_select.select_option
       target: { entity_id: input_select.mystery_phase }
       data: { option: investigation }
-    # L'ambiance doit démarrer après le passage en « investigation » : sa
-    # boucle s'arrête dès que la phase en sort.
+    # L'ambiance (musique + lumières) doit démarrer après le passage en
+    # « investigation » : sa boucle s'arrête dès que la phase en sort.
     - action: script.turn_on
       target: { entity_id: script.mystery_ambience }
-    - action: media_player.volume_set
-      target: { entity_id: media_player.sonos }
-      data: { volume_level: 0.4 }
-    - action: media_player.play_media
-      target: { entity_id: media_player.sonos }
-      data:
-        media_content_type: audio/mpeg
-        media_content_id: "media-source://media_source/local/Investigation Ambience.mp3"
     # « Suivez les lumières » : la traînée mène au bureau du sous-sol, là où se
     # trouvent les caméras de surveillance et les premiers indices. Elle se
     # déroule après la musique, sinon les joueurs la regardent dans le silence.
@@ -902,9 +950,12 @@ mystery_suspect_speak:
       {{ {'gardener': 'input_boolean.mystery_gardener_done',
           'heiress': 'input_boolean.mystery_heiress_done',
           'butler': 'input_boolean.mystery_butler_done'}[suspect] }}
+    # L'Héritière n'a pas de lampe à elle : les deux du salon appartiennent à la
+    # boucle d'ambiance, qui les repeindrait 8 s plus tard. Elle parle sur le
+    # Sonos, au milieu de cette ambiance — le repère de pièce est déjà là.
     room_light: >-
       {{ {'gardener': 'light.downstairs_hallway_light',
-          'heiress': 'light.left_floor_lamp',
+          'heiress': '',
           'butler': 'light.dining_room_pendants'}[suspect] }}
     # ⚠️ Le Jardinier passe par le TTS d'Amazon, qui mange les élisions
     # familières (« ch'te », « y'arrêtait ») : ses répliques restent en mots
@@ -970,12 +1021,14 @@ mystery_suspect_speak:
           'heiress': 'SylvieNeural',
           'butler': 'ThierryNeural'}[suspect] }}
   sequence:
-    # La pièce d'où sort la voix s'éclaire le temps de la réplique : c'est ce
-    # qui dit aux joueurs où se trouve celui qui parle.
-    - action: light.turn_on
-      target: { entity_id: "{{ room_light }}" }
-      data: { brightness_pct: 60, transition: 1 }
-      continue_on_error: true
+    # La pièce d'où sort la voix s'éclaire : c'est ce qui dit aux joueurs où se
+    # trouve celui qui parle.
+    - if: "{{ room_light }}"
+      then:
+        - action: light.turn_on
+          target: { entity_id: "{{ room_light }}" }
+          data: { brightness_pct: 60, transition: 1 }
+          continue_on_error: true
     # Le Jardinier passe par notify et non par tts.speak : l'intégration
     # alexa_devices refuse toute URL média (« music is not available as a music
     # provider »), donc tts.speak échoue systématiquement sur l'Echo. C'est le
@@ -1039,10 +1092,8 @@ mystery_police_callback:
       target: { entity_id: input_select.mystery_phase }
       data: { option: autopsy_done }
     # Pas de sonnerie à jouer : le téléphone sonne déjà de lui-même à l'appel.
-    - action: assist_satellite.announce
-      target: { entity_id: assist_satellite.192_168_0_160 }
+    - action: script.mystery_inspector_say
       data:
-        preannounce: false
         message: >-
           Inspecteur Henri-Onésime de Beauchamp-Latulippe à nouveau. Le nom
           complet, s'il vous plaît. Le rapport du légiste vient d'arriver :
@@ -1058,15 +1109,8 @@ mystery_police_callback:
           coupable.
     # L'ambiance a été coupée plus haut pour ne pas couvrir l'inspecteur : on la
     # relance, sinon l'enquête se poursuit dans le silence.
-    - action: media_player.volume_set
-      target: { entity_id: media_player.sonos }
-      data: { volume_level: 0.4 }
-    - action: media_player.play_media
-      target: { entity_id: media_player.sonos }
-      data:
-        media_content_type: audio/mpeg
-        media_content_id: "media-source://media_source/local/Investigation Ambience.mp3"
-      continue_on_error: true
+    - action: script.turn_on
+      target: { entity_id: script.mystery_ambience }
     # La piste est maintenant la salle à manger : on y rallume le chemin.
     - action: script.mystery_guide_path
       data:
@@ -1125,10 +1169,8 @@ mystery_hint:
       Il n'y a pas d'enquête en cours, détective.
       {% endif %}
   sequence:
-    - action: assist_satellite.announce
-      target: { entity_id: assist_satellite.192_168_0_160 }
+    - action: script.mystery_inspector_say
       data:
-        preannounce: false
         message: "{{ hint }}"
 
 mystery_accusation:
@@ -1174,17 +1216,24 @@ mystery_accusation:
     - action: script.mystery_denouement
       continue_on_error: true
       data:
-        success: "{{ (accused.id | default('')) == 'butler' }}"
+        accused: "{{ accused.id | default('') }}"
 
 mystery_denouement:
   alias: "Mystery - Denouement"
   icon: mdi:incognito
   mode: single
   fields:
-    success:
-      name: Success
-      selector: { boolean: {} }
-      default: false
+    accused:
+      name: Accused suspect
+      description: "Id du suspect désigné : gardener, heiress ou butler."
+      selector: { text: {} }
+      default: ""
+  variables:
+    # La solution du scénario n'est écrite qu'ici. Les deux chemins d'accusation
+    # (terminal et téléphone) ne font que transmettre un nom, sinon changer de
+    # coupable pour une variante casserait silencieusement l'un des deux.
+    culprit: butler
+    success: "{{ accused == culprit }}"
   sequence:
     - if: "{{ success }}"
       then:
@@ -1195,10 +1244,8 @@ mystery_denouement:
         - action: media_player.media_stop
           target: { entity_id: media_player.sonos }
           continue_on_error: true
-        - action: assist_satellite.announce
-          target: { entity_id: assist_satellite.192_168_0_160 }
+        - action: script.mystery_inspector_say
           data:
-            preannounce: false
             message: >-
               Le Majordome... c'est exact, détective ! Du beau travail. Vous
               pouvez m'appeler Henri, maintenant, vous l'avez mérité.
@@ -1264,7 +1311,7 @@ mystery_denouement:
               light_b: light.metal_lamp
               color_a: [255, 0, 60]
               color_b: [0, 120, 255]
-              duration: 60
+              duration: 40
               interval: 0.6
       else:
         - action: input_select.select_option
@@ -1282,10 +1329,8 @@ mystery_denouement:
         - action: media_player.media_stop
           target: { entity_id: media_player.sonos }
           continue_on_error: true
-        - action: assist_satellite.announce
-          target: { entity_id: assist_satellite.192_168_0_160 }
+        - action: script.mystery_inspector_say
           data:
-            preannounce: false
             message: >-
               Hmm... ça ne colle pas, détective. Et c'est Henri-Onésime de
               Beauchamp-Latulippe, pas « monsieur l'inspecteur ». Reprenez les
@@ -1294,12 +1339,5 @@ mystery_denouement:
               indice si vous séchez, et revenez me voir quand vous serez sûrs.
         # Le sting a remplacé l'ambiance sur le Sonos : on la relance, sinon la
         # partie continue sans musique après une mauvaise accusation.
-        - action: media_player.volume_set
-          target: { entity_id: media_player.sonos }
-          data: { volume_level: 0.4 }
-        - action: media_player.play_media
-          target: { entity_id: media_player.sonos }
-          data:
-            media_content_type: audio/mpeg
-            media_content_id: "media-source://media_source/local/Investigation Ambience.mp3"
-          continue_on_error: true
+        - action: script.turn_on
+          target: { entity_id: script.mystery_ambience }
