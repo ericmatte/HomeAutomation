@@ -613,6 +613,58 @@ mystery_flash_alternate:
       target: { entity_id: ["{{ light_a }}", "{{ light_b }}"] }
       data: { transition: 2 }
 
+mystery_sonos_glow:
+  alias: "Mystery - Sonos voice glow"
+  icon: mdi:chandelier
+  mode: queued
+  max: 3
+  # Le chandelier et la cuisine respirent un peu chaque fois que quelqu'un
+  # parle sur le Sonos (l'inspecteur en T1, l'Héritière ensuite) : ça donne à
+  # la voix une présence physique dans la pièce, comme le faisait déjà la v1
+  # (script.escape_room, « Phase 2: Find the letter T ») avec le chandelier
+  # seul. Non bloquant (script.turn_on) : la durée est juste une estimation de
+  # la réplique, elle ne doit jamais retarder l'appelant.
+  fields:
+    duration_seconds:
+      name: Duration (seconds)
+      description: Durée estimée de la réplique — le temps que les lumières restent montées.
+      required: true
+      selector: { number: { min: 1, max: 120, step: 1 } }
+  variables:
+    # Capturé avant de monter, pour redescendre exactement là où c'était :
+    # l'ambiance d'enquête les tient à 6 %, mais l'intro (avant l'ambiance) les
+    # trouve éteintes.
+    chandelier_before: "{{ state_attr('light.chandelier', 'brightness') }}"
+    kitchen_before: "{{ state_attr('light.kitchen_middle_light', 'brightness') }}"
+  sequence:
+    - action: light.turn_on
+      target: { entity_id: [light.chandelier, light.kitchen_middle_light] }
+      data: { brightness_step_pct: 15, transition: 1 }
+      continue_on_error: true
+    - delay: { seconds: "{{ duration_seconds }}" }
+    - if: "{{ chandelier_before is none }}"
+      then:
+        - action: light.turn_off
+          target: { entity_id: light.chandelier }
+          data: { transition: 1 }
+          continue_on_error: true
+      else:
+        - action: light.turn_on
+          target: { entity_id: light.chandelier }
+          data: { brightness: "{{ chandelier_before }}", transition: 1 }
+          continue_on_error: true
+    - if: "{{ kitchen_before is none }}"
+      then:
+        - action: light.turn_off
+          target: { entity_id: light.kitchen_middle_light }
+          data: { transition: 1 }
+          continue_on_error: true
+      else:
+        - action: light.turn_on
+          target: { entity_id: light.kitchen_middle_light }
+          data: { brightness: "{{ kitchen_before }}", transition: 1 }
+          continue_on_error: true
+
 mystery_reset_state:
   alias: "Mystery - Reset game state"
   icon: mdi:restore
@@ -698,6 +750,11 @@ mystery_inspector_say:
             - action: media_player.volume_set
               target: { entity_id: media_player.sonos }
               data: { volume_level: 0.6 }
+            - action: script.turn_on
+              target: { entity_id: script.mystery_sonos_glow }
+              data:
+                variables: { duration_seconds: "{{ speech_seconds }}" }
+              continue_on_error: true
             # HenriNeural n'existe qu'en fr-FR — c'est la même voix que le
             # pipeline du téléphone, pour que ce soit bien le même personnage.
             - action: tts.speak
@@ -995,10 +1052,10 @@ mystery_start:
       data:
         on_sonos: true
         message: >-
-          Bonsoir. Inspecteur Henri-Onésime de Beauchamp-Latulippe.
+          Bonsoir. Ici inspecteur Henri-Onésime de Beauchamp-Latulippe.
           {% if player_name %}Vous devez être {{ player_name }}. Enchanté
           de faire votre connaissance.{% endif %} Un meurtre a eu lieu ici ce
-          soir, et cette maison a tout enregistré. Je vous nomme détectives.
+          soir, et la maison a tout enregistré! Je vous nomme détectives.
           Trouvez-moi le coupable parmi trois suspects : le Jardinier,
           l'Héritière et le Majordome. Fouillez partout — ces trois-là se
           trahissent dès qu'on touche à leurs affaires. Bon. Il faut que j'y
@@ -1015,7 +1072,7 @@ mystery_start:
         media_content_type: audio/mpeg
         media_content_id: "media-source://media_source/local/Car Drive Away.mp3"
     - delay: { seconds: 12 }
-    - delay: { seconds: 5 }
+    - delay: { seconds: 8 }
     # --- PHASE 1b : il rappelle au téléphone pour ce qu'il a oublié ---
     # Une seule information, celle qui envoie les joueurs quelque part.
     # Pas de sonnerie à jouer : le téléphone sonne déjà de lui-même.
@@ -1206,6 +1263,13 @@ mystery_suspect_speak:
         # automatiquement la musique (comportement natif Sonos, comme en v1),
         # donc on ne touche pas au volume du Sonos. Le Majordome garde le
         # volume fixé au démarrage de la partie.
+        - if: "{{ suspect == 'heiress' }}"
+          then:
+            - action: script.turn_on
+              target: { entity_id: script.mystery_sonos_glow }
+              data:
+                variables: { duration_seconds: "{{ speech_seconds }}" }
+              continue_on_error: true
         - action: tts.speak
           target: { entity_id: tts.home_assistant_cloud }
           data:

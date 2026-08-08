@@ -16,20 +16,20 @@ entend) · 🖥️ terminal du bureau (sous-sol, texte affiché **et** voix).
 ## 🕵️ L'inspecteur Henri-Onésime de Beauchamp-Latulippe
 
 **T1** 🔊 — Au début, sur le Sonos. Il coupe ses hommes et s'adresse au groupe.
-*(`{nom}` = le champ **Player name** de `script.mystery_start`. Laissé vide, la
-salutation saute et il enchaîne directement.)*
+_(`{nom}` = le champ **Player name** de `script.mystery_start`. Laissé vide, la
+salutation saute et il enchaîne directement.)_
 
 ```
-Bonsoir. Inspecteur Henri-Onésime de Beauchamp-Latulippe. Vous devez être {nom}. Enchanté de faire votre connaissance. Un meurtre a eu lieu ici ce soir, et cette maison a tout enregistré. Je vous nomme détectives. Trouvez-moi le coupable parmi trois suspects : le Jardinier, l'Héritière et le Majordome. Fouillez partout — ces trois-là se trahissent dès qu'on touche à leurs affaires. Bon. Il faut que j'y aille, j'ai un autre appel.
+Bonsoir. Ici inspecteur Henri-Onésime de Beauchamp-Latulippe. Vous devez être {nom}. Enchanté de faire votre connaissance. Un meurtre a eu lieu ici ce soir, et la maison a tout enregistré! Je vous nomme détectives. Trouvez-moi le coupable parmi trois suspects : le Jardinier, l'Héritière et le Majordome. Fouillez partout — ces trois-là se trahissent dès qu'on touche à leurs affaires. Bon. Il faut que j'y aille, j'ai un autre appel.
 ```
 
-**T2** 📞 — 5 secondes après son départ.
+**T2** 📞 — 8 secondes après son départ.
 
 ```
 Ici Inspecteur Beauchamp-Latulippe. J'oubliais ! Les caméras de surveillance de la maison sont sur le terminal, dans le bureau au sous-sol. J'ai fait allumer les lumières jusque-là, suivez-les. Et si vous bloquez, demandez-moi un indice au téléphone.
 ```
 
-**T3** 📞 — Une fois les 3 suspects entendus. Le rapport d'autopsie.
+**T3** 📞 — 12 secondes après les 3 suspects entendus: Le rapport d'autopsie.
 
 ```
 Beauchamp-Latulippe à nouveau. J'ai eu le rapport de l'autopsie : la victime a été empoisonnée. Avez-vous trouvé les trois pièces à conviction possible ? Dès que vous les avez, tapez-les sur le terminal du bureau.
@@ -56,7 +56,7 @@ Non. Ça ne colle pas, détective. Et c'est Beauchamp-Latulippe. Reprenez le vin
 Sur demande (« indice » au téléphone) ou de lui-même après 6 minutes sans
 progrès. Il choisit selon l'avancement.
 
-**T7** 📞 — Il manque des témoignages. *(`{qui}` = « du Jardinier », ou « du Jardinier et de l'Héritière »…)*
+**T7** 📞 — Il manque des témoignages. _(`{qui}` = « du Jardinier », ou « du Jardinier et de l'Héritière »…)_
 
 ```
 Il me manque encore le témoignage {qui}. Repassez donc par les caméras du bureau, elles en disent plus long que moi.
@@ -68,7 +68,7 @@ Il me manque encore le témoignage {qui}. Repassez donc par les caméras du bure
 Vous avez les trois témoignages. Ne bougez pas, je vous rappelle.
 ```
 
-**T9** 📞 — Il manque des pièces à conviction. *(`{n}` = 0, 1 ou 2 · `{qui}` = les suspects concernés)*
+**T9** 📞 — Il manque des pièces à conviction. _(`{n}` = 0, 1 ou 2 · `{qui}` = les suspects concernés)_
 
 ```
 {n} pièce(s) à conviction sur trois. Il me manque celle {qui}. Les caméras du bureau montrent chacun avec son arme — regardez-les encore, vous saurez quoi chercher.
@@ -199,8 +199,8 @@ Le service, toujours le service. Le vin était... parfait. Enfin, presque. Je n'
 Oh, vous partez déjà voir le Jardinier ? Il est en bas, dans son atelier : écoutez, on l'entend bricoler d'ici.
 ```
 
-*Puis il se tait 13 secondes — le temps de sa réplique (~10 s) plus 3 s de
-silence, pour qu'on entende vraiment le Jardinier bricoler.*
+_Puis il se tait 13 secondes — le temps de sa réplique (~10 s) plus 3 s de
+silence, pour qu'on entende vraiment le Jardinier bricoler._
 
 **T25b** — La suite.
 
