@@ -2736,12 +2736,12 @@
       to: "on"
       id: heiress
     # Deuxième prise pour l'Héritière : avec la seule trappe du fusil, des
-    # joueurs passaient à côté d'elle. Son coffre à bijoux, bien visible au
-    # salon, colle à son mobile (l'héritage) et se remarque tout seul.
+    # joueurs passaient à côté d'elle. La porte de la buanderie ne bouge pas,
+    # elle sert telle quelle — fouiller le linge la fait sortir de ses gonds.
     - trigger: state
       entity_id: binary_sensor.laundry_door_open
       to: "on"
-      id: heiress_jewels
+      id: heiress_laundry
     - trigger: device
       domain: mqtt
       device_id: 8317fbc3ea314ec40186f0d8ec39998d

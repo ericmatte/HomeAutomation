@@ -25,18 +25,23 @@ code (scripts / automations / helpers) est déjà en place sur la branche.
 | À déplacer                 | Entité                                     | Nouvel emplacement                                           | Effet                       |
 | -------------------------- | ------------------------------------------ | ------------------------------------------------------------ | --------------------------- |
 | Capteur de vibration       | `binary_sensor.vibration_sensor_vibration` | **Trappe d'aération du foyer** (BB gun caché)                | Héritière paniquée          |
-| Contact de porte buanderie | `binary_sensor.laundry_door_open`          | **Coffre à bijoux de l'Héritière**, bien visible au salon    | Héritière (2ᵉ prise)        |
+| _(rien à déplacer)_        | `binary_sensor.laundry_door_open`          | **Reste sur la porte de la buanderie**                       | Héritière (2ᵉ prise)        |
 | Bouton Zigbee              | device `8317fbc3ea314ec40186f0d8ec39998d`  | **Étagère à vins**, label « cliquer pour service »           | Majordome « service » + appel de l'inspecteur après l'autopsie |
 | ~~Capteur closet chambre~~ | `binary_sensor.knife_drawer_contact`       | **Tiroir à couteaux (cuisine)** — ✅ capteur dédié déjà posé | Majordome feint l'innocence |
 
 - [x] Déplacer le capteur de vibration sur la trappe du foyer (ajuster
       `number.vibration_sensor_sensitivity` au besoin).
-- [ ] **Déplacer le contact `binary_sensor.laundry_door_open` sur un coffre à
-      bijoux au salon.** Avec la seule trappe du fusil, des joueurs passaient à
-      côté de l'Héritière ; le coffre est visible et colle à son mobile.
-      L'automation « Laundry light on when door opens » est déjà garde-fou-ée
-      par `input_boolean.escape_v2_active` : la buanderie ne s'allumera pas
-      pendant la partie, et retrouvera son comportement normal après le reset.
+- [x] **Buanderie : rien à déplacer.** Ouvrir la porte de la buanderie fait
+      réagir l'Héritière (« fouillez pas dans mon linge sale ! ») — sa robe de
+      soirée y est, tachée de **vin**, pas de sang : une fausse piste qui
+      pointe quand même vers la bouteille. C'est sa 2ᵉ prise, celle qu'on
+      trouve sans savoir qu'on la cherche.
+      L'automation « Laundry light on when door opens » est garde-fou-ée par
+      `input_boolean.escape_v2_active` : la buanderie ne s'allume pas pendant
+      la partie (l'ambiance reste maîtrisée) et retrouve son comportement
+      normal après le reset.
+- [ ] Mettre une **robe tachée** dans la buanderie pour que la réplique tombe
+      juste.
 - [x] Déplacer le bouton Zigbee sur l'étagère à vins (+ label).
 - [x] Tiroir à couteaux : capteur **dédié** `binary_sensor.knife_drawer_contact`
       posé. Plus besoin de déplacer celui du closet, et la porte-patio garde le
@@ -59,8 +64,6 @@ code (scripts / automations / helpers) est déjà en place sur la branche.
       (ex. « ce vin a un goût étrange… inspectez l'assaisonnement / les tiroirs »).
 - [x] **BB gun (fusil)** caché dans la **trappe du foyer** (capteur de vibration
       dessus) — fausse piste de l'Héritière.
-- [ ] **Coffre à bijoux de l'Héritière** au salon, avec le contact de porte de
-      la buanderie posé dessus (voir §2).
 - [ ] **Fiole de poison** cachée (tiroir / derrière la porte-patio).
 - [x] **Rack d'épices** avec une épice étiquetée **« POISON »**.
 - [ ] **Gants tachés** du Majordome (indice coupable) — salle à manger.

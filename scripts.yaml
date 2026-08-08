@@ -823,6 +823,13 @@ mystery_start:
       data: { stop_actions: true }
       target:
         entity_id: "{{ label_entities('motions') }}"
+    # Le bureau garde son plafonnier éteint et sa lampe d'appoint en « glisten » :
+    # sans couper la synchro, éteindre light.office éteindrait aussi la lampe.
+    # reset_after_escape_roome la rallume (comme pour la v1).
+    - action: automation.turn_off
+      data: { stop_actions: true }
+      target:
+        entity_id: automation.sync_auxiliary_light_with_main_light
     - action: input_select.select_option
       target: { entity_id: input_select.mystery_phase }
       data: { option: idle }
@@ -905,14 +912,25 @@ mystery_start:
     - action: script.turn_on
       target: { entity_id: script.mystery_ambience }
     # « Suivez les lumières » : la traînée mène au bureau du sous-sol, là où se
-    # trouvent les caméras de surveillance et les premiers indices. Elle se
-    # déroule après la musique, sinon les joueurs la regardent dans le silence.
+    # trouvent le terminal et les premiers indices. Elle se déroule après la
+    # musique, sinon les joueurs la regardent dans le silence.
+    # Le plafonnier du bureau (light.office) reste éteint : c'est la lampe
+    # d'appoint qui balise la pièce, et l'écran du terminal fait le reste.
     - action: script.mystery_guide_path
       data:
         lights:
           - light.hallway_lights
           - light.downstairs_hallway_light
-          - light.office
+          - light.auxiliary_lamp
+    # Effet « glisten » sur la lampe du bureau : le poste de sécurité scintille
+    # au lieu d'être un simple coin allumé.
+    - action: light.turn_on
+      target: { entity_id: light.auxiliary_lamp }
+      data:
+        effect: glisten
+        color_temp_kelvin: 2800
+        brightness_pct: 45
+      continue_on_error: true
 
 mystery_suspect_speak:
   alias: "Mystery - Suspect speaks"
@@ -970,9 +988,10 @@ mystery_suspect_speak:
       c'est louche. Monte donc voir de ce côté-là. Et fais pas attention à mon
       robot, il fait sa ronde.
       {% elif suspect == 'heiress' %}
-      {% if variant == 'jewels' %}
-      Heille ! Touchez pas à mon coffre à bijoux, vous autres ! C'est mon
-      héritage, ça, pis j'ai rien fait de mal pour l'avoir.
+      {% if variant == 'laundry' %}
+      Heille ! Fouillez pas dans mon linge sale, vous autres ! Ma robe de
+      soirée est là-dedans, pis oui, elle est tachée. Mais c'est du vin, ça,
+      pas du sang ! On m'en a renversé un plein verre dessus.
       {% else %}
       Heille, mon fusil ?! Ben voyons donc, c'est pas ça que vous pensez
       pantoute ! OK, oui, je l'ai caché dans la trappe du foyer, mais je m'en
@@ -995,8 +1014,8 @@ mystery_suspect_speak:
       Je te l'ai déjà dit. J'étais dans l'atelier toute la soirée. Cherche
       ailleurs. Va voir le Majordome et sa bouteille de vin.
       {% elif suspect == 'heiress' %}
-      Heille, tabarnak, lâchez mes affaires tranquilles ! Ni le fusil ni les
-      bijoux ont rapport là-dedans, je vous le jure. Pis arrêtez de me niaiser
+      Heille, tabarnak, lâchez mes affaires tranquilles ! Ni le fusil ni ma
+      robe ont rapport là-dedans, je vous le jure. Pis arrêtez de me niaiser
       avec ça : mon robot est déjà parti vous montrer où chercher, à l'étagère
       à vins.
       {% else %}

@@ -31,7 +31,7 @@ détectives. Objectif façon Cluedo : **QUI · AVEC QUOI · OÙ**.
 | Suspect | Lieu (pièce) | Arme (fausse piste) | Voix (haut-parleur) | Déclencheur |
 |---|---|---|---|---|
 | 🌿 **Le Jardinier** | Atelier / établi (`workshop`) | Scie à main | `media_player.workshop_echo` (Echo, déjà là) | `binary_sensor.door_sensor_contact` (porte atelier) |
-| 💎 **L'Héritière** | Salon (`living_room`) | Fusil (BB gun, caché dans la trappe du foyer) | `media_player.sonos` | `binary_sensor.vibration_sensor_vibration` (trappe du fusil) **ou** `binary_sensor.laundry_door_open` (déplacé sur son coffre à bijoux) → **voix paniquée** |
+| 💎 **L'Héritière** | Salon (`living_room`) | Fusil (BB gun, caché dans la trappe du foyer) | `media_player.sonos` | `binary_sensor.vibration_sensor_vibration` (trappe du fusil) **ou** `binary_sensor.laundry_door_open` (sa robe tachée de vin, dans la buanderie) → **voix paniquée** |
 | 🤵 **Le Majordome** | Salle à manger (`dining_room`) | **Poison (vin)** | `media_player.google_home_mini` (à déplacer en salle à manger) | **bouton Zigbee** (`8317fbc3ea314ec40186f0d8ec39998d`, étagère à vins, « cliquer pour service »). Répliques secondaires : porte-patio (`patio_door`) + tiroir à couteaux (`knife_drawer_contact`, fausse piste) |
 
 **Solution (cachée aux joueurs) : le Majordome · le poison · la salle à manger.**
@@ -65,7 +65,7 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
 | Phase | Ce qui se passe | Entités en vedette |
 |---|---|---|
 | **0. La police arrive** | Script (délai optionnel). Toutes lumières éteintes → floor lamps salon alternent **bleu/rouge** (gyrophares, `script.mystery_flash_alternate`) → Sonos : **sirènes + brouhaha de policiers** parlant du meurtre, ils disent qu'ils **rappelleront**, puis repartent (**voiture qui démarre**, floor lamps s'éteignent) → **le téléphone sonne** | `light.left_floor_lamp`, `light.right_floor_lamp`, `media_player.sonos`, toutes lumières |
-| **1. Briefing** | L'**inspecteur** (téléphone) explique le meurtre et la mission (qui / avec quoi / où), puis envoie les joueurs au **terminal CCTV du bureau** : une **traînée de lumières** s'allume jusque-là (`script.mystery_guide_path`). L'**ambiance lumineuse** démarre (`script.mystery_ambience`) | `assist_satellite` (téléphone, TTS), `light.hallway_lights` → `light.downstairs_hallway_light` → `light.office` |
+| **1. Briefing** | L'**inspecteur** (téléphone) explique le meurtre et la mission (qui / avec quoi / où), puis envoie les joueurs au **terminal CCTV du bureau** : une **traînée de lumières** s'allume jusque-là (`script.mystery_guide_path`). L'**ambiance** démarre (`script.mystery_ambience`). Le plafonnier du bureau reste **éteint** — c'est la lampe d'appoint en effet `glisten` qui balise la pièce, l'écran fait le reste | `assist_satellite` (téléphone, TTS), `light.hallway_lights` → `light.downstairs_hallway_light` → `light.auxiliary_lamp` |
 | **2. Enquête** | Explorer les pièces. Chaque capteur/bouton fait parler un suspect, et **la pièce d'où sort la voix s'éclaire**. **Roby fait deux parcours** : vers le vin quand parle l'Héritière (les joueurs le suivent), vers le rack d'épices quand parle le Jardinier (en douce, retrouvé au `vacuum.locate`). Il part **après** la réplique, pour ne pas être manqué. Musique d'ambiance sur le Sonos. Fausses pistes : fusil et coffre à bijoux (Héritière), tiroir couteaux (Majordome innocent) | capteurs (porte/vibration/contact), bouton Zigbee, haut-parleurs localisés, **robot aspirateur** |
 | **3. Rappel de la police** | Une fois les 3 suspects entendus, la police **rappelle** automatiquement avec le **rapport d'autopsie** → empoisonnement → élimine fusil + scie comme armes, et demande les **3 pièces à conviction** | téléphone / Sonos |
 | **4. Collecte + accusation** | Les 3 objets (scie, fusil, pot d'épices) portent une **étiquette-code**. Les joueurs les tapent sur le **terminal CCTV** : crochet vert, compteur « 2 / 3 ». À 3/3, le **dossier confidentiel** se déverrouille et ils y **désignent le coupable à l'écran**. Chemin de secours : dire « inspecteur » au téléphone, ou cliquer le bouton de l'étagère à vins | `input_text.mystery_code_input`, `input_boolean.mystery_evidence_*`, `input_select.mystery_accusation_choice` |
@@ -207,9 +207,10 @@ fois.
 
 ## Décisions finalisées (après itérations)
 
-1. **Héritière** = capteur de vibration sur la trappe du fusil **+ contact sur
-   son coffre à bijoux** (voix paniquée dans les deux cas ; seule l'entrée en
-   matière change, via le champ `variant`).
+1. **Héritière** = capteur de vibration sur la trappe du fusil **+ porte de la
+   buanderie** (sa robe tachée de vin — fausse piste qui pointe quand même vers
+   la bouteille). Voix paniquée dans les deux cas ; seule l'entrée en matière
+   change, via le champ `variant`.
 2. **Majordome** = bouton Zigbee « cliquer pour service » (étagère à vins) +
    porte-patio (départ, doublé des **marmonnements du Jardinier** dans l'atelier
    pour révéler où il se trouve) + tiroir couteaux (fausse piste).
