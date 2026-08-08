@@ -81,8 +81,8 @@ que les joueurs tapent sur le terminal CCTV du bureau (voir §4).
 | Objet                              | Où                             | Code   | Entité déverrouillée               |
 | ---------------------------------- | ------------------------------ | ------ | ---------------------------------- |
 | 🪚 **Scie à main** (Jardinier)     | Atelier / établi, au sous-sol  | `7412` | `input_boolean.mystery_evidence_saw` |
-| 🔫 **Fusil BB gun** (Héritière)    | Trappe du foyer, salon         | `3856` | `input_boolean.mystery_evidence_gun` |
-| ☠️ **Pot d'épices « POISON »** (Majordome) | Rack d'épices, salle à manger | `9027` | `input_boolean.mystery_evidence_poison` |
+| 🔫 **Fusil BB gun** (Héritière)    | Trappe du foyer, salon         | `9201` | `input_boolean.mystery_evidence_gun` |
+| ☠️ **Pot d'épices « POISON »** (Majordome) | Rack d'épices, salle à manger | `1012` | `input_boolean.mystery_evidence_poison` |
 
 - [ ] Imprimer les 3 étiquettes. Suggestion de formulation, pour que le geste
       soit évident sans explication :

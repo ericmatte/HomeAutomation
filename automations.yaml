@@ -2953,8 +2953,8 @@
     - variables:
         codes:
           "7412": input_boolean.mystery_evidence_saw
-          "3856": input_boolean.mystery_evidence_gun
-          "9027": input_boolean.mystery_evidence_poison
+          "9201": input_boolean.mystery_evidence_gun
+          "1012": input_boolean.mystery_evidence_poison
         matched: "{{ codes.get(trigger.to_state.state | trim, '') }}"
     # Le champ se vide tout de suite : le pavé est prêt pour le code suivant, et
     # la remise à zéro ne redéclenche rien (la condition exige un code non vide).
