@@ -199,6 +199,11 @@ footer .ln{white-space:nowrap;}
 .missing .mtxt{font-size:calc(20*var(--px)); letter-spacing:calc(2*var(--px)); color:var(--amber-dim); line-height:1.8;}
 .missing .mcode{font-size:calc(16*var(--px)); letter-spacing:calc(3*var(--px)); color:var(--amber-deep);
   border:calc(1*var(--px)) solid var(--amber-deep); padding:calc(8*var(--px)) calc(18*var(--px));}
+/* Rappel de montage, volontairement minuscule et terne : utile à Eric pendant
+   la préparation, illisible de loin pendant la partie. */
+.missing .mpath{font-size:calc(13*var(--px)); letter-spacing:calc(1*var(--px)); color:#3a3a42;
+  margin-top:calc(6*var(--px));}
+.missing .mpath b{color:#55555f; font-weight:400;}
 
 .boot{font-size:calc(26*var(--px)); line-height:1.9; letter-spacing:calc(2*var(--px)); width:calc(1100*var(--px));}
 .boot .l{opacity:0; animation:type .01s forwards;}
@@ -586,12 +591,21 @@ class MysteryTerminalCard extends HTMLElement {
         <div class="mtxt">SECTEUR DISQUE CORROMPU — BANDE ILLISIBLE<br>
           L'enregistrement de ce flux n'a pas pu être restauré.</div>
         <div class="mcode">ERR 0x1A · NVR-B02 · RÉINDEXATION REQUISE</div>
+        <div class="mpath">${this._dropHint(c.file)}</div>
       </div>`;
     this._log(`ARCHIVE ILLISIBLE — ${c.id}`);
     if (!silent) this._sfx("err");
     console.warn(
       `[mystery-terminal] flux illisible pour ${c.id} — vérifier « file: » dans le YAML`,
       c.file || "(aucun chemin configuré)");
+  }
+  // Où déposer le fichier. HA sert `config/www/` sous `/local/`, donc on
+  // retraduit l'URL en chemin disque : c'est celui-là qu'on veut lire quand on
+  // a le dossier ouvert devant soi.
+  _dropHint(file) {
+    if (!file) return "renseigner « file: » dans dashboards/mystery-terminal.yaml";
+    const disk = file.startsWith("/local/") ? "config/www/" + file.slice(7) : file;
+    return `déposer le fichier ici → <b>${disk}</b>`;
   }
   _closeVideo() {
     // Fermer avant la fin du chargement ne doit pas faire surgir l'écran de
