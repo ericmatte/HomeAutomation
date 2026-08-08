@@ -2947,8 +2947,12 @@
     - trigger: state
       entity_id: input_text.mystery_code_input
   conditions:
+    # ⚠️ Une condition template doit rendre un vrai booléen : Home Assistant
+    # passe le résultat dans cv.boolean, qui rejette toute chaîne autre que
+    # true/false/on/off/yes/no… et retombe alors silencieusement sur « faux ».
+    # D'où les comparaisons explicites ici et plus bas.
     - condition: template
-      value_template: "{{ trigger.to_state.state | trim }}"
+      value_template: "{{ (trigger.to_state.state | trim) != '' }}"
   actions:
     - variables:
         codes:
@@ -2960,7 +2964,7 @@
     # déduit la réussite en comparant son compteur de preuves à l'instant où le
     # champ repasse à vide — l'ordre inverse afficherait « CODE INVALIDE » sur
     # un bon code.
-    - if: "{{ matched }}"
+    - if: "{{ matched != '' }}"
       then:
         - action: input_boolean.turn_on
           target: { entity_id: "{{ matched }}" }
@@ -2972,7 +2976,7 @@
       target: { entity_id: input_text.mystery_code_input }
       data: { value: "" }
     - condition: template
-      value_template: "{{ matched }}"
+      value_template: "{{ matched != '' }}"
     - if:
         - condition: state
           entity_id:

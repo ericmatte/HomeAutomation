@@ -1053,7 +1053,7 @@ mystery_suspect_speak:
   sequence:
     # La pièce d'où sort la voix s'éclaire : c'est ce qui dit aux joueurs où se
     # trouve celui qui parle.
-    - if: "{{ room_light }}"
+    - if: "{{ room_light != '' }}"
       then:
         - action: light.turn_on
           target: { entity_id: "{{ room_light }}" }
