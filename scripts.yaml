@@ -542,6 +542,16 @@ reset_after_escape_roome:
       entity_id: scene.reset_after_escape_room
     data:
       transition: 2
+  # La lampe d'appoint du bureau n'est pas dans cette scène, et l'automation
+  # qui la synchronise sur light.office ne se redéclenche pas ici puisque
+  # light.office reste éteint pendant toute la partie (v1 comme v2). Sans ça,
+  # un effet lancé en jeu (glisten, opal) restait actif après le reset.
+  - action: light.turn_off
+    target:
+      entity_id: light.auxiliary_lamp
+    data:
+      transition: 1
+    continue_on_error: true
   - action: script.turn_off
     metadata: {}
     target:
