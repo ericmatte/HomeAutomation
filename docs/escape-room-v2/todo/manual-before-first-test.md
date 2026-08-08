@@ -197,7 +197,7 @@ le précédent) :
 | `Police Radio Chatter`       | 24 s    | 0,4    | fond de scène, moitié moins fort que la sirène    |
 | `Car Drive Away`             | 11,5 s  | 0,4    | `delay: 12`, même niveau que le brouhaha          |
 | `Wrong Answer Sting`         | 14,3 s  | —      | `media_stop` après 3 s, seule l'attaque compte    |
-| `Investigation Ambience`     | 47 min  | 0,4    | couvre largement la partie                        |
+| `Investigation Ambience`     | 47 min  | 0,52   | +30 % après le test, elle se perdait derrière les voix |
 
 > 🚨 **Gyrophares** : réglés en **nombre de flashs**, pas en durée —
 > `cycles: 9` / `interval: 0.3` dans `script.mystery_start` (contre ~32

@@ -735,9 +735,11 @@ mystery_ambience:
     # moments qui coupent le Sonos (intro, rappel d'autopsie, mauvaise
     # accusation) n'ont donc qu'un seul appel à faire, au lieu de recopier le
     # volume et le nom du fichier à chaque fois.
+    # 0,52 : +30 % sur les 0,4 du premier test, la musique se perdait derrière
+    # les voix des joueurs.
     - action: media_player.volume_set
       target: { entity_id: media_player.sonos }
-      data: { volume_level: 0.4 }
+      data: { volume_level: 0.52 }
       continue_on_error: true
     - action: media_player.play_media
       target: { entity_id: media_player.sonos }
@@ -856,11 +858,11 @@ mystery_start:
       action: select.select_option
       target: { entity_id: select.192_168_0_160_assistant }
       data: { option: "Escape Room V2 - Henri" }
-    # Le Majordome parlait trop bas : son enceinte est réglée une bonne fois
-    # ici plutôt qu'à chaque réplique.
+    # Son enceinte est réglée une bonne fois ici plutôt qu'à chaque réplique.
+    # 0,75 : 0,9 criait un peu au test, mais il faut qu'il porte de la cuisine.
     - action: media_player.volume_set
       target: { entity_id: media_player.google_home_mini }
-      data: { volume_level: 0.9 }
+      data: { volume_level: 0.75 }
       continue_on_error: true
     - delay: { seconds: "{{ start_delay | int }}" }
     # Désactiver l'éclairage automatique par mouvement pendant le jeu
