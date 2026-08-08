@@ -129,9 +129,13 @@ reconnaissance vocale s'est révélée trop peu fiable au premier test).
       > Le chemin attendu part dans la **console du navigateur**, pas à l'écran :
       > les joueurs n'ont pas à le lire. À la limite, une partie reste jouable
       > sans vidéos du tout — ça devient juste une piste en moins.
-- [ ] Ouvrir `/mystery-terminal` **en plein écran** (F11) sur l'écran du
-      bureau, et **désactiver la veille écran** — une session dure 45 min sans
-      que personne ne touche au clavier.
+- [ ] Ouvrir `/mystery-terminal` sur l'écran du bureau et cliquer le **petit
+      bouton ⛶ en bas à droite** : il met la carte elle-même en plein écran,
+      donc la barre latérale et l'en-tête de Home Assistant disparaissent aussi
+      — il ne reste que le terminal. (F11 enlève en plus la barre du
+      navigateur ; les deux se cumulent.) Échap ou re-clic pour sortir.
+- [ ] **Désactiver la veille écran** — une session dure 45 min sans que
+      personne ne touche au clavier.
 - [ ] Après toute modification du `.js`, incrémenter le `?v=` de la ressource
       puis Ctrl+Maj+R sur le kiosque (cache du navigateur).
 - [x] ~~Hacker simulator + dossier Explorateur~~ — remplacés par le dashboard.

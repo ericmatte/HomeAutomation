@@ -155,9 +155,23 @@ section.col{display:flex; flex-direction:column; gap:calc(10*var(--px)); min-hei
 @keyframes glow{to{box-shadow:0 0 calc(34*var(--px)) rgba(53,255,106,.45)}}
 
 /* ---------- journal ---------- */
-footer{border:calc(1*var(--px)) solid var(--line); background:var(--panel); padding:calc(8*var(--px)) calc(14*var(--px));
+/* padding-right : réserve la place du bouton plein écran, qui flotte au-dessus */
+footer{border:calc(1*var(--px)) solid var(--line); background:var(--panel);
+  padding:calc(8*var(--px)) calc(76*var(--px)) calc(8*var(--px)) calc(14*var(--px));
   font-size:calc(15*var(--px)); color:var(--amber-dim); display:flex; gap:calc(28*var(--px)); overflow:hidden; z-index:5;}
 footer .ln{white-space:nowrap;}
+
+/* ---------- plein écran ---------- */
+/* Discret : c'est un bouton de régie, pas un élément de jeu. Il met la carte
+   elle-même en plein écran, ce qui masque aussi la barre latérale de HA. */
+.fsbtn{position:absolute; right:calc(18*var(--px)); bottom:calc(16*var(--px)); z-index:65;
+  width:calc(46*var(--px)); height:calc(46*var(--px)); display:grid; place-items:center;
+  border:calc(1*var(--px)) solid var(--amber-deep); background:rgba(5,5,6,.9);
+  color:var(--amber-dim); font-size:calc(22*var(--px)); line-height:1;
+  transition:color .12s, border-color .12s, background .12s;}
+.fsbtn:hover{color:#000; background:var(--amber); border-color:var(--amber);}
+:host(:fullscreen){width:100vw; height:100vh;}
+:host(:-webkit-full-screen){width:100vw; height:100vh;}
 
 /* ---------- overlays ---------- */
 .ov{position:absolute; inset:0; z-index:70; background:rgba(2,2,3,.94); display:grid; place-items:center; padding:calc(40*var(--px));}
@@ -265,6 +279,7 @@ const HTML = `
   </main>
 
   <footer id="log"></footer>
+  <button class="fsbtn" id="fsbtn" title="Plein écran">⛶</button>
 
   <div class="ov" id="ovVideo" hidden>
     <div class="vidbox">
@@ -333,10 +348,24 @@ class MysteryTerminalCard extends HTMLElement {
   }
 
   connectedCallback() {
+    // Le plein écran peut aussi être quitté par Échap : on suit l'état réel du
+    // document plutôt que de mémoriser le nôtre.
+    if (!this._onFs) {
+      this._onFs = () => this._syncFullscreen();
+      document.addEventListener("fullscreenchange", this._onFs);
+      document.addEventListener("webkitfullscreenchange", this._onFs);
+    }
     if (this._timer) return;
     this._timer = setInterval(() => this._tick(), 1000);
   }
-  disconnectedCallback() { clearInterval(this._timer); this._timer = null; }
+  disconnectedCallback() {
+    clearInterval(this._timer); this._timer = null;
+    if (this._onFs) {
+      document.removeEventListener("fullscreenchange", this._onFs);
+      document.removeEventListener("webkitfullscreenchange", this._onFs);
+      this._onFs = null;
+    }
+  }
   getCardSize() { return 12; }
 
   /* ---------------- construction ---------------- */
@@ -406,6 +435,7 @@ class MysteryTerminalCard extends HTMLElement {
     $("dossClose").addEventListener("click", () => { this._sfx("close"); this._hide("ovDossier"); });
     $("confirmNo").addEventListener("click", () => { this._sfx("close"); this._hide("ovConfirm"); });
     $("confirmYes").addEventListener("click", () => this._sendAccusation());
+    $("fsbtn").addEventListener("click", () => this._toggleFullscreen());
 
     this._log("TERMINAL EN LIGNE");
     this._log("LIAISON SERVEUR NVR : OK");
@@ -606,6 +636,33 @@ class MysteryTerminalCard extends HTMLElement {
     this._call("input_select", "select_option", { entity_id: ENT.accusation, option: this._choice.option });
     this._log(`ACCUSATION TRANSMISE — ${this._choice.name}`);
     this._hide("ovConfirm"); this._hide("ovDossier");
+  }
+
+  /* ---------------- plein écran ----------------
+   * On met la carte elle-même en plein écran, pas la page : ça masque aussi la
+   * barre latérale et l'en-tête de Home Assistant, et il ne reste que le
+   * terminal. Les unités `cqh` suivent, la mise en page se recalcule seule.
+   */
+  _toggleFullscreen() {
+    this._sfx("cam");
+    const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+    if (fsEl) {
+      const exit = document.exitFullscreen || document.webkitExitFullscreen;
+      if (exit) exit.call(document);
+      return;
+    }
+    const req = this.requestFullscreen || this.webkitRequestFullscreen;
+    if (!req) return;
+    const r = req.call(this);
+    // La version standard renvoie une promesse, la version webkit non.
+    if (r && r.catch) r.catch(() => this._log("PLEIN ÉCRAN REFUSÉ PAR LE NAVIGATEUR"));
+  }
+  _syncFullscreen() {
+    const b = this.$ && this.$("fsbtn");
+    if (!b) return;
+    const on = (document.fullscreenElement || document.webkitFullscreenElement) === this;
+    b.textContent = on ? "⤡" : "⛶";
+    b.title = on ? "Quitter le plein écran" : "Plein écran";
   }
 
   /* ---------------- son ----------------
