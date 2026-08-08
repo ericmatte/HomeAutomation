@@ -812,7 +812,7 @@ mystery_guide_path:
                 - delay: { milliseconds: 400 }
           - action: light.turn_on
             target: { entity_id: "{{ beacon }}" }
-            data: { brightness_pct: "{{ trail_brightness_pct | int }}", transition: 1 }
+            data: { brightness_pct: "{{ trail_brightness_pct | default(15) | int }}", transition: 1 }
 
 mystery_ambience:
   alias: "Mystery - Investigation ambience"
@@ -970,7 +970,7 @@ mystery_start:
       target: { entity_id: media_player.google_home_mini }
       data: { volume_level: 0.75 }
       continue_on_error: true
-    - delay: { seconds: "{{ start_delay | int }}" }
+    - delay: { seconds: "{{ start_delay | default(0) | int }}" }
     # Désactiver l'éclairage automatique par mouvement pendant le jeu
     - action: automation.turn_off
       data: { stop_actions: true }
