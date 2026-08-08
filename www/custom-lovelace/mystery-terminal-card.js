@@ -212,6 +212,17 @@ footer .ln{white-space:nowrap;}
 .ov.flash{animation:flash .5s steps(2) 3;}
 @keyframes flash{50%{background:rgba(53,255,106,.20)}}
 
+/* ---------- transmission de l'inspecteur ---------- */
+/* Le texte s'affiche en même temps que la voix : si le navigateur bloque la
+   lecture audio, les joueurs lisent quand même le message. */
+.saywrap{width:calc(1500*var(--px)); border:calc(2*var(--px)) solid var(--amber);
+  background:#0a0800; padding:calc(40*var(--px)); text-align:center;}
+.saywrap .who{font-size:calc(20*var(--px)); letter-spacing:calc(5*var(--px)); color:var(--amber-dim);
+  display:flex; align-items:center; justify-content:center; gap:calc(12*var(--px));}
+.saywrap .who .dot{background:var(--amber);}
+.saywrap .txt{font-size:calc(34*var(--px)); line-height:1.55; margin-top:calc(24*var(--px));
+  text-shadow:0 0 calc(14*var(--px)) rgba(255,178,0,.35);}
+
 .dosswrap{width:100%; height:100%; display:grid; grid-template-rows:auto 1fr auto; gap:calc(18*var(--px));}
 .dosshead{text-align:center;}
 .dosshead h2{font-size:calc(46*var(--px)); letter-spacing:calc(8*var(--px)); color:var(--green);}
@@ -296,6 +307,13 @@ const HTML = `
 
   <div class="ov" id="ovBoot" hidden><div class="boot" id="bootLines"></div></div>
 
+  <div class="ov" id="ovSay" hidden>
+    <div class="saywrap">
+      <div class="who"><span class="dot"></span>TRANSMISSION — INSPECTEUR BEAUCHAMP-LATULIPPE</div>
+      <div class="txt" id="sayText"></div>
+    </div>
+  </div>
+
   <div class="ov" id="ovDossier" hidden>
     <div class="dosswrap">
       <div class="dosshead">
@@ -365,6 +383,8 @@ class MysteryTerminalCard extends HTMLElement {
   }
   disconnectedCallback() {
     clearInterval(this._timer); this._timer = null;
+    clearTimeout(this._sayHide);
+    if (this._unsubSay) { this._unsubSay(); this._unsubSay = null; this._evSub = false; }
     if (this._onFs) {
       document.removeEventListener("fullscreenchange", this._onFs);
       document.removeEventListener("webkitfullscreenchange", this._onFs);
@@ -451,6 +471,15 @@ class MysteryTerminalCard extends HTMLElement {
   /* ---------------- hass ---------------- */
   set hass(hass) {
     this._hass = hass;
+    // Home Assistant nous parle par événement : le message de l'inspecteur est
+    // trop long pour tenir dans un input_text (255 caractères max).
+    if (!this._evSub && hass.connection) {
+      this._evSub = true;
+      hass.connection
+        .subscribeEvents((ev) => this._inspectorSays(ev.data.message), "mystery_terminal_say")
+        .then((unsub) => { this._unsubSay = unsub; })
+        .catch(() => { this._evSub = false; });
+    }
     if (!this._built) return;
     const g = (e) => (hass.states[e] ? hass.states[e].state : "unknown");
     const cur = {
@@ -650,6 +679,52 @@ class MysteryTerminalCard extends HTMLElement {
     this._call("input_select", "select_option", { entity_id: ENT.accusation, option: this._choice.option });
     this._log(`ACCUSATION TRANSMISE — ${this._choice.name}`);
     this._hide("ovConfirm"); this._hide("ovDossier");
+  }
+
+  /* ---------------- voix de l'inspecteur sur le terminal ----------------
+   * Les joueurs sont au sous-sol devant l'écran ; le téléphone, lui, est au
+   * salon. Les moments qui suivent une action à l'écran (le dénouement) se
+   * jouent donc ici, avec la même voix HenriNeural que le téléphone.
+   * Le texte s'affiche en même temps : si le navigateur refuse de lire l'audio,
+   * la partie continue quand même.
+   */
+  async _inspectorSays(message) {
+    if (!message) return;
+    this.$("sayText").textContent = message;
+    this._show("ovSay");
+    clearTimeout(this._sayHide);
+    // Même estimation que côté Home Assistant : ~2,3 mots par seconde.
+    const secs = Math.max(6, Math.ceil(message.split(/\s+/).length / 2.3));
+    this._sayHide = setTimeout(() => this._hide("ovSay"), (secs + 2) * 1000);
+    try {
+      const url = await this._ttsUrl(message);
+      const audio = new Audio(url);
+      audio.volume = 1;
+      await audio.play();
+    } catch (e) {
+      // Autoplay bloqué, TTS indisponible, hors ligne… le texte reste lisible.
+      this._log("TRANSMISSION — LECTURE AUDIO IMPOSSIBLE");
+      console.warn("[mystery-terminal] lecture TTS impossible", e);
+    }
+  }
+  async _ttsUrl(message) {
+    const body = {
+      message,
+      language: "fr-FR",
+      options: { voice: "HenriNeural" },
+    };
+    // engine_id depuis HA 2023.7 ; platform sur les versions antérieures.
+    try {
+      const r = await this._hass.callApi("POST", "tts_get_url", {
+        ...body, engine_id: "tts.home_assistant_cloud",
+      });
+      return r.path || r.url;
+    } catch (e) {
+      const r = await this._hass.callApi("POST", "tts_get_url", {
+        ...body, platform: "cloud",
+      });
+      return r.path || r.url;
+    }
   }
 
   /* ---------------- plein écran ----------------

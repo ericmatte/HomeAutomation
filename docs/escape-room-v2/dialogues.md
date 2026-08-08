@@ -1,46 +1,54 @@
 # Toutes les répliques — « Meurtre au manoir connecté »
 
-> Chaque texte prononcé dans le jeu, tel quel. Réécris directement dans les
-> blocs et renvoie-les-moi avec leur numéro (`T7 → nouveau texte`).
+> Chaque texte prononcé dans le jeu, tel qu'il est dans le code. Réécris
+> directement dans les blocs et renvoie-les-moi avec leur numéro
+> (`T7 → nouveau texte`).
+>
+> La numérotation ne bouge pas entre les révisions : T4, T14 et T15 ont été
+> retirés du jeu mais gardent leur place, pour que les anciens numéros
+> continuent de désigner la même chose.
+
+**Où sort chaque voix** — 📞 téléphone (salon) · 🔊 Sonos (salon, tout le groupe
+entend) · 🖥️ terminal du bureau (sous-sol, texte affiché **et** voix).
 
 ---
 
 ## 🕵️ L'inspecteur Henri-Onésime de Beauchamp-Latulippe
 
-**T1** — Au début, sur le Sonos. Il coupe ses hommes et s'adresse au groupe.
+**T1** 🔊 — Au début, sur le Sonos. Il coupe ses hommes et s'adresse au groupe.
+*(`{nom}` = le champ **Player name** de `script.mystery_start`. Laissé vide, la
+salutation saute et il enchaîne directement.)*
 
 ```
-Bonsoir. Inspecteur Henri-Onésime de Beauchamp-Latulippe. Un meurtre a eu lieu ici ce soir, et cette maison a tout enregistré. Je vous nomme détectives. Trouvez-moi le coupable parmi trois suspects : le Jardinier, l'Héritière et le Majordome. Fouillez partout — ces trois-là se trahissent dès qu'on touche à leurs affaires. Bon. Il faut que j'y aille, j'ai un autre appel.
+Bonsoir. Inspecteur Henri-Onésime de Beauchamp-Latulippe. Ah ! Vous devez être {nom}. Enchanté de faire votre connaissance. Un meurtre a eu lieu ici ce soir, et cette maison a tout enregistré. Je vous nomme détectives. Trouvez-moi le coupable parmi trois suspects : le Jardinier, l'Héritière et le Majordome. Fouillez partout — ces trois-là se trahissent dès qu'on touche à leurs affaires. Bon. Il faut que j'y aille, j'ai un autre appel.
 ```
 
-**T2** — 5 secondes après son départ, au téléphone.
+**T2** 📞 — 5 secondes après son départ.
 
 ```
-J'oubliais ! Beauchamp-Latulippe. Les caméras de surveillance de la maison sont sur le terminal, dans le bureau au sous-sol. J'ai fait allumer les lumières jusque-là, suivez-les. Et si vous bloquez, demandez-moi un indice.
+Ici Inspecteur Beauchamp-Latulippe. J'oubliais ! Les caméras de surveillance de la maison sont sur le terminal, dans le bureau au sous-sol. J'ai fait allumer les lumières jusque-là, suivez-les. Et si vous bloquez, demandez-moi un indice au téléphone.
 ```
 
-**T3** — Au téléphone, une fois les 3 suspects entendus. Le rapport d'autopsie.
+**T3** 📞 — Une fois les 3 suspects entendus. Le rapport d'autopsie.
 
 ```
-Beauchamp-Latulippe à nouveau. Le rapport du légiste : la victime a été empoisonnée. Oubliez le fusil et la scie comme armes du crime. Maintenant, il me faut les trois pièces à conviction : la scie, le fusil et le pot d'épices. Chacune porte un code — tapez-les sur le terminal du bureau.
+Beauchamp-Latulippe à nouveau. J'ai eu le rapport de l'autopsie : la victime a été empoisonnée. Avez-vous trouvé les trois pièces à conviction possible ? Dès que vous les avez, tapez-les sur le terminal du bureau.
 ```
 
-**T4** — Au téléphone, quand la 3ᵉ pièce à conviction est enregistrée.
+**T4** — ~~Annonce téléphonique au 3ᵉ code~~ · **retirée**. Les joueurs sont au
+sous-sol, le téléphone est au salon. Le terminal joue sa séquence de
+déverrouillage à l'écran, ça suffit.
+
+**T5** 🖥️ — Bonne réponse.
 
 ```
-Trois pièces à conviction au dossier. Le dossier confidentiel vient de s'ouvrir sur le terminal : désignez-moi le coupable.
+Le Majordome. C'est exact, détective ! Appelez-moi Henri, vous l'avez mérité. Descendez au théâtre, j'ai trouvé de quoi qui pourrait vous intéresser : suivez les lumières, et regardez l'écran.
 ```
 
-**T5** — Bonne réponse.
+**T6** 🖥️ — Mauvaise réponse.
 
 ```
-Le Majordome. C'est exact, détective ! Appelez-moi Henri, vous l'avez mérité. Descendez au théâtre : suivez les lumières, et regardez l'écran.
-```
-
-**T6** — Mauvaise réponse.
-
-```
-Non. Ça ne colle pas, détective. Et c'est Beauchamp-Latulippe. Reprenez le vin, les épices et les alibis. Revenez me voir quand vous serez sûrs.
+Non. Ça ne colle pas, détective. Et c'est Beauchamp-Latulippe. Reprenez le vin et les alibis. Revenez me voir quand vous serez sûrs.
 ```
 
 ### Ses indices
@@ -48,85 +56,79 @@ Non. Ça ne colle pas, détective. Et c'est Beauchamp-Latulippe. Reprenez le vin
 Sur demande (« indice » au téléphone) ou de lui-même après 6 minutes sans
 progrès. Il choisit selon l'avancement.
 
-**T7** — Il manque des témoignages. *(`{qui}` = « le Jardinier », ou « le Jardinier et l'Héritière »…)*
+**T7** 📞 — Il manque des témoignages. *(`{qui}` = « le Jardinier », ou « le Jardinier et l'Héritière »…)*
 
 ```
 Il me manque encore le témoignage de {qui}. Repassez donc par les caméras du bureau, elles en disent plus long que moi.
 ```
 
-**T8** — Les 3 témoignages sont pris, l'autopsie n'est pas encore arrivée.
+**T8** 📞 — Les 3 témoignages sont pris, l'autopsie n'est pas encore arrivée.
 
 ```
 Vous avez les trois témoignages. Ne bougez pas, je vous rappelle.
 ```
 
-**T9** — Il manque des pièces à conviction. *(`{n}` = 0, 1 ou 2 · `{qui}` = les suspects concernés)*
+**T9** 📞 — Il manque des pièces à conviction. *(`{n}` = 0, 1 ou 2 · `{qui}` = les suspects concernés)*
 
 ```
 {n} pièce(s) à conviction sur trois. Il me manque celle de {qui}. Les caméras du bureau montrent chacun avec son arme — regardez-les encore, vous saurez quoi chercher.
 ```
 
-**T10** — Les 3 pièces sont au dossier.
+**T10** 📞 — Les 3 pièces sont au dossier.
 
 ```
 Les trois pièces sont au dossier. Désignez le coupable sur le terminal.
 ```
 
-**T11** — Pendant l'accusation.
+**T11** 🖥️ — Pendant l'accusation. Sort sur le terminal, pas au téléphone.
 
 ```
 Je vous écoute : désignez le coupable sur le terminal.
 ```
 
-**T12** — Aucune partie en cours.
+**T12** 📞 — Aucune partie en cours.
 
 ```
 Il n'y a pas d'enquête en cours, détective.
 ```
 
-### Ses réponses courtes au téléphone
+### Sa réponse courte au téléphone
 
-**T13** — Quand on demande un indice, avant qu'il rappelle.
+**T13** 📞 — Quand on demande un indice, avant qu'il rappelle.
 
 ```
 Un instant, détective, je consulte mon dossier.
 ```
 
-**T14** — Quand on dit « inspecteur » pour accuser.
+**T14** — ~~« Je vais dire à l'inspecteur de vous rappeler »~~ · **retirée**.
 
-```
-Parfait, détective. Je vais dire à l'inspecteur de vous rappeler tout de suite.
-```
-
-**T15** — Sa question d'accusation, au téléphone. *(chemin de secours ; normalement l'accusation se fait à l'écran)*
-
-```
-Eh alors, détective ! Henri-Onésime de Beauchamp-Latulippe à l'appareil. Avez-vous trouvé le coupable ? Dites-moi son nom : est-ce le Jardinier, l'Héritière, ou le Majordome ?
-```
+**T15** — ~~Sa question d'accusation au téléphone~~ · **retirée**. L'accusation se
+fait uniquement sur le terminal. Le mot « inspecteur » ne déclenche plus rien,
+et le bouton de l'étagère à vins ne sert plus qu'à appeler le Majordome.
 
 ---
 
 ## 🌿 Le Jardinier — atelier au sous-sol, sur l'Echo
 
-> ⚠️ Sa voix passe par le TTS d'Amazon, qui **mange les élisions familières**
-> (« ch'te », « y'arrêtait »). Garde les mots entiers, sinon il marmonne.
+> ⚠️ Sa voix passe par le TTS d'Amazon, qui **mange les élisions familières**.
+> Si une réplique sort marmonnée, c'est là qu'il faut regarder.
 
 **T16** — Première fois qu'on ouvre la porte de l'atelier.
 
 ```
-Hé, c'est quoi cette histoire de détective ? Moi, j'ai rien vu, je te le jure. J'ai passé la soirée ici, dans l'atelier, à aiguiser ma scie. Tranquille. Mais si tu veux mon avis, le Majordome, lui, il arrêtait pas de tourner autour de la salle à manger avec sa bouteille de vin. Ça, c'est louche. Monte donc voir de ce côté-là. Et fais pas attention à mon robot, il fait sa ronde.
+Hé, c'est quoi cette histoire de détective ? Moi, j'ai rien vu, j'te le jure. J'ai passé la soirée icitte, dans l'atelier, à aiguiser ma scie rouge. Ben relaxe. Mais si tu veux mon avis, le Majordome, lui yer louche en tabarnak: il arrêtait pas de tourner autour de la salle à manger avec sa bouteille de vin. Monte donc voir de ce côté-là. Et fais pas attention à mon robot, il fait sa ronde.
 ```
 
 **T17** — Les fois suivantes.
 
 ```
-Je te l'ai déjà dit. J'étais dans l'atelier toute la soirée. Cherche ailleurs. Va voir le Majordome et sa bouteille de vin.
+J'te l'ai déjà dit. J'étais dans l'atelier toute la soirée. Cherche ailleurs. Va voir le soulon de Majordome et sa bouteille de vin.
 ```
 
 **T18** — Marmonnements dans son atelier, pendant que le Majordome parle à la porte-patio. Sert à révéler où il se trouve.
 
 ```
-Hmm hmm... voyons voir... non, pas celle-là... mais où c'est que j'ai mis ça, donc... hmm... ah, tiens... non, non... mmmh... bon, bon, bon...
+Hmm hmm... voyons voir... non, pas celle-là... mais où c'est que j'ai mis ça, donc... hmm... ah, tiens... non, non... mmmh... bon, bon, bon... Hmm hmm... voyons voir... non, pas celle-là... mais où c'est que j'ai mis ça, donc... hmm... ah, tiens... non, non... mmmh... bon, bon, bon...
 ```
 
 ---
@@ -138,7 +140,7 @@ Elle a **deux déclencheurs**. L'entrée en matière change, la suite est la mê
 **T19** — Première fois, si on touche à la trappe du foyer (le fusil).
 
 ```
-Heille, mon fusil ?! Ben voyons donc, c'est pas ça que vous pensez pantoute ! OK, oui, je l'ai caché dans la trappe du foyer, mais je m'en suis jamais servie, j'vous le jure !
+Heille, mon fusil ?! Ben voyons donc, c'est pas ce que vous pensez pantoute ! OK, oui, je l'ai caché dans la trappe du foyer, mais je m'en suis jamais servie, j'vous le jure ! Je suis une femme ben distinguée quand même, on va pas me faire passer pour une calice de criminelle ! Non madame.
 ```
 
 **T20** — Première fois, si on ouvre la porte de la buanderie (sa robe tachée).
@@ -156,7 +158,7 @@ Si vous cherchez de quoi avancer, c'est pas moi qu'il faut regarder. Moi, j'irai
 **T22** — Les fois suivantes, quel que soit le déclencheur.
 
 ```
-Heille, tabarnak, lâchez mes affaires tranquilles ! Ni le fusil ni ma robe ont rapport là-dedans, je vous le jure. Pis arrêtez de me niaiser avec ça : mon robot est déjà parti vous montrer où chercher, à l'étagère à vins.
+Heille, tabarnak, lâchez mes affaires tranquilles ! Ni le fusil ni ma robe ont rapport là-dedans, je vous le jure. Pis arrêtez de me niaiser avec ça : mon robot est déjà parti vous montrer où chercher. J'lai vu le Majordome, y'avait un sac à vin contenant sa meilleur bouteille, y'a clairement laisser des traces de son passage dans le sac !
 ```
 
 ---
@@ -166,23 +168,32 @@ Heille, tabarnak, lâchez mes affaires tranquilles ! Ni le fusil ni ma robe ont 
 **T23** — Première fois qu'on clique le bouton de service sur l'étagère à vins.
 
 ```
-Vous avez sonné pour le service ? À votre entière disposition. J'ai servi le vin toute la soirée, comme il se doit. Un service irréprochable. L'Héritière, en revanche, ne décolérait pas contre la victime : une sordide histoire d'héritage. Et puisque vous fouillez, examinez donc cette étagère à vins, les tiroirs de la cuisine et le rack d'épices. On trouve parfois des choses surprenantes dans une maison.
+Vous avez sonné pour le service ? À votre entière disposition. J'ai servi le vin toute la soirée, comme il se doit. Un service irréprochable. L'Héritière, en revanche, ne décolérait pas contre la victime : une sordide histoire d'héritage. Et puisque vous fouillez, examinez donc la robe de celle-ci dans la buanderie. Elle avait fait toute qu'un drama ce soir au souper !
 ```
 
 **T24** — Les fois suivantes.
 
 ```
-Le service, toujours le service. Le vin était... parfait. Enfin, presque. Regardez donc du côté des épices.
+Le service, toujours le service. Le vin était... parfait. Enfin, presque. Je n'ai rien vu de suspect de mon côté. Aller donc voir l'Héritière, elle a été bien plus agitée que moi ce soir. Et si vous voulez mon avis, le Jardinier est un peu louche lui aussi. Il traîne toujours dans son atelier, à bricoler.
 ```
 
-**T25** — Quand on ouvre la porte-patio. Le Jardinier marmonne (T18) en même temps.
+**T25a** — Quand on ouvre la porte-patio. Le Jardinier marmonne (T18) en même temps.
 
 ```
-Oh, vous partez déjà voir le Jardinier ? Il est en bas, dans son atelier : écoutez, on l'entend bricoler d'ici. Mais avant cela, prenez donc le temps d'examiner cette étagère à vins et les tiroirs de la cuisine. On trouve parfois des choses bien surprenantes dans une maison. Moi, je n'ai rien à cacher, bien entendu.
+Oh, vous partez déjà voir le Jardinier ? Il est en bas, dans son atelier : écoutez, on l'entend bricoler d'ici.
+```
+
+*Puis il se tait 13 secondes — le temps de sa réplique (~10 s) plus 3 s de
+silence, pour qu'on entende vraiment le Jardinier bricoler.*
+
+**T25b** — La suite.
+
+```
+Parfois, la porte extérieure est verrouillée, mais vous pouvez toujours passer par le sous-sol. À votre place je me méfierais de lui, il est un peu louche, je vous l'ai dit.
 ```
 
 **T26** — Quand on ouvre le tiroir à couteaux. Fausse piste.
 
 ```
-Un couteau manquant dans ce tiroir ? Mon Dieu... je n'y toucherais jamais, voyons. Le service, uniquement le service. Mais puisque vous fouillez : c'est le Jardinier qui a pris ce couteau, je l'ai vu le glisser sous son tablier en repartant. Allez donc le lui demander vous-même. Il traîne dehors, ou en bas dans son atelier.
+Un couteau manquant dans ce tiroir ? Mon Dieu... je n'y toucherais jamais, voyons. Moi c'est le service, uniquement le service. Mais puisque vous fouillez : c'est le Jardinier qui a pris ce couteau, je l'ai vu le glisser sous son tablier en repartant. Allez donc le lui demander vous-même. Il traîne souvent dehors, ou en bas dans son atelier. Je l'ai vu passer par la porte-patio récemment.
 ```

@@ -2782,16 +2782,25 @@
         custom_line: >-
           Hmm hmm... voyons voir... non, pas celle-là... mais où c'est que j'ai
           mis ça, donc... hmm... ah, tiens... non, non... mmmh... bon, bon,
-          bon...
+          bon... Hmm hmm... voyons voir... non, pas celle-là... mais où c'est
+          que j'ai mis ça, donc... hmm... ah, tiens... non, non... mmmh... bon,
+          bon, bon...
     - action: script.mystery_suspect_speak
       data:
         suspect: butler
         custom_line: >-
           Oh, vous partez déjà voir le Jardinier ? Il est en bas, dans son
-          atelier : écoutez, on l'entend bricoler d'ici. Mais avant cela,
-          prenez donc le temps d'examiner cette étagère à vins et les tiroirs
-          de la cuisine. On trouve parfois des choses bien surprenantes dans
-          une maison. Moi, je n'ai rien à cacher, bien entendu.
+          atelier : écoutez, on l'entend bricoler d'ici.
+    # Le Majordome se tait le temps qu'on entende vraiment le Jardinier
+    # bricoler : 10 s pour sa réplique (21 mots) plus 3 s de silence.
+    - delay: { seconds: 13 }
+    - action: script.mystery_suspect_speak
+      data:
+        suspect: butler
+        custom_line: >-
+          Parfois, la porte extérieure est verrouillée, mais vous pouvez
+          toujours passer par le sous-sol. À votre place je me méfierais de
+          lui, il est un peu louche, je vous l'ai dit.
 - id: mystery_knife_drawer
   alias: "Mystery - Knife drawer red herring"
   mode: single
@@ -2809,10 +2818,11 @@
         suspect: butler
         custom_line: >-
           Un couteau manquant dans ce tiroir ? Mon Dieu... je n'y toucherais
-          jamais, voyons. Le service, uniquement le service. Mais puisque vous
-          fouillez : c'est le Jardinier qui a pris ce couteau, je l'ai vu le
-          glisser sous son tablier en repartant. Allez donc le lui demander
-          vous-même. Il traîne dehors, ou en bas dans son atelier.
+          jamais, voyons. Moi c'est le service, uniquement le service. Mais
+          puisque vous fouillez : c'est le Jardinier qui a pris ce couteau, je
+          l'ai vu le glisser sous son tablier en repartant. Allez donc le lui
+          demander vous-même. Il traîne souvent dehors, ou en bas dans son
+          atelier. Je l'ai vu passer par la porte-patio récemment.
     # Le Majordome envoie les joueurs vers le Jardinier : on allume le chemin
     # jusqu'au sous-sol plutôt que de les laisser deviner.
     - action: script.mystery_guide_path
@@ -2847,39 +2857,6 @@
     # ~36 s), sinon l'inspecteur appellerait par-dessus le 3e suspect.
     - delay: { seconds: 40 }
     - action: script.mystery_police_callback
-- id: mystery_call_inspector
-  alias: "Mystery - Call inspector"
-  mode: single
-  triggers:
-    # Le bouton de l'étagère à vins est le chemin principal : les étiquettes
-    # des 3 preuves demandent de les y rapporter puis de cliquer. La commande
-    # vocale reste en secours — la reconnaissance au téléphone est trop
-    # aléatoire pour en faire le seul déclencheur de la fin.
-    - trigger: device
-      domain: mqtt
-      device_id: 8317fbc3ea314ec40186f0d8ec39998d
-      type: action
-      subtype: single
-      id: button
-    - trigger: conversation
-      command:
-        - inspecteur
-        - "{a}inspecteur"
-        - "inspecteur{b}"
-        - "{a}inspecteur{b}"
-      id: voice
-  conditions:
-    - condition: state
-      entity_id: input_select.mystery_phase
-      state: ["autopsy_done"]
-  actions:
-    - if: "{{ trigger.id == 'voice' }}"
-      then:
-        - set_conversation_response: >-
-            Parfait, détective. Je vais dire à l'inspecteur de vous rappeler
-            tout de suite.
-        - delay: { seconds: 4 }
-    - action: script.mystery_accusation
 - id: mystery_hint_request
   alias: "Mystery - Hint on request"
   mode: single
@@ -2985,19 +2962,17 @@
             - input_boolean.mystery_evidence_poison
           state: "on"
       then:
+        # Pas d'appel téléphonique ici : les joueurs sont au sous-sol devant le
+        # terminal et le téléphone est au salon. La carte joue déjà sa séquence
+        # de déverrouillage à l'écran, ça suffit.
         - action: input_boolean.turn_on
           target: { entity_id: input_boolean.mystery_terminal_unlocked }
-        - action: script.mystery_inspector_say
-          continue_on_error: true
-          data:
-            message: >-
-              Trois pièces à conviction au dossier. Le dossier confidentiel
-              vient de s'ouvrir sur le terminal : désignez-moi le coupable.
 - id: mystery_terminal_accusation
   alias: "Mystery - Accusation from terminal"
   mode: single
-  # L'accusation se fait à l'écran plutôt qu'à la voix. Le chemin téléphone
-  # (mystery_call_inspector) reste en secours.
+  # L'accusation se fait uniquement à l'écran : le chemin vocal a été retiré,
+  # la reconnaissance au téléphone n'était pas fiable et le terminal la rend
+  # inutile.
   triggers:
     - trigger: state
       entity_id: input_select.mystery_accusation_choice

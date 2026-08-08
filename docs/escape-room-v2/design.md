@@ -7,10 +7,11 @@
 ## Principes directeurs (contraintes validées)
 
 - 🚫 **On ne touche pas au climate** (thermostats / thermopompe hors-jeu).
-- 📢 **Voix simple** : le téléphone **parle** beaucoup (TTS sortant, compris de
-  tous) ; ce que le joueur **dit** reste minimal : mots courts (oui/non) et, à
-  l'accusation, **le nom d'un des 3 suspects** (reconnu via `ask_question`).
-  Fini les « phrases secrètes » à réciter (point fragile de la v1).
+- 📢 **Voix simple** : le jeu **parle** beaucoup (TTS sortant, compris de tous),
+  mais ce que le joueur **dit** se réduit à un seul mot : « indice ».
+  L'accusation, elle, se fait **à l'écran** sur le terminal. Fini les « phrases
+  secrètes » à réciter (point fragile de la v1) et fini la reconnaissance de
+  noms au téléphone (point fragile de la v2).
 - 🔎 Tout le reste de l'interaction passe par le **physique** : capteurs,
   objets, boutons.
 - 🏷️ Partie physique légère (dans l'esprit des labels imprimés de la v1) :
@@ -67,18 +68,25 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
 | **0. La police arrive** | Script (délai optionnel). Lumières des pièces en jeu éteintes → floor lamps salon alternent **bleu/rouge** (gyrophares, `script.mystery_flash_alternate`, en tâche de fond) → Sonos : **sirènes** puis **brouhaha de policiers** | `light.left_floor_lamp`, `light.right_floor_lamp`, `media_player.sonos` |
 | **1a. Briefing, en personne** | L'**inspecteur coupe ses hommes et s'adresse au groupe sur le Sonos** : le meurtre, les 3 suspects, « fouillez partout ». Puis « il faut que j'y aille, j'ai un autre appel » → **la voiture s'éloigne**, silence | `media_player.sonos` (TTS `HenriNeural`) |
 | **1b. Il rappelle** | 5 s plus tard, **le téléphone sonne** : « j'oubliais ! » — les **caméras sont sur le terminal du bureau**, au sous-sol, et une **traînée de lumières** s'allume jusque-là. L'**ambiance** démarre | `assist_satellite` (téléphone), `light.hallway_lights` → `light.downstairs_hallway_light` → `light.auxiliary_lamp` |
-
-> 🎙️ **Pourquoi deux canaux.** Au téléphone, une seule personne tient le
-> combiné et le reste du groupe n'entend rien — c'est ce qui rendait le
-> briefing confus au premier test. Le gros des consignes passe donc par le
-> **Sonos**, où tout le monde reçoit la même chose en même temps ; le téléphone
-> ne sert plus qu'à l'unique information qui envoie les joueurs quelque part.
-> `script.mystery_inspector_say` porte les deux chemins (`on_sonos:`) avec la
-> même voix `HenriNeural`, pour que ce soit bien le même personnage.
 | **2. Enquête** | Explorer les pièces. Chaque capteur/bouton fait parler un suspect, et **la pièce d'où sort la voix s'éclaire**. **Roby fait deux parcours** : vers le vin quand parle l'Héritière (les joueurs le suivent), vers le rack d'épices quand parle le Jardinier (en douce, retrouvé au `vacuum.locate`). Il part **après** la réplique, pour ne pas être manqué. Musique d'ambiance sur le Sonos. Fausses pistes : fusil et coffre à bijoux (Héritière), tiroir couteaux (Majordome innocent) | capteurs (porte/vibration/contact), bouton Zigbee, haut-parleurs localisés, **robot aspirateur** |
 | **3. Rappel de la police** | Une fois les 3 suspects entendus, la police **rappelle** automatiquement avec le **rapport d'autopsie** → empoisonnement → élimine fusil + scie comme armes, et demande les **3 pièces à conviction** | téléphone / Sonos |
-| **4. Collecte + accusation** | Les 3 objets (scie, fusil, pot d'épices) portent une **étiquette-code**. Les joueurs les tapent sur le **terminal CCTV** : crochet vert, compteur « 2 / 3 ». À 3/3, le **dossier confidentiel** se déverrouille et ils y **désignent le coupable à l'écran**. Chemin de secours : dire « inspecteur » au téléphone, ou cliquer le bouton de l'étagère à vins | `input_text.mystery_code_input`, `input_boolean.mystery_evidence_*`, `input_select.mystery_accusation_choice` |
+| **4. Collecte + accusation** | Les 3 objets (scie, fusil, pot d'épices) portent une **étiquette-code**. Les joueurs les tapent sur le **terminal CCTV** : crochet vert, compteur « 2 / 3 ». À 3/3, le **dossier confidentiel** se déverrouille et ils y **désignent le coupable à l'écran**. C'est le **seul** chemin d'accusation | `input_text.mystery_code_input`, `input_boolean.mystery_evidence_*`, `input_select.mystery_accusation_choice` |
 | **5. Dénouement** | Bon coupable → **final cinéma au théâtre** : les 3 toiles tombent **l'une après l'autre** comme un rideau, noir, puis la **lumière rouge monte** et la musique part sur la **TV du théâtre**, avec les lampes en alternance de couleurs. ⏸️ En attendant `Final Reveal.mp4`, c'est un rickroll. Mauvais → l'inspecteur recadre, retour en `autopsy_done`, on retente | volets théâtre, `light.theatre`, `light.metal_lamp`, `media_player.theatre_tv` |
+
+> 🎙️ **Trois canaux pour une seule voix.** `script.mystery_inspector_say` sait
+> parler à trois endroits, avec la même voix `HenriNeural` :
+>
+> - **Sonos** (`on_sonos:`) — tout le groupe entend en même temps. C'est là que
+>   passe le briefing : au téléphone, une seule personne tient le combiné et les
+>   autres n'entendaient rien, ce qui rendait l'intro confuse au premier test.
+> - **Téléphone** (par défaut) — pour l'appel qui envoie les joueurs quelque
+>   part, et pour les indices, qu'on lui demande justement au combiné.
+> - **Terminal du bureau** (`on_terminal:`) — pour tout ce qui suit une action à
+>   l'écran, comme le dénouement : les joueurs sont au sous-sol devant le PC, le
+>   téléphone est resté au salon. Home Assistant émet l'événement
+>   `mystery_terminal_say` (un `input_text` plafonne à 255 caractères, trop
+>   court) ; la carte **affiche le texte** et joue le TTS elle-même, de sorte
+>   qu'un blocage d'autoplay ne fasse pas perdre le message.
 
 ## Terrain de jeu (pièces en jeu)
 
@@ -205,15 +213,15 @@ fois.
   joual bien sacrant, le Jardinier en langage de rue, le Majordome dans un
   français guindé. C'est ce qui distingue les personnages autant que les voix.
 - Les **triggers** : `state` (capteurs portes/vibration), `device` (bouton
-  Zigbee), `conversation` (mot « inspecteur » pour lancer l'accusation).
+  Zigbee), `conversation` (mot « indice » seulement).
 - **Entrée du joueur** : le premier test live a montré que la reconnaissance
   vocale du téléphone est trop peu fiable pour porter des moments décisifs. Le
   **terminal CCTV du bureau** (dashboard HA plein écran, brief dans
   `cctv-terminal-prompt.md`) devient donc le poste de commande : on y regarde
   les enregistrements, on y tape les **codes des 3 pièces à conviction**, et
   c'est là qu'on **désigne le coupable**. Le téléphone garde la voix de
-  l'inspecteur (sortante, fiable) et deux chemins de secours seulement : dire
-  « indice », dire « inspecteur ». Voir [[project_two_escape_rooms]].
+  l'inspecteur (sortante, fiable) et un seul mot en entrée : « indice ». Voir
+  [[project_two_escape_rooms]].
 - **Gate de fin** : les 3 codes de preuve, pas les 3 témoignages. Trouver les
   objets est ce qui ouvre le dossier confidentiel.
 - `input_select.mystery_phase` pilote les phases ; les 3 `input_boolean` suivent
@@ -236,8 +244,9 @@ fois.
 2. **Majordome** = bouton Zigbee « cliquer pour service » (étagère à vins) +
    porte-patio (départ, doublé des **marmonnements du Jardinier** dans l'atelier
    pour révéler où il se trouve) + tiroir couteaux (fausse piste).
-3. **Accusation** = sur le **terminal CCTV**, après les 3 codes de preuve.
-   Secours : dire « inspecteur », ou cliquer le bouton de l'étagère à vins.
+3. **Accusation** = sur le **terminal CCTV**, après les 3 codes de preuve, et
+   nulle part ailleurs. Le bouton de l'étagère à vins ne sert plus qu'au
+   Majordome.
 4. **Final gagnant** = les 3 toiles tombent en cascade, noir, montée de rouge,
    puis musique sur la **TV du théâtre** + alternance de couleurs.
 5. **Roby** a **deux parcours** : vers le vin quand on interroge l'**Héritière**
