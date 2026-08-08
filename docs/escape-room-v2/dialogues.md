@@ -155,7 +155,23 @@ Heille ! Fouillez pas dans mon linge sale, vous autres ! Ma robe de soirée est 
 Si vous cherchez de quoi avancer, c'est pas moi qu'il faut regarder. Moi, j'irais fouiller l'étagère à vins — il doit bien se cacher quelque chose là-dedans. Tenez, je pars mon robot, il s'en va justement par là. Suivez-le.
 ```
 
-**T22** — Les fois suivantes, quel que soit le déclencheur.
+**T22** — Les fois suivantes. Le texte dépend de laquelle de ses 2 cachettes a
+déjà été trouvée (indépendamment de qui a fourni le tout premier témoignage) :
+retrouver l'autre après coup fait passer T22a/T22b à T22c.
+
+**T22a** — Seule la trappe du fusil a été trouvée.
+
+```
+Heille, tabarnak, lâchez mes affaires tranquilles ! Le fusil, ça prouve rien pantoute, je vous le jure. Pis arrêtez de me niaiser avec ça : mon robot est déjà parti vous montrer où chercher. J'lai vu le Majordome, y'avait un sac à vin contenant sa meilleur bouteille, y'a clairement laisser des traces de son passage dans le sac !
+```
+
+**T22b** — Seule la robe a été trouvée.
+
+```
+Heille, tabarnak, lâchez mes affaires tranquilles ! Ma robe, c'est rien que du vin renversé, je vous le jure. Pis arrêtez de me niaiser avec ça : mon robot est déjà parti vous montrer où chercher. J'lai vu le Majordome, y'avait un sac à vin contenant sa meilleur bouteille, y'a clairement laisser des traces de son passage dans le sac !
+```
+
+**T22c** — Les deux ont été trouvées.
 
 ```
 Heille, tabarnak, lâchez mes affaires tranquilles ! Ni le fusil ni ma robe ont rapport là-dedans, je vous le jure. Pis arrêtez de me niaiser avec ça : mon robot est déjà parti vous montrer où chercher. J'lai vu le Majordome, y'avait un sac à vin contenant sa meilleur bouteille, y'a clairement laisser des traces de son passage dans le sac !

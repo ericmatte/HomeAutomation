@@ -636,6 +636,8 @@ mystery_reset_state:
           - input_boolean.mystery_gardener_done
           - input_boolean.mystery_heiress_done
           - input_boolean.mystery_butler_done
+          - input_boolean.mystery_heiress_gun_seen
+          - input_boolean.mystery_heiress_dress_seen
           - input_boolean.mystery_evidence_saw
           - input_boolean.mystery_evidence_gun
           - input_boolean.mystery_evidence_poison
@@ -1079,6 +1081,17 @@ mystery_suspect_speak:
       {{ {'gardener': 'input_boolean.mystery_gardener_done',
           'heiress': 'input_boolean.mystery_heiress_done',
           'butler': 'input_boolean.mystery_butler_done'}[suspect] }}
+    is_testimony: "{{ not custom_line }}"
+    # L'Héritière a 2 déclencheurs indépendants (trappe du fusil, porte de la
+    # buanderie) : sa réplique de répétition doit savoir lequel a déjà été vu,
+    # même si l'autre a fourni le tout premier témoignage (done_flag ne dit
+    # que « je lui ai déjà parlé », pas « par quelle porte »).
+    heiress_gun_seen: >-
+      {{ is_state('input_boolean.mystery_heiress_gun_seen', 'on')
+         or (suspect == 'heiress' and is_testimony and variant != 'laundry') }}
+    heiress_dress_seen: >-
+      {{ is_state('input_boolean.mystery_heiress_dress_seen', 'on')
+         or (suspect == 'heiress' and is_testimony and variant == 'laundry') }}
     # L'Héritière n'a pas de lampe à elle : les deux du salon appartiennent à la
     # boucle d'ambiance, qui les repeindrait 8 s plus tard. Elle parle sur le
     # Sonos, au milieu de cette ambiance — le repère de pièce est déjà là.
@@ -1127,11 +1140,25 @@ mystery_suspect_speak:
       J'te l'ai déjà dit. J'étais dans l'atelier toute la soirée. Cherche
       ailleurs. Va voir le soulon de Majordome et sa bouteille de vin.
       {% elif suspect == 'heiress' %}
+      {% if heiress_gun_seen and heiress_dress_seen %}
       Heille, tabarnak, lâchez mes affaires tranquilles ! Ni le fusil ni ma
       robe ont rapport là-dedans, je vous le jure. Pis arrêtez de me niaiser
       avec ça : mon robot est déjà parti vous montrer où chercher. J'lai vu le
       Majordome, y'avait un sac à vin contenant sa meilleur bouteille, y'a
       clairement laisser des traces de son passage dans le sac !
+      {% elif heiress_gun_seen %}
+      Heille, tabarnak, lâchez mes affaires tranquilles ! Le fusil, ça prouve
+      rien pantoute, je vous le jure. Pis arrêtez de me niaiser avec ça : mon
+      robot est déjà parti vous montrer où chercher. J'lai vu le Majordome,
+      y'avait un sac à vin contenant sa meilleur bouteille, y'a clairement
+      laisser des traces de son passage dans le sac !
+      {% else %}
+      Heille, tabarnak, lâchez mes affaires tranquilles ! Ma robe, c'est rien
+      que du vin renversé, je vous le jure. Pis arrêtez de me niaiser avec ça :
+      mon robot est déjà parti vous montrer où chercher. J'lai vu le
+      Majordome, y'avait un sac à vin contenant sa meilleur bouteille, y'a
+      clairement laisser des traces de son passage dans le sac !
+      {% endif %}
       {% else %}
       Le service, toujours le service. Le vin était... parfait. Enfin,
       presque. Je n'ai rien vu de suspect de mon côté. Aller donc voir
@@ -1139,7 +1166,6 @@ mystery_suspect_speak:
       voulez mon avis, le Jardinier est un peu louche lui aussi. Il traîne
       toujours dans son atelier, à bricoler.
       {% endif %}
-    is_testimony: "{{ not custom_line }}"
     line: >-
       {{ custom_line if custom_line
          else (first_line if is_state(done_flag, 'off') else repeat_line) }}
@@ -1189,6 +1215,16 @@ mystery_suspect_speak:
             message: "{{ line }}"
             options:
               voice: "{{ voice }}"
+    # Le drapeau « vu » de la porte concernée bascule à chaque témoignage de
+    # l'Héritière, pas seulement au premier : c'est lui qui permet à
+    # repeat_line de savoir si l'autre porte a aussi été ouverte depuis.
+    - if: "{{ suspect == 'heiress' and is_testimony }}"
+      then:
+        - action: input_boolean.turn_on
+          target:
+            entity_id: >-
+              {{ 'input_boolean.mystery_heiress_dress_seen' if variant == 'laundry'
+                 else 'input_boolean.mystery_heiress_gun_seen' }}
     # Les répliques ponctuelles (patio, tiroir) empruntent la voix d'un suspect
     # sans être un témoignage : ni drapeau, ni robot.
     - if: "{{ is_testimony and is_state(done_flag, 'off') }}"

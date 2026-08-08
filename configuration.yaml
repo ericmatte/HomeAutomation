@@ -214,6 +214,14 @@ input_boolean:
   mystery_heiress_done:
     name: Mystery Heiress Done
     icon: mdi:account-question
+  # Suivent laquelle des 2 portes de l'Héritière a déjà été ouverte, pour que
+  # sa réplique de répétition sache si l'autre reste à découvrir.
+  mystery_heiress_gun_seen:
+    name: Mystery Heiress Gun Seen
+    icon: mdi:pistol
+  mystery_heiress_dress_seen:
+    name: Mystery Heiress Dress Seen
+    icon: mdi:tshirt-crew
   mystery_butler_done:
     name: Mystery Butler Done
     icon: mdi:account-question
