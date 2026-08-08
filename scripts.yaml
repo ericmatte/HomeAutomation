@@ -157,6 +157,10 @@ escape_room:
           step: 1
       default: 0
   sequence:
+  - action: homeassistant.reload_config_entry
+    data:
+      entry_id: 01KER0F189EWYCFNSKCFX1G46P  # Voice over IP (téléphone HT801V2)
+    continue_on_error: true
   - alias: Voix du téléphone pour la v1
     action: select.select_option
     target:
@@ -452,6 +456,10 @@ rgb_color_loop:
       - delay: '{{ delay }}'
 reset_after_escape_roome:
   sequence:
+  - action: homeassistant.reload_config_entry
+    data:
+      entry_id: 01KER0F189EWYCFNSKCFX1G46P  # Voice over IP (téléphone HT801V2)
+    continue_on_error: true
   - action: media_player.media_stop
     metadata: {}
     target:
@@ -880,6 +888,10 @@ mystery_start:
         number: { min: 0, max: 300, step: 1 }
       default: 0
   sequence:
+    - action: homeassistant.reload_config_entry
+      data:
+        entry_id: 01KER0F189EWYCFNSKCFX1G46P  # Voice over IP (téléphone HT801V2)
+      continue_on_error: true
     - action: input_boolean.turn_on
       target: { entity_id: input_boolean.escape_v2_active }
     # Une partie repart toujours d'un état propre, même si le reset de la
