@@ -1057,6 +1057,20 @@ mystery_start:
       data:
         media_content_type: audio/mpeg
         media_content_id: "media-source://media_source/local/Police Radio Chatter.mp3"
+    # Les gyrophares continuent de tourner pendant le brouhaha : les policiers
+    # sont toujours là, pas juste le temps de la sirène. 6 cycles au même
+    # rythme que la phase précédente (9 cycles / 19 s), mis à l'échelle des
+    # 12 s du chatter.
+    - action: script.turn_on
+      target: { entity_id: script.mystery_flash_alternate }
+      data:
+        variables:
+          light_a: light.left_floor_lamp
+          light_b: light.right_floor_lamp
+          color_a: [0, 0, 255]
+          color_b: [255, 0, 0]
+          cycles: 6
+          interval: 0.3
     - delay: { seconds: 12 }
     # On coupe net : l'inspecteur prend la parole par-dessus ses hommes.
     - action: media_player.media_stop
@@ -1081,11 +1095,11 @@ mystery_start:
           trahissent dès qu'on touche à leurs affaires. Bon. Il faut que j'y
           aille, j'ai un autre appel.
     # Il repart. La voiture s'éloigne, puis on laisse le silence retomber.
-    # Retour au niveau du brouhaha : l'inspecteur avait monté le Sonos pour
-    # porter dans la pièce.
+    # Doublé (0.4 → 0.8) pour bien porter par-dessus le silence qui vient de
+    # retomber après le brouhaha.
     - action: media_player.volume_set
       target: { entity_id: media_player.sonos }
-      data: { volume_level: 0.4 }
+      data: { volume_level: 0.8 }
     - action: media_player.play_media
       target: { entity_id: media_player.sonos }
       data:
@@ -1093,6 +1107,11 @@ mystery_start:
         media_content_id: "media-source://media_source/local/Car Drive Away.mp3"
     - delay: { seconds: 12 }
     - delay: { seconds: 8 }
+    # Retour au niveau du brouhaha maintenant que la voiture est partie :
+    # le Sonos ne doit pas rester au niveau monté pour la scène.
+    - action: media_player.volume_set
+      target: { entity_id: media_player.sonos }
+      data: { volume_level: 0.4 }
     # --- PHASE 1b : il rappelle au téléphone pour ce qu'il a oublié ---
     # Une seule information, celle qui envoie les joueurs quelque part.
     # Pas de sonnerie à jouer : le téléphone sonne déjà de lui-même.
