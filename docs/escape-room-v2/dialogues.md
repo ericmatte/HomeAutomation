@@ -20,7 +20,7 @@ entend) · 🖥️ terminal du bureau (sous-sol, texte affiché **et** voix).
 salutation saute et il enchaîne directement.)*
 
 ```
-Bonsoir. Inspecteur Henri-Onésime de Beauchamp-Latulippe. Ah ! Vous devez être {nom}. Enchanté de faire votre connaissance. Un meurtre a eu lieu ici ce soir, et cette maison a tout enregistré. Je vous nomme détectives. Trouvez-moi le coupable parmi trois suspects : le Jardinier, l'Héritière et le Majordome. Fouillez partout — ces trois-là se trahissent dès qu'on touche à leurs affaires. Bon. Il faut que j'y aille, j'ai un autre appel.
+Bonsoir. Inspecteur Henri-Onésime de Beauchamp-Latulippe. Vous devez être {nom}. Enchanté de faire votre connaissance. Un meurtre a eu lieu ici ce soir, et cette maison a tout enregistré. Je vous nomme détectives. Trouvez-moi le coupable parmi trois suspects : le Jardinier, l'Héritière et le Majordome. Fouillez partout — ces trois-là se trahissent dès qu'on touche à leurs affaires. Bon. Il faut que j'y aille, j'ai un autre appel.
 ```
 
 **T2** 📞 — 5 secondes après son départ.
@@ -56,10 +56,10 @@ Non. Ça ne colle pas, détective. Et c'est Beauchamp-Latulippe. Reprenez le vin
 Sur demande (« indice » au téléphone) ou de lui-même après 6 minutes sans
 progrès. Il choisit selon l'avancement.
 
-**T7** 📞 — Il manque des témoignages. *(`{qui}` = « le Jardinier », ou « le Jardinier et l'Héritière »…)*
+**T7** 📞 — Il manque des témoignages. *(`{qui}` = « du Jardinier », ou « du Jardinier et de l'Héritière »…)*
 
 ```
-Il me manque encore le témoignage de {qui}. Repassez donc par les caméras du bureau, elles en disent plus long que moi.
+Il me manque encore le témoignage {qui}. Repassez donc par les caméras du bureau, elles en disent plus long que moi.
 ```
 
 **T8** 📞 — Les 3 témoignages sont pris, l'autopsie n'est pas encore arrivée.
@@ -71,7 +71,7 @@ Vous avez les trois témoignages. Ne bougez pas, je vous rappelle.
 **T9** 📞 — Il manque des pièces à conviction. *(`{n}` = 0, 1 ou 2 · `{qui}` = les suspects concernés)*
 
 ```
-{n} pièce(s) à conviction sur trois. Il me manque celle de {qui}. Les caméras du bureau montrent chacun avec son arme — regardez-les encore, vous saurez quoi chercher.
+{n} pièce(s) à conviction sur trois. Il me manque celle {qui}. Les caméras du bureau montrent chacun avec son arme — regardez-les encore, vous saurez quoi chercher.
 ```
 
 **T10** 📞 — Les 3 pièces sont au dossier.

@@ -780,6 +780,13 @@ mystery_ambience:
           - light.kitchen_lights
       data: { brightness_pct: 6, transition: 3 }
       continue_on_error: true
+    # La lampe d'appoint du bureau scintille : le poste de sécurité vit, au
+    # lieu d'être un simple coin allumé. Aucune couleur ni luminosité ici —
+    # les envoyer avec l'effet le fait retomber aussitôt.
+    - action: light.turn_on
+      target: { entity_id: light.auxiliary_lamp }
+      data: { effect: glisten }
+      continue_on_error: true
     # Les lampes du salon « respirent » entre deux teintes sombres tant que
     # l'enquête dure. La boucle s'arrête d'elle-même au dénouement : sa
     # condition suit directement la machine à états. Le plafond de cycles est le
@@ -795,11 +802,11 @@ mystery_ambience:
         sequence:
           - action: light.turn_on
             target: { entity_id: [light.left_floor_lamp, light.right_floor_lamp] }
-            data: { rgb_color: [90, 0, 130], brightness_pct: 25, transition: 6 }
+            data: { rgb_color: [90, 0, 130], brightness_pct: 35, transition: 6 }
           - delay: { seconds: 8 }
           - action: light.turn_on
             target: { entity_id: [light.left_floor_lamp, light.right_floor_lamp] }
-            data: { rgb_color: [130, 25, 10], brightness_pct: 12, transition: 6 }
+            data: { rgb_color: [130, 25, 10], brightness_pct: 8, transition: 6 }
           - delay: { seconds: 8 }
 
 mystery_roby_goto:
@@ -975,7 +982,7 @@ mystery_start:
         on_sonos: true
         message: >-
           Bonsoir. Inspecteur Henri-Onésime de Beauchamp-Latulippe.
-          {% if player_name %}Ah ! Vous devez être {{ player_name }}. Enchanté
+          {% if player_name %}Vous devez être {{ player_name }}. Enchanté
           de faire votre connaissance.{% endif %} Un meurtre a eu lieu ici ce
           soir, et cette maison a tout enregistré. Je vous nomme détectives.
           Trouvez-moi le coupable parmi trois suspects : le Jardinier,
@@ -1016,22 +1023,13 @@ mystery_start:
     # trouvent le terminal et les premiers indices. Elle se déroule après la
     # musique, sinon les joueurs la regardent dans le silence.
     # Le plafonnier du bureau (light.office) reste éteint : c'est la lampe
-    # d'appoint qui balise la pièce, et l'écran du terminal fait le reste.
+    # d'appoint, allumée en « glisten » par l'ambiance, qui balise la pièce,
+    # et l'écran du terminal fait le reste.
     - action: script.mystery_guide_path
       data:
         lights:
-          - light.hallway_lights
+          - light.chandelier
           - light.downstairs_hallway_light
-          - light.auxiliary_lamp
-    # Effet « glisten » sur la lampe du bureau : le poste de sécurité scintille
-    # au lieu d'être un simple coin allumé.
-    - action: light.turn_on
-      target: { entity_id: light.auxiliary_lamp }
-      data:
-        effect: glisten
-        color_temp_kelvin: 2800
-        brightness_pct: 45
-      continue_on_error: true
 
 mystery_suspect_speak:
   alias: "Mystery - Suspect speaks"
@@ -1245,29 +1243,31 @@ mystery_hint:
   # exact revenait à jouer la partie à leur place. La relance, c'est toujours
   # « retournez voir les caméras » — c'est là que se trouve la vraie piste.
   variables:
-    # « le Jardinier, l'Héritière et le Majordome », avec le « et » final.
+    # « du Jardinier, de l'Héritière et du Majordome », avec le « et » final.
+    # Les deux listes s'emploient toujours après « de » : la contraction est
+    # déjà dans les libellés, sinon l'inspecteur dit « de le Jardinier ».
     pending_testimony: >-
       {% set ns = namespace(who=[]) %}
       {% if is_state('input_boolean.mystery_gardener_done', 'off') %}
-        {% set ns.who = ns.who + ['le Jardinier'] %}
+        {% set ns.who = ns.who + ['du Jardinier'] %}
       {% endif %}
       {% if is_state('input_boolean.mystery_heiress_done', 'off') %}
-        {% set ns.who = ns.who + ["l'Héritière"] %}
+        {% set ns.who = ns.who + ["de l'Héritière"] %}
       {% endif %}
       {% if is_state('input_boolean.mystery_butler_done', 'off') %}
-        {% set ns.who = ns.who + ['le Majordome'] %}
+        {% set ns.who = ns.who + ['du Majordome'] %}
       {% endif %}
       {% if ns.who %}{{ ns.who[:-1] | join(', ') }}{{ ' et ' if ns.who | count > 1 }}{{ ns.who | last }}{% endif %}
     pending_evidence: >-
       {% set ns = namespace(who=[]) %}
       {% if is_state('input_boolean.mystery_evidence_saw', 'off') %}
-        {% set ns.who = ns.who + ['le Jardinier'] %}
+        {% set ns.who = ns.who + ['du Jardinier'] %}
       {% endif %}
       {% if is_state('input_boolean.mystery_evidence_gun', 'off') %}
-        {% set ns.who = ns.who + ["l'Héritière"] %}
+        {% set ns.who = ns.who + ["de l'Héritière"] %}
       {% endif %}
       {% if is_state('input_boolean.mystery_evidence_poison', 'off') %}
-        {% set ns.who = ns.who + ['le Majordome'] %}
+        {% set ns.who = ns.who + ['du Majordome'] %}
       {% endif %}
       {% if ns.who %}{{ ns.who[:-1] | join(', ') }}{{ ' et ' if ns.who | count > 1 }}{{ ns.who | last }}{% endif %}
     # Les 3 objets étiquetés d'un code, à enregistrer au terminal du bureau :
@@ -1280,14 +1280,14 @@ mystery_hint:
     hint: >-
       {% set phase = states('input_select.mystery_phase') %}
       {% if phase == 'investigation' and pending_testimony | trim %}
-      Il me manque encore le témoignage de {{ pending_testimony | trim }}.
+      Il me manque encore le témoignage {{ pending_testimony | trim }}.
       Repassez donc par les caméras du bureau, elles en disent plus long que
       moi.
       {% elif phase == 'investigation' %}
       Vous avez les trois témoignages. Ne bougez pas, je vous rappelle.
       {% elif phase == 'autopsy_done' and evidence_found | int < 3 %}
       {{ evidence_found }} pièce{{ 's' if evidence_found | int > 1 else '' }} à
-      conviction sur trois. Il me manque celle de
+      conviction sur trois. Il me manque celle
       {{ pending_evidence | trim }}. Les caméras du bureau montrent chacun avec
       son arme — regardez-les encore, vous saurez quoi chercher.
       {% elif phase == 'autopsy_done' %}
