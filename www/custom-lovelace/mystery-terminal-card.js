@@ -53,7 +53,9 @@ export const JOURNAL_DOMAINS = [
 // Les entités du jeu lui-même dévoileraient la mécanique aux joueurs.
 export const JOURNAL_EXCLUDE = ["mystery"];
 
-export const JOURNAL_LINES = 7;
+// Assez de lignes pour remplir le bloc quelle que soit la hauteur de l'écran :
+// le surplus est simplement rogné, et le dégradé du bas rend la coupe propre.
+export const JOURNAL_LINES = 20;
 
 // [ état « on », état « off » ] par device_class de binary_sensor.
 const BINARY_LABELS = {
@@ -354,17 +356,18 @@ section.col{display:flex; flex-direction:column; gap:calc(10*var(--px)); min-hei
 .bar{height:calc(6*var(--px)); border:calc(1*var(--px)) solid var(--amber-deep); position:relative;}
 .bar i{position:absolute; inset:calc(1*var(--px)); width:var(--w,50%); background:var(--amber);}
 .bar.warn i{background:var(--red);}
-.faults{flex:none; border:calc(1*var(--px)) solid #2a1a08; background:#0a0603; padding:calc(8*var(--px)) calc(10*var(--px));}
-.faults .ft{font-size:calc(13*var(--px)); letter-spacing:calc(2*var(--px)); color:#7a4a10; margin-bottom:calc(5*var(--px));}
-.faults .fr{display:flex; justify-content:space-between; font-size:calc(14*var(--px)); color:#8a5a1a;
-  letter-spacing:calc(1*var(--px)); white-space:nowrap; line-height:1.55;}
-.faults .fr b{color:#b06a1a; font-weight:400;}
-.feed{flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; gap:calc(4*var(--px));}
-.feed .fh{font-size:calc(13*var(--px)); letter-spacing:calc(2*var(--px)); color:var(--amber-dim); flex:none;}
-.feed .fbody{min-height:0; overflow:hidden;}
+/* Le journal occupe tout ce que les jauges laissent : c'est lui qui donne au
+   mur son impression de bâtiment vivant, donc autant d'historique que l'écran
+   peut en tenir. Le dégradé du bas fait passer la coupe pour une atténuation. */
+.feed{flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; gap:calc(6*var(--px));}
+.feed .fh{font-size:calc(13*var(--px)); letter-spacing:calc(2*var(--px)); color:var(--amber-dim); flex:none;
+  border-bottom:calc(1*var(--px)) solid var(--line); padding-bottom:calc(6*var(--px));}
+.feed .fbody{min-height:0; overflow:hidden;
+  -webkit-mask-image:linear-gradient(to bottom, #000 72%, rgba(0,0,0,.15) 100%);
+  mask-image:linear-gradient(to bottom, #000 72%, rgba(0,0,0,.15) 100%);}
 .feed .fl{font-size:calc(15*var(--px)); letter-spacing:calc(1*var(--px)); color:var(--amber); white-space:nowrap;
-  overflow:hidden; text-overflow:ellipsis; opacity:.85; animation:fadein .4s;}
-.feed .fl:nth-child(n+5){opacity:.4;}
+  overflow:hidden; text-overflow:ellipsis; opacity:.82; line-height:1.6; animation:fadein .4s;}
+.feed .fl:first-child{opacity:1;}
 .feed .fq{font-size:calc(15*var(--px)); letter-spacing:calc(2*var(--px)); color:var(--amber-deep);}
 @keyframes fadein{from{opacity:0; transform:translateX(calc(-10*var(--px)))}}
 .info .foot{flex:none; border-top:calc(1*var(--px)) solid var(--line); padding-top:calc(8*var(--px));
@@ -583,13 +586,6 @@ const HTML_CCTV = (cells) => `
           <div class="v" id="lat">248 ms</div>
           <div class="bar"><i style="--w:58%"></i></div>
         </div>
-      </div>
-      <div class="faults">
-        <div class="ft">CANAUX HORS SERVICE — 4</div>
-        <div class="fr"><span>CAM 04 · CUISINE</span><b>SIGNAL PERDU</b></div>
-        <div class="fr"><span>CAM 05 · COULOIR ÉTAGE</span><b>OBJECTIF OBSTRUÉ</b></div>
-        <div class="fr"><span>CAM 06 · CHAMBRE PRINCIPALE</span><b>CÂBLE SECTIONNÉ</b></div>
-        <div class="fr"><span>CAM 08 · GRENIER</span><b>NON INSTALLÉE</b></div>
       </div>
       <div class="feed">
         <div class="fh">JOURNAL CAPTEURS — MANOIR</div>

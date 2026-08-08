@@ -79,9 +79,10 @@ views:
             room: SALLE À MANGER
             weapon: POISON
 
-        # Journal des capteurs du mur d'images. Il montre les VRAIS changements
-        # d'état de la maison, rien n'est inventé — donc il peut rester figé
-        # plusieurs minutes si personne ne bouge à l'étage.
+        # Journal des capteurs du mur d'images — il occupe toute la hauteur du
+        # bloc d'information. Il montre les VRAIS changements d'état de la
+        # maison, rien n'est inventé : il peut donc rester figé plusieurs
+        # minutes si personne ne bouge à l'étage.
         # Les valeurs par défaut suffisent ; décommenter pour ajuster.
         #   domains : remplace la liste par défaut (binary_sensor, light,
         #             switch, lock, cover, fan, media_player, climate, person,
@@ -89,8 +90,10 @@ views:
         #             les valeurs numériques changent en continu.
         #   exclude : sous-chaînes d'entity_id à taire, en plus de « mystery »
         #             (les entités du jeu sont toujours masquées).
+        #   lines   : nombre de lignes gardées en mémoire (20 par défaut). Le
+        #             surplus qui ne tient pas à l'écran est simplement rogné.
         # journal:
-        #   lines: 7
+        #   lines: 20
         #   exclude:
         #     - imprimante
         #     - device_tracker.telephone_eric

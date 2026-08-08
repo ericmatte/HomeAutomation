@@ -29,6 +29,7 @@ const {
   journalSeed,
   escapeHtml,
   JOURNAL_DOMAINS,
+  JOURNAL_LINES,
 } = await import("../www/custom-lovelace/mystery-terminal-card.js");
 
 const state = (s, extra) => Object.assign({ state: s, attributes: {} }, extra);
@@ -187,12 +188,18 @@ test("amorce le journal avec les derniers changements réels, du plus récent au
 
 test("tronque l'amorçage au nombre de lignes demandé", () => {
   const states = {};
-  for (let i = 0; i < 20; i++) {
-    states[`light.l${i}`] = state("on", { last_changed: `2026-08-07T${String(i).padStart(2, "0")}:00:00.000Z` });
+  for (let i = 0; i < 40; i++) {
+    states[`light.l${i}`] = state("on", { last_changed: `2026-08-07T12:${String(i).padStart(2, "0")}:00.000Z` });
   }
   assert.equal(journalSeed({ states }, 4).length, 4);
-  assert.equal(journalSeed({ states }).length, 7);
+  assert.equal(journalSeed({ states }).length, JOURNAL_LINES);
   assert.equal(journalSeed({}, 5).length, 0);
+});
+
+test("garde assez d'historique pour remplir le bloc du mur d'images", () => {
+  // Le journal occupe désormais toute la hauteur laissée par les jauges : en
+  // deçà d'une dizaine de lignes, le bas du bloc resterait vide.
+  assert.ok(JOURNAL_LINES >= 15, `JOURNAL_LINES=${JOURNAL_LINES} est trop court`);
 });
 
 /* ─────────────────────────── affichage ─────────────────────────── */
