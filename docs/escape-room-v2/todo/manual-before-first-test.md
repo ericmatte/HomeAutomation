@@ -98,19 +98,43 @@ Le PC du bureau n'est plus un simple lecteur de vidéos : c'est **le poste de
 commande du jeu**, et il remplace la plupart des interactions au téléphone (la
 reconnaissance vocale s'est révélée trop peu fiable au premier test).
 
-- [ ] **Générer le dashboard** à partir du brief
-      [`../cctv-terminal-prompt.md`](../cctv-terminal-prompt.md) (à envoyer à
-      Claude Design), puis le coller dans Home Assistant.
-- [ ] L'ouvrir **en plein écran** sur l'écran du bureau (mode kiosque).
-- [ ] Uploader les **3 .mp4** de surveillance dans le media source de HA
-      (1 par suspect, flous/mystérieux, chacun le montrant avec son arme
-      potentielle) et brancher leurs chemins dans le dashboard.
+- [x] **Dashboard généré et intégré au dépôt** (à partir du brief
+      [`../cctv-terminal-prompt.md`](../cctv-terminal-prompt.md)) :
+      - carte : `www/custom-lovelace/mystery-terminal-card.js`
+      - ressource : déjà déclarée dans `.storage/lovelace_resources`
+        (`/local/custom-lovelace/mystery-terminal-card.js?v=1`, type module)
+      - vue : `dashboards/mystery-terminal.yaml`, déclarée en mode YAML dans
+        `configuration.yaml` → apparaît dans la barre latérale sous
+        **Terminal CCTV** (`/mystery-terminal`)
+      - **aucune ressource HACS requise** : tout le rendu est dans la carte.
+- [ ] **Déposer les 3 .mp4** dans `www/mystery/` avec ces noms exacts (le
+      dossier est gitignoré, les vidéos ne partent pas dans le dépôt) :
+      `cam01_jardinier.mp4`, `cam02_heritiere.mp4`, `cam03_majordome.mp4`.
+      Encodage **H.264 / AAC en conteneur MP4**, sinon le navigateur refuse de
+      les lire.
+- [ ] Ouvrir `/mystery-terminal` **en plein écran** (F11) sur l'écran du
+      bureau, et **désactiver la veille écran** — une session dure 45 min sans
+      que personne ne touche au clavier.
+- [ ] Après toute modification du `.js`, incrémenter le `?v=` de la ressource
+      puis Ctrl+Maj+R sur le kiosque (cache du navigateur).
 - [x] ~~Hacker simulator + dossier Explorateur~~ — remplacés par le dashboard.
 
-Ce que le terminal doit permettre : regarder les 3 enregistrements, taper les
-codes des pièces à conviction (crochet vert + compteur « 2 / 3 »), et une fois
-à 3/3, ouvrir le **dossier confidentiel** pour y désigner le coupable. Toute la
-logique reste dans HA — le dashboard ne fait qu'écrire dans les helpers.
+Ce que fait le terminal : regarder les 3 enregistrements, taper les codes des
+pièces à conviction (crochet vert + compteur « 2 / 3 »), et à 3/3 ouvrir le
+**dossier confidentiel** pour y désigner le coupable. Chaque clic déclenche un
+bip de terminal, synthétisé dans le navigateur — `sound: false` dans le YAML
+de la vue coupe tout, `volume:` règle le niveau.
+
+Toute la logique reste dans HA : le dashboard écrit uniquement dans
+`input_text.mystery_code_input` et `input_select.mystery_accusation_choice`,
+et ne valide aucun code lui-même.
+
+> ⚠️ **Ordre imposé côté automation** : `Mystery - Evidence code entered`
+> allume le booléen de preuve **avant** de vider `mystery_code_input`. Le
+> terminal déduit la réussite en comparant son compteur à l'instant où le champ
+> repasse à vide — l'ordre inverse afficherait « CODE INVALIDE » sur un bon
+> code. Le champ est vidé dans tous les cas, sinon l'échec n'apparaît qu'après
+> un timeout de 6 s.
 
 ## 🎵 5. Fichiers médias à uploader dans HA
 

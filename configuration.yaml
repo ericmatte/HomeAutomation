@@ -234,6 +234,20 @@ input_boolean:
     name: Escape v2 Active
     icon: mdi:incognito
 
+# Le terminal CCTV de l'escape room v2 est en mode YAML plutôt que dans
+# .storage : c'est un écran de jeu versionné, pas un tableau de bord qu'on
+# retouche à la souris. `mode: storage` garde tous les autres tels quels.
+lovelace:
+  mode: storage
+  dashboards:
+    mystery-terminal:
+      mode: yaml
+      title: Terminal CCTV
+      icon: mdi:cctv
+      show_in_sidebar: true
+      require_admin: false
+      filename: dashboards/mystery-terminal.yaml
+
 automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml

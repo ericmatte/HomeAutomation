@@ -2956,15 +2956,23 @@
           "9201": input_boolean.mystery_evidence_gun
           "1012": input_boolean.mystery_evidence_poison
         matched: "{{ codes.get(trigger.to_state.state | trim, '') }}"
-    # Le champ se vide tout de suite : le pavé est prêt pour le code suivant, et
-    # la remise à zéro ne redéclenche rien (la condition exige un code non vide).
+    # ⚠️ Ordre critique : le booléen bascule AVANT la remise à vide. Le terminal
+    # déduit la réussite en comparant son compteur de preuves à l'instant où le
+    # champ repasse à vide — l'ordre inverse afficherait « CODE INVALIDE » sur
+    # un bon code.
+    - if: "{{ matched }}"
+      then:
+        - action: input_boolean.turn_on
+          target: { entity_id: "{{ matched }}" }
+    # Le champ se vide dans tous les cas, bon code ou mauvais : c'est ce qui
+    # rend la main au pavé et déclenche le retour visuel du terminal. Sans ça,
+    # l'échec n'apparaît qu'après son timeout de 6 s. La remise à vide ne
+    # redéclenche rien (la condition exige un code non vide).
     - action: input_text.set_value
       target: { entity_id: input_text.mystery_code_input }
       data: { value: "" }
     - condition: template
       value_template: "{{ matched }}"
-    - action: input_boolean.turn_on
-      target: { entity_id: "{{ matched }}" }
     - if:
         - condition: state
           entity_id:

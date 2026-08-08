@@ -72,3 +72,5 @@ image/
 *.pyc
 
 .ha_mcp
+# Vidéos CCTV de l'escape room v2 (non versionnées)
+/www/mystery/

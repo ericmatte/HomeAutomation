@@ -1,0 +1,66 @@
+# ─────────────────────────────────────────────────────────────
+#  TERMINAL DE VIDÉOSURVEILLANCE — « Meurtre au manoir connecté »
+#  Tableau de bord en mode YAML, déclaré dans configuration.yaml.
+#  Rendu par www/custom-lovelace/mystery-terminal-card.js.
+#  ⚠ La vue est en type: panel — plein écran, aucun scroll.
+# ─────────────────────────────────────────────────────────────
+
+views:
+  - title: Terminal
+    path: terminal
+    type: panel
+    subview: false
+    cards:
+      - type: custom:mystery-terminal-card
+
+        # Bips de terminal à chaque clic, synthétisés dans le navigateur (aucun
+        # fichier son à déployer). `sound: false` coupe tout.
+        sound: true
+        volume: 0.05
+
+        # Déposer les 3 .mp4 dans www/mystery/ (servi sous /local/mystery/).
+        # Ce dossier est gitignoré : les vidéos ne partent pas dans le dépôt.
+        cameras:
+          - id: CAM 01
+            zone: ATELIER — SOUS-SOL
+            file: /local/mystery/cam01_jardinier.mp4
+          - id: CAM 02
+            zone: SALON — REZ-DE-CHAUSSÉE
+            file: /local/mystery/cam02_heritiere.mp4
+          - id: CAM 03
+            zone: SALLE À MANGER — REZ-DE-CHAUSSÉE
+            file: /local/mystery/cam03_majordome.mp4
+
+        # Emplacements de preuve, dans l'ordre d'affichage. Les codes des
+        # étiquettes vivent dans l'automation « Mystery - Evidence code
+        # entered » : le dashboard ne valide rien lui-même.
+        evidence:
+          - key: saw
+            entity: input_boolean.mystery_evidence_saw
+            label: SCIE À MAIN
+            detail: ATELIER · LE JARDINIER
+          - key: gun
+            entity: input_boolean.mystery_evidence_gun
+            label: FUSIL
+            detail: SALON · L'HÉRITIÈRE
+          - key: poison
+            entity: input_boolean.mystery_evidence_poison
+            label: POT D'ÉPICES « POISON »
+            detail: SALLE À MANGER · LE MAJORDOME
+
+        # Cartes-suspects du dossier confidentiel. `portrait` est facultatif :
+        # sans image, un cadre rayé s'affiche — visible par les joueurs, donc à
+        # compléter ou à retirer avant la partie.
+        suspects:
+          - option: gardener
+            name: LE JARDINIER
+            room: ATELIER AU SOUS-SOL
+            weapon: SCIE
+          - option: heiress
+            name: L'HÉRITIÈRE
+            room: SALON
+            weapon: FUSIL
+          - option: butler
+            name: LE MAJORDOME
+            room: SALLE À MANGER
+            weapon: POISON
