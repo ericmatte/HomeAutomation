@@ -605,7 +605,7 @@ class MysteryTerminalCard extends HTMLElement {
   _dropHint(file) {
     if (!file) return "renseigner « file: » dans dashboards/mystery-terminal.yaml";
     const disk = file.startsWith("/local/") ? "config/www/" + file.slice(7) : file;
-    return `déposer le fichier ici → <b>${disk}</b>`;
+    return `fichier non trouvé → <b>${disk}</b>`;
   }
   _closeVideo() {
     // Fermer avant la fin du chargement ne doit pas faire surgir l'écran de
