@@ -109,9 +109,26 @@ reconnaissance vocale s'est révélée trop peu fiable au premier test).
       - **aucune ressource HACS requise** : tout le rendu est dans la carte.
 - [ ] **Déposer les 3 .mp4** dans `www/mystery/` avec ces noms exacts (le
       dossier est gitignoré, les vidéos ne partent pas dans le dépôt) :
-      `cam01_jardinier.mp4`, `cam02_heritiere.mp4`, `cam03_majordome.mp4`.
+
+      | Fichier                 | Suspect      | Libellé à l'écran              |
+      | ----------------------- | ------------ | ------------------------------ |
+      | `cam01_jardinier.mp4`   | Le Jardinier | CAM 01 · ATELIER — SOUS-SOL    |
+      | `cam02_heritiere.mp4`   | L'Héritière  | CAM 02 · SALON — REZ-DE-CHAUSSÉE |
+      | `cam03_majordome.mp4`   | Le Majordome | CAM 03 · SALLE À MANGER — REZ-DE-CHAUSSÉE |
+
       Encodage **H.264 / AAC en conteneur MP4**, sinon le navigateur refuse de
-      les lire.
+      les lire. Pour convertir :
+      `ffmpeg -i source.mov -c:v libx264 -c:a aac -movflags +faststart cam01_jardinier.mp4`
+
+      > ✅ **Le terminal est testable dès maintenant, sans les vidéos.** Un
+      > fichier absent, un chemin faux ou un encodage refusé donnent tous le
+      > même **écran de panne dans la fiction** (« ⚠ ARCHIVE INDISPONIBLE —
+      > SECTEUR DISQUE CORROMPU », bruit vidéo, code d'erreur), jamais un cadre
+      > noir cassé. Le reste du terminal — pavé, codes, compteur, dossier
+      > confidentiel, accusation — fonctionne à 100 % sans un seul .mp4.
+      > Le chemin attendu part dans la **console du navigateur**, pas à l'écran :
+      > les joueurs n'ont pas à le lire. À la limite, une partie reste jouable
+      > sans vidéos du tout — ça devient juste une piste en moins.
 - [ ] Ouvrir `/mystery-terminal` **en plein écran** (F11) sur l'écran du
       bureau, et **désactiver la veille écran** — une session dure 45 min sans
       que personne ne touche au clavier.

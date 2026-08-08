@@ -170,8 +170,21 @@ footer .ln{white-space:nowrap;}
 .bigbtn:hover{background:var(--amber); color:#000;}
 .bigbtn.g{border-color:var(--green); color:var(--green);} .bigbtn.g:hover{background:var(--green); color:#000;}
 .bigbtn.r{border-color:var(--red); color:var(--red);} .bigbtn.r:hover{background:var(--red); color:#000;}
-.missing{display:grid; place-items:center; height:100%; color:var(--amber-dim); font-size:calc(22*var(--px)); text-align:center;
-  border:calc(1*var(--px)) dashed var(--amber-deep);}
+/* Flux absent ou illisible : un écran de panne crédible plutôt qu'un cadre
+   noir. Le jeu reste testable et jouable sans les .mp4. */
+.missing{position:relative; display:grid; place-content:center; justify-items:center; gap:calc(14*var(--px));
+  height:100%; text-align:center; overflow:hidden;
+  border:calc(1*var(--px)) dashed var(--amber-deep); background:#050506;}
+.missing::before{content:''; position:absolute; inset:0; opacity:.09; pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='s'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/></filter><rect width='140' height='140' filter='url(%23s)'/></svg>");
+  animation:drift .25s steps(4) infinite;}
+.missing > *{position:relative;}
+.missing .mtitle{font-size:calc(44*var(--px)); font-weight:700; letter-spacing:calc(6*var(--px)); color:var(--red);
+  animation:blink 1.6s steps(2) infinite;}
+.missing .msub{font-size:calc(22*var(--px)); letter-spacing:calc(4*var(--px)); color:var(--amber);}
+.missing .mtxt{font-size:calc(20*var(--px)); letter-spacing:calc(2*var(--px)); color:var(--amber-dim); line-height:1.8;}
+.missing .mcode{font-size:calc(16*var(--px)); letter-spacing:calc(3*var(--px)); color:var(--amber-deep);
+  border:calc(1*var(--px)) solid var(--amber-deep); padding:calc(8*var(--px)) calc(18*var(--px));}
 
 .boot{font-size:calc(26*var(--px)); line-height:1.9; letter-spacing:calc(2*var(--px)); width:calc(1100*var(--px));}
 .boot .l{opacity:0; animation:type .01s forwards;}
@@ -502,19 +515,60 @@ class MysteryTerminalCard extends HTMLElement {
     const m = this.$("msg"); m.textContent = t || "EN ATTENTE DE SAISIE"; m.className = "msg " + (cls || "");
   }
 
-  /* ---------------- vidéo ---------------- */
+  /* ---------------- vidéo ----------------
+   * Le terminal doit rester jouable sans les .mp4 : fichier absent, chemin
+   * faux ou encodage refusé par le navigateur donnent tous le même écran de
+   * panne, crédible dans la fiction. Le chemin attendu part en console, pas à
+   * l'écran — les joueurs n'ont pas à le lire.
+   */
   _openVideo(i) {
     this._sfx("cam");
     const c = this._cameras[i];
     this.$("vidTitle").textContent = c.id;
     this.$("vidZone").textContent = c.zone;
-    this.$("vidHost").innerHTML = c.file
-      ? `<video src="${c.file}" controls autoplay playsinline></video>`
-      : `<div class="missing">AUCUN FICHIER CONFIGURÉ POUR ${c.id}<br><br>renseigner « file: » dans le YAML<br>ex. /local/mystery/cam01.mp4</div>`;
+    const host = this.$("vidHost");
+    host.dataset.failed = "";
+    host.innerHTML = "";
     this._show("ovVideo");
     this._log(`LECTURE ARCHIVE — ${c.id}`);
+
+    if (!c.file) { this._feedFailed(c, host, true); return; }
+
+    const v = document.createElement("video");
+    v.controls = true; v.autoplay = true; v.playsInline = true; v.src = c.file;
+    // `error` couvre les deux vrais cas : fichier absent (404) et encodage
+    // refusé. Le délai n'est là que pour un chargement qui ne répond jamais —
+    // on ne se fie pas à `stalled`, qui se déclenche aussi sur une vidéo saine
+    // qui charge lentement.
+    clearTimeout(this._bail);
+    this._bail = setTimeout(() => this._feedFailed(c, host), 8000);
+    v.addEventListener("loadedmetadata", () => clearTimeout(this._bail));
+    v.addEventListener("error", () => { clearTimeout(this._bail); this._feedFailed(c, host); });
+    host.append(v);
   }
-  _closeVideo() { this._sfx("close"); this.$("vidHost").innerHTML = ""; this._hide("ovVideo"); }
+  _feedFailed(c, host, silent) {
+    if (host.dataset.failed) return;
+    host.dataset.failed = "1";
+    host.innerHTML = `
+      <div class="missing">
+        <div class="mtitle">⚠ ARCHIVE INDISPONIBLE</div>
+        <div class="msub">${c.id} · ${c.zone}</div>
+        <div class="mtxt">SECTEUR DISQUE CORROMPU — BANDE ILLISIBLE<br>
+          L'enregistrement de ce flux n'a pas pu être restauré.</div>
+        <div class="mcode">ERR 0x1A · NVR-B02 · RÉINDEXATION REQUISE</div>
+      </div>`;
+    this._log(`ARCHIVE ILLISIBLE — ${c.id}`);
+    if (!silent) this._sfx("err");
+    console.warn(
+      `[mystery-terminal] flux illisible pour ${c.id} — vérifier « file: » dans le YAML`,
+      c.file || "(aucun chemin configuré)");
+  }
+  _closeVideo() {
+    // Fermer avant la fin du chargement ne doit pas faire surgir l'écran de
+    // panne dans le vide, ni son bip.
+    clearTimeout(this._bail);
+    this._sfx("close"); this.$("vidHost").innerHTML = ""; this._hide("ovVideo");
+  }
 
   /* ---------------- déverrouillage ---------------- */
   _unlockSequence() {
