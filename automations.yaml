@@ -2992,8 +2992,8 @@
 - id: mystery_terminal_first_touch
   alias: "Mystery - Terminal first touch"
   mode: single
-  # T4.1 : la carte bascule ce booléen au tout premier clic/toucher de l'écran
-  # de saisie (voir mystery-terminal-card.js, connectedCallback).
+  # T4.1 : la carte bascule ce booléen au tout premier clic/toucher du mur
+  # d'images (voir mystery-terminal-card.js, connectedCallback).
   triggers:
     - trigger: state
       entity_id: input_boolean.mystery_terminal_first_touch

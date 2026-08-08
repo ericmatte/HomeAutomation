@@ -412,6 +412,7 @@ footer .ln{white-space:nowrap;}
   color:var(--amber-dim); font-size:calc(22*var(--px)); line-height:1;
   transition:color .12s, border-color .12s, background .12s;}
 .regie:hover{color:#000; background:var(--amber); border-color:var(--amber);}
+.regie[hidden]{display:none;}
 #fsbtn{right:calc(18*var(--px));}
 #modebtn{right:calc(74*var(--px));}
 :host(:fullscreen){width:100vw; height:100vh;}
@@ -676,12 +677,12 @@ class MysteryTerminalCard extends HTMLElement {
       document.addEventListener("webkitfullscreenchange", this._onFs);
     }
     // T4.1 : l'inspecteur signale le poste de commandement au tout premier
-    // contact avec l'écran de saisie. On lit l'état HA plutôt qu'un drapeau JS
-    // pour rester correct après un reset sans recharger la page — le mur
-    // d'images ne doit jamais le déclencher, seul l'écran de saisie compte.
+    // contact avec le mur d'images. On lit l'état HA plutôt qu'un drapeau JS
+    // pour rester correct après un reset sans recharger la page — l'écran de
+    // saisie ne doit jamais le déclencher, seul le mur d'images compte.
     if (!this._onTouch) {
       this._onTouch = () => {
-        if (this._mode !== "code" || !this._hass) return;
+        if (this._mode !== "cctv" || !this._hass) return;
         const s = this._hass.states[ENT.firstTouch];
         if (s && s.state !== "on") this._call("input_boolean", "turn_on", { entity_id: ENT.firstTouch });
       };
@@ -1190,6 +1191,13 @@ class MysteryTerminalCard extends HTMLElement {
     const on = (document.fullscreenElement || document.webkitFullscreenElement) === this;
     b.textContent = on ? "⤡" : "⛶";
     b.title = on ? "Quitter le plein écran" : "Plein écran";
+    // En plein écran, les deux boutons de régie disparaissent : les joueurs ne
+    // doivent pas pouvoir basculer de vue ou cliquer dessus par erreur.
+    // Échap/F11 (natifs au navigateur) restent le seul moyen de sortir, ce qui
+    // redéclenche fullscreenchange et les fait réapparaître.
+    b.hidden = on;
+    const m = this.$ && this.$("modebtn");
+    if (m) m.hidden = on;
   }
 
   /* ---------------- son ----------------
