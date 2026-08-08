@@ -34,6 +34,9 @@ views:
         # Emplacements de preuve, dans l'ordre d'affichage. Les codes des
         # étiquettes vivent dans l'automation « Mystery - Evidence code
         # entered » : le dashboard ne valide rien lui-même.
+        # ⚠️ `entity:` est documentaire — la carte lit les 3 input_boolean par
+        # leur nom en dur et n'utilise que `key` pour les apparier. Changer
+        # `entity:` ici ne branche rien : il faudrait aussi toucher le .js.
         evidence:
           - key: saw
             entity: input_boolean.mystery_evidence_saw
