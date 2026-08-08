@@ -324,7 +324,7 @@ section.col{display:flex; flex-direction:column; gap:calc(10*var(--px)); min-hei
 @keyframes glow{to{box-shadow:0 0 calc(34*var(--px)) rgba(53,255,106,.45)}}
 
 /* ---------- mur d'images ---------- */
-.cell{position:relative; border:calc(1*var(--px)) solid var(--line); background:#08080a; overflow:hidden; min-height:0;}
+.cell{position:relative; border:calc(1*var(--px)) solid var(--line); background:#08080a; overflow:hidden; min-height:0; cursor:pointer;}
 .cell .vidhost{position:absolute; inset:0;}
 .cell video{width:100%; height:100%; object-fit:cover; display:block;
   filter:grayscale(.35) contrast(1.15) brightness(.9);}
@@ -339,6 +339,23 @@ section.col{display:flex; flex-direction:column; gap:calc(10*var(--px)); min-hei
   background:rgba(2,2,3,.72); padding:calc(6*var(--px)) calc(12*var(--px));}
 .cell .ts{position:absolute; z-index:3; bottom:calc(12*var(--px)); right:calc(14*var(--px)); font-size:calc(17*var(--px));
   color:var(--amber); background:rgba(2,2,3,.72); padding:calc(4*var(--px)) calc(10*var(--px)); font-variant-numeric:tabular-nums;}
+
+/* survol : icône + texte invitant à agrandir l'image, cachés hors survol */
+.cell .zoomhint{position:absolute; inset:0; z-index:4; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:calc(10*var(--px));
+  background:rgba(2,2,3,0); opacity:0; transition:opacity .15s ease, background .15s ease; pointer-events:none;}
+.cell:hover .zoomhint{opacity:1; background:rgba(2,2,3,.55);}
+.cell .zoomhint .ic{font-size:calc(48*var(--px)); color:var(--amber); text-shadow:0 0 calc(16*var(--px)) rgba(255,178,0,.6);}
+.cell .zoomhint .tx{font-size:calc(15*var(--px)); letter-spacing:calc(3*var(--px)); color:var(--amber);}
+.cell .zoomhint .tx-out{display:none;}
+.cell.zoom-active .zoomhint .tx-in{display:none;}
+.cell.zoom-active .zoomhint .tx-out{display:block;}
+
+/* clic sur une image : elle seule occupe le mur, les autres et le panneau s'effacent */
+main.cctv.zoomed{grid-template-columns:1fr; grid-template-rows:1fr;}
+main.cctv.zoomed .cell{display:none;}
+main.cctv.zoomed .cell.zoom-active{display:block;}
+main.cctv.zoomed .info{display:none;}
 
 /* ---------- bloc d'information (mur d'images) ----------
    Diagnostic volontairement fictif : un manoir laissé à l'abandon, pas les
@@ -782,16 +799,22 @@ class MysteryTerminalCard extends HTMLElement {
    */
   _cellsHtml() {
     return this._cameras.slice(0, 3).map((c, i) => `
-      <div class="cell">
+      <div class="cell" data-cell="${i}">
         <div class="vidhost" data-vid="${i}"></div>
         <div class="ovl"></div>
         <div class="tag"><span class="id">${c.id}</span><span class="zone">${c.zone}</span></div>
         <div class="live"><span class="dot"></span>BOUCLE</div>
         <div class="ts" data-ts="${i}">--/-- --:--:--</div>
+        <div class="zoomhint">
+          <span class="ic">⛶</span>
+          <span class="tx tx-in">AGRANDIR</span>
+          <span class="tx tx-out">RÉDUIRE</span>
+        </div>
       </div>`).join("");
   }
 
   _buildWall() {
+    this._zoomCam = null;
     this._cameras.slice(0, 3).forEach((c, i) => {
       const host = this.shadowRoot.querySelector(`[data-vid="${i}"]`);
       if (!host) return;
@@ -810,8 +833,30 @@ class MysteryTerminalCard extends HTMLElement {
       const p = v.play();
       if (p && p.catch) p.catch(() => {});
     });
+    this.shadowRoot.querySelectorAll(".cell").forEach((cell) =>
+      cell.addEventListener("click", () => this._toggleZoom(+cell.dataset.cell)));
     this._log("MUR D'IMAGES EN LIGNE");
     this._log("ARCHIVES EN LECTURE — BOUCLE CONTINUE");
+  }
+
+  // Clic sur une image : elle occupe seule le mur (les deux autres et le
+  // panneau de diagnostic s'effacent). Un second clic sur la même image, ou
+  // sur son bouton RÉDUIRE, revient à la grille 2×2.
+  _toggleZoom(i) {
+    const main = this.shadowRoot.querySelector("main.cctv");
+    if (!main) return;
+    this._sfx("cam");
+    const reverting = this._zoomCam === i;
+    main.querySelectorAll(".cell.zoom-active").forEach((c) => c.classList.remove("zoom-active"));
+    if (reverting) {
+      this._zoomCam = null;
+      main.classList.remove("zoomed");
+      return;
+    }
+    this._zoomCam = i;
+    main.classList.add("zoomed");
+    const cell = main.querySelector(`.cell[data-cell="${i}"]`);
+    if (cell) cell.classList.add("zoom-active");
   }
 
   _cellFailed(c, host) {
