@@ -494,34 +494,13 @@ reset_after_escape_roome:
         {{ states.script | map(attribute='entity_id')
            | select('search', '^script\.mystery_') | list }}
   # Remise à zéro de l'escape room v2 : machine à états, suspects interrogés,
-  # garde de cohabitation avec la v1, et retour de Roby au dock.
-  - action: input_select.select_option
-    target:
-      entity_id: input_select.mystery_phase
-    data:
-      option: idle
+  # preuves et terminal. Même brique qu'au démarrage d'une partie.
+  - action: script.mystery_reset_state
+  # La garde de cohabitation avec la v1 ne se lève qu'ici : c'est la fin de
+  # partie qui rend le matériel partagé à la v1, pas un nouveau départ.
   - action: input_boolean.turn_off
     target:
-      entity_id:
-      - input_boolean.escape_v2_active
-      - input_boolean.mystery_gardener_done
-      - input_boolean.mystery_heiress_done
-      - input_boolean.mystery_butler_done
-      - input_boolean.mystery_evidence_saw
-      - input_boolean.mystery_evidence_gun
-      - input_boolean.mystery_evidence_poison
-      - input_boolean.mystery_terminal_unlocked
-  # Terminal CCTV : pavé vidé et accusation reprise à zéro.
-  - action: input_select.select_option
-    target:
-      entity_id: input_select.mystery_accusation_choice
-    data:
-      option: none
-  - action: input_text.set_value
-    target:
-      entity_id: input_text.mystery_code_input
-    data:
-      value: ""
+      entity_id: input_boolean.escape_v2_active
   # Les enceintes sont poussées fort pendant la partie : sans ça, la salle à
   # manger reste à 90 % pour le reste de la semaine.
   - action: media_player.volume_set
@@ -623,6 +602,37 @@ mystery_flash_alternate:
     - action: light.turn_off
       target: { entity_id: ["{{ light_a }}", "{{ light_b }}"] }
       data: { transition: 2 }
+
+mystery_reset_state:
+  alias: "Mystery - Reset game state"
+  icon: mdi:restore
+  mode: single
+  # L'état de la partie, remis à zéro en un seul endroit — appelé au démarrage
+  # ET par reset_after_escape_roome. Sans ça, relancer une partie sans avoir
+  # fait le reset laissait le terminal à 3/3 et les 3 témoignages déjà cochés ;
+  # l'autopsie ne partait alors jamais, puisqu'elle attend le passage d'un
+  # drapeau à « on ». La garde escape_v2_active n'est pas ici : elle appartient
+  # au cycle de vie de la partie, pas à son état.
+  sequence:
+    - action: input_select.select_option
+      target: { entity_id: input_select.mystery_phase }
+      data: { option: idle }
+    - action: input_select.select_option
+      target: { entity_id: input_select.mystery_accusation_choice }
+      data: { option: none }
+    - action: input_boolean.turn_off
+      target:
+        entity_id:
+          - input_boolean.mystery_gardener_done
+          - input_boolean.mystery_heiress_done
+          - input_boolean.mystery_butler_done
+          - input_boolean.mystery_evidence_saw
+          - input_boolean.mystery_evidence_gun
+          - input_boolean.mystery_evidence_poison
+          - input_boolean.mystery_terminal_unlocked
+    - action: input_text.set_value
+      target: { entity_id: input_text.mystery_code_input }
+      data: { value: "" }
 
 mystery_inspector_say:
   alias: "Mystery - Inspector speaks"
@@ -804,6 +814,10 @@ mystery_start:
   sequence:
     - action: input_boolean.turn_on
       target: { entity_id: input_boolean.escape_v2_active }
+    # Une partie repart toujours d'un état propre, même si le reset de la
+    # précédente n'a pas été lancé : le terminal se vide dès l'armement, avant
+    # même le délai d'attente.
+    - action: script.mystery_reset_state
     # La voix de l'inspecteur vient du pipeline Assist du téléphone :
     # assist_satellite.announce n'accepte aucune option de voix. On bascule
     # donc le select avant de parler, ce qui laisse la v1 intacte.
@@ -830,9 +844,6 @@ mystery_start:
       data: { stop_actions: true }
       target:
         entity_id: automation.sync_auxiliary_light_with_main_light
-    - action: input_select.select_option
-      target: { entity_id: input_select.mystery_phase }
-      data: { option: idle }
     # --- PHASE 0 : la police arrive ---
     # Les deux étages plutôt que `entity_id: all` : même noir complet côté
     # joueurs, sans arroser l'extérieur et les lampes hors jeu d'une rafale de

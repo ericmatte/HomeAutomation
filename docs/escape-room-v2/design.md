@@ -203,7 +203,13 @@ fois.
 - `input_select.mystery_phase` pilote les phases ; les 3 `input_boolean` suivent
   les suspects interrogés (déclenchent l'autopsie auto).
 - **Reset** propre : éteint la garde, réactive les automatisations de mouvement,
-  remet Roby au dock, restaure les lumières.
+  remet Roby au dock, restaure les lumières et les volumes.
+- `script.mystery_reset_state` définit **en un seul endroit** ce qu'est « une
+  partie remise à zéro » (phase, 3 témoignages, 3 preuves, terminal, pavé,
+  accusation). Appelé **au démarrage** autant que par le reset de fin : une
+  partie repart donc toujours propre, même si le reset de la précédente n'a
+  jamais été lancé. La garde `escape_v2_active` en est volontairement exclue —
+  elle appartient au cycle de vie de la partie, pas à son état.
 
 ## Décisions finalisées (après itérations)
 
