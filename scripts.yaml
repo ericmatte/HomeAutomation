@@ -568,24 +568,26 @@ mystery_flash_alternate:
       name: Second color (rgb)
       required: true
       selector: { object: {} }
-    duration:
-      name: Total duration (seconds)
+    cycles:
+      name: Number of alternations
       required: true
-      selector: { number: { min: 1, max: 300, step: 1 } }
+      selector: { number: { min: 1, max: 100, step: 1 } }
     interval:
       name: Seconds per half-flash
       selector: { number: { min: 0.1, max: 5, step: 0.05 } }
       default: 0.25
   variables:
     # Une seule lampe allumée à la fois : c'est ce qui donne le vrai effet
-    # gyrophare (la v1 procède ainsi). Le nombre de cycles se déduit de la durée
-    # voulue, pour caler le jeu de lumière sur la longueur du son sans avoir à
-    # recompter à la main quand le fichier change.
+    # gyrophare (la v1 procède ainsi).
+    # ⚠️ On compte en cycles, pas en durée. Les lampes du salon sont des Govee
+    # qui mettent un temps fou à accuser réception : le temps réel d'un cycle,
+    # c'est `interval` PLUS la latence de quatre appels de service. Déduire un
+    # nombre de cycles d'une durée voulue donnait donc une boucle deux à trois
+    # fois trop longue — mieux vaut régler le nombre d'alternances à l'œil.
     half_flash_ms: "{{ (interval | float * 1000) | int }}"
-    cycles: "{{ (duration | float / (interval | float * 2)) | round(0, 'ceil') | int }}"
   sequence:
     - repeat:
-        count: "{{ cycles }}"
+        count: "{{ cycles | int }}"
         sequence:
           - action: light.turn_on
             target: { entity_id: "{{ light_a }}" }
@@ -648,12 +650,41 @@ mystery_inspector_say:
       name: Message
       required: true
       selector: { text: { multiline: true } }
+    on_sonos:
+      name: Parler sur le Sonos plutôt qu'au téléphone
+      description: >-
+        Sur place, tout le monde entend — au téléphone, une seule personne
+        tient le combiné. Le briefing passe donc par le Sonos.
+      selector: { boolean: {} }
+      default: false
+  variables:
+    # tts.speak ne bloque pas et le prochain média couperait l'inspecteur en
+    # plein mot : on estime la durée (~2,3 mots/seconde en français) et on
+    # attend. announce, lui, bloque déjà tout seul.
+    speech_seconds: "{{ [(message.split() | count / 2.3) | round(0, 'ceil') | int, 6] | max }}"
   sequence:
-    - action: assist_satellite.announce
-      target: { entity_id: assist_satellite.192_168_0_160 }
-      data:
-        preannounce: false
-        message: "{{ message }}"
+    - if: "{{ on_sonos }}"
+      then:
+        - action: media_player.volume_set
+          target: { entity_id: media_player.sonos }
+          data: { volume_level: 0.6 }
+        # HenriNeural n'existe qu'en fr-FR — c'est la même voix que le pipeline
+        # du téléphone, pour que ce soit bien le même personnage.
+        - action: tts.speak
+          target: { entity_id: tts.home_assistant_cloud }
+          data:
+            cache: true
+            language: fr-FR
+            media_player_entity_id: media_player.sonos
+            message: "{{ message }}"
+            options: { voice: HenriNeural }
+        - delay: { seconds: "{{ speech_seconds }}" }
+      else:
+        - action: assist_satellite.announce
+          target: { entity_id: assist_satellite.192_168_0_160 }
+          data:
+            preannounce: false
+            message: "{{ message }}"
 
 mystery_guide_path:
   alias: "Mystery - Light trail guidance"
@@ -845,12 +876,20 @@ mystery_start:
       target:
         entity_id: automation.sync_auxiliary_light_with_main_light
     # --- PHASE 0 : la police arrive ---
-    # Les deux étages plutôt que `entity_id: all` : même noir complet côté
-    # joueurs, sans arroser l'extérieur et les lampes hors jeu d'une rafale de
-    # commandes juste avant les gyrophares.
+    # Seulement les pièces en jeu, comme la v1 : la chambre est un no-go, la
+    # salle de bain et l'extérieur ne servent à rien. Moins de lampes touchées,
+    # c'est aussi moins d'attente avant que le noir soit fait.
     - action: light.turn_off
       target:
-        floor_id: [basement, first_floor]
+        area_id:
+          - living_room
+          - dining_room
+          - kitchen
+          - hallway
+          - entrance
+          - downstairs_hallway
+          - eric_office
+          - theatre
       data: { transition: 2 }
     - delay: { seconds: 2 }
     - action: media_player.volume_set
@@ -861,60 +900,79 @@ mystery_start:
       data:
         media_content_type: audio/mpeg
         media_content_id: "media-source://media_source/local/Police Sirens.mp3"
-    # Gyrophares bleu/rouge, calés sur la durée réelle de la sirène (18,5 s)
-    # pour qu'elle ne soit pas coupée en plein hurlement. À 1 s par cycle ça ne
-    # ressemblait pas du tout à un gyrophare : 0,3 s s'approche du rythme de la
-    # v1 tout en restant sous le débit que le pont supporte sur 19 s.
-    - action: script.mystery_flash_alternate
+    # Gyrophares bleu/rouge lancés en tâche de fond. Les Govee du salon
+    # traînent tellement que la boucle débordait largement la sirène, et comme
+    # elle bloquait le script, tout le reste de la phase 0 partait en retard.
+    # Le son garde désormais son propre tempo (délais calés sur la durée réelle
+    # des fichiers) et la lumière tourne à côté.
+    # 9 alternances : le tiers de ce qu'il y avait, dans l'esprit des 5 cycles
+    # de la v1. À ajuster à l'œil, c'est un nombre de flashs, pas une durée.
+    - action: script.turn_on
+      target: { entity_id: script.mystery_flash_alternate }
       data:
-        light_a: light.left_floor_lamp
-        light_b: light.right_floor_lamp
-        color_a: [0, 0, 255]
-        color_b: [255, 0, 0]
-        duration: 19
-        interval: 0.3
+        variables:
+          light_a: light.left_floor_lamp
+          light_b: light.right_floor_lamp
+          color_a: [0, 0, 255]
+          color_b: [255, 0, 0]
+          cycles: 9
+          interval: 0.3
+    # Durée réelle de la sirène (18,5 s) : c'est elle qui rythme la scène.
+    - delay: { seconds: 19 }
+    # Le brouhaha de policiers qui débarquent : fond de scène, pas un effet,
+    # donc moitié moins fort que la sirène.
+    - action: media_player.volume_set
+      target: { entity_id: media_player.sonos }
+      data: { volume_level: 0.4 }
     - action: media_player.play_media
       target: { entity_id: media_player.sonos }
       data:
         media_content_type: audio/mpeg
         media_content_id: "media-source://media_source/local/Police Radio Chatter.mp3"
-    # Calé sur la durée réelle du fichier (24 s) : un play_media suivant coupe
-    # net le précédent sur le Sonos.
-    - delay: { seconds: 25 }
+    - delay: { seconds: 12 }
+    # On coupe net : l'inspecteur prend la parole par-dessus ses hommes.
+    - action: media_player.media_stop
+      target: { entity_id: media_player.sonos }
+      continue_on_error: true
+    # --- PHASE 1a : le briefing se fait EN PERSONNE, sur le Sonos ---
+    # C'est le changement clé : au téléphone, une seule personne tient le
+    # combiné et les autres n'entendent rien. Sur le Sonos, tout le groupe
+    # reçoit la consigne en même temps.
+    # ⚠️ Pas de mots en majuscules dans les messages TTS : ils sont épelés
+    # lettre à lettre et rendent la consigne inaudible.
+    - action: script.mystery_inspector_say
+      data:
+        on_sonos: true
+        message: >-
+          Bonsoir. Inspecteur Henri-Onésime de Beauchamp-Latulippe. Un meurtre
+          a eu lieu ici ce soir, et cette maison a tout enregistré. Je vous
+          nomme détectives. Trouvez-moi le coupable parmi trois suspects : le
+          Jardinier, l'Héritière et le Majordome. Fouillez partout — ces
+          trois-là se trahissent dès qu'on touche à leurs affaires. Bon. Il
+          faut que j'y aille, j'ai un autre appel.
+    # Il repart. La voiture s'éloigne, puis on laisse le silence retomber.
+    # Retour au niveau du brouhaha : l'inspecteur avait monté le Sonos pour
+    # porter dans la pièce.
+    - action: media_player.volume_set
+      target: { entity_id: media_player.sonos }
+      data: { volume_level: 0.4 }
     - action: media_player.play_media
       target: { entity_id: media_player.sonos }
       data:
         media_content_type: audio/mpeg
         media_content_id: "media-source://media_source/local/Car Drive Away.mp3"
-    # L'inspecteur parle dans le téléphone, pas sur le Sonos : rien ne coupe la
-    # voiture. On la laisse finir (11,5 s) avant qu'il appelle.
     - delay: { seconds: 12 }
-    # --- PHASE 1 : briefing de l'inspecteur (téléphone) ---
-    # Pas de sonnerie à jouer : le téléphone sonne déjà de lui-même à l'appel.
-    # ⚠️ Pas de mots en majuscules dans les messages TTS : « QUI / AVEC QUOI /
-    # OÙ » étaient épelés lettre à lettre et rendaient la consigne inaudible.
+    - delay: { seconds: 5 }
+    # --- PHASE 1b : il rappelle au téléphone pour ce qu'il a oublié ---
+    # Une seule information, celle qui envoie les joueurs quelque part.
+    # Pas de sonnerie à jouer : le téléphone sonne déjà de lui-même.
     - action: script.mystery_inspector_say
       data:
         message: >-
-          Allô ? Ici l'inspecteur Henri-Onésime de Beauchamp-Latulippe. Oui,
-          de Beauchamp-Latulippe, avec le trait d'union. Un meurtre a eu lieu
-          chez vous ce soir, et votre maison a tout enregistré. J'ai besoin de
-          vous comme détectives. Vous avez trois choses à découvrir : qui est
-          le coupable, avec quelle arme, et dans quelle pièce. Il y a trois
-          suspects : le Jardinier, l'Héritière et le Majordome. Ces trois-là
-          sont nerveux : dès qu'on touche à leurs affaires, ils se trahissent.
-          Alors fouillez partout, ouvrez les portes et les tiroirs, déplacez ce
-          qui traîne, et tendez l'oreille : ils vous répondront depuis la pièce
-          où ils se trouvent. Commencez par descendre au sous-sol. Je viens de
-          faire allumer les lumières jusqu'au bureau, suivez-les. Vous y
-          trouverez le terminal de vidéosurveillance de la maison : c'est votre
-          poste de commande. Les enregistrements des caméras y sont, une vidéo
-          par suspect. Regardez-les, c'est votre première piste. C'est aussi là
-          que vous enregistrerez les pièces à conviction : chaque objet
-          compromettant porte une étiquette avec un code, tapez-le sur le
-          terminal. Ensuite, remontez fouiller le salon. Quand j'aurai les trois
-          témoignages, je vous rappelle. Et si jamais vous êtes bloqués,
-          décrochez le téléphone et demandez un indice. Bonne chance.
+          J'oubliais ! Beauchamp-Latulippe. Les caméras de surveillance de la
+          maison sont sur le terminal, dans le bureau au sous-sol. J'ai fait
+          allumer les lumières jusque-là, suivez-les. Et si vous bloquez,
+          demandez-moi un indice.
     - action: input_select.select_option
       target: { entity_id: input_select.mystery_phase }
       data: { option: investigation }
@@ -1125,18 +1183,11 @@ mystery_police_callback:
     - action: script.mystery_inspector_say
       data:
         message: >-
-          Inspecteur Henri-Onésime de Beauchamp-Latulippe à nouveau. Le nom
-          complet, s'il vous plaît. Le rapport du légiste vient d'arriver :
-          aucune blessure par balle, aucune trace de lame. La victime a été
-          empoisonnée. Oubliez le fusil et la scie comme armes du crime, ce
-          sont des diversions. Cherchez ce que la victime a bu ou mangé : la
-          bouteille de vin, les verres, le rack d'épices, et regardez donc les
-          mains de ceux qui ont servi. Maintenant, il me faut les trois pièces
-          à conviction au dossier : la scie, le fusil et le pot d'épices.
-          Chacune porte une étiquette avec un code. Trouvez-les, et tapez leurs
-          codes sur le terminal du bureau. Une fois les trois enregistrées, le
-          dossier confidentiel s'ouvrira, et vous pourrez y désigner le
-          coupable.
+          Beauchamp-Latulippe à nouveau. Le rapport du légiste : la victime a
+          été empoisonnée. Oubliez le fusil et la scie comme armes du crime.
+          Maintenant, il me faut les trois pièces à conviction : la scie, le
+          fusil et le pot d'épices. Chacune porte un code — tapez-les sur le
+          terminal du bureau.
     # L'ambiance a été coupée plus haut pour ne pas couvrir l'inspecteur : on la
     # relance, sinon l'enquête se poursuit dans le silence.
     - action: script.turn_on
@@ -1158,13 +1209,13 @@ mystery_hint:
     pending: >-
       {% set ns = namespace(todo=[]) %}
       {% if is_state('input_boolean.mystery_gardener_done', 'off') %}
-        {% set ns.todo = ns.todo + ["le Jardinier, qui bricole dans l'atelier au sous-sol : ouvrez la porte de l'atelier"] %}
+        {% set ns.todo = ns.todo + ["le Jardinier : ouvrez la porte de l'atelier, au sous-sol"] %}
       {% endif %}
       {% if is_state('input_boolean.mystery_heiress_done', 'off') %}
-        {% set ns.todo = ns.todo + ["l'Héritière, qui surveille son fusil caché dans la trappe du foyer, au salon : touchez-y"] %}
+        {% set ns.todo = ns.todo + ["l'Héritière : touchez au fusil, dans la trappe du foyer"] %}
       {% endif %}
       {% if is_state('input_boolean.mystery_butler_done', 'off') %}
-        {% set ns.todo = ns.todo + ["le Majordome, qui attend qu'on le sonne : le bouton de service est sur l'étagère à vins, dans la salle à manger"] %}
+        {% set ns.todo = ns.todo + ["le Majordome : le bouton de service, sur l'étagère à vins"] %}
       {% endif %}
       {{ ns.todo | join(' ; ') }}
     # Les 3 objets étiquetés d'un code, à enregistrer au terminal du bureau :
@@ -1177,24 +1228,17 @@ mystery_hint:
     hint: >-
       {% set phase = states('input_select.mystery_phase') %}
       {% if phase == 'investigation' and pending | trim %}
-      Voici où il vous reste à chercher : {{ pending | trim }}. Et si vous
-      n'avez pas encore vu les enregistrements de surveillance, ils sont sur le
-      terminal, dans le bureau au sous-sol.
+      Il vous reste à faire parler {{ pending | trim }}.
       {% elif phase == 'investigation' %}
-      Vous avez les trois témoignages. Ne bougez pas, je vous rappelle avec le
-      rapport du légiste.
+      Vous avez les trois témoignages. Ne bougez pas, je vous rappelle.
       {% elif phase == 'autopsy_done' and evidence_found | int < 3 %}
-      Le légiste est formel : du poison. Vous avez enregistré
       {{ evidence_found }} pièce{{ 's' if evidence_found | int > 1 else '' }} à
-      conviction sur trois. Il m'en faut trois : la scie du Jardinier, à
-      l'atelier ; le fusil de l'Héritière, dans la trappe du foyer ; et le pot
-      d'épices du Majordome, au rack à épices. Chacun porte une étiquette avec
-      un code : tapez-le sur le terminal du bureau.
+      conviction sur trois. La scie est à l'atelier, le fusil dans la trappe du
+      foyer, le pot d'épices au rack. Tapez leurs codes sur le terminal.
       {% elif phase == 'autopsy_done' %}
-      Les trois pièces à conviction sont au dossier. Ouvrez le dossier
-      confidentiel sur le terminal et désignez-moi le coupable.
+      Les trois pièces sont au dossier. Désignez le coupable sur le terminal.
       {% elif phase == 'accusation' %}
-      Je vous écoute, détective : désignez-moi le coupable sur le terminal.
+      Je vous écoute : désignez le coupable sur le terminal.
       {% else %}
       Il n'y a pas d'enquête en cours, détective.
       {% endif %}
@@ -1277,11 +1321,9 @@ mystery_denouement:
         - action: script.mystery_inspector_say
           data:
             message: >-
-              Le Majordome... c'est exact, détective ! Du beau travail. Vous
-              pouvez m'appeler Henri, maintenant, vous l'avez mérité.
-              Descendez au théâtre, au sous-sol : suivez les lumières, elles
-              vous y mènent. Les caméras de surveillance ne mentent pas.
-              Installez-vous, et regardez l'écran.
+              Le Majordome. C'est exact, détective ! Appelez-moi Henri,
+              vous l'avez mérité. Descendez au théâtre : suivez les lumières,
+              et regardez l'écran.
         - action: script.mystery_guide_path
           data:
             lights:
@@ -1341,7 +1383,7 @@ mystery_denouement:
               light_b: light.metal_lamp
               color_a: [255, 0, 60]
               color_b: [0, 120, 255]
-              duration: 40
+              cycles: 20
               interval: 0.6
       else:
         - action: input_select.select_option
@@ -1362,11 +1404,9 @@ mystery_denouement:
         - action: script.mystery_inspector_say
           data:
             message: >-
-              Hmm... ça ne colle pas, détective. Et c'est Henri-Onésime de
-              Beauchamp-Latulippe, pas « monsieur l'inspecteur ». Reprenez les
-              indices : la bouteille de vin, le rack d'épices, le rapport
-              d'autopsie, et les alibis qui se contredisent. Demandez-moi un
-              indice si vous séchez, et revenez me voir quand vous serez sûrs.
+              Non. Ça ne colle pas, détective. Et c'est Beauchamp-Latulippe.
+              Reprenez le vin, les épices et les alibis. Revenez me voir quand
+              vous serez sûrs.
         # Le sting a remplacé l'ambiance sur le Sonos : on la relance, sinon la
         # partie continue sans musique après une mauvaise accusation.
         - action: script.turn_on

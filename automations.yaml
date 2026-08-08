@@ -2991,9 +2991,8 @@
           continue_on_error: true
           data:
             message: >-
-              Les trois pièces à conviction sont enregistrées, détective. Le
-              dossier confidentiel vient de se déverrouiller sur le terminal du
-              bureau. Ouvrez-le, et désignez-moi le coupable sur l'écran.
+              Trois pièces à conviction au dossier. Le dossier confidentiel
+              vient de s'ouvrir sur le terminal : désignez-moi le coupable.
 - id: mystery_terminal_accusation
   alias: "Mystery - Accusation from terminal"
   mode: single

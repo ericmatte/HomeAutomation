@@ -191,20 +191,21 @@ Télécharger en MP3, puis **renommer exactement** comme dans le tableau ci-dess
 maintenant calé sur **tes** fichiers (sur le Sonos, chaque `play_media` coupe
 le précédent) :
 
-| Son                          | Durée   | Fenêtre | Note                                              |
-| ---------------------------- | ------- | ------- | ------------------------------------------------- |
-| `Police Sirens`              | 18,5 s  | 19 s    | gyrophares : `duration: 19` sur `script.mystery_flash_alternate` |
-| `Police Radio Chatter`       | 24 s    | 25 s    | `delay` passé de 12 à 25 s pour l'entendre entier |
-| `Car Drive Away`             | 11,5 s  | 12 s    | `delay` passé de 3 à 12 s                         |
-| `Wrong Answer Sting`         | 14,3 s  | 3 s     | `media_stop` après 3 s, seule l'attaque compte    |
-| `Investigation Ambience`     | 47 min  | —       | couvre largement la partie                        |
+| Son                          | Durée   | Volume | Note                                              |
+| ---------------------------- | ------- | ------ | ------------------------------------------------- |
+| `Police Sirens`              | 18,5 s  | 0,8    | `delay: 19` — c'est la sirène qui rythme la scène |
+| `Police Radio Chatter`       | 24 s    | 0,4    | fond de scène, moitié moins fort que la sirène    |
+| `Car Drive Away`             | 11,5 s  | 0,4    | `delay: 12`, même niveau que le brouhaha          |
+| `Wrong Answer Sting`         | 14,3 s  | —      | `media_stop` après 3 s, seule l'attaque compte    |
+| `Investigation Ambience`     | 47 min  | 0,4    | couvre largement la partie                        |
 
-> 🚨 **Vitesse des gyrophares** : le premier test les trouvait bien trop lents
-> (1 s par cycle). C'est maintenant un paramètre — `interval: 0.3` dans
-> `script.mystery_start`, soit ~32 alternances sur les 19 s de sirène. Si le
-> pont Hue décroche ou traîne, monte `interval` ; si c'est encore trop mou,
-> descends-le vers `0.2` (le rythme de la v1). **À valider en live**, c'est le
-> seul réglage que je ne peux pas mesurer d'ici.
+> 🚨 **Gyrophares** : réglés en **nombre de flashs**, pas en durée —
+> `cycles: 9` / `interval: 0.3` dans `script.mystery_start` (contre ~32
+> alternances avant, jugées bien trop longues). Les Govee du salon traînent à
+> changer d'état, donc le temps réel d'un cycle c'est `interval` **plus** la
+> latence de quatre appels : impossible de prédire la durée d'ici, il faut la
+> régler à l'œil. La boucle est lancée en tâche de fond, donc l'allonger ou la
+> raccourcir **ne décale plus rien** dans l'enchaînement sonore.
 
 > ⚠️ L'inspecteur parle dans le **téléphone**, pas sur le Sonos : sa voix ne
 > coupe donc rien. Un son trop long déborde par-dessus lui — c'est ce que ces

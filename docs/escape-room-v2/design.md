@@ -64,8 +64,17 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
 
 | Phase | Ce qui se passe | Entités en vedette |
 |---|---|---|
-| **0. La police arrive** | Script (délai optionnel). Toutes lumières éteintes → floor lamps salon alternent **bleu/rouge** (gyrophares, `script.mystery_flash_alternate`) → Sonos : **sirènes + brouhaha de policiers** parlant du meurtre, ils disent qu'ils **rappelleront**, puis repartent (**voiture qui démarre**, floor lamps s'éteignent) → **le téléphone sonne** | `light.left_floor_lamp`, `light.right_floor_lamp`, `media_player.sonos`, toutes lumières |
-| **1. Briefing** | L'**inspecteur** (téléphone) explique le meurtre et la mission (qui / avec quoi / où), puis envoie les joueurs au **terminal CCTV du bureau** : une **traînée de lumières** s'allume jusque-là (`script.mystery_guide_path`). L'**ambiance** démarre (`script.mystery_ambience`). Le plafonnier du bureau reste **éteint** — c'est la lampe d'appoint en effet `glisten` qui balise la pièce, l'écran fait le reste | `assist_satellite` (téléphone, TTS), `light.hallway_lights` → `light.downstairs_hallway_light` → `light.auxiliary_lamp` |
+| **0. La police arrive** | Script (délai optionnel). Lumières des pièces en jeu éteintes → floor lamps salon alternent **bleu/rouge** (gyrophares, `script.mystery_flash_alternate`, en tâche de fond) → Sonos : **sirènes** puis **brouhaha de policiers** | `light.left_floor_lamp`, `light.right_floor_lamp`, `media_player.sonos` |
+| **1a. Briefing, en personne** | L'**inspecteur coupe ses hommes et s'adresse au groupe sur le Sonos** : le meurtre, les 3 suspects, « fouillez partout ». Puis « il faut que j'y aille, j'ai un autre appel » → **la voiture s'éloigne**, silence | `media_player.sonos` (TTS `HenriNeural`) |
+| **1b. Il rappelle** | 5 s plus tard, **le téléphone sonne** : « j'oubliais ! » — les **caméras sont sur le terminal du bureau**, au sous-sol, et une **traînée de lumières** s'allume jusque-là. L'**ambiance** démarre | `assist_satellite` (téléphone), `light.hallway_lights` → `light.downstairs_hallway_light` → `light.auxiliary_lamp` |
+
+> 🎙️ **Pourquoi deux canaux.** Au téléphone, une seule personne tient le
+> combiné et le reste du groupe n'entend rien — c'est ce qui rendait le
+> briefing confus au premier test. Le gros des consignes passe donc par le
+> **Sonos**, où tout le monde reçoit la même chose en même temps ; le téléphone
+> ne sert plus qu'à l'unique information qui envoie les joueurs quelque part.
+> `script.mystery_inspector_say` porte les deux chemins (`on_sonos:`) avec la
+> même voix `HenriNeural`, pour que ce soit bien le même personnage.
 | **2. Enquête** | Explorer les pièces. Chaque capteur/bouton fait parler un suspect, et **la pièce d'où sort la voix s'éclaire**. **Roby fait deux parcours** : vers le vin quand parle l'Héritière (les joueurs le suivent), vers le rack d'épices quand parle le Jardinier (en douce, retrouvé au `vacuum.locate`). Il part **après** la réplique, pour ne pas être manqué. Musique d'ambiance sur le Sonos. Fausses pistes : fusil et coffre à bijoux (Héritière), tiroir couteaux (Majordome innocent) | capteurs (porte/vibration/contact), bouton Zigbee, haut-parleurs localisés, **robot aspirateur** |
 | **3. Rappel de la police** | Une fois les 3 suspects entendus, la police **rappelle** automatiquement avec le **rapport d'autopsie** → empoisonnement → élimine fusil + scie comme armes, et demande les **3 pièces à conviction** | téléphone / Sonos |
 | **4. Collecte + accusation** | Les 3 objets (scie, fusil, pot d'épices) portent une **étiquette-code**. Les joueurs les tapent sur le **terminal CCTV** : crochet vert, compteur « 2 / 3 ». À 3/3, le **dossier confidentiel** se déverrouille et ils y **désignent le coupable à l'écran**. Chemin de secours : dire « inspecteur » au téléphone, ou cliquer le bouton de l'étagère à vins | `input_text.mystery_code_input`, `input_boolean.mystery_evidence_*`, `input_select.mystery_accusation_choice` |
@@ -162,10 +171,17 @@ fois.
   patio, knife drawer, auto autopsy, call inspector, hint request, idle nudge,
   evidence code, terminal accusation).
 - **Trois briques de lumière réutilisables**, paramétrées plutôt que recopiées :
-  - `script.mystery_flash_alternate` — deux lampes qui alternent deux couleurs.
-    Le nombre de cycles se **déduit de la durée voulue** (`duration` /
-    `interval`), donc le jeu de lumière se cale tout seul sur la longueur d'un
-    son. Sert aux gyrophares (phase 0) et à la boîte de nuit du final.
+  - `script.mystery_flash_alternate` — deux lampes qui alternent deux couleurs,
+    réglé en **nombre de cycles** (`cycles` / `interval`). Sert aux gyrophares
+    (phase 0) et à la boîte de nuit du final.
+    ⚠️ On a d'abord voulu déduire les cycles d'une durée voulue, pour caler la
+    lumière sur la longueur d'un son. Ça ne marche pas : les lampes du salon
+    sont des **Govee**, lentes à accuser réception, et le temps réel d'un cycle
+    c'est `interval` **plus** la latence de quatre appels de service. La boucle
+    débordait donc deux à trois fois sa durée nominale. Elle est aussi lancée
+    en **tâche de fond** en phase 0 : quand elle bloquait, tout l'enchaînement
+    sonore partait en retard derrière elle. Le son suit maintenant ses propres
+    `delay`, calés sur la durée réelle des fichiers.
   - `script.mystery_guide_path` — une liste de lampes qui clignotent l'une
     après l'autre puis **restent en veilleuse** : une traînée que les joueurs
     suivent. Sert à envoyer vers le bureau, vers l'atelier, vers le théâtre.
