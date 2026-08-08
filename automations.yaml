@@ -2853,9 +2853,10 @@
       state: "on"
   actions:
     # Le booléen du suspect bascule dès que le TTS rend la main, pas à la fin
-    # de sa réplique. Le délai couvre la plus longue d'entre elles (82 mots,
-    # ~36 s), sinon l'inspecteur appellerait par-dessus le 3e suspect.
-    - delay: { seconds: 40 }
+    # de sa réplique. Les 40 s couvrent la plus longue d'entre elles (82 mots,
+    # ~36 s), sinon l'inspecteur appellerait par-dessus le 3e suspect ; les 12 s
+    # de plus sont voulues, pour laisser respirer avant qu'il rappelle.
+    - delay: { seconds: 52 }
     - action: script.mystery_police_callback
 - id: mystery_hint_request
   alias: "Mystery - Hint on request"
@@ -2967,6 +2968,48 @@
         # de déverrouillage à l'écran, ça suffit.
         - action: input_boolean.turn_on
           target: { entity_id: input_boolean.mystery_terminal_unlocked }
+    # T4.2 : un mot d'encouragement à 1/3 et 2/3. Rien à 3/3, la séquence de
+    # déverrouillage de la carte parle déjà pour elle-même.
+    - variables:
+        evidence_found: >-
+          {{ ['input_boolean.mystery_evidence_saw',
+              'input_boolean.mystery_evidence_gun',
+              'input_boolean.mystery_evidence_poison']
+             | map('states') | select('eq', 'on') | list | count }}
+    - if: "{{ evidence_found in [1, 2] }}"
+      then:
+        - action: script.mystery_inspector_say
+          data:
+            on_terminal: true
+            message: >-
+              {% if evidence_found == 1 %}
+              Une preuve au dossier. Bon travail, détectives — il en reste
+              deux à trouver.
+              {% else %}
+              Deux preuves sur trois. Vous y êtes presque : une dernière et le
+              dossier s'ouvre.
+              {% endif %}
+- id: mystery_terminal_first_touch
+  alias: "Mystery - Terminal first touch"
+  mode: single
+  # T4.1 : la carte bascule ce booléen au tout premier clic/toucher de l'écran
+  # de saisie (voir mystery-terminal-card.js, connectedCallback).
+  triggers:
+    - trigger: state
+      entity_id: input_boolean.mystery_terminal_first_touch
+      to: "on"
+  conditions:
+    - condition: state
+      entity_id: input_boolean.escape_v2_active
+      state: "on"
+  actions:
+    - action: script.mystery_inspector_say
+      data:
+        on_terminal: true
+        message: >-
+          Vous y êtes, détectives. Ce terminal, c'est le poste de commandement
+          de toute l'enquête : caméras, registre des preuves, dossier
+          confidentiel — tout passe par ici.
 - id: mystery_terminal_accusation
   alias: "Mystery - Accusation from terminal"
   mode: single

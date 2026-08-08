@@ -694,6 +694,7 @@ mystery_reset_state:
           - input_boolean.mystery_evidence_gun
           - input_boolean.mystery_evidence_poison
           - input_boolean.mystery_terminal_unlocked
+          - input_boolean.mystery_terminal_first_touch
     - action: input_text.set_value
       target: { entity_id: input_text.mystery_code_input }
       data: { value: "" }
@@ -1162,12 +1163,12 @@ mystery_suspect_speak:
     # explicite — sans ça les joueurs restaient plantés là.
     first_line: >-
       {% if suspect == 'gardener' %}
-      Hé, c'est quoi cette histoire de détective ? Moi, j'ai rien vu, j'te le
-      jure. J'ai passé la soirée icitte, dans l'atelier, à aiguiser ma scie
-      rouge. Ben relaxe. Mais si tu veux mon avis, le Majordome, lui yer louche
-      en tabarnak: il arrêtait pas de tourner autour de la salle à manger avec
-      sa bouteille de vin. Monte donc voir de ce côté-là. Et fais pas attention
-      à mon robot, il fait sa ronde.
+      Hé, c'est quoi cette histoire de détective ? Moi, j'ai rien vu, je le
+      jure. J'ai passé la soirée icite, dans l'atelier, à aiguiser ma scie
+      rouge. Vraiment chill man. Mais si tu veux mon avis, le Majordome, lui
+      y'er louche en tabarnak: il arrêtait pas de tourner autour de la salle à
+      manger avec sa bouteille de vin, le câlice. Monte donc voir de ce
+      côté-là. Et fais attention à mon robot, il fait sa ronde.
       {% elif suspect == 'heiress' %}
       {% if variant == 'laundry' %}
       Heille ! Fouillez pas dans mon linge sale, vous autres ! Ma robe de
@@ -1199,23 +1200,18 @@ mystery_suspect_speak:
       {% elif suspect == 'heiress' %}
       {% if heiress_gun_seen and heiress_dress_seen %}
       Heille, tabarnak, lâchez mes affaires tranquilles ! Ni le fusil ni ma
-      robe ont rapport là-dedans, je vous le jure. Pis arrêtez de me niaiser
-      avec ça : mon robot est déjà parti vous montrer où chercher. J'lai vu le
-      Majordome, y'avait un sac à vin contenant sa meilleur bouteille, y'a
-      clairement laisser des traces de son passage dans le sac !
+      robe ont rapport là-dedans, je vous le jure.
       {% elif heiress_gun_seen %}
-      Heille, tabarnak, lâchez mes affaires tranquilles ! Le fusil, ça prouve
-      rien pantoute, je vous le jure. Pis arrêtez de me niaiser avec ça : mon
-      robot est déjà parti vous montrer où chercher. J'lai vu le Majordome,
-      y'avait un sac à vin contenant sa meilleur bouteille, y'a clairement
-      laisser des traces de son passage dans le sac !
+      Girouette de St-Miséricorde! Vas-tu bien lâchez mes affaires ? Le fusil,
+      ça prouve rien pantoute, je vous le jure.
       {% else %}
-      Heille, tabarnak, lâchez mes affaires tranquilles ! Ma robe, c'est rien
-      que du vin renversé, je vous le jure. Pis arrêtez de me niaiser avec ça :
-      mon robot est déjà parti vous montrer où chercher. J'lai vu le
-      Majordome, y'avait un sac à vin contenant sa meilleur bouteille, y'a
-      clairement laisser des traces de son passage dans le sac !
+      Câlice, lâchez mes affaires tranquilles ! Ma robe, c'est rien que du vin
+      renversé, je vous le jure.
       {% endif %}
+      Pis arrêtez de me niaiser avec ça : mon robot est déjà parti vous
+      montrer où chercher. J'lai vu le Majordome, y'avait un sac à vin
+      contenant sa meilleur bouteille, y'a clairement laisser des traces de
+      son passage dans le sac !
       {% else %}
       Le service, toujours le service. Le vin était... parfait. Enfin,
       presque. Je n'ai rien vu de suspect de mon côté. Aller donc voir

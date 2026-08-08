@@ -4,9 +4,8 @@
 > directement dans les blocs et renvoie-les-moi avec leur numéro
 > (`T7 → nouveau texte`).
 >
-> La numérotation ne bouge pas entre les révisions : T4, T14 et T15 ont été
-> retirés du jeu mais gardent leur place, pour que les anciens numéros
-> continuent de désigner la même chose.
+> La numérotation ne bouge pas entre les révisions : les numéros sautés
+> (T14, T15) ne sont plus utilisés, ils ont été retirés du jeu.
 
 **Où sort chaque voix** — 📞 téléphone (salon) · 🔊 Sonos (salon, tout le groupe
 entend) · 🖥️ terminal du bureau (sous-sol, texte affiché **et** voix).
@@ -29,15 +28,32 @@ Bonsoir. Ici inspecteur Henri-Onésime de Beauchamp-Latulippe. Vous devez être 
 Ici Inspecteur Beauchamp-Latulippe. J'oubliais ! Les caméras de surveillance de la maison sont sur le terminal, dans le bureau au sous-sol. J'ai fait allumer les lumières jusque-là, suivez-les. Et si vous bloquez, demandez-moi un indice au téléphone.
 ```
 
-**T3** 📞 — 12 secondes après les 3 suspects entendus: Le rapport d'autopsie.
+**T3** 📞 — 52 secondes après les 3 suspects entendus (40 s de marge pour
+laisser finir le plus long témoignage, +12 s voulues avant qu'il rappelle).
+Le rapport d'autopsie.
 
 ```
 Beauchamp-Latulippe à nouveau. J'ai eu le rapport de l'autopsie : la victime a été empoisonnée. Avez-vous trouvé les trois pièces à conviction possible ? Dès que vous les avez, tapez-les sur le terminal du bureau.
 ```
 
-**T4** — ~~Annonce téléphonique au 3ᵉ code~~ · **retirée**. Les joueurs sont au
-sous-sol, le téléphone est au salon. Le terminal joue sa séquence de
-déverrouillage à l'écran, ça suffit.
+**T4.1** 🖥️ — Premier clic/toucher sur l'écran de saisie depuis le début de
+l'enquête (`input_boolean.mystery_terminal_first_touch`, basculé par la carte
+elle-même — voir `mystery-terminal-card.js`, `connectedCallback`).
+
+```
+Vous y êtes, détectives. Ce terminal, c'est le poste de commandement de toute l'enquête : caméras, registre des preuves, dossier confidentiel — tout passe par ici.
+```
+
+**T4.2** 🖥️ — Bon code entré sur le terminal, à 1/3 et 2/3. Rien à 3/3 : la
+séquence de déverrouillage à l'écran suffit déjà.
+
+```
+Une preuve au dossier. Bon travail, détectives — il en reste deux à trouver.
+```
+
+```
+Deux preuves sur trois. Vous y êtes presque : une dernière et le dossier s'ouvre.
+```
 
 **T5** 🖥️ — Bonne réponse.
 
@@ -100,12 +116,6 @@ Il n'y a pas d'enquête en cours, détective.
 Un instant, détective, je consulte mon dossier.
 ```
 
-**T14** — ~~« Je vais dire à l'inspecteur de vous rappeler »~~ · **retirée**.
-
-**T15** — ~~Sa question d'accusation au téléphone~~ · **retirée**. L'accusation se
-fait uniquement sur le terminal. Le mot « inspecteur » ne déclenche plus rien,
-et le bouton de l'étagère à vins ne sert plus qu'à appeler le Majordome.
-
 ---
 
 ## 🌿 Le Jardinier — atelier au sous-sol, sur l'Echo
@@ -116,7 +126,7 @@ et le bouton de l'étagère à vins ne sert plus qu'à appeler le Majordome.
 **T16** — Première fois qu'on ouvre la porte de l'atelier.
 
 ```
-Hé, c'est quoi cette histoire de détective ? Moi, j'ai rien vu, j'te le jure. J'ai passé la soirée icitte, dans l'atelier, à aiguiser ma scie rouge. Ben relaxe. Mais si tu veux mon avis, le Majordome, lui yer louche en tabarnak: il arrêtait pas de tourner autour de la salle à manger avec sa bouteille de vin. Monte donc voir de ce côté-là. Et fais pas attention à mon robot, il fait sa ronde.
+Hé, c'est quoi cette histoire de détective ? Moi, j'ai rien vu, je le jure. J'ai passé la soirée icite, dans l'atelier, à aiguiser ma scie rouge. Vraiment chill man. Mais si tu veux mon avis, le Majordome, lui y'er louche en tabarnak: il arrêtait pas de tourner autour de la salle à manger avec sa bouteille de vin, le câlice. Monte donc voir de ce côté-là. Et fais attention à mon robot, il fait sa ronde.
 ```
 
 **T17** — Les fois suivantes.
@@ -155,26 +165,34 @@ Heille ! Fouillez pas dans mon linge sale, vous autres ! Ma robe de soirée est 
 Si vous cherchez de quoi avancer, c'est pas moi qu'il faut regarder. Moi, j'irais fouiller l'étagère à vins — il doit bien se cacher quelque chose là-dedans. Tenez, je pars mon robot, il s'en va justement par là. Suivez-le.
 ```
 
-**T22** — Les fois suivantes. Le texte dépend de laquelle de ses 2 cachettes a
-déjà été trouvée (indépendamment de qui a fourni le tout premier témoignage) :
-retrouver l'autre après coup fait passer T22a/T22b à T22c.
+**T22** — Les fois suivantes. L'entrée en matière (T22-1a/b/c) dépend de
+laquelle de ses 2 cachettes a déjà été trouvée (indépendamment de qui a
+fourni le tout premier témoignage) — retrouver l'autre après coup fait passer
+T22-1a/T22-1b à T22-1c. La suite (T22-2) est toujours la même, enchaînée
+juste après.
 
-**T22a** — Seule la trappe du fusil a été trouvée.
-
-```
-Heille, tabarnak, lâchez mes affaires tranquilles ! Le fusil, ça prouve rien pantoute, je vous le jure. Pis arrêtez de me niaiser avec ça : mon robot est déjà parti vous montrer où chercher. J'lai vu le Majordome, y'avait un sac à vin contenant sa meilleur bouteille, y'a clairement laisser des traces de son passage dans le sac !
-```
-
-**T22b** — Seule la robe a été trouvée.
+**T22-1a** — Seule la trappe du fusil a été trouvée.
 
 ```
-Heille, tabarnak, lâchez mes affaires tranquilles ! Ma robe, c'est rien que du vin renversé, je vous le jure. Pis arrêtez de me niaiser avec ça : mon robot est déjà parti vous montrer où chercher. J'lai vu le Majordome, y'avait un sac à vin contenant sa meilleur bouteille, y'a clairement laisser des traces de son passage dans le sac !
+Girouette de St-Miséricorde! Vas-tu bien lâchez mes affaires ? Le fusil, ça prouve rien pantoute, je vous le jure.
 ```
 
-**T22c** — Les deux ont été trouvées.
+**T22-1b** — Seule la robe a été trouvée.
 
 ```
-Heille, tabarnak, lâchez mes affaires tranquilles ! Ni le fusil ni ma robe ont rapport là-dedans, je vous le jure. Pis arrêtez de me niaiser avec ça : mon robot est déjà parti vous montrer où chercher. J'lai vu le Majordome, y'avait un sac à vin contenant sa meilleur bouteille, y'a clairement laisser des traces de son passage dans le sac !
+Câlice, lâchez mes affaires tranquilles ! Ma robe, c'est rien que du vin renversé, je vous le jure.
+```
+
+**T22-1c** — Les deux ont été trouvées.
+
+```
+Heille, tabarnak, lâchez mes affaires tranquilles ! Ni le fusil ni ma robe ont rapport là-dedans, je vous le jure.
+```
+
+**T22-2** — Enchaînement après T22-1\*
+
+```
+Pis arrêtez de me niaiser avec ça : mon robot est déjà parti vous montrer où chercher. J'lai vu le Majordome, y'avait un sac à vin contenant sa meilleur bouteille, y'a clairement laisser des traces de son passage dans le sac !
 ```
 
 ---

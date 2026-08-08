@@ -19,6 +19,7 @@ const ENT = {
   gun: "input_boolean.mystery_evidence_gun",
   poison: "input_boolean.mystery_evidence_poison",
   unlocked: "input_boolean.mystery_terminal_unlocked",
+  firstTouch: "input_boolean.mystery_terminal_first_touch",
   accusation: "input_select.mystery_accusation_choice",
   phase: "input_select.mystery_phase",
 };
@@ -653,6 +654,18 @@ class MysteryTerminalCard extends HTMLElement {
       this._onFs = () => this._syncFullscreen();
       document.addEventListener("fullscreenchange", this._onFs);
       document.addEventListener("webkitfullscreenchange", this._onFs);
+    }
+    // T4.1 : l'inspecteur signale le poste de commandement au tout premier
+    // contact avec l'écran de saisie. On lit l'état HA plutôt qu'un drapeau JS
+    // pour rester correct après un reset sans recharger la page — le mur
+    // d'images ne doit jamais le déclencher, seul l'écran de saisie compte.
+    if (!this._onTouch) {
+      this._onTouch = () => {
+        if (this._mode !== "code" || !this._hass) return;
+        const s = this._hass.states[ENT.firstTouch];
+        if (s && s.state !== "on") this._call("input_boolean", "turn_on", { entity_id: ENT.firstTouch });
+      };
+      this.addEventListener("pointerdown", this._onTouch);
     }
     if (this._timer) return;
     this._timer = setInterval(() => this._tick(), 1000);

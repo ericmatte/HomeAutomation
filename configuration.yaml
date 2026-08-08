@@ -238,6 +238,11 @@ input_boolean:
   mystery_terminal_unlocked:
     name: Mystery Terminal Unlocked
     icon: mdi:folder-lock-open
+  # Bascule sur le tout premier clic/toucher de l'écran de saisie ; la carte
+  # ne la remet jamais à off elle-même, c'est mystery_reset_state qui le fait.
+  mystery_terminal_first_touch:
+    name: Mystery Terminal First Touch
+    icon: mdi:cursor-default-click
   escape_v2_active:
     name: Escape v2 Active
     icon: mdi:incognito
