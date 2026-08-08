@@ -7,7 +7,10 @@ code (scripts / automations / helpers) est déjà en place sur la branche.
 
 - [ ] Basculer HA sur la branche **`escape-2`**.
 - [ ] **Redémarrer Home Assistant** (pas juste un reload : les helpers YAML
-      `input_select` / `input_boolean` exigent un redémarrage).
+      `input_select` / `input_boolean` / `input_text` exigent un redémarrage).
+      ⚠️ À refaire après cette passe : de nouveaux helpers ont été ajoutés
+      (`input_text.mystery_code_input`, les 3 `mystery_evidence_*`,
+      `mystery_terminal_unlocked`, `input_select.mystery_accusation_choice`).
 
 ## 🔊 1. Haut-parleurs
 
@@ -22,11 +25,18 @@ code (scripts / automations / helpers) est déjà en place sur la branche.
 | À déplacer                 | Entité                                     | Nouvel emplacement                                           | Effet                       |
 | -------------------------- | ------------------------------------------ | ------------------------------------------------------------ | --------------------------- |
 | Capteur de vibration       | `binary_sensor.vibration_sensor_vibration` | **Trappe d'aération du foyer** (BB gun caché)                | Héritière paniquée          |
-| Bouton Zigbee              | device `8317fbc3ea314ec40186f0d8ec39998d`  | **Étagère à vins**, label « cliquer pour service »           | Majordome « service »       |
+| Contact de porte buanderie | `binary_sensor.laundry_door_open`          | **Coffre à bijoux de l'Héritière**, bien visible au salon    | Héritière (2ᵉ prise)        |
+| Bouton Zigbee              | device `8317fbc3ea314ec40186f0d8ec39998d`  | **Étagère à vins**, label « cliquer pour service »           | Majordome « service » + appel de l'inspecteur après l'autopsie |
 | ~~Capteur closet chambre~~ | `binary_sensor.knife_drawer_contact`       | **Tiroir à couteaux (cuisine)** — ✅ capteur dédié déjà posé | Majordome feint l'innocence |
 
 - [x] Déplacer le capteur de vibration sur la trappe du foyer (ajuster
       `number.vibration_sensor_sensitivity` au besoin).
+- [ ] **Déplacer le contact `binary_sensor.laundry_door_open` sur un coffre à
+      bijoux au salon.** Avec la seule trappe du fusil, des joueurs passaient à
+      côté de l'Héritière ; le coffre est visible et colle à son mobile.
+      L'automation « Laundry light on when door opens » est déjà garde-fou-ée
+      par `input_boolean.escape_v2_active` : la buanderie ne s'allumera pas
+      pendant la partie, et retrouvera son comportement normal après le reset.
 - [x] Déplacer le bouton Zigbee sur l'étagère à vins (+ label).
 - [x] Tiroir à couteaux : capteur **dédié** `binary_sensor.knife_drawer_contact`
       posé. Plus besoin de déplacer celui du closet, et la porte-patio garde le
@@ -49,6 +59,8 @@ code (scripts / automations / helpers) est déjà en place sur la branche.
       (ex. « ce vin a un goût étrange… inspectez l'assaisonnement / les tiroirs »).
 - [x] **BB gun (fusil)** caché dans la **trappe du foyer** (capteur de vibration
       dessus) — fausse piste de l'Héritière.
+- [ ] **Coffre à bijoux de l'Héritière** au salon, avec le contact de porte de
+      la buanderie posé dessus (voir §2).
 - [ ] **Fiole de poison** cachée (tiroir / derrière la porte-patio).
 - [x] **Rack d'épices** avec une épice étiquetée **« POISON »**.
 - [ ] **Gants tachés** du Majordome (indice coupable) — salle à manger.
@@ -56,13 +68,46 @@ code (scripts / automations / helpers) est déjà en place sur la branche.
 - [x] **Labels imprimés** : label « cliquer pour service » (étagère à vins),
       label de la bouteille de vin, autres énigmes/cartes.
 
-## 📺 4. CCTV — setup manuel PC dans le bureau (hors HA)
+### 🏷️ Étiquettes-codes des 3 pièces à conviction
 
-- [x] Ouvrir sur les **2 écrans PC** en plein écran :
-      <https://www.whitescreen.online/hacker-simulator/>.
-- [x] Un **dossier Explorateur** nommé **« CCTV - Vidéos de surveillance »**
-      contenant **3 fichiers .mp4** ouvrables (1 par suspect, flous/mystérieux,
-      chacun le montrant avec son arme potentielle).
+C'est **le cœur de la progression** : il faut avoir trouvé et enregistré les
+trois objets pour que le dossier confidentiel s'ouvre et que la fin devienne
+jouable. Chaque objet porte une étiquette imprimée avec son code à 4 chiffres,
+que les joueurs tapent sur le terminal CCTV du bureau (voir §4).
+
+| Objet                              | Où                             | Code   | Entité déverrouillée               |
+| ---------------------------------- | ------------------------------ | ------ | ---------------------------------- |
+| 🪚 **Scie à main** (Jardinier)     | Atelier / établi, au sous-sol  | `7412` | `input_boolean.mystery_evidence_saw` |
+| 🔫 **Fusil BB gun** (Héritière)    | Trappe du foyer, salon         | `3856` | `input_boolean.mystery_evidence_gun` |
+| ☠️ **Pot d'épices « POISON »** (Majordome) | Rack d'épices, salle à manger | `9027` | `input_boolean.mystery_evidence_poison` |
+
+- [ ] Imprimer les 3 étiquettes. Suggestion de formulation, pour que le geste
+      soit évident sans explication :
+      « **PIÈCE À CONVICTION — CODE 7412** · Enregistrez ce code sur le terminal
+      de sécurité (bureau, sous-sol). »
+- [ ] Les codes vivent dans l'automation `Mystery - Evidence code entered`
+      (`automations.yaml`) : si tu les changes sur les étiquettes, change-les
+      aussi là.
+
+## 📺 4. Terminal CCTV — PC du bureau
+
+Le PC du bureau n'est plus un simple lecteur de vidéos : c'est **le poste de
+commande du jeu**, et il remplace la plupart des interactions au téléphone (la
+reconnaissance vocale s'est révélée trop peu fiable au premier test).
+
+- [ ] **Générer le dashboard** à partir du brief
+      [`../cctv-terminal-prompt.md`](../cctv-terminal-prompt.md) (à envoyer à
+      Claude Design), puis le coller dans Home Assistant.
+- [ ] L'ouvrir **en plein écran** sur l'écran du bureau (mode kiosque).
+- [ ] Uploader les **3 .mp4** de surveillance dans le media source de HA
+      (1 par suspect, flous/mystérieux, chacun le montrant avec son arme
+      potentielle) et brancher leurs chemins dans le dashboard.
+- [x] ~~Hacker simulator + dossier Explorateur~~ — remplacés par le dashboard.
+
+Ce que le terminal doit permettre : regarder les 3 enregistrements, taper les
+codes des pièces à conviction (crochet vert + compteur « 2 / 3 »), et une fois
+à 3/3, ouvrir le **dossier confidentiel** pour y désigner le coupable. Toute la
+logique reste dans HA — le dashboard ne fait qu'écrire dans les helpers.
 
 ## 🎵 5. Fichiers médias à uploader dans HA
 
@@ -100,11 +145,18 @@ le précédent) :
 
 | Son                          | Durée   | Fenêtre | Note                                              |
 | ---------------------------- | ------- | ------- | ------------------------------------------------- |
-| `Police Sirens`              | 18,5 s  | 19 s    | boucle gyrophares allongée de 15 à 19 cycles      |
+| `Police Sirens`              | 18,5 s  | 19 s    | gyrophares : `duration: 19` sur `script.mystery_flash_alternate` |
 | `Police Radio Chatter`       | 24 s    | 25 s    | `delay` passé de 12 à 25 s pour l'entendre entier |
 | `Car Drive Away`             | 11,5 s  | 12 s    | `delay` passé de 3 à 12 s                         |
 | `Wrong Answer Sting`         | 14,3 s  | 3 s     | `media_stop` après 3 s, seule l'attaque compte    |
 | `Investigation Ambience`     | 47 min  | —       | couvre largement la partie                        |
+
+> 🚨 **Vitesse des gyrophares** : le premier test les trouvait bien trop lents
+> (1 s par cycle). C'est maintenant un paramètre — `interval: 0.3` dans
+> `script.mystery_start`, soit ~32 alternances sur les 19 s de sirène. Si le
+> pont Hue décroche ou traîne, monte `interval` ; si c'est encore trop mou,
+> descends-le vers `0.2` (le rythme de la v1). **À valider en live**, c'est le
+> seul réglage que je ne peux pas mesurer d'ici.
 
 > ⚠️ L'inspecteur parle dans le **téléphone**, pas sur le Sonos : sa voix ne
 > coupe donc rien. Un son trop long déborde par-dessus lui — c'est ce que ces

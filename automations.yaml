@@ -740,7 +740,12 @@
     entity_id:
     - binary_sensor.laundry_door_open
     to:
-  conditions: []
+  conditions:
+  # Ce capteur est emprunté par l'escape room v2 (coffre à bijoux de
+  # l'Héritière) : sans cette garde, la buanderie s'allumerait à chaque fois.
+  - condition: state
+    entity_id: input_boolean.escape_v2_active
+    state: "off"
   actions:
   - if:
     - condition: state
@@ -2724,6 +2729,13 @@
       entity_id: binary_sensor.vibration_sensor_vibration
       to: "on"
       id: heiress
+    # Deuxième prise pour l'Héritière : avec la seule trappe du fusil, des
+    # joueurs passaient à côté d'elle. Son coffre à bijoux, bien visible au
+    # salon, colle à son mobile (l'héritage) et se remarque tout seul.
+    - trigger: state
+      entity_id: binary_sensor.laundry_door_open
+      to: "on"
+      id: heiress_jewels
     - trigger: device
       domain: mqtt
       device_id: 8317fbc3ea314ec40186f0d8ec39998d
@@ -2735,9 +2747,14 @@
       entity_id: input_select.mystery_phase
       state: ["investigation"]
   actions:
+    # Les ids sont de la forme « suspect » ou « suspect_variante » : la
+    # variante ne change que l'entrée en matière de la réplique.
+    - variables:
+        parts: "{{ trigger.id.split('_') }}"
     - action: script.mystery_suspect_speak
       data:
-        suspect: "{{ trigger.id }}"
+        suspect: "{{ parts[0] }}"
+        variant: "{{ parts[1] if parts | count > 1 else '' }}"
 - id: mystery_butler_patio
   alias: "Mystery - Butler at patio door"
   mode: single
@@ -2750,22 +2767,53 @@
       entity_id: input_select.mystery_phase
       state: ["investigation"]
   actions:
-    - action: media_player.volume_set
-      target: { entity_id: media_player.google_home_mini }
-      data: { volume_level: 0.6 }
-    - action: tts.speak
-      target: { entity_id: tts.home_assistant_cloud }
+    # Le Jardinier marmonne dans son atelier pendant que le Majordome parle :
+    # ce bruit de fond dit aux joueurs où le trouver. notify rend la main tout
+    # de suite, les deux voix se superposent donc comme voulu.
+    - action: script.mystery_suspect_speak
       data:
-        cache: true
-        language: fr-CA
-        media_player_entity_id: media_player.google_home_mini
-        options:
-          voice: ThierryNeural
-        message: >-
-          Oh, vous partez déjà voir le Jardinier ? Avant cela... prenez donc le
-          temps d'examiner l'étagère à vins, et les tiroirs de la cuisine. On
-          trouve parfois des choses surprenantes dans une maison. Moi je n'ai
-          rien à cacher, bien entendu.
+        suspect: gardener
+        custom_line: >-
+          Hmm hmm... voyons voir... non, pas celle-là... mais où c'est que j'ai
+          mis ça, donc... hmm... ah, tiens... non, non... mmmh... bon, bon,
+          bon...
+    - action: script.mystery_suspect_speak
+      data:
+        suspect: butler
+        custom_line: >-
+          Oh, vous partez déjà voir le Jardinier ? Il est en bas, dans son
+          atelier : écoutez, on l'entend bricoler d'ici. Mais avant cela,
+          prenez donc le temps d'examiner cette étagère à vins et les tiroirs
+          de la cuisine. On trouve parfois des choses bien surprenantes dans
+          une maison. Moi, je n'ai rien à cacher, bien entendu.
+- id: mystery_knife_drawer
+  alias: "Mystery - Knife drawer red herring"
+  mode: single
+  triggers:
+    - trigger: state
+      entity_id: binary_sensor.knife_drawer_contact
+      to: "on"
+  conditions:
+    - condition: state
+      entity_id: input_select.mystery_phase
+      state: ["investigation"]
+  actions:
+    - action: script.mystery_suspect_speak
+      data:
+        suspect: butler
+        custom_line: >-
+          Un couteau manquant dans ce tiroir ? Mon Dieu... je n'y toucherais
+          jamais, voyons. Le service, uniquement le service. Mais puisque vous
+          fouillez : c'est le Jardinier qui a pris ce couteau, je l'ai vu le
+          glisser sous son tablier en repartant. Allez donc le lui demander
+          vous-même. Il traîne dehors, ou en bas dans son atelier.
+    # Le Majordome envoie les joueurs vers le Jardinier : on allume le chemin
+    # jusqu'au sous-sol plutôt que de les laisser deviner.
+    - action: script.mystery_guide_path
+      data:
+        lights:
+          - light.hallway_lights
+          - light.downstairs_hallway_light
 - id: mystery_auto_autopsy
   alias: "Mystery - Auto autopsy"
   mode: single
@@ -2790,58 +2838,179 @@
       entity_id: input_boolean.mystery_butler_done
       state: "on"
   actions:
-    # Le booléen du suspect bascule dès que tts.speak rend la main, pas à la fin
-    # de sa réplique (20-25 s). Sans cette attente, l'inspecteur appellerait
-    # par-dessus le 3e suspect encore en train de parler.
-    - delay: { seconds: 30 }
+    # Le booléen du suspect bascule dès que le TTS rend la main, pas à la fin
+    # de sa réplique. Le délai couvre la plus longue d'entre elles (82 mots,
+    # ~36 s), sinon l'inspecteur appellerait par-dessus le 3e suspect.
+    - delay: { seconds: 40 }
     - action: script.mystery_police_callback
 - id: mystery_call_inspector
   alias: "Mystery - Call inspector"
   mode: single
   triggers:
+    # Le bouton de l'étagère à vins est le chemin principal : les étiquettes
+    # des 3 preuves demandent de les y rapporter puis de cliquer. La commande
+    # vocale reste en secours — la reconnaissance au téléphone est trop
+    # aléatoire pour en faire le seul déclencheur de la fin.
+    - trigger: device
+      domain: mqtt
+      device_id: 8317fbc3ea314ec40186f0d8ec39998d
+      type: action
+      subtype: single
+      id: button
     - trigger: conversation
       command:
         - inspecteur
         - "{a}inspecteur"
         - "inspecteur{b}"
         - "{a}inspecteur{b}"
+      id: voice
   conditions:
     - condition: state
       entity_id: input_select.mystery_phase
       state: ["autopsy_done"]
   actions:
-    - set_conversation_response: >-
-        Parfait, détective. Je vais dire à l'inspecteur de vous rappeler tout
-        de suite.
-    - delay: { seconds: 4 }
+    - if: "{{ trigger.id == 'voice' }}"
+      then:
+        - set_conversation_response: >-
+            Parfait, détective. Je vais dire à l'inspecteur de vous rappeler
+            tout de suite.
+        - delay: { seconds: 4 }
     - action: script.mystery_accusation
-- id: mystery_knife_drawer
-  alias: "Mystery - Knife drawer red herring"
+- id: mystery_hint_request
+  alias: "Mystery - Hint on request"
   mode: single
   triggers:
+    - trigger: conversation
+      command:
+        - indice
+        - "{a}indice"
+        - "indice{b}"
+        - "{a}indice{b}"
+  conditions:
+    # La v1 répond au même mot : c'est la garde de cohabitation qui départage.
+    - condition: state
+      entity_id: input_boolean.escape_v2_active
+      state: "on"
+  actions:
+    - set_conversation_response: >-
+        Un instant, détective, je consulte mon dossier.
+    - delay: { seconds: 3 }
+    - action: script.mystery_hint
+- id: mystery_idle_nudge
+  alias: "Mystery - Idle nudge"
+  mode: restart
+  # Filet de sécurité : sans nouvelle avancée, l'inspecteur rappelle de
+  # lui-même. Le premier test a montré des joueurs laissés à eux-mêmes, sans
+  # savoir qu'ils pouvaient demander un indice.
+  triggers:
     - trigger: state
-      entity_id: binary_sensor.knife_drawer_contact
+      entity_id: input_select.mystery_phase
+      to:
+        - investigation
+        - autopsy_done
+    - trigger: state
+      entity_id:
+        - input_boolean.mystery_gardener_done
+        - input_boolean.mystery_heiress_done
+        - input_boolean.mystery_butler_done
       to: "on"
+  actions:
+    - repeat:
+        while:
+          - condition: state
+            entity_id: input_select.mystery_phase
+            state:
+              - investigation
+              - autopsy_done
+        sequence:
+          - delay: { minutes: 6 }
+          - if:
+              - condition: state
+                entity_id: input_select.mystery_phase
+                state:
+                  - investigation
+                  - autopsy_done
+            then:
+              - action: script.mystery_hint
+- id: mystery_evidence_code
+  alias: "Mystery - Evidence code entered"
+  mode: queued
+  max: 5
+  # Chacun des 3 objets-indices porte une étiquette avec son code ; les joueurs
+  # le tapent sur le terminal CCTV du bureau. C'est ce qui remplace les
+  # interactions vocales au téléphone, trop peu fiables au premier test.
+  triggers:
+    - trigger: state
+      entity_id: input_text.mystery_code_input
+  conditions:
+    - condition: template
+      value_template: "{{ trigger.to_state.state | trim }}"
+  actions:
+    - variables:
+        codes:
+          "7412": input_boolean.mystery_evidence_saw
+          "3856": input_boolean.mystery_evidence_gun
+          "9027": input_boolean.mystery_evidence_poison
+        matched: "{{ codes.get(trigger.to_state.state | trim, '') }}"
+    # Le champ se vide tout de suite : le pavé est prêt pour le code suivant, et
+    # la remise à zéro ne redéclenche rien (la condition exige un code non vide).
+    - action: input_text.set_value
+      target: { entity_id: input_text.mystery_code_input }
+      data: { value: "" }
+    - condition: template
+      value_template: "{{ matched }}"
+    - action: input_boolean.turn_on
+      target: { entity_id: "{{ matched }}" }
+    - if:
+        - condition: state
+          entity_id: input_boolean.mystery_evidence_saw
+          state: "on"
+        - condition: state
+          entity_id: input_boolean.mystery_evidence_gun
+          state: "on"
+        - condition: state
+          entity_id: input_boolean.mystery_evidence_poison
+          state: "on"
+      then:
+        - action: input_boolean.turn_on
+          target: { entity_id: input_boolean.mystery_terminal_unlocked }
+        - action: assist_satellite.announce
+          target: { entity_id: assist_satellite.192_168_0_160 }
+          data:
+            preannounce: false
+            message: >-
+              Les trois pièces à conviction sont enregistrées, détective. Le
+              dossier confidentiel vient de se déverrouiller sur le terminal du
+              bureau. Ouvrez-le, et désignez-moi le coupable sur l'écran.
+          continue_on_error: true
+- id: mystery_terminal_accusation
+  alias: "Mystery - Accusation from terminal"
+  mode: single
+  # L'accusation se fait à l'écran plutôt qu'à la voix. Le chemin téléphone
+  # (mystery_call_inspector) reste en secours.
+  triggers:
+    - trigger: state
+      entity_id: input_select.mystery_accusation_choice
+      not_to:
+        - none
+        - unknown
+        - unavailable
   conditions:
     - condition: state
-      entity_id: input_select.mystery_phase
-      state: ["investigation"]
+      entity_id: input_boolean.mystery_terminal_unlocked
+      state: "on"
   actions:
-    - action: media_player.volume_set
-      target: { entity_id: media_player.google_home_mini }
-      data: { volume_level: 0.6 }
-    - action: tts.speak
-      target: { entity_id: tts.home_assistant_cloud }
+    - action: input_select.select_option
+      target: { entity_id: input_select.mystery_phase }
+      data: { option: accusation }
+    - action: script.mystery_denouement
       data:
-        cache: true
-        language: fr-CA
-        media_player_entity_id: media_player.google_home_mini
-        options:
-          voice: ThierryNeural
-        message: >-
-          Un couteau manquant dans ce tiroir ? Mon Dieu... Je n'y toucherais
-          jamais, voyons. Le service, uniquement le service. C'est le Jardinier
-          qui passe son temps dans cette cuisine, pas moi.
+        success: "{{ trigger.to_state.state == 'butler' }}"
+    # Remis à « none » pour qu'une deuxième tentative après une mauvaise
+    # accusation redéclenche bien l'automation.
+    - action: input_select.select_option
+      target: { entity_id: input_select.mystery_accusation_choice }
+      data: { option: none }
 - id: '1784317521705'
   alias: Closet motion
   description: ''

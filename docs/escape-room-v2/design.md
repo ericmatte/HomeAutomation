@@ -31,7 +31,7 @@ détectives. Objectif façon Cluedo : **QUI · AVEC QUOI · OÙ**.
 | Suspect | Lieu (pièce) | Arme (fausse piste) | Voix (haut-parleur) | Déclencheur |
 |---|---|---|---|---|
 | 🌿 **Le Jardinier** | Atelier / établi (`workshop`) | Scie à main | `media_player.workshop_echo` (Echo, déjà là) | `binary_sensor.door_sensor_contact` (porte atelier) |
-| 💎 **L'Héritière** | Salon (`living_room`) | Fusil (BB gun, caché dans la trappe du foyer) | `media_player.sonos` | `binary_sensor.vibration_sensor_vibration` (déplacé sur la trappe du fusil) → **voix paniquée** |
+| 💎 **L'Héritière** | Salon (`living_room`) | Fusil (BB gun, caché dans la trappe du foyer) | `media_player.sonos` | `binary_sensor.vibration_sensor_vibration` (trappe du fusil) **ou** `binary_sensor.laundry_door_open` (déplacé sur son coffre à bijoux) → **voix paniquée** |
 | 🤵 **Le Majordome** | Salle à manger (`dining_room`) | **Poison (vin)** | `media_player.google_home_mini` (à déplacer en salle à manger) | **bouton Zigbee** (`8317fbc3ea314ec40186f0d8ec39998d`, étagère à vins, « cliquer pour service »). Répliques secondaires : porte-patio (`patio_door`) + tiroir à couteaux (`knife_drawer_contact`, fausse piste) |
 
 **Solution (cachée aux joueurs) : le Majordome · le poison · la salle à manger.**
@@ -64,12 +64,12 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
 
 | Phase | Ce qui se passe | Entités en vedette |
 |---|---|---|
-| **0. La police arrive** | Script (délai optionnel). Toutes lumières éteintes → floor lamps salon alternent **bleu/rouge** (gyrophares) → Sonos : **sirènes + brouhaha de policiers** parlant du meurtre, ils disent qu'ils **rappelleront** avec plus de détails, puis repartent (**voiture qui démarre**, floor lamps s'éteignent) → **le téléphone sonne** | `light.left_floor_lamp`, `light.right_floor_lamp`, `media_player.sonos`, toutes lumières |
-| **1. Briefing** | L'**inspecteur** (téléphone) explique le meurtre et la mission (QUI/QUOI/OÙ), lance sur la 1ʳᵉ piste. Interaction : « Prêt ? » → oui/non | `assist_satellite` (téléphone, TTS), lumière de guidage |
-| **2. Enquête** | Explorer les pièces. Chaque capteur/bouton fait parler un suspect. **Roby fait deux parcours** : vers le vin quand parle l'Héritière (les joueurs le suivent), vers le rack d'épices quand parle le Jardinier (en douce, retrouvé au `vacuum.locate` en remontant). Musique d'ambiance en fond sur le Sonos (duckée par le TTS de l'Héritière). Fausses pistes : fusil (vibration → Héritière paniquée), tiroir couteaux (Majordome innocent) | capteurs (porte/vibration), bouton Zigbee, haut-parleurs localisés, **robot aspirateur** |
-| **3. Rappel de la police** | Une fois les 3 suspects entendus, la police **rappelle** automatiquement avec le **rapport d'autopsie** → empoisonnement → élimine fusil + scie | téléphone / Sonos |
-| **4. Accusation** | Le joueur dit **« inspecteur »** au téléphone → l'inspecteur rappelle et demande **le nom du coupable** ; le joueur le prononce (Jardinier / Héritière / Majordome). Seul **QUI** est demandé | téléphone (`assist_satellite`) |
-| **5. Dénouement** | Bon coupable → **final cinéma au théâtre** : **rideaux baissés**, **lumière rouge**, puis musique. ⏸️ En attendant que `Final Reveal.mp4` soit produit, c'est un **rickroll sur le Sonos** comme en v1. Mauvais → l'inspecteur recadre, retour en `autopsy_done`, on retente | volets théâtre, `light.theatre`, `media_player.sonos` |
+| **0. La police arrive** | Script (délai optionnel). Toutes lumières éteintes → floor lamps salon alternent **bleu/rouge** (gyrophares, `script.mystery_flash_alternate`) → Sonos : **sirènes + brouhaha de policiers** parlant du meurtre, ils disent qu'ils **rappelleront**, puis repartent (**voiture qui démarre**, floor lamps s'éteignent) → **le téléphone sonne** | `light.left_floor_lamp`, `light.right_floor_lamp`, `media_player.sonos`, toutes lumières |
+| **1. Briefing** | L'**inspecteur** (téléphone) explique le meurtre et la mission (qui / avec quoi / où), puis envoie les joueurs au **terminal CCTV du bureau** : une **traînée de lumières** s'allume jusque-là (`script.mystery_guide_path`). L'**ambiance lumineuse** démarre (`script.mystery_ambience`) | `assist_satellite` (téléphone, TTS), `light.hallway_lights` → `light.downstairs_hallway_light` → `light.office` |
+| **2. Enquête** | Explorer les pièces. Chaque capteur/bouton fait parler un suspect, et **la pièce d'où sort la voix s'éclaire**. **Roby fait deux parcours** : vers le vin quand parle l'Héritière (les joueurs le suivent), vers le rack d'épices quand parle le Jardinier (en douce, retrouvé au `vacuum.locate`). Il part **après** la réplique, pour ne pas être manqué. Musique d'ambiance sur le Sonos. Fausses pistes : fusil et coffre à bijoux (Héritière), tiroir couteaux (Majordome innocent) | capteurs (porte/vibration/contact), bouton Zigbee, haut-parleurs localisés, **robot aspirateur** |
+| **3. Rappel de la police** | Une fois les 3 suspects entendus, la police **rappelle** automatiquement avec le **rapport d'autopsie** → empoisonnement → élimine fusil + scie comme armes, et demande les **3 pièces à conviction** | téléphone / Sonos |
+| **4. Collecte + accusation** | Les 3 objets (scie, fusil, pot d'épices) portent une **étiquette-code**. Les joueurs les tapent sur le **terminal CCTV** : crochet vert, compteur « 2 / 3 ». À 3/3, le **dossier confidentiel** se déverrouille et ils y **désignent le coupable à l'écran**. Chemin de secours : dire « inspecteur » au téléphone, ou cliquer le bouton de l'étagère à vins | `input_text.mystery_code_input`, `input_boolean.mystery_evidence_*`, `input_select.mystery_accusation_choice` |
+| **5. Dénouement** | Bon coupable → **final cinéma au théâtre** : les 3 toiles tombent **l'une après l'autre** comme un rideau, noir, puis la **lumière rouge monte** et la musique part sur la **TV du théâtre**, avec les lampes en alternance de couleurs. ⏸️ En attendant `Final Reveal.mp4`, c'est un rickroll. Mauvais → l'inspecteur recadre, retour en `autopsy_done`, on retente | volets théâtre, `light.theatre`, `light.metal_lamp`, `media_player.theatre_tv` |
 
 ## Terrain de jeu (pièces en jeu)
 
@@ -79,7 +79,8 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
   bouton Zigbee (étagère à vins), `patio_door`, tiroir à couteaux.
 - 🔧 **Atelier / établi** (`workshop`) — Jardinier / scie — Echo, porte atelier.
 - 🎬 **Théâtre** (`theatre`) — **final cinéma** — TV, volets, `light.theatre`.
-- 🖥️ **Bureau d'Eric** — **CCTV** (setup manuel PC : hacker sim + 3 mp4), hors HA.
+- 🖥️ **Bureau d'Eric** (sous-sol) — **terminal CCTV** : dashboard HA plein écran
+  sur le PC. Poste de commande du jeu (vidéos, codes de preuve, accusation).
 - 📞 Le **téléphone** (inspecteur) = **au salon, près du Sonos** → hub central.
 - 🛏️ **Chambre = no-go** (jamais utilisée).
 
@@ -87,6 +88,10 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
 
 | Rôle | Entity ID |
 |---|---|
+| Terminal CCTV — code tapé | `input_text.mystery_code_input` |
+| Terminal CCTV — pièces à conviction | `input_boolean.mystery_evidence_saw` / `_gun` / `_poison` |
+| Terminal CCTV — dossier confidentiel | `input_boolean.mystery_terminal_unlocked` |
+| Terminal CCTV — accusation | `input_select.mystery_accusation_choice` |
 | Inspecteur (voix bidirectionnelle) | `assist_satellite.192_168_0_160` (Phone) |
 | Voix Jardinier | `notify.echo_speak` (⚠️ **pas** `tts.speak` — voir ci-dessous) |
 | Voix Héritière + intro police | `media_player.sonos` |
@@ -152,9 +157,26 @@ fois.
 
 ## Architecture technique
 
-- Scripts `mystery_*` (start, reset, suspect_speak, roby_goto,
-  police_callback, accusation, denouement) + automations `Mystery - *`
-  (suspect triggers, butler patio, auto autopsy, call inspector, knife drawer).
+- Scripts `mystery_*` (start, suspect_speak, roby_goto, police_callback, hint,
+  accusation, denouement) + automations `Mystery - *` (suspect triggers, butler
+  patio, knife drawer, auto autopsy, call inspector, hint request, idle nudge,
+  evidence code, terminal accusation).
+- **Trois briques de lumière réutilisables**, paramétrées plutôt que recopiées :
+  - `script.mystery_flash_alternate` — deux lampes qui alternent deux couleurs.
+    Le nombre de cycles se **déduit de la durée voulue** (`duration` /
+    `interval`), donc le jeu de lumière se cale tout seul sur la longueur d'un
+    son. Sert aux gyrophares (phase 0) et à la boîte de nuit du final.
+  - `script.mystery_guide_path` — une liste de lampes qui clignotent l'une
+    après l'autre puis **restent en veilleuse** : une traînée que les joueurs
+    suivent. Sert à envoyer vers le bureau, vers l'atelier, vers le théâtre.
+  - `script.mystery_ambience` — veilleuses partout + les lampes du salon qui
+    « respirent » entre deux teintes sombres. La boucle **s'arrête d'elle-même**
+    quand `input_select.mystery_phase` quitte l'enquête.
+- **Guidage** : le reproche principal du premier test était qu'on est laissé à
+  soi-même. Trois filets : chaque réplique de suspect finit par une consigne
+  explicite, « indice » au téléphone déclenche `script.mystery_hint` (texte
+  calculé depuis l'état réel du jeu), et `Mystery - Idle nudge` fait rappeler
+  l'inspecteur tout seul après 6 min sans progrès.
 - Les suspects parlent via **TTS localisé** (`tts.speak` ciblant le haut-parleur
   de leur pièce) — pas de fichiers audio requis pour les dialogues.
 - ⚠️ **Exception, le Jardinier** : son Echo utilise l'intégration
@@ -168,9 +190,16 @@ fois.
   français guindé. C'est ce qui distingue les personnages autant que les voix.
 - Les **triggers** : `state` (capteurs portes/vibration), `device` (bouton
   Zigbee), `conversation` (mot « inspecteur » pour lancer l'accusation).
-- **Entrée vocale du joueur** : minimale — surtout des réponses courtes ;
-  l'accusation demande **le nom du coupable** (via `ask_question`, 3 noms
-  reconnus). Voir [[project_two_escape_rooms]].
+- **Entrée du joueur** : le premier test live a montré que la reconnaissance
+  vocale du téléphone est trop peu fiable pour porter des moments décisifs. Le
+  **terminal CCTV du bureau** (dashboard HA plein écran, brief dans
+  `cctv-terminal-prompt.md`) devient donc le poste de commande : on y regarde
+  les enregistrements, on y tape les **codes des 3 pièces à conviction**, et
+  c'est là qu'on **désigne le coupable**. Le téléphone garde la voix de
+  l'inspecteur (sortante, fiable) et deux chemins de secours seulement : dire
+  « indice », dire « inspecteur ». Voir [[project_two_escape_rooms]].
+- **Gate de fin** : les 3 codes de preuve, pas les 3 témoignages. Trouver les
+  objets est ce qui ouvre le dossier confidentiel.
 - `input_select.mystery_phase` pilote les phases ; les 3 `input_boolean` suivent
   les suspects interrogés (déclenchent l'autopsie auto).
 - **Reset** propre : éteint la garde, réactive les automatisations de mouvement,
@@ -178,15 +207,21 @@ fois.
 
 ## Décisions finalisées (après itérations)
 
-1. **Héritière** = capteur de vibration sur la trappe du fusil (voix paniquée).
+1. **Héritière** = capteur de vibration sur la trappe du fusil **+ contact sur
+   son coffre à bijoux** (voix paniquée dans les deux cas ; seule l'entrée en
+   matière change, via le champ `variant`).
 2. **Majordome** = bouton Zigbee « cliquer pour service » (étagère à vins) +
-   porte-patio (départ) + tiroir couteaux (fausse piste).
-3. **Accusation** = dire « inspecteur » → rappel → nommer le coupable (QUI seul).
-4. **Final gagnant** = rideaux baissés + `light.theatre` rouge + `Final Reveal.mp4`.
+   porte-patio (départ, doublé des **marmonnements du Jardinier** dans l'atelier
+   pour révéler où il se trouve) + tiroir couteaux (fausse piste).
+3. **Accusation** = sur le **terminal CCTV**, après les 3 codes de preuve.
+   Secours : dire « inspecteur », ou cliquer le bouton de l'étagère à vins.
+4. **Final gagnant** = les 3 toiles tombent en cascade, noir, montée de rouge,
+   puis musique sur la **TV du théâtre** + alternance de couleurs.
 5. **Roby** a **deux parcours** : vers le vin quand on interroge l'**Héritière**
    (visible, les joueurs le suivent), et vers le rack d'épices quand on
    interroge le **Jardinier** (subtil, retrouvé au `locate` en remontant).
-6. **CCTV** = setup manuel PC dans le bureau (hors HA) ; 3 mp4 flous par suspect.
+6. **CCTV** = dashboard HA custom en plein écran sur le PC du bureau ; 3 mp4
+   flous par suspect + pavé de codes + dossier confidentiel.
 7. **Coordonnées Roby** (calibrées en live) : vin `[23000, 31500]`,
    épices `[26700, 31200]`.
 8. **v1 conservée** et jouable : garde `input_boolean.escape_v2_active`.

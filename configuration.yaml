@@ -187,6 +187,25 @@ input_select:
       - accusation
       - solved
     initial: idle
+  # Accusation depuis le terminal CCTV du bureau plutôt qu'au téléphone : la
+  # reconnaissance vocale s'est révélée trop peu fiable pour porter la fin.
+  mystery_accusation_choice:
+    name: Mystery Accusation Choice
+    icon: mdi:gavel
+    options:
+      - none
+      - gardener
+      - heiress
+      - butler
+    initial: none
+
+input_text:
+  # Le pavé numérique du terminal écrit ici ; l'automation valide puis vide.
+  mystery_code_input:
+    name: Mystery Code Input
+    icon: mdi:dialpad
+    max: 8
+    initial: ""
 
 input_boolean:
   mystery_gardener_done:
@@ -198,6 +217,19 @@ input_boolean:
   mystery_butler_done:
     name: Mystery Butler Done
     icon: mdi:account-question
+  # Les 3 objets-indices étiquetés d'un code, saisis au terminal CCTV.
+  mystery_evidence_saw:
+    name: Mystery Evidence Saw
+    icon: mdi:saw-blade
+  mystery_evidence_gun:
+    name: Mystery Evidence Gun
+    icon: mdi:pistol
+  mystery_evidence_poison:
+    name: Mystery Evidence Poison
+    icon: mdi:bottle-tonic-skull
+  mystery_terminal_unlocked:
+    name: Mystery Terminal Unlocked
+    icon: mdi:folder-lock-open
   escape_v2_active:
     name: Escape v2 Active
     icon: mdi:incognito
