@@ -98,6 +98,11 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
 - 🎬 **Théâtre** (`theatre`) — **final cinéma** — TV, volets, `light.theatre`.
 - 🖥️ **Bureau d'Eric** (sous-sol) — **terminal CCTV** : dashboard HA plein écran
   sur le PC. Poste de commande du jeu (vidéos, codes de preuve, accusation).
+  **Deux moniteurs, un seul dashboard** : on ouvre la même URL dans deux
+  onglets et le bouton 📹 (à côté du plein écran) bascule le second en **mur
+  d'images** — 3 archives en boucle + un bloc d'information dont le journal
+  reprend les vrais capteurs de la maison. La souris, la saisie des codes et
+  l'accusation restent sur le premier écran.
 - 📞 Le **téléphone** (inspecteur) = **au salon, près du Sonos** → hub central.
 - 🛏️ **Chambre = no-go** (jamais utilisée).
 

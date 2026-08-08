@@ -3,6 +3,14 @@
 #  Tableau de bord en mode YAML, déclaré dans configuration.yaml.
 #  Rendu par www/custom-lovelace/mystery-terminal-card.js.
 #  ⚠ La vue est en type: panel — plein écran, aucun scroll.
+#
+#  DEUX ÉCRANS, UN SEUL TABLEAU DE BORD
+#  Ouvrir cette même URL dans deux onglets, puis cliquer le bouton 📹 (à gauche
+#  du bouton plein écran, en bas à droite) sur le second :
+#    · écran de saisie — pavé numérique, registre des preuves, dossier
+#    · mur d'images    — les 3 archives en boucle + bloc d'information
+#  Le mode est retenu par onglet (sessionStorage) : il survit à un F5, mais un
+#  redémarrage du navigateur ramène les deux onglets sur l'écran de saisie.
 # ─────────────────────────────────────────────────────────────
 
 views:
@@ -20,6 +28,9 @@ views:
 
         # Déposer les 3 .mp4 dans www/mystery/ (servi sous /local/mystery/).
         # Ce dossier est gitignoré : les vidéos ne partent pas dans le dépôt.
+        # Sur le mur d'images elles tournent en boucle, muettes et sans
+        # contrôle. Fichier absent ou illisible → écran de panne « ARCHIVE
+        # INDISPONIBLE » : le mur reste présentable sans les vidéos.
         cameras:
           - id: CAM 01
             zone: ATELIER — SOUS-SOL
@@ -67,3 +78,19 @@ views:
             name: LE MAJORDOME
             room: SALLE À MANGER
             weapon: POISON
+
+        # Journal des capteurs du mur d'images. Il montre les VRAIS changements
+        # d'état de la maison, rien n'est inventé — donc il peut rester figé
+        # plusieurs minutes si personne ne bouge à l'étage.
+        # Les valeurs par défaut suffisent ; décommenter pour ajuster.
+        #   domains : remplace la liste par défaut (binary_sensor, light,
+        #             switch, lock, cover, fan, media_player, climate, person,
+        #             device_tracker, vacuum). `sensor` en est absent exprès :
+        #             les valeurs numériques changent en continu.
+        #   exclude : sous-chaînes d'entity_id à taire, en plus de « mystery »
+        #             (les entités du jeu sont toujours masquées).
+        # journal:
+        #   lines: 7
+        #   exclude:
+        #     - imprimante
+        #     - device_tracker.telephone_eric
