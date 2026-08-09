@@ -36,10 +36,10 @@ code (scripts / automations / helpers) est déjà en place sur la branche.
       soirée y est, tachée de **vin**, pas de sang : une fausse piste qui
       pointe quand même vers la bouteille. C'est sa 2ᵉ prise, celle qu'on
       trouve sans savoir qu'on la cherche.
-      L'automation « Laundry light on when door opens » est garde-fou-ée par
-      `input_boolean.escape_v2_active` : la buanderie ne s'allume pas pendant
-      la partie (l'ambiance reste maîtrisée) et retrouve son comportement
-      normal après le reset.
+      ℹ️ L'automation « Laundry light on when door opens » **reste active
+      pendant la partie** : le garde-fou `escape_v2_active` qu'on y avait mis
+      a été retiré volontairement (commit `486f1e8`). Ouvrir la porte allume
+      donc la buanderie comme d'habitude, y compris en pleine enquête.
 - [ ] Mettre une **robe tachée** dans la buanderie pour que la réplique tombe
       juste.
 - [x] Déplacer le bouton Zigbee sur l'étagère à vins (+ label).
@@ -98,11 +98,10 @@ Le PC du bureau n'est plus un simple lecteur de vidéos : c'est **le poste de
 commande du jeu**, et il remplace la plupart des interactions au téléphone (la
 reconnaissance vocale s'est révélée trop peu fiable au premier test).
 
-- [x] **Dashboard généré et intégré au dépôt** (à partir du brief
-      [`../cctv-terminal-prompt.md`](../cctv-terminal-prompt.md)) :
+- [x] **Dashboard généré et intégré au dépôt** :
       - carte : `www/custom-lovelace/mystery-terminal-card.js`
       - ressource : déjà déclarée dans `.storage/lovelace_resources`
-        (`/local/custom-lovelace/mystery-terminal-card.js?v=1`, type module)
+        (`/local/custom-lovelace/mystery-terminal-card.js?v=N`, type module)
       - vue : `dashboards/mystery-terminal.yaml`, déclarée en mode YAML dans
         `configuration.yaml` → apparaît dans la barre latérale sous
         **Terminal CCTV** (`/mystery-terminal`)
@@ -134,6 +133,12 @@ reconnaissance vocale s'est révélée trop peu fiable au premier test).
       donc la barre latérale et l'en-tête de Home Assistant disparaissent aussi
       — il ne reste que le terminal. (F11 enlève en plus la barre du
       navigateur ; les deux se cumulent.) Échap ou re-clic pour sortir.
+- [ ] **Second moniteur** : rouvrir la même URL dans un 2ᵉ onglet et cliquer le
+      bouton 📹 pour le basculer en **mur d'images**. Le mode vit dans le
+      `sessionStorage` de l'onglet, donc chacun garde le sien. ⚠️ C'est le
+      **premier toucher de ce mur** qui déclenche la réplique T4.1 de
+      l'inspecteur : si personne ne touche jamais le mode 📹, elle ne se joue
+      pas de la partie.
 - [ ] **Désactiver la veille écran** — une session dure 45 min sans que
       personne ne touche au clavier.
 - [ ] Après toute modification du `.js`, incrémenter le `?v=` de la ressource
@@ -218,11 +223,3 @@ le précédent) :
 
 **Aucun fichier n'a besoin d'être rogné** — tout est géré par les délais et les
 `media_stop` du script.
-
-## 💡 Idées pour plus tard
-
-- [x] **Changer la cible de Roby** vers la **trappe à fusil du foyer** — fait
-      le 8 août 2026, mais en repointant le 2ᵉ parcours (déclenché par le
-      Jardinier, ex-`spices`/rack d'épices) plutôt que le 1ᵉʳ (vin/Héritière,
-      conservé tel quel). Voir `todo/with-claude.md` § Roby pour le détail du
-      calibrage.

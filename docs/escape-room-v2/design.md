@@ -70,7 +70,7 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
 | **1b. Il rappelle** | 5 s plus tard, **le téléphone sonne** : « j'oubliais ! » — les **caméras sont sur le terminal du bureau**, au sous-sol, et une **traînée de lumières** s'allume jusque-là. L'**ambiance** démarre | `assist_satellite` (téléphone), `light.chandelier` → `light.downstairs_hallway_light` ; la lampe du bureau (`light.auxiliary_lamp`) scintille en « glisten » avec l'ambiance |
 | **2. Enquête** | Explorer les pièces. Chaque capteur/bouton fait parler un suspect, et **la pièce d'où sort la voix s'éclaire**. L'Héritière n'a pas de lampe dédiée (elle parle sur le Sonos, au milieu de l'ambiance déjà en salon) : à chaque réplique, **le chandelier et la cuisine montent légèrement puis redescendent** (`script.mystery_sonos_glow`), même principe qu'en v1. **Roby fait deux parcours** : vers le vin quand parle l'Héritière (les joueurs le suivent), vers la trappe à fusil du foyer quand parle le Jardinier (en douce, retrouvé au `vacuum.locate`). Il part **après** la réplique, pour ne pas être manqué. Musique d'ambiance sur le Sonos. Fausses pistes : fusil et coffre à bijoux (Héritière), tiroir couteaux (Majordome innocent) | capteurs (porte/vibration/contact), bouton Zigbee, haut-parleurs localisés, **robot aspirateur**, `light.chandelier`, `light.kitchen_middle_light` |
 | **3. Rappel de la police** | Une fois les 3 suspects entendus, la police **rappelle** automatiquement avec le **rapport d'autopsie** → empoisonnement → élimine fusil + scie comme armes, et demande les **3 pièces à conviction** | téléphone / Sonos |
-| **4. Collecte + accusation** | Au tout premier clic sur l'écran de saisie, l'inspecteur situe le terminal comme poste de commandement. Les 3 objets (scie, fusil, pot d'épices) portent une **étiquette-code**. Les joueurs les tapent sur le **terminal CCTV** : crochet vert, compteur « 2 / 3 », et un mot d'encouragement à 1/3 et 2/3. À 3/3, le **dossier confidentiel** se déverrouille (rien à l'oral, la séquence à l'écran suffit) et ils y **désignent le coupable à l'écran**. C'est le **seul** chemin d'accusation | `input_text.mystery_code_input`, `input_boolean.mystery_evidence_*`, `input_boolean.mystery_terminal_first_touch`, `input_select.mystery_accusation_choice` |
+| **4. Collecte + accusation** | Au tout premier toucher du **mur d'images CCTV** (mode 📹, jamais sur l'écran de saisie), l'inspecteur situe le terminal comme poste de commandement. Les 3 objets (scie, fusil, pot d'épices) portent une **étiquette-code**. Les joueurs les tapent sur le **terminal CCTV** : crochet vert, compteur « 2 / 3 », et un mot d'encouragement à 1/3 et 2/3. À 3/3, le **dossier confidentiel** se déverrouille (rien à l'oral, la séquence à l'écran suffit) et ils y **désignent le coupable à l'écran**. C'est le **seul** chemin d'accusation | `input_text.mystery_code_input`, `input_boolean.mystery_evidence_*`, `input_boolean.mystery_terminal_first_touch`, `input_select.mystery_accusation_choice` |
 | **5. Dénouement** | Bon coupable → **final cinéma au théâtre** : les 3 toiles tombent **l'une après l'autre** comme un rideau, noir, puis la **lumière rouge monte** sur `light.theatre` pendant que les volets finissent de se fermer. La pièce bascule ensuite en **blanc chaud** (`bad_light`/`metal_lamp`/`wooden_lamp`, 4000K), l'inspecteur annonce sur la **TV du théâtre** (`on_tv:` de `script.mystery_inspector_say`) que la révélation va commencer, puis `Final Reveal.mp4` joue. À la fin de la vidéo, la chanson (`Jamie Foxx - Winner ft Justin Timberlake TI.mp3`) part sur la même TV : les toiles remontent partiellement (milieu 30 %, côtés 50 %) et les 3 lampes passent en effet `prism`. Mauvais → l'inspecteur recadre, retour en `autopsy_done`, on retente | volets théâtre, `light.theatre`, `light.bad_light`, `light.metal_lamp`, `light.wooden_lamp`, `media_player.theatre_tv` |
 
 > 🎙️ **Quatre canaux pour une seule voix.** `script.mystery_inspector_say` sait
@@ -223,6 +223,25 @@ fois.
   échoue **toujours**. Il passe donc par `notify.send_message` →
   `notify.echo_speak`, c'est-à-dire le TTS d'Amazon : sa voix se choisit dans
   l'app Alexa, pas dans le code, et l'option `voice` y est sans effet.
+- 🗣️ **Voix retenues** (tout en `fr-CA`, sauf l'inspecteur en `fr-FR`) :
+  Héritière `SylvieNeural` (seule voix féminine fr-CA), Majordome
+  `ThierryNeural`, inspecteur `HenriNeural`. `AntoineNeural` / `JeanNeural`
+  restent libres. Le fr-CA n'a **aucune variante émotionnelle** (elles n'existent
+  qu'en fr-FR) : la « voix paniquée » de l'Héritière passe donc par le texte
+  seul.
+  ⚠️ **Piège** : `voice:` exige le **`voice_id` de l'API** (`ThierryNeural`),
+  pas le nom affiché dans l'UI (`Thierry`). Un nom invalide est **ignoré en
+  silence** et HA retombe sur la voix par défaut de la langue — c'est ce qui
+  faisait parler le Majordome avec une voix de femme. (Même bug latent en v1,
+  `scripts.yaml` : `voice: Denise (whispering)` ne chuchote pas ; le vrai
+  identifiant serait `DeniseNeural||whispering`. Non corrigé, on ne touche pas
+  à la v1.)
+- 🎚️ **Deux pipelines Assist séparés** (`Escape Room V1: Denise` /
+  `Escape Room V2 - Henri`) : chaque jeu bascule
+  `select.192_168_0_160_assistant` sur le sien au démarrage.
+  `assist_satellite.announce` n'accepte **aucune** option de voix — c'est la
+  seule façon de la choisir, et ça évite que les deux escape rooms se
+  contaminent.
 - 🎭 **Registres de langue** volontairement contrastés : l'Héritière parle en
   joual bien sacrant, le Jardinier en langage de rue, le Majordome dans un
   français guindé. C'est ce qui distingue les personnages autant que les voix.
@@ -230,8 +249,9 @@ fois.
   Zigbee), `conversation` (mot « indice » seulement).
 - **Entrée du joueur** : le premier test live a montré que la reconnaissance
   vocale du téléphone est trop peu fiable pour porter des moments décisifs. Le
-  **terminal CCTV du bureau** (dashboard HA plein écran, brief dans
-  `cctv-terminal-prompt.md`) devient donc le poste de commande : on y regarde
+  **terminal CCTV du bureau** (dashboard HA plein écran, rendu par la carte
+  `www/custom-lovelace/mystery-terminal-card.js`) devient le poste de commande :
+  on y regarde
   les enregistrements, on y tape les **codes des 3 pièces à conviction**, et
   c'est là qu'on **désigne le coupable**. Le téléphone garde la voix de
   l'inspecteur (sortante, fiable) et un seul mot en entrée : « indice ». Voir
@@ -276,5 +296,5 @@ fois.
 
 - `todo/manual-before-first-test.md` — préparation manuelle (déploiement,
   capteurs, objets, médias, CCTV).
-- `todo/with-claude.md` — à régler avec Claude (calibrage Roby, débrief live,
-  clôture de branche).
+- `todo/with-claude.md` — ce qui ne peut se trancher qu'en jouant : points à
+  valider en live, puis clôture de la branche.

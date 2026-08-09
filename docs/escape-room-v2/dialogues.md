@@ -36,9 +36,10 @@ Le rapport d'autopsie.
 Beauchamp-Latulippe à nouveau. J'ai eu le rapport de l'autopsie : la victime a été empoisonnée. Avez-vous trouvé les trois pièces à conviction possible ? Dès que vous les avez, tapez-les sur le terminal du bureau.
 ```
 
-**T4.1** 🖥️ — Premier clic/toucher sur l'écran de saisie depuis le début de
-l'enquête (`input_boolean.mystery_terminal_first_touch`, basculé par la carte
-elle-même — voir `mystery-terminal-card.js`, `connectedCallback`).
+**T4.1** 🖥️ — Premier toucher du **mur d'images CCTV** (mode 📹) depuis le début
+de l'enquête — **jamais** sur l'écran de saisie
+(`input_boolean.mystery_terminal_first_touch`, basculé par la carte elle-même —
+voir `mystery-terminal-card.js`, gestionnaire de pointeur du mode `cctv`).
 
 ```
 Vous y êtes, détectives. Ce terminal, c'est le poste de commandement de toute l'enquête : caméras, registre des preuves, dossier confidentiel — tout passe par ici.
