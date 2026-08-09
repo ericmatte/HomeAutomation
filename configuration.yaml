@@ -198,7 +198,6 @@ input_select:
     initial: none
 
 input_text:
-  # Le pavé numérique du terminal écrit ici ; l'automation valide puis vide.
   mystery_code_input:
     name: Mystery Code Input
     icon: mdi:dialpad

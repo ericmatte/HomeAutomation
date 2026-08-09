@@ -1,5 +1,4 @@
 /*
- * Terminal de vidéosurveillance — escape room « Meurtre au manoir connecté ».
  * Servi par HA depuis /local/custom-lovelace/mystery-terminal-card.js
  * (ressource déclarée dans .storage/lovelace_resources, type: module).
  */
@@ -37,11 +36,8 @@ export const JOURNAL_DOMAINS = [
 // Les entités du jeu lui-même dévoileraient la mécanique aux joueurs.
 export const JOURNAL_EXCLUDE = ["mystery"];
 
-// De quoi remplir le bloc quelle que soit la hauteur de l'écran ; le surplus
-// est simplement rogné.
 export const JOURNAL_LINES = 20;
 
-// [ état « on », état « off » ] par device_class de binary_sensor.
 const BINARY_LABELS = {
   motion: ["MOUVEMENT DÉTECTÉ", "PLUS DE MOUVEMENT"],
   occupancy: ["PRÉSENCE DÉTECTÉE", "ZONE VIDE"],
@@ -350,8 +346,6 @@ main.cctv.zoomed .info{display:none;}
 .bar{height:calc(6*var(--px)); border:calc(1*var(--px)) solid var(--amber-deep); position:relative;}
 .bar i{position:absolute; inset:calc(1*var(--px)); width:var(--w,50%); background:var(--amber);}
 .bar.warn i{background:var(--red);}
-/* Le dégradé du bas fait passer la coupe des lignes en trop pour une
-   atténuation. */
 .feed{flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; gap:calc(6*var(--px));}
 .feed .fh{font-size:calc(13*var(--px)); letter-spacing:calc(2*var(--px)); color:var(--amber-dim); flex:none;
   border-bottom:calc(1*var(--px)) solid var(--line); padding-bottom:calc(6*var(--px));}
@@ -740,8 +734,6 @@ class MysteryTerminalCard extends HTMLElement {
     this._log("TERMINAL DE SAISIE EN LIGNE");
   }
 
-  /* Fichier absent, chemin faux ou encodage refusé donnent tous le même écran
-   * de panne, crédible dans la fiction : le mur reste présentable sans .mp4. */
   _cellsHtml() {
     return this._cameras.slice(0, 3).map((c, i) => `
       <div class="cell" data-cell="${i}">
@@ -926,8 +918,6 @@ class MysteryTerminalCard extends HTMLElement {
     this._prev = cur;
   }
 
-  /* Le journal n'invente rien : ce sont les vrais changements d'état de la
-   * maison. */
   _startJournal(hass) {
     if (this._journalSub || !hass.connection) return;
     this._journalSub = true;
@@ -1159,7 +1149,6 @@ class MysteryTerminalCard extends HTMLElement {
     if (o.sweep) {
       osc.frequency.exponentialRampToValueAtTime(Math.max(40, freq + o.sweep), t0 + dur);
     }
-    // Enveloppe très courte : un clic net de terminal, pas une note tenue.
     const peak = (o.gain || 1) * this._volume;
     gain.gain.setValueAtTime(0.0001, t0);
     gain.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), t0 + 0.005);

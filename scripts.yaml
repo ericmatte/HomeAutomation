@@ -566,7 +566,6 @@ reset_after_escape_roome:
     data: {}
   alias: Reset after escape room
   description: ''
-# --- Escape room v2 « Meurtre au manoir connecté » -------------------------
 
 mystery_flash_alternate:
   alias: "Mystery - Alternating light flash"
@@ -627,9 +626,7 @@ mystery_sonos_glow:
   icon: mdi:chandelier
   mode: queued
   max: 3
-  # Le chandelier et la cuisine respirent chaque fois que quelqu'un parle sur
-  # le Sonos : ça donne à la voix une présence physique dans la pièce. À
-  # appeler en script.turn_on — la durée n'est qu'une estimation de la
+  # À appeler en script.turn_on : la durée n'est qu'une estimation de la
   # réplique, elle ne doit jamais retarder l'appelant.
   fields:
     duration_seconds:
@@ -805,8 +802,6 @@ mystery_guide_path:
       selector: { number: { min: 1, max: 100, step: 1 } }
       default: 15
   sequence:
-    # La traînée reste allumée derrière le parcours, pour ceux qui arrivent
-    # en retard.
     - repeat:
         for_each: "{{ lights }}"
         sequence:
@@ -982,9 +977,6 @@ mystery_start:
       data: { stop_actions: true }
       target:
         entity_id: automation.sync_auxiliary_light_with_main_light
-    # --- PHASE 0 : la police arrive ---
-    # Seulement les pièces en jeu : moins de lampes touchées, c'est moins
-    # d'attente avant que le noir soit fait.
     - action: light.turn_off
       target:
         area_id:
@@ -1046,9 +1038,6 @@ mystery_start:
     - action: media_player.media_stop
       target: { entity_id: media_player.sonos }
       continue_on_error: true
-    # --- PHASE 1a : le briefing, sur le Sonos ---
-    # Au téléphone une seule personne tient le combiné ; sur le Sonos, tout le
-    # groupe reçoit la consigne en même temps.
     # ⚠️ Pas de mots en majuscules dans les messages TTS : ils sont épelés
     # lettre à lettre et rendent la consigne inaudible.
     - action: script.mystery_inspector_say
@@ -1077,7 +1066,6 @@ mystery_start:
     - action: media_player.volume_set
       target: { entity_id: media_player.sonos }
       data: { volume_level: 0.4 }
-    # --- PHASE 1b : il rappelle au téléphone pour ce qu'il a oublié ---
     - action: script.mystery_inspector_say
       data:
         message: >-
@@ -1092,7 +1080,6 @@ mystery_start:
     # dès que la phase en sort.
     - action: script.turn_on
       target: { entity_id: script.mystery_ambience }
-    # Après la musique, sinon les joueurs regardent la traînée en silence.
     - action: script.mystery_guide_path
       data:
         lights:
@@ -1228,8 +1215,6 @@ mystery_suspect_speak:
           'heiress': 'SylvieNeural',
           'butler': 'ThierryNeural'}[suspect] }}
   sequence:
-    # La pièce d'où sort la voix s'éclaire : c'est ce qui dit aux joueurs où se
-    # trouve celui qui parle.
     - if: "{{ room_light != '' }}"
       then:
         - action: light.turn_on
@@ -1310,7 +1295,6 @@ mystery_police_callback:
           la victime a été empoisonnée. Avez-vous trouvé les trois pièces à
           conviction possible ? Dès que vous les avez, tapez-les sur le
           terminal du bureau.
-    # Coupée plus haut pour ne pas couvrir l'inspecteur.
     - action: script.turn_on
       target: { entity_id: script.mystery_ambience }
     - action: script.mystery_guide_path
@@ -1323,9 +1307,6 @@ mystery_hint:
   alias: "Mystery - Hint"
   icon: mdi:lightbulb-question
   mode: single
-  # ⚠️ L'indice dit QUI il reste à traiter, jamais OÙ ni COMMENT : donner
-  # l'endroit exact reviendrait à jouer la partie à leur place. La relance,
-  # c'est toujours « retournez voir les caméras ».
   variables:
     # Les deux listes s'emploient toujours après « de » : la contraction est
     # déjà dans les libellés, sinon l'inspecteur dit « de le Jardinier ».

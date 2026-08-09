@@ -1,9 +1,3 @@
-# Rendu par www/custom-lovelace/mystery-terminal-card.js.
-#
-# Deux écrans, un seul tableau de bord : ouvrir cette URL dans deux onglets et
-# basculer le second en mur d'images avec le bouton 📹. Le mode est retenu par
-# onglet, un redémarrage du navigateur ramène les deux sur l'écran de saisie.
-
 views:
   - title: Terminal
     path: terminal
@@ -61,7 +55,5 @@ views:
             room: SALLE À MANGER
             weapon: POISON
 
-        # Journal des capteurs du mur d'images : de vrais changements d'état de
-        # la maison, il peut donc rester figé si personne ne bouge. Réglages
-        # facultatifs `journal: {domains, exclude, lines}`, valeurs par défaut
-        # dans mystery-terminal-card.js.
+        # Journal du mur d'images : de vrais changements d'état de la maison,
+        # il peut donc rester figé si personne ne bouge.

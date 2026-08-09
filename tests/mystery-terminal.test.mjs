@@ -1,11 +1,6 @@
 /*
- * Tests de la logique pure du terminal CCTV — « Meurtre au manoir connecté ».
- *
- *   node --test tests/
- *
- * Aucune dépendance : on bouchonne le minimum de navigateur dont le module a
- * besoin au chargement (il enregistre un custom element), puis on n'exerce que
- * les fonctions sans DOM. Le rendu, lui, se vérifie dans Home Assistant.
+ * Le module enregistre un custom element au chargement, d'où ces stubs
+ * minimaux de navigateur pour pouvoir l'importer sans DOM.
  */
 
 import test from "node:test";
@@ -186,8 +181,6 @@ test("tronque l'amorçage au nombre de lignes demandé", () => {
 });
 
 test("garde assez d'historique pour remplir le bloc du mur d'images", () => {
-  // Le journal occupe toute la hauteur laissée par les jauges : en deçà d'une
-  // dizaine de lignes, le bas du bloc resterait vide.
   assert.ok(JOURNAL_LINES >= 15, `JOURNAL_LINES=${JOURNAL_LINES} est trop court`);
 });
 

@@ -2729,8 +2729,6 @@
       entity_id: binary_sensor.vibration_sensor_vibration
       to: "on"
       id: heiress
-    # Deuxième prise pour l'Héritière : avec la seule trappe du fusil, des
-    # joueurs passent à côté d'elle.
     - trigger: state
       entity_id: binary_sensor.laundry_door_open
       to: "on"
@@ -2746,8 +2744,6 @@
       entity_id: input_select.mystery_phase
       state: ["investigation"]
   actions:
-    # Ids de la forme « suspect » ou « suspect_variante » : la variante ne
-    # change que l'entrée en matière de la réplique.
     - variables:
         parts: "{{ trigger.id.split('_') }}"
     - action: script.mystery_suspect_speak
@@ -2766,9 +2762,8 @@
       entity_id: input_select.mystery_phase
       state: ["investigation"]
   actions:
-    # Le Jardinier marmonne pendant que le Majordome parle : ce bruit de fond
-    # dit aux joueurs où le trouver. notify rend la main tout de suite, les
-    # deux voix se superposent donc comme voulu.
+    # notify rend la main tout de suite, les deux voix se superposent donc
+    # comme voulu.
     - action: script.mystery_suspect_speak
       data:
         suspect: gardener
@@ -2871,8 +2866,6 @@
 - id: mystery_idle_nudge
   alias: "Mystery - Idle nudge"
   mode: restart
-  # Filet de sécurité pour les joueurs qui ne savent pas qu'ils peuvent
-  # demander un indice : sans nouvelle avancée, l'inspecteur rappelle.
   triggers:
     - trigger: state
       entity_id: input_select.mystery_phase
@@ -2907,8 +2900,6 @@
   alias: "Mystery - Evidence code entered"
   mode: queued
   max: 5
-  # Chacun des 3 objets-indices porte une étiquette avec son code ; les joueurs
-  # le tapent sur le terminal CCTV du bureau.
   triggers:
     - trigger: state
       entity_id: input_text.mystery_code_input
@@ -2934,10 +2925,8 @@
       then:
         - action: input_boolean.turn_on
           target: { entity_id: "{{ matched }}" }
-    # Le champ se vide dans tous les cas, bon code ou mauvais : c'est ce qui
-    # rend la main au pavé et déclenche le retour visuel du terminal. Sans ça,
-    # l'échec n'apparaît qu'après son timeout de 6 s. La remise à vide ne
-    # redéclenche rien (la condition exige un code non vide).
+    # Le champ se vide même en échec : sinon le retour visuel du terminal
+    # n'apparaît qu'après son timeout de 6 s.
     - action: input_text.set_value
       target: { entity_id: input_text.mystery_code_input }
       data: { value: "" }
@@ -2951,8 +2940,6 @@
             - input_boolean.mystery_evidence_poison
           state: "on"
       then:
-        # Pas d'appel téléphonique ici : les joueurs sont au sous-sol devant le
-        # terminal, qui joue déjà sa séquence de déverrouillage à l'écran.
         - action: input_boolean.turn_on
           target: { entity_id: input_boolean.mystery_terminal_unlocked }
         # La TV du théâtre est longue à s'initialiser : on l'allume dès le
@@ -2985,8 +2972,6 @@
 - id: mystery_terminal_first_touch
   alias: "Mystery - Terminal first touch"
   mode: single
-  # La carte bascule ce booléen au tout premier toucher du mur d'images
-  # (mystery-terminal-card.js, connectedCallback).
   triggers:
     - trigger: state
       entity_id: input_boolean.mystery_terminal_first_touch
