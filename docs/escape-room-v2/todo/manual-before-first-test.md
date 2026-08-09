@@ -218,3 +218,11 @@ le précédent) :
 
 **Aucun fichier n'a besoin d'être rogné** — tout est géré par les délais et les
 `media_stop` du script.
+
+## 💡 Idées pour plus tard
+
+- [ ] **Changer la cible de Roby** : au lieu du parcours vers l'étagère à vins
+      quand l'Héritière parle, l'envoyer vers la **trappe à fusil du foyer**
+      (sa propre fausse piste). Pas de code à écrire pour l'instant — à
+      recalibrer en live avec Claude quand on s'y met (voir la section Roby de
+      `todo/with-claude.md`).
