@@ -27,10 +27,6 @@ history:
 logbook:
 sun:
 
-http:
-  login_attempts_threshold: 50
-  ip_ban_enabled: False
-
 # logger:
 #   default: warning
 #   logs:
