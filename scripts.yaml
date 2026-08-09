@@ -157,6 +157,13 @@ escape_room:
           step: 1
       default: 0
   sequence:
+  # Symétrique du turn_on de mystery_start : sans ça, une partie v2 abandonnée
+  # sans reset laisse le drapeau à « on » et les automations v1 gardées par lui
+  # (porte de l'atelier, bouton téléphone, capteur du trésor) restent muettes.
+  - alias: La v1 reprend le matériel partagé
+    action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.escape_v2_active
   - action: homeassistant.reload_config_entry
     data:
       entry_id: 01KER0F189EWYCFNSKCFX1G46P  # Voice over IP (téléphone HT801V2)
