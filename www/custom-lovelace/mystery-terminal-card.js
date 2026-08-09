@@ -1,16 +1,7 @@
 /*
- * mystery-terminal-card.js — Terminal de vidéosurveillance
- * Escape room « Meurtre au manoir connecté »
- * Servi par HA depuis  /local/custom-lovelace/mystery-terminal-card.js
- * (ressource déclarée dans .storage/lovelace_resources, type: module)
- *
- * Une seule carte, deux modes d'affichage :
- *   « code »  — pavé numérique, registre des preuves, dossier confidentiel
- *   « cctv »  — mur d'images 2×2 : 3 archives en boucle + bloc d'information
- *
- * Le mode vit dans sessionStorage, donc *par onglet* : on ouvre deux fois la
- * même URL, on bascule le second en CCTV, et chacun garde son mode au
- * rechargement. Une entité HA ferait basculer les deux ensemble.
+ * Terminal de vidéosurveillance — escape room « Meurtre au manoir connecté ».
+ * Servi par HA depuis /local/custom-lovelace/mystery-terminal-card.js
+ * (ressource déclarée dans .storage/lovelace_resources, type: module).
  */
 
 const ENT = {
@@ -35,14 +26,6 @@ const PHASE_LABEL = {
 const MODE_KEY = "mystery-terminal-mode";
 const MODES = ["code", "cctv"];
 
-/* ══════════════════════════════════════════════════════════════════
- *  JOURNAL DES CAPTEURS — logique pure, sans DOM
- *
- *  Le bloc « JOURNAL CAPTEURS » de l'écran CCTV n'invente rien : il
- *  retranscrit les vrais changements d'état de la maison. Tout ce qui suit est
- *  exporté et couvert par tests/mystery-terminal.test.mjs.
- * ══════════════════════════════════════════════════════════════════ */
-
 // `sensor` est volontairement absent : les valeurs numériques changent en
 // continu (température, puissance, batterie…) et noieraient les événements
 // intéressants en quelques secondes.
@@ -54,8 +37,8 @@ export const JOURNAL_DOMAINS = [
 // Les entités du jeu lui-même dévoileraient la mécanique aux joueurs.
 export const JOURNAL_EXCLUDE = ["mystery"];
 
-// Assez de lignes pour remplir le bloc quelle que soit la hauteur de l'écran :
-// le surplus est simplement rogné, et le dégradé du bas rend la coupe propre.
+// De quoi remplir le bloc quelle que soit la hauteur de l'écran ; le surplus
+// est simplement rogné.
 export const JOURNAL_LINES = 20;
 
 // [ état « on », état « off » ] par device_class de binary_sensor.
@@ -117,12 +100,10 @@ const DOMAIN_LABELS = {
 
 const DEAD_STATES = ["unavailable", "unknown", "none", ""];
 
-/** Un état que HA ne sait pas encore lire ne raconte rien. */
 export function isDeadState(state) {
   return state == null || DEAD_STATES.includes(String(state).toLowerCase());
 }
 
-/** L'entité a-t-elle sa place dans le journal ? */
 export function isJournalEntity(entityId, opts) {
   if (!entityId || String(entityId).indexOf(".") < 0) return false;
   const o = opts || {};
@@ -133,7 +114,6 @@ export function isJournalEntity(entityId, opts) {
   return !exclude.some((frag) => id.includes(String(frag).toLowerCase()));
 }
 
-/** Libellé français de l'état, dérivé du domaine et du device_class. */
 export function journalStateLabel(entityId, state, attributes) {
   const domain = String(entityId).split(".")[0];
   const raw = String(state);
@@ -147,14 +127,12 @@ export function journalStateLabel(entityId, state, attributes) {
   return raw.toUpperCase().replace(/_/g, " ");
 }
 
-/** Nom lisible de l'entité : friendly_name, sinon l'identifiant dégrossi. */
 export function journalEntityName(entityId, attributes) {
   const friendly = (attributes || {}).friendly_name;
   if (friendly) return String(friendly);
   return String(entityId).split(".").slice(1).join(".").replace(/_/g, " ");
 }
 
-/** Pièce de l'entité, via son inscription au registre puis son appareil. */
 export function journalAreaName(hass, entityId) {
   if (!hass) return null;
   const reg = (hass.entities || {})[entityId];
@@ -168,17 +146,13 @@ export function journalAreaName(hass, entityId) {
   return area && area.name ? String(area.name) : null;
 }
 
-/**
- * Une ligne de journal à partir d'un état, ou null si l'événement n'a rien à
- * raconter. `oldState` est absent lors de l'amorçage.
- */
 export function journalLine(hass, entityId, newState, oldState, opts) {
   if (!isJournalEntity(entityId, opts)) return null;
   if (!newState || isDeadState(newState.state)) return null;
   // Changement d'attribut seul (luminosité, position…) : l'état n'a pas bougé.
   if (oldState && oldState.state === newState.state) return null;
   // Retour d'un appareil injoignable : HA rejoue son état, ce n'est pas un
-  // événement du manoir. Très fréquent au redémarrage de HA.
+  // événement du manoir.
   if (oldState && isDeadState(oldState.state)) return null;
 
   const attrs = newState.attributes || {};
@@ -192,10 +166,6 @@ export function journalLine(hass, entityId, newState, oldState, opts) {
   };
 }
 
-/**
- * Amorçage : les `limit` derniers changements réels de la maison, du plus
- * récent au plus ancien. Le journal est plein dès la première seconde.
- */
 export function journalSeed(hass, limit, opts) {
   const states = (hass && hass.states) || {};
   return Object.keys(states)
@@ -205,10 +175,6 @@ export function journalSeed(hass, limit, opts) {
     .sort((a, b) => b.at - a.at)
     .slice(0, limit == null ? JOURNAL_LINES : limit);
 }
-
-/* ══════════════════════════════════════════════════════════════════
- *  Styles
- * ══════════════════════════════════════════════════════════════════ */
 
 const CSS = `
 :host{
@@ -238,7 +204,6 @@ button{font:inherit; color:inherit; background:none; border:none; cursor:pointer
   animation:drift .5s steps(3) infinite;}
 @keyframes drift{0%{transform:translate(0,0)}33%{transform:translate(-2%,1%)}66%{transform:translate(1%,-2%)}100%{transform:translate(0,0)}}
 
-/* ---------- bandeau ---------- */
 header{display:flex; align-items:stretch; gap:calc(10*var(--px)); z-index:5;}
 .hbox{border:calc(1*var(--px)) solid var(--line); background:var(--panel);
   padding:calc(10*var(--px)) calc(16*var(--px)); display:flex; align-items:center; gap:calc(14*var(--px));}
@@ -256,7 +221,6 @@ header{display:flex; align-items:stretch; gap:calc(10*var(--px)); z-index:5;}
 .lockflag.ok{color:var(--green); border-color:var(--green); animation:none;
   background:repeating-linear-gradient(45deg, rgba(53,255,106,.10) 0 calc(8*var(--px)), transparent calc(8*var(--px)) calc(16*var(--px)));}
 
-/* ---------- grille principale ---------- */
 main{display:grid; gap:calc(12*var(--px)); min-height:0; z-index:5;}
 main.code{grid-template-columns:1fr 1.15fr;}
 main.cctv{grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr;}
@@ -264,7 +228,6 @@ section.col{display:flex; flex-direction:column; gap:calc(10*var(--px)); min-hei
 .title{font-size:calc(17*var(--px)); letter-spacing:calc(4*var(--px)); color:var(--amber-dim);
   border-bottom:calc(1*var(--px)) solid var(--line); padding-bottom:calc(6*var(--px)); display:flex; justify-content:space-between;}
 
-/* ---------- pavé ---------- */
 .display{border:calc(2*var(--px)) solid var(--amber-deep); background:#0a0800; padding:calc(14*var(--px));
   text-align:center;}
 .display .lab{font-size:calc(15*var(--px)); color:var(--amber-dim); letter-spacing:calc(3*var(--px));}
@@ -287,7 +250,6 @@ section.col{display:flex; flex-direction:column; gap:calc(10*var(--px)); min-hei
 .key.ok{border-color:var(--green-dim); color:var(--green);} .key.ok:hover{background:#062a11; border-color:var(--green);}
 .key.del{border-color:#4a2a10; color:#e08a3c;} .key.del:hover{background:#2a1405; border-color:#e08a3c;}
 
-/* ---------- preuves ---------- */
 .counter{border:calc(1*var(--px)) solid var(--line); background:var(--panel); padding:calc(12*var(--px)) calc(18*var(--px));
   display:flex; align-items:baseline; gap:calc(16*var(--px));}
 .counter b{white-space:nowrap; font-size:calc(64*var(--px)); line-height:1; font-variant-numeric:tabular-nums;}
@@ -311,7 +273,6 @@ section.col{display:flex; flex-direction:column; gap:calc(10*var(--px)); min-hei
 @keyframes pop{0%{box-shadow:inset 0 0 0 calc(200*var(--px)) rgba(53,255,106,.55)}100%{box-shadow:inset 0 0 0 calc(200*var(--px)) rgba(53,255,106,0)}}
 @keyframes stamp{0%{transform:scale(2.4) rotate(-14deg); opacity:0}60%{transform:scale(.92) rotate(2deg); opacity:1}100%{transform:none}}
 
-/* ---------- dossier ---------- */
 .dossier{border:calc(2*var(--px)) solid var(--red); padding:calc(16*var(--px)); text-align:center;
   background:repeating-linear-gradient(45deg, rgba(255,59,48,.09) 0 calc(10*var(--px)), transparent calc(10*var(--px)) calc(20*var(--px)));}
 .dossier .t{font-size:calc(26*var(--px)); font-weight:700; letter-spacing:calc(4*var(--px)); color:var(--red);}
@@ -323,7 +284,6 @@ section.col{display:flex; flex-direction:column; gap:calc(10*var(--px)); min-hei
 .dossier.open:hover{background:rgba(53,255,106,.18);}
 @keyframes glow{to{box-shadow:0 0 calc(34*var(--px)) rgba(53,255,106,.45)}}
 
-/* ---------- mur d'images ---------- */
 .cell{position:relative; border:calc(1*var(--px)) solid var(--line); background:#08080a; overflow:hidden; min-height:0; cursor:pointer;}
 .cell .vidhost{position:absolute; inset:0;}
 .cell video{width:100%; height:100%; object-fit:cover; display:block;
@@ -340,7 +300,6 @@ section.col{display:flex; flex-direction:column; gap:calc(10*var(--px)); min-hei
 .cell .ts{position:absolute; z-index:3; bottom:calc(12*var(--px)); right:calc(14*var(--px)); font-size:calc(17*var(--px));
   color:var(--amber); background:rgba(2,2,3,.72); padding:calc(4*var(--px)) calc(10*var(--px)); font-variant-numeric:tabular-nums;}
 
-/* survol : icône + texte invitant à agrandir l'image, en bas à gauche */
 .cell .zoomhint{position:absolute; z-index:4; left:calc(14*var(--px)); bottom:calc(12*var(--px));
   display:flex; align-items:center; gap:calc(10*var(--px));
   padding:calc(8*var(--px)) calc(14*var(--px)); background:rgba(2,2,3,.78); border:calc(1*var(--px)) solid var(--line);
@@ -354,9 +313,6 @@ section.col{display:flex; flex-direction:column; gap:calc(10*var(--px)); min-hei
 .cell.zoom-active .zoomhint .tx-in{display:none;}
 .cell.zoom-active .zoomhint .tx-out{display:block;}
 
-/* Avance rapide : uniquement utile une fois l'image agrandie, donc masqué en
-   grille. `stopPropagation` au clic, sinon on retomberait aussi sur le
-   toggle de zoom porté par la cellule entière. */
 .cell .ffbtn{display:none; position:absolute; z-index:4; right:calc(14*var(--px)); bottom:calc(12*var(--px));
   align-items:center; justify-content:center;
   width:calc(46*var(--px)); height:calc(46*var(--px)); padding:0;
@@ -366,9 +322,8 @@ section.col{display:flex; flex-direction:column; gap:calc(10*var(--px)); min-hei
 .cell .ffbtn:hover{color:#000; background:var(--amber); border-color:var(--amber);}
 main.cctv.zoomed .cell.zoom-active .ffbtn{display:flex;}
 .cell .ffbtn.on{color:#000; background:var(--amber); border-color:var(--amber);}
-/* Effet « bande qui défile trop vite » : un léger tremblement le temps que
-   l'avance rapide est active, plutôt qu'un vrai flou de mouvement — coûteux
-   et peu lisible sur une vidéo déjà en object-fit:cover. */
+/* Un tremblement plutôt qu'un vrai flou de mouvement : coûteux et peu lisible
+   sur une vidéo déjà en object-fit:cover. */
 .cell.ff-active video{animation:ffjitter .12s steps(2) infinite;}
 @keyframes ffjitter{
   0%{transform:translateY(0) scale(1.001);}
@@ -376,15 +331,11 @@ main.cctv.zoomed .cell.zoom-active .ffbtn{display:flex;}
   100%{transform:translateY(0) scale(1.001);}
 }
 
-/* clic sur une image : elle seule occupe le mur, les autres et le panneau s'effacent */
 main.cctv.zoomed{grid-template-columns:1fr; grid-template-rows:1fr;}
 main.cctv.zoomed .cell{display:none;}
 main.cctv.zoomed .cell.zoom-active{display:block;}
 main.cctv.zoomed .info{display:none;}
 
-/* ---------- bloc d'information (mur d'images) ----------
-   Diagnostic volontairement fictif : un manoir laissé à l'abandon, pas les
-   vraies statistiques de Home Assistant. */
 .info{display:flex; flex-direction:column; gap:calc(9*var(--px)); padding:calc(12*var(--px));
   border:calc(1*var(--px)) solid var(--line); background:var(--panel); min-height:0; overflow:hidden;}
 .info .hd{flex:none; font-size:calc(17*var(--px)); letter-spacing:calc(4*var(--px)); color:var(--amber-dim);
@@ -399,9 +350,8 @@ main.cctv.zoomed .info{display:none;}
 .bar{height:calc(6*var(--px)); border:calc(1*var(--px)) solid var(--amber-deep); position:relative;}
 .bar i{position:absolute; inset:calc(1*var(--px)); width:var(--w,50%); background:var(--amber);}
 .bar.warn i{background:var(--red);}
-/* Le journal occupe tout ce que les jauges laissent : c'est lui qui donne au
-   mur son impression de bâtiment vivant, donc autant d'historique que l'écran
-   peut en tenir. Le dégradé du bas fait passer la coupe pour une atténuation. */
+/* Le dégradé du bas fait passer la coupe des lignes en trop pour une
+   atténuation. */
 .feed{flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; gap:calc(6*var(--px));}
 .feed .fh{font-size:calc(13*var(--px)); letter-spacing:calc(2*var(--px)); color:var(--amber-dim); flex:none;
   border-bottom:calc(1*var(--px)) solid var(--line); padding-bottom:calc(6*var(--px));}
@@ -416,7 +366,6 @@ main.cctv.zoomed .info{display:none;}
 .info .foot{flex:none; border-top:calc(1*var(--px)) solid var(--line); padding-top:calc(8*var(--px));
   font-size:calc(13*var(--px)); letter-spacing:calc(2*var(--px)); color:#5a4210; text-align:center; white-space:nowrap;}
 
-/* ---------- journal ---------- */
 /* padding-right : réserve la place des deux boutons de régie, qui flottent
    au-dessus du pied de page. */
 footer{border:calc(1*var(--px)) solid var(--line); background:var(--panel);
@@ -424,10 +373,6 @@ footer{border:calc(1*var(--px)) solid var(--line); background:var(--panel);
   font-size:calc(15*var(--px)); color:var(--amber-dim); display:flex; gap:calc(28*var(--px)); overflow:hidden; z-index:5;}
 footer .ln{white-space:nowrap;}
 
-/* ---------- boutons de régie ---------- */
-/* Discrets : ce sont des boutons de régie, pas des éléments de jeu. Le plein
-   écran met la carte elle-même en plein écran, ce qui masque aussi la barre
-   latérale de HA. Le second bascule cet onglet entre saisie et mur d'images. */
 .regie{position:absolute; z-index:65; bottom:calc(16*var(--px));
   width:calc(46*var(--px)); height:calc(46*var(--px)); display:grid; place-items:center;
   border:calc(1*var(--px)) solid var(--amber-deep); background:rgba(5,5,6,.9);
@@ -440,7 +385,6 @@ footer .ln{white-space:nowrap;}
 :host(:fullscreen){width:100vw; height:100vh;}
 :host(:-webkit-full-screen){width:100vw; height:100vh;}
 
-/* ---------- overlays ---------- */
 .ov{position:absolute; inset:0; z-index:70; background:rgba(2,2,3,.94); display:grid; place-items:center; padding:calc(40*var(--px));}
 .ov[hidden]{display:none;}
 .bigbtn{border:calc(2*var(--px)) solid var(--amber); padding:calc(14*var(--px)) calc(34*var(--px));
@@ -449,8 +393,6 @@ footer .ln{white-space:nowrap;}
 .bigbtn.g{border-color:var(--green); color:var(--green);} .bigbtn.g:hover{background:var(--green); color:#000;}
 .bigbtn.r{border-color:var(--red); color:var(--red);} .bigbtn.r:hover{background:var(--red); color:#000;}
 
-/* Flux absent ou illisible : un écran de panne crédible plutôt qu'un cadre
-   noir. Le mur reste présentable sans les .mp4. */
 .missing{position:relative; display:grid; place-content:center; justify-items:center; gap:calc(14*var(--px));
   height:100%; text-align:center; overflow:hidden;
   border:calc(1*var(--px)) dashed var(--amber-deep); background:#050506;}
@@ -464,8 +406,8 @@ footer .ln{white-space:nowrap;}
 .missing .mtxt{font-size:calc(17*var(--px)); letter-spacing:calc(2*var(--px)); color:var(--amber-dim); line-height:1.8;}
 .missing .mcode{font-size:calc(14*var(--px)); letter-spacing:calc(3*var(--px)); color:var(--amber-deep);
   border:calc(1*var(--px)) solid var(--amber-deep); padding:calc(8*var(--px)) calc(18*var(--px));}
-/* Rappel de montage, volontairement minuscule et terne : utile à Eric pendant
-   la préparation, illisible de loin pendant la partie. */
+/* Volontairement minuscule et terne : lisible de près au montage, invisible de
+   loin pendant la partie. */
 .missing .mpath{font-size:calc(13*var(--px)); letter-spacing:calc(1*var(--px)); color:#3a3a42;
   margin-top:calc(6*var(--px));}
 .missing .mpath b{color:#55555f; font-weight:400;}
@@ -477,9 +419,6 @@ footer .ln{white-space:nowrap;}
 .ov.flash{animation:flash .5s steps(2) 3;}
 @keyframes flash{50%{background:rgba(53,255,106,.20)}}
 
-/* ---------- transmission de l'inspecteur ---------- */
-/* Le texte s'affiche en même temps que la voix : si le navigateur bloque la
-   lecture audio, les joueurs lisent quand même le message. */
 .saywrap{width:calc(1500*var(--px)); border:calc(2*var(--px)) solid var(--amber);
   background:#0a0800; padding:calc(40*var(--px)); text-align:center;}
 .saywrap .who{font-size:calc(20*var(--px)); letter-spacing:calc(5*var(--px)); color:var(--amber-dim);
@@ -510,10 +449,6 @@ footer .ln{white-space:nowrap;}
 .confirm p{font-size:calc(20*var(--px)); color:var(--amber); margin:calc(18*var(--px)) 0 calc(28*var(--px)); line-height:1.6;}
 .confirm .row{display:flex; gap:calc(18*var(--px)); justify-content:center;}
 `;
-
-/* ══════════════════════════════════════════════════════════════════
- *  Gabarits
- * ══════════════════════════════════════════════════════════════════ */
 
 const REGIE = `
   <button class="regie" id="modebtn" title="Basculer écran de saisie / mur d'images">📹</button>
@@ -643,10 +578,6 @@ const HTML_CCTV = (cells) => `
   ${REGIE}
 </div>`;
 
-/* ══════════════════════════════════════════════════════════════════
- *  La carte
- * ══════════════════════════════════════════════════════════════════ */
-
 class MysteryTerminalCard extends HTMLElement {
   constructor() {
     super();
@@ -679,8 +610,6 @@ class MysteryTerminalCard extends HTMLElement {
       { key: "gun", entity: ENT.gun, label: "FUSIL", detail: "SALON · L'HÉRITIÈRE" },
       { key: "poison", entity: ENT.poison, label: "POT D'ÉPICES « POISON »", detail: "SALLE À MANGER · LE MAJORDOME" },
     ];
-    // Journal des capteurs : les valeurs par défaut suffisent, `journal:` dans
-    // le YAML ne sert qu'à écarter un capteur bavard ou à élargir les domaines.
     const j = this._config.journal || {};
     this._journalOpts = {
       domains: j.domains || JOURNAL_DOMAINS,
@@ -698,10 +627,8 @@ class MysteryTerminalCard extends HTMLElement {
       document.addEventListener("fullscreenchange", this._onFs);
       document.addEventListener("webkitfullscreenchange", this._onFs);
     }
-    // T4.1 : l'inspecteur signale le poste de commandement au tout premier
-    // contact avec le mur d'images. On lit l'état HA plutôt qu'un drapeau JS
-    // pour rester correct après un reset sans recharger la page — l'écran de
-    // saisie ne doit jamais le déclencher, seul le mur d'images compte.
+    // On lit l'état HA plutôt qu'un drapeau JS, pour rester correct après un
+    // reset sans recharger la page.
     if (!this._onTouch) {
       this._onTouch = () => {
         if (this._mode !== "cctv" || !this._hass) return;
@@ -727,7 +654,6 @@ class MysteryTerminalCard extends HTMLElement {
   }
   getCardSize() { return 12; }
 
-  /* ---------------- modes ---------------- */
   _toggleMode() {
     this._sfx("cam");
     this._mode = this._mode === "cctv" ? "code" : "cctv";
@@ -735,11 +661,9 @@ class MysteryTerminalCard extends HTMLElement {
     this._render();
   }
 
-  /* ---------------- construction ----------------
-   * Basculer de mode reconstruit tout le shadow DOM. L'état de la partie vit
+  /* Basculer de mode reconstruit tout le shadow DOM : l'état de la partie vit
    * dans Home Assistant et dans l'instance (journal, tampon de saisie), donc
-   * rien ne se perd — et on évite de maintenir deux arbres en parallèle.
-   */
+   * rien ne se perd. */
   _render() {
     if (!this._config) return;
     this._clearCamBails();
@@ -762,7 +686,6 @@ class MysteryTerminalCard extends HTMLElement {
 
     if (this._mode === "cctv") this._buildWall(); else this._buildCode();
 
-    // Rejouer l'état courant sans rejouer les animations de transition.
     this._rebuilt = true;
     this._renderLog();
     this._renderFeed();
@@ -817,12 +740,8 @@ class MysteryTerminalCard extends HTMLElement {
     this._log("TERMINAL DE SAISIE EN LIGNE");
   }
 
-  /* ---------------- mur d'images ----------------
-   * Les trois archives tournent en boucle, muettes et sans contrôle : c'est un
-   * écran d'ambiance, aucune interaction n'est prévue. Fichier absent, chemin
-   * faux ou encodage refusé donnent tous le même écran de panne, crédible dans
-   * la fiction — le mur reste présentable sans les .mp4.
-   */
+  /* Fichier absent, chemin faux ou encodage refusé donnent tous le même écran
+   * de panne, crédible dans la fiction : le mur reste présentable sans .mp4. */
   _cellsHtml() {
     return this._cameras.slice(0, 3).map((c, i) => `
       <div class="cell" data-cell="${i}">
@@ -856,7 +775,7 @@ class MysteryTerminalCard extends HTMLElement {
       v.addEventListener("error", () => { clearTimeout(this._camBail[i]); this._cellFailed(c, host); });
       host.append(v);
       // Certains navigateurs refusent l'autoplay tant que la page n'a pas été
-      // touchée ; l'échec est silencieux, un clic dans la page suffit ensuite.
+      // touchée ; un clic dans la page suffit ensuite.
       const p = v.play();
       if (p && p.catch) p.catch(() => {});
     });
@@ -868,18 +787,14 @@ class MysteryTerminalCard extends HTMLElement {
     this._log("ARCHIVES EN LECTURE — BOUCLE CONTINUE");
   }
 
-  // Clic sur une image : elle occupe seule le mur (les deux autres et le
-  // panneau de diagnostic s'effacent). Un second clic sur la même image, ou
-  // sur son bouton RÉDUIRE, revient à la grille 2×2.
   _toggleZoom(i) {
     const main = this.shadowRoot.querySelector("main.cctv");
     if (!main) return;
     this._sfx("cam");
     const reverting = this._zoomCam === i;
     main.querySelectorAll(".cell.zoom-active").forEach((c) => c.classList.remove("zoom-active"));
-    // L'avance rapide ne doit jamais survivre à un changement de caméra ou un
-    // retour à la grille, sinon une image continuerait à tourner en accéléré
-    // sans qu'on l'ait demandé.
+    // L'avance rapide ne doit pas survivre à un changement de caméra ni à un
+    // retour à la grille.
     main.querySelectorAll(".cell.ff-active").forEach((c) => this._setFastForward(c, false));
     if (reverting) {
       this._zoomCam = null;
@@ -892,11 +807,8 @@ class MysteryTerminalCard extends HTMLElement {
     if (cell) cell.classList.add("zoom-active");
   }
 
-  // Avance rapide sur l'image agrandie : ×4, avec un léger tremblement pour
-  // vendre l'effet « bande qui défile trop vite ». Un second clic revient à
-  // la vitesse normale. `stopPropagation` : sinon le clic remonte à la
-  // cellule entière et referme le zoom.
   _toggleFastForward(i, ev) {
+    // Sans ça le clic remonte à la cellule entière et referme le zoom.
     ev.stopPropagation();
     const cell = this.shadowRoot.querySelector(`.cell[data-cell="${i}"]`);
     if (!cell) return;
@@ -929,9 +841,8 @@ class MysteryTerminalCard extends HTMLElement {
       c.file || "(aucun chemin configuré)");
   }
 
-  // Où déposer le fichier. HA sert `config/www/` sous `/local/`, donc on
-  // retraduit l'URL en chemin disque : c'est celui-là qu'on veut lire quand on
-  // a le dossier ouvert devant soi.
+  // HA sert `config/www/` sous `/local/` : on retraduit l'URL en chemin disque,
+  // le seul utile quand on a le dossier ouvert devant soi.
   _dropHint(file) {
     if (!file) return "renseigner « file: » dans dashboards/mystery-terminal.yaml";
     const disk = file.startsWith("/local/") ? "config/www/" + file.slice(7) : file;
@@ -943,7 +854,6 @@ class MysteryTerminalCard extends HTMLElement {
     this._camBail = [];
   }
 
-  /* ---------------- hass ---------------- */
   set hass(hass) {
     this._hass = hass;
     // Home Assistant nous parle par événement : le message de l'inspecteur est
@@ -974,7 +884,6 @@ class MysteryTerminalCard extends HTMLElement {
     cur.count = count;
 
     if (this.$("slots")) {
-      // preuves
       this._slotsCfg.forEach((s) => {
         const el = this.$("slots").querySelector(`[data-slot="${s.key}"]`);
         if (!el) return;
@@ -990,12 +899,10 @@ class MysteryTerminalCard extends HTMLElement {
         }
       });
 
-      // compteur
       this.$("cnum").textContent = `${count} / 3`;
       this.$("counter").classList.toggle("full", count === 3);
       this.$("bars").querySelectorAll("i").forEach((b, i) => b.classList.toggle("on", i < count));
 
-      // dossier
       this.$("dossier").classList.toggle("open", cur.unlocked);
       this.$("dosst").textContent = cur.unlocked ? "► OUVRIR LE DOSSIER CONFIDENTIEL" : "DOSSIER CONFIDENTIEL — SCELLÉ";
       this.$("dosss").textContent = cur.unlocked ? "ACCÈS AUTORISÉ · DÉSIGNATION DU SUSPECT" : "ACCÈS REFUSÉ · 3 PREUVES REQUISES";
@@ -1003,16 +910,13 @@ class MysteryTerminalCard extends HTMLElement {
       this._log(`REGISTRE MIS À JOUR — ${count} / 3 PREUVES`);
     }
 
-    // verrou + phase, sur les deux écrans
     const lf = this.$("lockflag");
     lf.textContent = cur.unlocked ? "SYSTÈME DÉVERROUILLÉ" : "SYSTÈME VERROUILLÉ";
     lf.classList.toggle("ok", cur.unlocked);
     this.$("phase").textContent = PHASE_LABEL[cur.phase] || String(cur.phase || "").toUpperCase();
 
-    // séquence de déverrouillage
     if (prev && !prev.unlocked && cur.unlocked) this._unlockSequence();
 
-    // retour de validation
     if (this._pending && cur.code === "") {
       const gained = count > this._pending.count;
       clearTimeout(this._pending.t);
@@ -1022,11 +926,8 @@ class MysteryTerminalCard extends HTMLElement {
     this._prev = cur;
   }
 
-  /* ---------------- journal des capteurs ----------------
-   * Rien n'est inventé ici : ce sont les vrais changements d'état de la maison.
-   * L'abonnement est pris une seule fois et survit aux bascules de mode ; seul
-   * l'affichage dépend de l'écran courant.
-   */
+  /* Le journal n'invente rien : ce sont les vrais changements d'état de la
+   * maison. */
   _startJournal(hass) {
     if (this._journalSub || !hass.connection) return;
     this._journalSub = true;
@@ -1059,7 +960,6 @@ class MysteryTerminalCard extends HTMLElement {
       : `<div class="fq">AUCUN ÉVÉNEMENT — MANOIR SILENCIEUX</div>`;
   }
 
-  /* ---------------- pavé ---------------- */
   _press(k) {
     if (k === "del") { this._sfx("del"); this._buf = this._buf.slice(0, -1); this._setMsg("", ""); }
     else if (k === "ok") return this._submit();
@@ -1111,11 +1011,8 @@ class MysteryTerminalCard extends HTMLElement {
     m.textContent = t || "EN ATTENTE DE SAISIE"; m.className = "msg " + (cls || "");
   }
 
-  /* ---------------- déverrouillage ----------------
-   * La séquence plein écran est réservée à l'écran de saisie : c'est là que
-   * sont les joueurs et la souris. Le mur d'images bascule au vert au même
-   * moment et se contente de noter la ligne.
-   */
+  /* La séquence est réservée à l'écran de saisie, là où sont les joueurs ; le
+   * mur d'images se contente de noter la ligne. */
   _unlockSequence() {
     this._log("DOSSIER CONFIDENTIEL DÉVERROUILLÉ");
     if (!this.$("ovBoot")) return;
@@ -1145,7 +1042,6 @@ class MysteryTerminalCard extends HTMLElement {
     }, 500 * lines.length + 2200);
   }
 
-  /* ---------------- accusation ---------------- */
   _askConfirm(i) {
     this._sfx("warn");
     this._choice = this._suspects[i];
@@ -1160,16 +1056,10 @@ class MysteryTerminalCard extends HTMLElement {
     this._hide("ovConfirm"); this._hide("ovDossier");
   }
 
-  /* ---------------- voix de l'inspecteur sur le terminal ----------------
-   * Les joueurs sont au sous-sol devant l'écran ; le téléphone, lui, est au
-   * salon. Les moments qui suivent une action à l'écran (le dénouement) se
-   * jouent donc ici, avec la même voix HenriNeural que le téléphone.
-   * Le texte s'affiche en même temps : si le navigateur refuse de lire l'audio,
-   * la partie continue quand même.
-   *
-   * Uniquement sur l'écran de saisie : les deux onglets reçoivent l'événement,
-   * et laisser le mur d'images lire l'audio en même temps donnerait un écho.
-   */
+  /* Le texte s'affiche en même temps que la voix : si le navigateur refuse de
+   * lire l'audio, la partie continue quand même. Uniquement sur l'écran de
+   * saisie — les deux onglets reçoivent l'événement et le mur d'images
+   * doublerait l'audio. */
   async _inspectorSays(message) {
     if (!message) return;
     if (this._mode !== "code" || !this.$("ovSay")) {
@@ -1215,11 +1105,8 @@ class MysteryTerminalCard extends HTMLElement {
     }
   }
 
-  /* ---------------- plein écran ----------------
-   * On met la carte elle-même en plein écran, pas la page : ça masque aussi la
-   * barre latérale et l'en-tête de Home Assistant, et il ne reste que le
-   * terminal. Les unités `cqh` suivent, la mise en page se recalcule seule.
-   */
+  /* On met la carte elle-même en plein écran, pas la page : ça masque aussi la
+   * barre latérale et l'en-tête de Home Assistant. */
   _toggleFullscreen() {
     this._sfx("cam");
     const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
@@ -1240,20 +1127,16 @@ class MysteryTerminalCard extends HTMLElement {
     const on = (document.fullscreenElement || document.webkitFullscreenElement) === this;
     b.textContent = on ? "⤡" : "⛶";
     b.title = on ? "Quitter le plein écran" : "Plein écran";
-    // En plein écran, les deux boutons de régie disparaissent : les joueurs ne
-    // doivent pas pouvoir basculer de vue ou cliquer dessus par erreur.
-    // Échap/F11 (natifs au navigateur) restent le seul moyen de sortir, ce qui
-    // redéclenche fullscreenchange et les fait réapparaître.
+    // En plein écran les boutons de régie disparaissent : les joueurs ne doivent
+    // pas pouvoir basculer de vue. Échap/F11 redéclenchent fullscreenchange et
+    // les font réapparaître.
     b.hidden = on;
     const m = this.$ && this.$("modebtn");
     if (m) m.hidden = on;
   }
 
-  /* ---------------- son ----------------
-   * Bips synthétisés à la volée : aucun fichier à déployer, rien à mettre en
-   * cache, et pas de blocage autoplay puisque chaque son suit un clic.
-   * `sound: false` dans le YAML coupe tout ; `volume:` règle le niveau.
-   */
+  /* Bips synthétisés à la volée : aucun fichier à déployer, et pas de blocage
+   * autoplay puisque chaque son suit un clic. */
   _audio() {
     if (this._ac !== undefined) return this._ac;
     const AC = window.AudioContext || window.webkitAudioContext;
@@ -1309,7 +1192,6 @@ class MysteryTerminalCard extends HTMLElement {
     }
   }
 
-  /* ---------------- utilitaires ---------------- */
   _call(domain, service, data) {
     if (this._hass && this._hass.callService) this._hass.callService(domain, service, data);
   }
@@ -1347,8 +1229,6 @@ class MysteryTerminalCard extends HTMLElement {
   }
 }
 
-/* ---------------- petits utilitaires de module ---------------- */
-
 export function stampTime(date) {
   const d = date || new Date(), p = (n) => String(n).padStart(2, "0");
   return `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
@@ -1364,9 +1244,9 @@ export function escapeHtml(s) {
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
-// Le mode vit dans sessionStorage : il est propre à l'onglet, donc les deux
-// écrans restent indépendants et survivent à un F5. Certains navigateurs en
-// navigation privée refusent l'accès : on retombe sur l'écran de saisie.
+// sessionStorage plutôt qu'une entité HA : le mode est propre à l'onglet, donc
+// deux onglets sur la même URL affichent chacun un écran différent. Refusé par
+// certains navigateurs en navigation privée, d'où le repli.
 function readMode() {
   try {
     const m = window.sessionStorage.getItem(MODE_KEY);

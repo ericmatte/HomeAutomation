@@ -187,8 +187,6 @@ input_select:
       - accusation
       - solved
     initial: idle
-  # Accusation depuis le terminal CCTV du bureau plutôt qu'au téléphone : la
-  # reconnaissance vocale s'est révélée trop peu fiable pour porter la fin.
   mystery_accusation_choice:
     name: Mystery Accusation Choice
     icon: mdi:gavel
@@ -225,7 +223,6 @@ input_boolean:
   mystery_butler_done:
     name: Mystery Butler Done
     icon: mdi:account-question
-  # Les 3 objets-indices étiquetés d'un code, saisis au terminal CCTV.
   mystery_evidence_saw:
     name: Mystery Evidence Saw
     icon: mdi:saw-blade
@@ -238,8 +235,7 @@ input_boolean:
   mystery_terminal_unlocked:
     name: Mystery Terminal Unlocked
     icon: mdi:folder-lock-open
-  # Bascule sur le tout premier clic/toucher de l'écran de saisie ; la carte
-  # ne la remet jamais à off elle-même, c'est mystery_reset_state qui le fait.
+  # La carte ne la remet jamais à off elle-même : c'est mystery_reset_state.
   mystery_terminal_first_touch:
     name: Mystery Terminal First Touch
     icon: mdi:cursor-default-click
@@ -247,9 +243,8 @@ input_boolean:
     name: Escape v2 Active
     icon: mdi:incognito
 
-# Le terminal CCTV de l'escape room v2 est en mode YAML plutôt que dans
-# .storage : c'est un écran de jeu versionné, pas un tableau de bord qu'on
-# retouche à la souris. `mode: storage` garde tous les autres tels quels.
+# Le terminal CCTV est versionné, d'où le mode YAML. `mode: storage` garde tous
+# les autres tableaux de bord tels quels, dans .storage.
 lovelace:
   mode: storage
   dashboards:

@@ -1,17 +1,8 @@
-# ─────────────────────────────────────────────────────────────
-#  TERMINAL DE VIDÉOSURVEILLANCE — « Meurtre au manoir connecté »
-#  Tableau de bord en mode YAML, déclaré dans configuration.yaml.
-#  Rendu par www/custom-lovelace/mystery-terminal-card.js.
-#  ⚠ La vue est en type: panel — plein écran, aucun scroll.
+# Rendu par www/custom-lovelace/mystery-terminal-card.js.
 #
-#  DEUX ÉCRANS, UN SEUL TABLEAU DE BORD
-#  Ouvrir cette même URL dans deux onglets, puis cliquer le bouton 📹 (à gauche
-#  du bouton plein écran, en bas à droite) sur le second :
-#    · écran de saisie — pavé numérique, registre des preuves, dossier
-#    · mur d'images    — les 3 archives en boucle + bloc d'information
-#  Le mode est retenu par onglet (sessionStorage) : il survit à un F5, mais un
-#  redémarrage du navigateur ramène les deux onglets sur l'écran de saisie.
-# ─────────────────────────────────────────────────────────────
+# Deux écrans, un seul tableau de bord : ouvrir cette URL dans deux onglets et
+# basculer le second en mur d'images avec le bouton 📹. Le mode est retenu par
+# onglet, un redémarrage du navigateur ramène les deux sur l'écran de saisie.
 
 views:
   - title: Terminal
@@ -21,16 +12,11 @@ views:
     cards:
       - type: custom:mystery-terminal-card
 
-        # Bips de terminal à chaque clic, synthétisés dans le navigateur (aucun
-        # fichier son à déployer). `sound: false` coupe tout.
         sound: true
         volume: 0.05
 
-        # Déposer les 3 .mp4 dans www/mystery/ (servi sous /local/mystery/).
-        # Ce dossier est gitignoré : les vidéos ne partent pas dans le dépôt.
-        # Sur le mur d'images elles tournent en boucle, muettes et sans
-        # contrôle. Fichier absent ou illisible → écran de panne « ARCHIVE
-        # INDISPONIBLE » : le mur reste présentable sans les vidéos.
+        # Déposer les .mp4 dans www/mystery/ (servi sous /local/mystery/), un
+        # dossier gitignoré : les vidéos ne partent pas dans le dépôt.
         cameras:
           - id: CAM 01
             zone: ATELIER — SOUS-SOL
@@ -42,12 +28,9 @@ views:
             zone: SALLE À MANGER — REZ-DE-CHAUSSÉE
             file: /local/mystery/cam03_majordome.mp4
 
-        # Emplacements de preuve, dans l'ordre d'affichage. Les codes des
-        # étiquettes vivent dans l'automation « Mystery - Evidence code
-        # entered » : le dashboard ne valide rien lui-même.
-        # ⚠️ `entity:` est documentaire — la carte lit les 3 input_boolean par
-        # leur nom en dur et n'utilise que `key` pour les apparier. Changer
-        # `entity:` ici ne branche rien : il faudrait aussi toucher le .js.
+        # ⚠️ `entity:` est documentaire : la carte lit les 3 input_boolean par
+        # leur nom en dur et n'apparie que sur `key`. Les codes des étiquettes
+        # vivent dans l'automation « Mystery - Evidence code entered ».
         evidence:
           - key: saw
             entity: input_boolean.mystery_evidence_saw
@@ -62,9 +45,8 @@ views:
             label: POT D'ÉPICES « POISON »
             detail: SALLE À MANGER · LE MAJORDOME
 
-        # Cartes-suspects du dossier confidentiel. `portrait` est facultatif :
-        # sans image, un cadre rayé s'affiche — visible par les joueurs, donc à
-        # compléter ou à retirer avant la partie.
+        # `portrait` est facultatif, mais son absence laisse un cadre rayé
+        # visible par les joueurs.
         suspects:
           - option: gardener
             name: LE JARDINIER
@@ -79,21 +61,7 @@ views:
             room: SALLE À MANGER
             weapon: POISON
 
-        # Journal des capteurs du mur d'images — il occupe toute la hauteur du
-        # bloc d'information. Il montre les VRAIS changements d'état de la
-        # maison, rien n'est inventé : il peut donc rester figé plusieurs
-        # minutes si personne ne bouge à l'étage.
-        # Les valeurs par défaut suffisent ; décommenter pour ajuster.
-        #   domains : remplace la liste par défaut (binary_sensor, light,
-        #             switch, lock, cover, fan, media_player, climate, person,
-        #             device_tracker, vacuum). `sensor` en est absent exprès :
-        #             les valeurs numériques changent en continu.
-        #   exclude : sous-chaînes d'entity_id à taire, en plus de « mystery »
-        #             (les entités du jeu sont toujours masquées).
-        #   lines   : nombre de lignes gardées en mémoire (20 par défaut). Le
-        #             surplus qui ne tient pas à l'écran est simplement rogné.
-        # journal:
-        #   lines: 20
-        #   exclude:
-        #     - imprimante
-        #     - device_tracker.telephone_eric
+        # Journal des capteurs du mur d'images : de vrais changements d'état de
+        # la maison, il peut donc rester figé si personne ne bouge. Réglages
+        # facultatifs `journal: {domains, exclude, lines}`, valeurs par défaut
+        # dans mystery-terminal-card.js.

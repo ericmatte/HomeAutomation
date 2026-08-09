@@ -34,8 +34,6 @@ const {
 
 const state = (s, extra) => Object.assign({ state: s, attributes: {} }, extra);
 
-/* ─────────────────────────── libellés ─────────────────────────── */
-
 test("libelle les binary_sensor selon leur device_class", () => {
   const motion = { device_class: "motion" };
   assert.equal(journalStateLabel("binary_sensor.a", "on", motion), "MOUVEMENT DÉTECTÉ");
@@ -69,12 +67,9 @@ test("préfère le friendly_name à l'identifiant", () => {
   assert.equal(journalEntityName("light.salon_principal", {}), "salon principal");
 });
 
-/* ─────────────────────────── filtrage ─────────────────────────── */
-
 test("n'accepte que les domaines qui racontent quelque chose", () => {
   assert.equal(isJournalEntity("binary_sensor.porte"), true);
   assert.equal(isJournalEntity("light.salon"), true);
-  // Les valeurs numériques changent en continu et noieraient le journal.
   assert.equal(isJournalEntity("sensor.temperature_salon"), false);
   assert.equal(isJournalEntity("automation.quelque_chose"), false);
   assert.equal(isJournalEntity("pas_une_entite"), false);
@@ -103,8 +98,6 @@ test("reconnaît les états qui ne racontent rien", () => {
   assert.equal(isDeadState("on"), false);
 });
 
-/* ─────────────────────────── pièces ─────────────────────────── */
-
 test("résout la pièce par l'entité puis par son appareil", () => {
   const hass = {
     entities: {
@@ -121,8 +114,6 @@ test("résout la pièce par l'entité puis par son appareil", () => {
   assert.equal(journalAreaName(hass, "light.inconnue"), null);
   assert.equal(journalAreaName({}, "light.direct"), null);
 });
-
-/* ─────────────────────────── lignes de journal ─────────────────────────── */
 
 test("compose une ligne avec la pièce, le nom et l'état", () => {
   const hass = {
@@ -164,8 +155,6 @@ test("date la ligne sur last_changed quand HA le fournit", () => {
   assert.equal(line.at.toISOString(), "2026-08-07T22:47:12.000Z");
 });
 
-/* ─────────────────────────── amorçage ─────────────────────────── */
-
 test("amorce le journal avec les derniers changements réels, du plus récent au plus ancien", () => {
   const hass = {
     states: {
@@ -197,12 +186,10 @@ test("tronque l'amorçage au nombre de lignes demandé", () => {
 });
 
 test("garde assez d'historique pour remplir le bloc du mur d'images", () => {
-  // Le journal occupe désormais toute la hauteur laissée par les jauges : en
-  // deçà d'une dizaine de lignes, le bas du bloc resterait vide.
+  // Le journal occupe toute la hauteur laissée par les jauges : en deçà d'une
+  // dizaine de lignes, le bas du bloc resterait vide.
   assert.ok(JOURNAL_LINES >= 15, `JOURNAL_LINES=${JOURNAL_LINES} est trop court`);
 });
-
-/* ─────────────────────────── affichage ─────────────────────────── */
 
 test("échappe le texte venu du registre HA", () => {
   assert.equal(escapeHtml(`<img src=x onerror="a">`), "&lt;img src=x onerror=&quot;a&quot;&gt;");

@@ -1071,9 +1071,8 @@
     - binary_sensor.door_sensor_contact
     to: 'on'
   conditions:
-  # La porte de l'atelier est le déclencheur du Jardinier en v2 : sans cette
-  # garde, chaque réplique rallumait le bureau à fond au milieu de la pénombre
-  # d'enquête, par-dessus la traînée de guidage.
+  # Cette porte déclenche aussi le Jardinier en v2 : sans la garde, chaque
+  # réplique rallume le bureau à fond au milieu de la pénombre d'enquête.
   - condition: state
     entity_id: input_boolean.escape_v2_active
     state: "off"
@@ -2731,8 +2730,7 @@
       to: "on"
       id: heiress
     # Deuxième prise pour l'Héritière : avec la seule trappe du fusil, des
-    # joueurs passaient à côté d'elle. La porte de la buanderie ne bouge pas,
-    # elle sert telle quelle — fouiller le linge la fait sortir de ses gonds.
+    # joueurs passent à côté d'elle.
     - trigger: state
       entity_id: binary_sensor.laundry_door_open
       to: "on"
@@ -2748,8 +2746,8 @@
       entity_id: input_select.mystery_phase
       state: ["investigation"]
   actions:
-    # Les ids sont de la forme « suspect » ou « suspect_variante » : la
-    # variante ne change que l'entrée en matière de la réplique.
+    # Ids de la forme « suspect » ou « suspect_variante » : la variante ne
+    # change que l'entrée en matière de la réplique.
     - variables:
         parts: "{{ trigger.id.split('_') }}"
     - action: script.mystery_suspect_speak
@@ -2768,9 +2766,9 @@
       entity_id: input_select.mystery_phase
       state: ["investigation"]
   actions:
-    # Le Jardinier marmonne dans son atelier pendant que le Majordome parle :
-    # ce bruit de fond dit aux joueurs où le trouver. notify rend la main tout
-    # de suite, les deux voix se superposent donc comme voulu.
+    # Le Jardinier marmonne pendant que le Majordome parle : ce bruit de fond
+    # dit aux joueurs où le trouver. notify rend la main tout de suite, les
+    # deux voix se superposent donc comme voulu.
     - action: script.mystery_suspect_speak
       data:
         suspect: gardener
@@ -2786,8 +2784,8 @@
         custom_line: >-
           Oh, vous partez déjà voir le Jardinier ? Il est en bas, dans son
           atelier : écoutez, on l'entend bricoler d'ici.
-    # Le Majordome se tait le temps qu'on entende vraiment le Jardinier
-    # bricoler : 10 s pour sa réplique (21 mots) plus 3 s de silence.
+    # 10 s pour la réplique du Majordome (21 mots) plus 3 s de silence, le
+    # temps qu'on entende vraiment le Jardinier bricoler.
     - delay: { seconds: 13 }
     - action: script.mystery_suspect_speak
       data:
@@ -2818,8 +2816,6 @@
           l'ai vu le glisser sous son tablier en repartant. Allez donc le lui
           demander vous-même. Il traîne souvent dehors, ou en bas dans son
           atelier. Je l'ai vu passer par la porte-patio récemment.
-    # Le Majordome envoie les joueurs vers le Jardinier : on allume le chemin
-    # jusqu'au sous-sol plutôt que de les laisser deviner.
     - action: script.mystery_guide_path
       data:
         lights:
@@ -2848,9 +2844,8 @@
       state: "on"
   actions:
     # Le booléen du suspect bascule dès que le TTS rend la main, pas à la fin
-    # de sa réplique. Les 40 s couvrent la plus longue d'entre elles (82 mots,
-    # ~36 s), sinon l'inspecteur appellerait par-dessus le 3e suspect ; les 12 s
-    # de plus sont voulues, pour laisser respirer avant qu'il rappelle.
+    # de sa réplique : 40 s pour couvrir la plus longue (82 mots, ~36 s), plus
+    # 12 s pour laisser respirer avant que l'inspecteur rappelle.
     - delay: { seconds: 52 }
     - action: script.mystery_police_callback
 - id: mystery_hint_request
@@ -2876,9 +2871,8 @@
 - id: mystery_idle_nudge
   alias: "Mystery - Idle nudge"
   mode: restart
-  # Filet de sécurité : sans nouvelle avancée, l'inspecteur rappelle de
-  # lui-même. Le premier test a montré des joueurs laissés à eux-mêmes, sans
-  # savoir qu'ils pouvaient demander un indice.
+  # Filet de sécurité pour les joueurs qui ne savent pas qu'ils peuvent
+  # demander un indice : sans nouvelle avancée, l'inspecteur rappelle.
   triggers:
     - trigger: state
       entity_id: input_select.mystery_phase
@@ -2914,8 +2908,7 @@
   mode: queued
   max: 5
   # Chacun des 3 objets-indices porte une étiquette avec son code ; les joueurs
-  # le tapent sur le terminal CCTV du bureau. C'est ce qui remplace les
-  # interactions vocales au téléphone, trop peu fiables au premier test.
+  # le tapent sur le terminal CCTV du bureau.
   triggers:
     - trigger: state
       entity_id: input_text.mystery_code_input
@@ -2959,20 +2952,17 @@
           state: "on"
       then:
         # Pas d'appel téléphonique ici : les joueurs sont au sous-sol devant le
-        # terminal et le téléphone est au salon. La carte joue déjà sa séquence
-        # de déverrouillage à l'écran, ça suffit.
+        # terminal, qui joue déjà sa séquence de déverrouillage à l'écran.
         - action: input_boolean.turn_on
           target: { entity_id: input_boolean.mystery_terminal_unlocked }
         # La TV du théâtre est longue à s'initialiser : on l'allume dès le
-        # dossier complet plutôt qu'au moment de l'accusation, pour qu'elle
-        # soit déjà prête quand mystery_denouement en a besoin. Les joueurs
-        # doivent encore désigner un coupable avant d'y arriver, ce qui laisse
-        # largement le temps.
+        # dossier complet pour qu'elle soit prête quand mystery_denouement en
+        # a besoin.
         - action: media_player.turn_on
           target: { entity_id: media_player.theatre_tv }
           continue_on_error: true
-    # T4.2 : un mot d'encouragement à 1/3 et 2/3. Rien à 3/3, la séquence de
-    # déverrouillage de la carte parle déjà pour elle-même.
+    # Rien à 3/3 : la séquence de déverrouillage de la carte parle déjà pour
+    # elle-même.
     - variables:
         evidence_found: >-
           {{ ['input_boolean.mystery_evidence_saw',
@@ -2995,8 +2985,8 @@
 - id: mystery_terminal_first_touch
   alias: "Mystery - Terminal first touch"
   mode: single
-  # T4.1 : la carte bascule ce booléen au tout premier clic/toucher du mur
-  # d'images (voir mystery-terminal-card.js, connectedCallback).
+  # La carte bascule ce booléen au tout premier toucher du mur d'images
+  # (mystery-terminal-card.js, connectedCallback).
   triggers:
     - trigger: state
       entity_id: input_boolean.mystery_terminal_first_touch
@@ -3016,9 +3006,6 @@
 - id: mystery_terminal_accusation
   alias: "Mystery - Accusation from terminal"
   mode: single
-  # L'accusation se fait uniquement à l'écran : le chemin vocal a été retiré,
-  # la reconnaissance au téléphone n'était pas fiable et le terminal la rend
-  # inutile.
   triggers:
     - trigger: state
       entity_id: input_select.mystery_accusation_choice
