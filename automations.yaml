@@ -740,12 +740,7 @@
     entity_id:
     - binary_sensor.laundry_door_open
     to:
-  conditions:
-  # Ce capteur est emprunté par l'escape room v2 (coffre à bijoux de
-  # l'Héritière) : sans cette garde, la buanderie s'allumerait à chaque fois.
-  - condition: state
-    entity_id: input_boolean.escape_v2_active
-    state: "off"
+  conditions: []
   actions:
   - if:
     - condition: state
