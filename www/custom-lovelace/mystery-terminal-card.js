@@ -354,6 +354,28 @@ section.col{display:flex; flex-direction:column; gap:calc(10*var(--px)); min-hei
 .cell.zoom-active .zoomhint .tx-in{display:none;}
 .cell.zoom-active .zoomhint .tx-out{display:block;}
 
+/* Avance rapide : uniquement utile une fois l'image agrandie, donc masqué en
+   grille. `stopPropagation` au clic, sinon on retomberait aussi sur le
+   toggle de zoom porté par la cellule entière. */
+.cell .ffbtn{display:none; position:absolute; z-index:4; right:calc(14*var(--px)); bottom:calc(12*var(--px));
+  align-items:center; justify-content:center;
+  width:calc(46*var(--px)); height:calc(46*var(--px)); padding:0;
+  background:rgba(2,2,3,.78); border:calc(1*var(--px)) solid var(--line);
+  color:var(--amber-dim); font-size:calc(20*var(--px)); line-height:1; cursor:pointer;
+  transition:color .12s, border-color .12s, background .12s;}
+.cell .ffbtn:hover{color:#000; background:var(--amber); border-color:var(--amber);}
+main.cctv.zoomed .cell.zoom-active .ffbtn{display:flex;}
+.cell .ffbtn.on{color:#000; background:var(--amber); border-color:var(--amber);}
+/* Effet « bande qui défile trop vite » : un léger tremblement le temps que
+   l'avance rapide est active, plutôt qu'un vrai flou de mouvement — coûteux
+   et peu lisible sur une vidéo déjà en object-fit:cover. */
+.cell.ff-active video{animation:ffjitter .12s steps(2) infinite;}
+@keyframes ffjitter{
+  0%{transform:translateY(0) scale(1.001);}
+  50%{transform:translateY(calc(-2*var(--px))) scale(1.004);}
+  100%{transform:translateY(0) scale(1.001);}
+}
+
 /* clic sur une image : elle seule occupe le mur, les autres et le panneau s'effacent */
 main.cctv.zoomed{grid-template-columns:1fr; grid-template-rows:1fr;}
 main.cctv.zoomed .cell{display:none;}
@@ -814,6 +836,7 @@ class MysteryTerminalCard extends HTMLElement {
           <span class="tx tx-in">AGRANDIR</span>
           <span class="tx tx-out">RÉDUIRE</span>
         </div>
+        <button class="ffbtn" data-ff="${i}" title="Avance rapide">⏩</button>
       </div>`).join("");
   }
 
@@ -839,6 +862,8 @@ class MysteryTerminalCard extends HTMLElement {
     });
     this.shadowRoot.querySelectorAll(".cell").forEach((cell) =>
       cell.addEventListener("click", () => this._toggleZoom(+cell.dataset.cell)));
+    this.shadowRoot.querySelectorAll(".ffbtn").forEach((btn) =>
+      btn.addEventListener("click", (ev) => this._toggleFastForward(+btn.dataset.ff, ev)));
     this._log("MUR D'IMAGES EN LIGNE");
     this._log("ARCHIVES EN LECTURE — BOUCLE CONTINUE");
   }
@@ -852,6 +877,10 @@ class MysteryTerminalCard extends HTMLElement {
     this._sfx("cam");
     const reverting = this._zoomCam === i;
     main.querySelectorAll(".cell.zoom-active").forEach((c) => c.classList.remove("zoom-active"));
+    // L'avance rapide ne doit jamais survivre à un changement de caméra ou un
+    // retour à la grille, sinon une image continuerait à tourner en accéléré
+    // sans qu'on l'ait demandé.
+    main.querySelectorAll(".cell.ff-active").forEach((c) => this._setFastForward(c, false));
     if (reverting) {
       this._zoomCam = null;
       main.classList.remove("zoomed");
@@ -861,6 +890,26 @@ class MysteryTerminalCard extends HTMLElement {
     main.classList.add("zoomed");
     const cell = main.querySelector(`.cell[data-cell="${i}"]`);
     if (cell) cell.classList.add("zoom-active");
+  }
+
+  // Avance rapide sur l'image agrandie : ×4, avec un léger tremblement pour
+  // vendre l'effet « bande qui défile trop vite ». Un second clic revient à
+  // la vitesse normale. `stopPropagation` : sinon le clic remonte à la
+  // cellule entière et referme le zoom.
+  _toggleFastForward(i, ev) {
+    ev.stopPropagation();
+    const cell = this.shadowRoot.querySelector(`.cell[data-cell="${i}"]`);
+    if (!cell) return;
+    this._sfx("cam");
+    this._setFastForward(cell, !cell.classList.contains("ff-active"));
+  }
+
+  _setFastForward(cell, on) {
+    const video = cell.querySelector("video");
+    if (video) video.playbackRate = on ? 4 : 1;
+    cell.classList.toggle("ff-active", on);
+    const btn = cell.querySelector(".ffbtn");
+    if (btn) btn.classList.toggle("on", on);
   }
 
   _cellFailed(c, host) {
