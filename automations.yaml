@@ -1071,11 +1071,9 @@
     - binary_sensor.door_sensor_contact
     to: 'on'
   conditions:
-  # Cette porte déclenche aussi le Jardinier en v2 : sans la garde, chaque
-  # réplique rallume le bureau à fond au milieu de la pénombre d'enquête.
   - condition: state
     entity_id: input_boolean.escape_v2_active
-    state: "off"
+    state: 'off'
   actions:
   - action: light.turn_on
     metadata: {}
@@ -1591,7 +1589,7 @@
   conditions:
   - condition: state
     entity_id: input_boolean.escape_v2_active
-    state: "off"
+    state: 'off'
   actions:
   - action: assist_satellite.ask_question
     metadata: {}
@@ -1712,7 +1710,7 @@
   conditions:
   - condition: state
     entity_id: input_boolean.escape_v2_active
-    state: "off"
+    state: 'off'
   actions:
   - choose:
     - conditions:
@@ -2712,308 +2710,280 @@
       device_id:
       - 8ee3772d771cbe4afa821d73874df182
     data:
-      title: "\U0001F4A7 Déshumidificateur inactif"
-      message: Le déshumidificateur est allumé depuis 30 min mais ne consomme presque
-        rien. Le réservoir est peut-être plein.
+      message: "\U0001F4A7 Le déshumidificateur est plein."
   mode: single
 - id: mystery_suspect_triggers
-  alias: "Mystery - Suspect triggers"
+  alias: Mystery - Suspect triggers
   mode: queued
   max: 5
   triggers:
-    - trigger: state
-      entity_id: binary_sensor.door_sensor_contact
-      to: "on"
-      id: gardener
-    - trigger: state
-      entity_id: binary_sensor.vibration_sensor_vibration
-      to: "on"
-      id: heiress
-    - trigger: state
-      entity_id: binary_sensor.laundry_door_open
-      to: "on"
-      id: heiress_laundry
-    - trigger: device
-      domain: mqtt
-      device_id: 8317fbc3ea314ec40186f0d8ec39998d
-      type: action
-      subtype: single
-      id: butler
+  - trigger: state
+    entity_id: binary_sensor.door_sensor_contact
+    to: 'on'
+    id: gardener
+  - trigger: state
+    entity_id: binary_sensor.vibration_sensor_vibration
+    to: 'on'
+    id: heiress
+  - trigger: state
+    entity_id: binary_sensor.laundry_door_open
+    to: 'on'
+    id: heiress_laundry
+  - trigger: device
+    domain: mqtt
+    device_id: 8317fbc3ea314ec40186f0d8ec39998d
+    type: action
+    subtype: single
+    id: butler
   conditions:
-    - condition: state
-      entity_id: input_select.mystery_phase
-      state: ["investigation"]
+  - condition: state
+    entity_id: input_select.mystery_phase
+    state:
+    - investigation
   actions:
-    - variables:
-        parts: "{{ trigger.id.split('_') }}"
-    - action: script.mystery_suspect_speak
-      data:
-        suspect: "{{ parts[0] }}"
-        variant: "{{ parts[1] if parts | count > 1 else '' }}"
+  - variables:
+      parts: '{{ trigger.id.split(''_'') }}'
+  - action: script.mystery_suspect_speak
+    data:
+      suspect: '{{ parts[0] }}'
+      variant: '{{ parts[1] if parts | count > 1 else '''' }}'
 - id: mystery_butler_patio
-  alias: "Mystery - Butler at patio door"
+  alias: Mystery - Butler at patio door
   mode: single
   triggers:
-    - trigger: state
-      entity_id: binary_sensor.patio_door_contact
-      to: "on"
+  - trigger: state
+    entity_id: binary_sensor.patio_door_contact
+    to: 'on'
   conditions:
-    - condition: state
-      entity_id: input_select.mystery_phase
-      state: ["investigation"]
+  - condition: state
+    entity_id: input_select.mystery_phase
+    state:
+    - investigation
   actions:
-    # notify rend la main tout de suite, les deux voix se superposent donc
-    # comme voulu.
-    - action: script.mystery_suspect_speak
-      data:
-        suspect: gardener
-        custom_line: >-
-          Hmm hmm... voyons voir... non, pas celle-là... mais où c'est que j'ai
-          mis ça, donc... hmm... ah, tiens... non, non... mmmh... bon, bon,
-          bon... Hmm hmm... voyons voir... non, pas celle-là... mais où c'est
-          que j'ai mis ça, donc... hmm... ah, tiens... non, non... mmmh... bon,
-          bon, bon...
-    - action: script.mystery_suspect_speak
-      data:
-        suspect: butler
-        custom_line: >-
-          Oh, vous partez déjà voir le Jardinier ? Il est en bas, dans son
-          atelier : écoutez, on l'entend bricoler d'ici.
-    # 10 s pour la réplique du Majordome (21 mots) plus 3 s de silence, le
-    # temps qu'on entende vraiment le Jardinier bricoler.
-    - delay: { seconds: 13 }
-    - action: script.mystery_suspect_speak
-      data:
-        suspect: butler
-        custom_line: >-
-          Parfois, la porte extérieure est verrouillée, mais vous pouvez
-          toujours passer par le sous-sol. À votre place je me méfierais de
-          lui, il est un peu louche, je vous l'ai dit.
+  - action: script.mystery_suspect_speak
+    data:
+      suspect: gardener
+      custom_line: Hmm hmm... voyons voir... non, pas celle-là... mais où c'est que
+        j'ai mis ça, donc... hmm... ah, tiens... non, non... mmmh... bon, bon, bon...
+        Hmm hmm... voyons voir... non, pas celle-là... mais où c'est que j'ai mis
+        ça, donc... hmm... ah, tiens... non, non... mmmh... bon, bon, bon...
+  - action: script.mystery_suspect_speak
+    data:
+      suspect: butler
+      custom_line: 'Oh, vous partez déjà voir le Jardinier ? Il est en bas, dans son
+        atelier : écoutez, on l''entend bricoler d''ici.'
+  - delay:
+      seconds: 13
+  - action: script.mystery_suspect_speak
+    data:
+      suspect: butler
+      custom_line: Parfois, la porte extérieure est verrouillée, mais vous pouvez
+        toujours passer par le sous-sol. À votre place je me méfierais de lui, il
+        est un peu louche, je vous l'ai dit.
 - id: mystery_knife_drawer
-  alias: "Mystery - Knife drawer red herring"
+  alias: Mystery - Knife drawer red herring
   mode: single
   triggers:
-    - trigger: state
-      entity_id: binary_sensor.knife_drawer_contact
-      to: "on"
+  - trigger: state
+    entity_id: binary_sensor.knife_drawer_contact
+    to: 'on'
   conditions:
-    - condition: state
-      entity_id: input_select.mystery_phase
-      state: ["investigation"]
+  - condition: state
+    entity_id: input_select.mystery_phase
+    state:
+    - investigation
   actions:
-    - action: script.mystery_suspect_speak
-      data:
-        suspect: butler
-        custom_line: >-
-          Un couteau manquant dans ce tiroir ? Mon Dieu... je n'y toucherais
-          jamais, voyons. Moi c'est le service, uniquement le service. Mais
-          puisque vous fouillez : c'est le Jardinier qui a pris ce couteau, je
-          l'ai vu le glisser sous son tablier en repartant. Allez donc le lui
-          demander vous-même. Il traîne souvent dehors, ou en bas dans son
-          atelier. Je l'ai vu passer par la porte-patio récemment.
-    - action: script.mystery_guide_path
-      data:
-        lights:
-          - light.hallway_lights
-          - light.downstairs_hallway_light
+  - action: script.mystery_suspect_speak
+    data:
+      suspect: butler
+      custom_line: 'Un couteau manquant dans ce tiroir ? Mon Dieu... je n''y toucherais
+        jamais, voyons. Moi c''est le service, uniquement le service. Mais puisque
+        vous fouillez : c''est le Jardinier qui a pris ce couteau, je l''ai vu le
+        glisser sous son tablier en repartant. Allez donc le lui demander vous-même.
+        Il traîne souvent dehors, ou en bas dans son atelier. Je l''ai vu passer par
+        la porte-patio récemment.'
+  - action: script.mystery_guide_path
+    data:
+      lights:
+      - light.hallway_lights
+      - light.downstairs_hallway_light
 - id: mystery_auto_autopsy
-  alias: "Mystery - Auto autopsy"
+  alias: Mystery - Auto autopsy
   mode: single
   triggers:
-    - trigger: state
-      entity_id:
-        - input_boolean.mystery_gardener_done
-        - input_boolean.mystery_heiress_done
-        - input_boolean.mystery_butler_done
-      to: "on"
+  - trigger: state
+    entity_id:
+    - input_boolean.mystery_gardener_done
+    - input_boolean.mystery_heiress_done
+    - input_boolean.mystery_butler_done
+    to: 'on'
   conditions:
-    - condition: state
-      entity_id: input_select.mystery_phase
-      state: investigation
-    # Une condition state à plusieurs entités exige que toutes correspondent.
-    - condition: state
-      entity_id:
-        - input_boolean.mystery_gardener_done
-        - input_boolean.mystery_heiress_done
-        - input_boolean.mystery_butler_done
-      state: "on"
+  - condition: state
+    entity_id: input_select.mystery_phase
+    state: investigation
+  - condition: state
+    entity_id:
+    - input_boolean.mystery_gardener_done
+    - input_boolean.mystery_heiress_done
+    - input_boolean.mystery_butler_done
+    state: 'on'
   actions:
-    # Le booléen du suspect bascule dès que le TTS rend la main, pas à la fin
-    # de sa réplique : 40 s pour couvrir la plus longue (82 mots, ~36 s), plus
-    # 12 s pour laisser respirer avant que l'inspecteur rappelle.
-    - delay: { seconds: 52 }
-    - action: script.mystery_police_callback
+  - delay:
+      seconds: 52
+  - action: script.mystery_police_callback
 - id: mystery_hint_request
-  alias: "Mystery - Hint on request"
+  alias: Mystery - Hint on request
   mode: single
   triggers:
-    - trigger: conversation
-      command:
-        - indice
-        - "{a}indice"
-        - "indice{b}"
-        - "{a}indice{b}"
+  - trigger: conversation
+    command:
+    - indice
+    - '{a}indice'
+    - indice{b}
+    - '{a}indice{b}'
   conditions:
-    # La v1 répond au même mot : c'est la garde de cohabitation qui départage.
-    - condition: state
-      entity_id: input_boolean.escape_v2_active
-      state: "on"
+  - condition: state
+    entity_id: input_boolean.escape_v2_active
+    state: 'on'
   actions:
-    - set_conversation_response: >-
-        Un instant, détective, je consulte mon dossier.
-    - delay: { seconds: 3 }
-    - action: script.mystery_hint
+  - set_conversation_response: Un instant, détective, je consulte mon dossier.
+  - delay:
+      seconds: 3
+  - action: script.mystery_hint
 - id: mystery_idle_nudge
-  alias: "Mystery - Idle nudge"
+  alias: Mystery - Idle nudge
   mode: restart
   triggers:
-    - trigger: state
-      entity_id: input_select.mystery_phase
-      to:
+  - trigger: state
+    entity_id: input_select.mystery_phase
+    to:
+    - investigation
+    - autopsy_done
+  - trigger: state
+    entity_id:
+    - input_boolean.mystery_gardener_done
+    - input_boolean.mystery_heiress_done
+    - input_boolean.mystery_butler_done
+    to: 'on'
+  actions:
+  - repeat:
+      while:
+      - condition: state
+        entity_id: input_select.mystery_phase
+        state:
         - investigation
         - autopsy_done
-    - trigger: state
-      entity_id:
-        - input_boolean.mystery_gardener_done
-        - input_boolean.mystery_heiress_done
-        - input_boolean.mystery_butler_done
-      to: "on"
-  actions:
-    - repeat:
-        while:
-          - condition: state
-            entity_id: input_select.mystery_phase
-            state:
-              - investigation
-              - autopsy_done
-        sequence:
-          - delay: { minutes: 6 }
-          # Une condition qui échoue en cours de séquence interrompt le run,
-          # c'est exactement l'effet voulu si la phase a bougé pendant l'attente.
-          - condition: state
-            entity_id: input_select.mystery_phase
-            state:
-              - investigation
-              - autopsy_done
-          - action: script.mystery_hint
+      sequence:
+      - delay:
+          minutes: 6
+      - condition: state
+        entity_id: input_select.mystery_phase
+        state:
+        - investigation
+        - autopsy_done
+      - action: script.mystery_hint
 - id: mystery_evidence_code
-  alias: "Mystery - Evidence code entered"
+  alias: Mystery - Evidence code entered
   mode: queued
   max: 5
   triggers:
-    - trigger: state
+  - trigger: state
+    entity_id: input_text.mystery_code_input
+  conditions:
+  - condition: template
+    value_template: '{{ (trigger.to_state.state | trim) != '''' }}'
+  actions:
+  - variables:
+      codes:
+        '7412': input_boolean.mystery_evidence_saw
+        '9201': input_boolean.mystery_evidence_gun
+        '1012': input_boolean.mystery_evidence_poison
+      matched: '{{ codes.get(trigger.to_state.state | trim, '''') }}'
+  - if: '{{ matched != '''' }}'
+    then:
+    - action: input_boolean.turn_on
+      target:
+        entity_id: '{{ matched }}'
+  - action: input_text.set_value
+    target:
       entity_id: input_text.mystery_code_input
-  conditions:
-    # ⚠️ Une condition template doit rendre un vrai booléen : Home Assistant
-    # passe le résultat dans cv.boolean, qui rejette toute chaîne autre que
-    # true/false/on/off/yes/no… et retombe alors silencieusement sur « faux ».
-    # D'où les comparaisons explicites ici et plus bas.
-    - condition: template
-      value_template: "{{ (trigger.to_state.state | trim) != '' }}"
-  actions:
-    - variables:
-        codes:
-          "7412": input_boolean.mystery_evidence_saw
-          "9201": input_boolean.mystery_evidence_gun
-          "1012": input_boolean.mystery_evidence_poison
-        matched: "{{ codes.get(trigger.to_state.state | trim, '') }}"
-    # ⚠️ Ordre critique : le booléen bascule AVANT la remise à vide. Le terminal
-    # déduit la réussite en comparant son compteur de preuves à l'instant où le
-    # champ repasse à vide — l'ordre inverse afficherait « CODE INVALIDE » sur
-    # un bon code.
-    - if: "{{ matched != '' }}"
-      then:
-        - action: input_boolean.turn_on
-          target: { entity_id: "{{ matched }}" }
-    # Le champ se vide même en échec : sinon le retour visuel du terminal
-    # n'apparaît qu'après son timeout de 6 s.
-    - action: input_text.set_value
-      target: { entity_id: input_text.mystery_code_input }
-      data: { value: "" }
-    - condition: template
-      value_template: "{{ matched != '' }}"
-    - if:
-        - condition: state
-          entity_id:
-            - input_boolean.mystery_evidence_saw
-            - input_boolean.mystery_evidence_gun
-            - input_boolean.mystery_evidence_poison
-          state: "on"
-      then:
-        - action: input_boolean.turn_on
-          target: { entity_id: input_boolean.mystery_terminal_unlocked }
-        # La TV du théâtre est longue à s'initialiser : on l'allume dès le
-        # dossier complet pour qu'elle soit prête quand mystery_denouement en
-        # a besoin.
-        - action: media_player.turn_on
-          target: { entity_id: media_player.theatre_tv }
-          continue_on_error: true
-    # Rien à 3/3 : la séquence de déverrouillage de la carte parle déjà pour
-    # elle-même.
-    - variables:
-        evidence_found: >-
-          {{ ['input_boolean.mystery_evidence_saw',
-              'input_boolean.mystery_evidence_gun',
-              'input_boolean.mystery_evidence_poison']
-             | map('states') | select('eq', 'on') | list | count }}
-    - if: "{{ evidence_found in [1, 2] }}"
-      then:
-        - action: script.mystery_inspector_say
-          data:
-            on_terminal: true
-            message: >-
-              {% if evidence_found == 1 %}
-              Une preuve au dossier. Bon travail, détectives — il en reste
-              deux à trouver.
-              {% else %}
-              Deux preuves sur trois. Vous y êtes presque : une dernière et le
-              dossier s'ouvre.
-              {% endif %}
-- id: mystery_terminal_first_touch
-  alias: "Mystery - Terminal first touch"
-  mode: single
-  triggers:
-    - trigger: state
-      entity_id: input_boolean.mystery_terminal_first_touch
-      to: "on"
-  conditions:
+    data:
+      value: ''
+  - condition: template
+    value_template: '{{ matched != '''' }}'
+  - if:
     - condition: state
-      entity_id: input_boolean.escape_v2_active
-      state: "on"
-  actions:
+      entity_id:
+      - input_boolean.mystery_evidence_saw
+      - input_boolean.mystery_evidence_gun
+      - input_boolean.mystery_evidence_poison
+      state: 'on'
+    then:
+    - action: input_boolean.turn_on
+      target:
+        entity_id: input_boolean.mystery_terminal_unlocked
+    - action: media_player.turn_on
+      target:
+        entity_id: media_player.theatre_tv
+      continue_on_error: true
+  - variables:
+      evidence_found: "{{ ['input_boolean.mystery_evidence_saw',\n    'input_boolean.mystery_evidence_gun',\n
+        \   'input_boolean.mystery_evidence_poison']\n   | map('states') | select('eq',
+        'on') | list | count }}"
+  - if: '{{ evidence_found in [1, 2] }}'
+    then:
     - action: script.mystery_inspector_say
       data:
         on_terminal: true
-        message: >-
-          Vous y êtes, détectives. Ce terminal, c'est le poste de commandement
-          de toute l'enquête : caméras, registre des preuves, dossier
-          confidentiel — tout passe par ici.
-- id: mystery_terminal_accusation
-  alias: "Mystery - Accusation from terminal"
+        message: '{% if evidence_found == 1 %} Une preuve au dossier. Bon travail,
+          détectives — il en reste deux à trouver. {% else %} Deux preuves sur trois.
+          Vous y êtes presque : une dernière et le dossier s''ouvre. {% endif %}'
+- id: mystery_terminal_first_touch
+  alias: Mystery - Terminal first touch
   mode: single
   triggers:
-    - trigger: state
-      entity_id: input_select.mystery_accusation_choice
-      not_to:
-        - none
-        - unknown
-        - unavailable
+  - trigger: state
+    entity_id: input_boolean.mystery_terminal_first_touch
+    to: 'on'
   conditions:
-    - condition: state
-      entity_id: input_boolean.mystery_terminal_unlocked
-      state: "on"
+  - condition: state
+    entity_id: input_boolean.escape_v2_active
+    state: 'on'
   actions:
-    - action: input_select.select_option
-      target: { entity_id: input_select.mystery_phase }
-      data: { option: accusation }
-    - action: script.mystery_denouement
-      data:
-        accused: "{{ trigger.to_state.state }}"
-    # Remis à « none » pour qu'une deuxième tentative après une mauvaise
-    # accusation redéclenche bien l'automation.
-    - action: input_select.select_option
-      target: { entity_id: input_select.mystery_accusation_choice }
-      data: { option: none }
+  - action: script.mystery_inspector_say
+    data:
+      on_terminal: true
+      message: 'Vous y êtes, détectives. Ce terminal, c''est le poste de commandement
+        de toute l''enquête : caméras, registre des preuves, dossier confidentiel
+        — tout passe par ici.'
+- id: mystery_terminal_accusation
+  alias: Mystery - Accusation from terminal
+  mode: single
+  triggers:
+  - trigger: state
+    entity_id: input_select.mystery_accusation_choice
+    not_to:
+    - none
+    - unknown
+    - unavailable
+  conditions:
+  - condition: state
+    entity_id: input_boolean.mystery_terminal_unlocked
+    state: 'on'
+  actions:
+  - action: input_select.select_option
+    target:
+      entity_id: input_select.mystery_phase
+    data:
+      option: accusation
+  - action: script.mystery_denouement
+    data:
+      accused: '{{ trigger.to_state.state }}'
+  - action: input_select.select_option
+    target:
+      entity_id: input_select.mystery_accusation_choice
+    data:
+      option: none
 - id: '1784317521705'
   alias: Closet motion
   description: ''
