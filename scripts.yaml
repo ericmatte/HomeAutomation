@@ -1303,10 +1303,8 @@ mystery_suspect_speak:
           data:
             message: "{{ line }}"
       else:
-        # L'Héritière parle sur le Sonos qui joue déjà l'ambiance : le TTS duck
-        # automatiquement la musique (comportement natif Sonos, comme en v1),
-        # donc on ne touche pas au volume du Sonos. Le Majordome garde le
-        # volume fixé au démarrage de la partie.
+        # L'Héritière parle sur le Sonos qui joue déjà l'ambiance. Le Majordome
+        # garde le volume fixé au démarrage de la partie.
         - if: "{{ suspect == 'heiress' }}"
           then:
             - action: script.turn_on
@@ -1359,6 +1357,15 @@ mystery_suspect_speak:
                   destination: "{{ 'wine' if suspect == 'heiress' else 'spices' }}"
                   lead_in_seconds: "{{ speech_seconds }}"
               continue_on_error: true
+    # Le TTS remplace l'ambiance sur le Sonos au lieu de la mettre en
+    # sourdine (pas de ducking natif) : sans cette relance, la musique restait
+    # coupée après chaque réplique de l'Héritière et il fallait la redémarrer
+    # à la main. Le délai laisse sa réplique se terminer avant de la couper.
+    - if: "{{ suspect == 'heiress' }}"
+      then:
+        - delay: { seconds: "{{ speech_seconds }}" }
+        - action: script.turn_on
+          target: { entity_id: script.mystery_ambience }
 
 mystery_police_callback:
   alias: "Mystery - Police callback (autopsy)"
