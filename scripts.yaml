@@ -918,7 +918,7 @@ mystery_roby_goto:
       name: Destination
       selector:
         select:
-          options: ["wine", "spices"]
+          options: ["wine", "trap"]
       required: true
     lead_in_seconds:
       name: Wait before leaving (seconds)
@@ -928,15 +928,21 @@ mystery_roby_goto:
   variables:
     # Les deux cibles sont calibrées en live. Repère : dock ≈ [24500, 22500],
     # +Y = vers l'arrière (salle à manger), −X = vers la gauche, 1000 = 1 m.
-    # wine   : étagère d'alcools et de vins — 9 m arrière, 1,5 m à gauche.
-    # spices : rack d'épices — 8,7 m arrière, 2,2 m à droite.
+    # wine : étagère d'alcools et de vins — 9 m arrière, 1,5 m à gauche.
+    # trap : trappe à fusil du foyer (fausse piste de l'Héritière) — tout près
+    # du dock, ~0,5 m arrière, ~0,5 m à droite. Recalibrée en live le 8 août
+    # 2026 ; remplace l'ancienne cible « spices » (rack d'épices), dont
+    # l'indice environnemental est maintenant sur le flux caméra.
     coords: >-
       {{ {'wine': [23000, 31500],
-          'spices': [26700, 31200]}[destination] }}
+          'trap': [25050, 25000]}[destination] }}
     # Parcours 1 : les joueurs suivent Roby en direct, le locate ne sert qu'à
     # marquer l'arrivée. Parcours 2 : il part discrètement pendant qu'ils sont
     # à l'atelier, donc on attend qu'ils soient remontés avant de l'appeler,
-    # et on répète pour qu'ils puissent le localiser à l'oreille.
+    # et on répète pour qu'ils puissent le localiser à l'oreille. Le délai
+    # sert surtout à ça (temps de remonter de l'atelier), pas au trajet
+    # lui-même : la trappe est bien plus proche que ne l'était le rack
+    # d'épices, mais on garde la même marge de jeu.
     travel_seconds: "{{ 65 if destination == 'wine' else 100 }}"
     locate_calls: "{{ 1 if destination == 'wine' else 4 }}"
   sequence:
@@ -1345,8 +1351,8 @@ mystery_suspect_speak:
         # Roby a deux parcours, chacun déclenché par une 1re rencontre :
         #  - Héritière (salon, à côté du dock) : il part vers le vin sous les
         #    yeux des joueurs, qui le suivent jusqu'au bouton « service ».
-        #  - Jardinier (atelier, en bas) : il file discrètement vers le rack
-        #    d'épices pendant qu'ils sont en bas ; en remontant, ils le
+        #  - Jardinier (atelier, en bas) : il file discrètement vers la trappe
+        #    à fusil du foyer pendant qu'ils sont en bas ; en remontant, ils le
         #    cherchent et le retrouvent au son du locate.
         # On passe par script.turn_on : le trajet plus le lead-in dépassent la
         # minute et un appel direct bloquerait ce script.
@@ -1356,7 +1362,7 @@ mystery_suspect_speak:
               target: { entity_id: script.mystery_roby_goto }
               data:
                 variables:
-                  destination: "{{ 'wine' if suspect == 'heiress' else 'spices' }}"
+                  destination: "{{ 'wine' if suspect == 'heiress' else 'trap' }}"
                   lead_in_seconds: "{{ speech_seconds }}"
               continue_on_error: true
 

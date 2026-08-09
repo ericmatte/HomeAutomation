@@ -68,7 +68,7 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
 | **0. La police arrive** | Script (délai optionnel). Lumières des pièces en jeu éteintes → floor lamps salon alternent **bleu/rouge** (gyrophares, `script.mystery_flash_alternate`, en tâche de fond) → Sonos : **sirènes** puis **brouhaha de policiers** | `light.left_floor_lamp`, `light.right_floor_lamp`, `media_player.sonos` |
 | **1a. Briefing, en personne** | L'**inspecteur coupe ses hommes et s'adresse au groupe sur le Sonos** : le meurtre, les 3 suspects, « fouillez partout ». Puis « il faut que j'y aille, j'ai un autre appel » → **la voiture s'éloigne**, silence. Le chandelier et la cuisine montent légèrement le temps de la réplique (`script.mystery_sonos_glow`) | `media_player.sonos` (TTS `HenriNeural`), `light.chandelier`, `light.kitchen_middle_light` |
 | **1b. Il rappelle** | 5 s plus tard, **le téléphone sonne** : « j'oubliais ! » — les **caméras sont sur le terminal du bureau**, au sous-sol, et une **traînée de lumières** s'allume jusque-là. L'**ambiance** démarre | `assist_satellite` (téléphone), `light.chandelier` → `light.downstairs_hallway_light` ; la lampe du bureau (`light.auxiliary_lamp`) scintille en « glisten » avec l'ambiance |
-| **2. Enquête** | Explorer les pièces. Chaque capteur/bouton fait parler un suspect, et **la pièce d'où sort la voix s'éclaire**. L'Héritière n'a pas de lampe dédiée (elle parle sur le Sonos, au milieu de l'ambiance déjà en salon) : à chaque réplique, **le chandelier et la cuisine montent légèrement puis redescendent** (`script.mystery_sonos_glow`), même principe qu'en v1. **Roby fait deux parcours** : vers le vin quand parle l'Héritière (les joueurs le suivent), vers le rack d'épices quand parle le Jardinier (en douce, retrouvé au `vacuum.locate`). Il part **après** la réplique, pour ne pas être manqué. Musique d'ambiance sur le Sonos. Fausses pistes : fusil et coffre à bijoux (Héritière), tiroir couteaux (Majordome innocent) | capteurs (porte/vibration/contact), bouton Zigbee, haut-parleurs localisés, **robot aspirateur**, `light.chandelier`, `light.kitchen_middle_light` |
+| **2. Enquête** | Explorer les pièces. Chaque capteur/bouton fait parler un suspect, et **la pièce d'où sort la voix s'éclaire**. L'Héritière n'a pas de lampe dédiée (elle parle sur le Sonos, au milieu de l'ambiance déjà en salon) : à chaque réplique, **le chandelier et la cuisine montent légèrement puis redescendent** (`script.mystery_sonos_glow`), même principe qu'en v1. **Roby fait deux parcours** : vers le vin quand parle l'Héritière (les joueurs le suivent), vers la trappe à fusil du foyer quand parle le Jardinier (en douce, retrouvé au `vacuum.locate`). Il part **après** la réplique, pour ne pas être manqué. Musique d'ambiance sur le Sonos. Fausses pistes : fusil et coffre à bijoux (Héritière), tiroir couteaux (Majordome innocent) | capteurs (porte/vibration/contact), bouton Zigbee, haut-parleurs localisés, **robot aspirateur**, `light.chandelier`, `light.kitchen_middle_light` |
 | **3. Rappel de la police** | Une fois les 3 suspects entendus, la police **rappelle** automatiquement avec le **rapport d'autopsie** → empoisonnement → élimine fusil + scie comme armes, et demande les **3 pièces à conviction** | téléphone / Sonos |
 | **4. Collecte + accusation** | Au tout premier clic sur l'écran de saisie, l'inspecteur situe le terminal comme poste de commandement. Les 3 objets (scie, fusil, pot d'épices) portent une **étiquette-code**. Les joueurs les tapent sur le **terminal CCTV** : crochet vert, compteur « 2 / 3 », et un mot d'encouragement à 1/3 et 2/3. À 3/3, le **dossier confidentiel** se déverrouille (rien à l'oral, la séquence à l'écran suffit) et ils y **désignent le coupable à l'écran**. C'est le **seul** chemin d'accusation | `input_text.mystery_code_input`, `input_boolean.mystery_evidence_*`, `input_boolean.mystery_terminal_first_touch`, `input_select.mystery_accusation_choice` |
 | **5. Dénouement** | Bon coupable → **final cinéma au théâtre** : les 3 toiles tombent **l'une après l'autre** comme un rideau, noir, puis la **lumière rouge monte** sur `light.theatre` pendant que les volets finissent de se fermer. La pièce bascule ensuite en **blanc chaud** (`bad_light`/`metal_lamp`/`wooden_lamp`, 4000K), l'inspecteur annonce sur la **TV du théâtre** (`on_tv:` de `script.mystery_inspector_say`) que la révélation va commencer, puis `Final Reveal.mp4` joue. À la fin de la vidéo, la chanson (`Jamie Foxx - Winner ft Justin Timberlake TI.mp3`) part sur la même TV : les toiles remontent partiellement (milieu 30 %, côtés 50 %) et les 3 lampes passent en effet `prism`. Mauvais → l'inspecteur recadre, retour en `autopsy_done`, on retente | volets théâtre, `light.theatre`, `light.bad_light`, `light.metal_lamp`, `light.wooden_lamp`, `media_player.theatre_tv` |
@@ -143,8 +143,11 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
 - **−X = vers la gauche** (en regardant depuis le dock).
 - **`COORD wine = [23000, 31500]`** = 9 m arrière, 1,5 m à gauche → devant
   l'étagère d'alcools forts et de vins.
-- **`COORD spices = [26700, 31200]`** = 8,7 m arrière, 2,2 m à droite → au rack
-  d'épices.
+- **`COORD trap = [25050, 25000]`** = 2,5 m arrière, 0,55 m à droite → devant
+  la trappe à fusil du foyer. Recalibré en live le 8 août 2026 ; remplace
+  l'ancienne cible `spices` (rack d'épices, `[26700, 31200]`), dont l'indice
+  environnemental (Roby s'y arrêtait) est maintenant porté par le flux
+  caméra.
 - 🚧 **Attention aux no-go zones.** Une longue série de cibles à gauche a
   échoué (« could not reach target ») : ce n'était **pas** la table de la salle
   à manger comme on l'avait d'abord cru, mais une **zone interdite tracée dans
@@ -155,9 +158,12 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
 - Envoyer Roby directement à 9 m peut le faire partir dans la mauvaise
   direction ; procéder **par paliers** depuis un point intermédiaire fonctionne
   mieux pour calibrer.
-- **Durées chronométrées depuis le dock** : ~55-60 s vers le vin, ~50 s vers
-  les épices. D'où `delay: 65 s` (vin) et `100 s` (épices, marge volontaire
-  pour laisser aux joueurs le temps de remonter de l'atelier).
+- **Durées chronométrées depuis le dock** : ~55-60 s vers le vin. D'où
+  `delay: 65 s` (vin) ; le second parcours garde `100 s`, une marge pensée
+  pour laisser aux joueurs le temps de remonter de l'atelier plutôt que pour
+  couvrir le trajet — la trappe (~2,5 m) est bien plus proche que ne l'était
+  le rack d'épices (~8,7 m), donc ce délai reste largement suffisant sans
+  avoir eu besoin d'être re-chronométré.
   ⚠️ Toujours mesurer **depuis le dock** : l'ordre d'interrogation dépend des
   joueurs, et le dock est le pire cas (~9 m, contre ~3,7 m depuis le vin).
 - Roby est lancé en tâche de fond (`script.turn_on`), sinon
@@ -171,7 +177,7 @@ le poison. Le fusil et la scie sont des fausses pistes bien visibles.
 | Parcours | Déclencheur | Destination | Effet voulu |
 |---|---|---|---|
 | **`wine`** (visible) | 1ʳᵉ réplique de l'**Héritière** (salon, à côté du dock) | étagère d’alcools, `[23000, 31500]` | Roby démarre **sous les yeux des joueurs**, qui le suivent jusqu'au bouton « cliquer pour service » → réveille le Majordome. `locate` × 1 à l'arrivée. |
-| **`spices`** (subtil) | 1ʳᵉ réplique du **Jardinier** (atelier, en bas) | rack d'épices, `[26700, 31200]` | Pendant que les joueurs sont en bas, Roby file **sans bruit** vers le 2ᵉ indice. En remontant ils se demandent où il est passé → `locate` × 4 espacés de 25 s pour le retrouver à l'oreille. |
+| **`trap`** (subtil) | 1ʳᵉ réplique du **Jardinier** (atelier, en bas) | trappe à fusil du foyer, `[25050, 25000]` | Pendant que les joueurs sont en bas, Roby file **sans bruit** vers la trappe. En remontant ils se demandent où il est passé → `locate` × 4 espacés de 25 s pour le retrouver à l'oreille. |
 
 Le mode `restart` fait que si les suspects sont interrogés dans le désordre,
 le 2ᵉ parcours annule proprement le 1ᵉʳ — un seul robot, un seul trajet à la
@@ -258,12 +264,12 @@ fois.
 4. **Final gagnant** = les 3 toiles tombent en cascade, noir, montée de rouge,
    puis musique sur la **TV du théâtre** + alternance de couleurs.
 5. **Roby** a **deux parcours** : vers le vin quand on interroge l'**Héritière**
-   (visible, les joueurs le suivent), et vers le rack d'épices quand on
-   interroge le **Jardinier** (subtil, retrouvé au `locate` en remontant).
+   (visible, les joueurs le suivent), et vers la trappe à fusil du foyer quand
+   on interroge le **Jardinier** (subtil, retrouvé au `locate` en remontant).
 6. **CCTV** = dashboard HA custom en plein écran sur le PC du bureau ; 3 mp4
    flous par suspect + pavé de codes + dossier confidentiel.
 7. **Coordonnées Roby** (calibrées en live) : vin `[23000, 31500]`,
-   épices `[26700, 31200]`.
+   trappe `[25050, 25000]`.
 8. **v1 conservée** et jouable : garde `input_boolean.escape_v2_active`.
 
 ## Reste à faire (voir le dossier `todo/`)

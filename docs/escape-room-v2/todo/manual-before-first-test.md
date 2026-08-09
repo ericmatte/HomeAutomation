@@ -221,8 +221,8 @@ le précédent) :
 
 ## 💡 Idées pour plus tard
 
-- [ ] **Changer la cible de Roby** : au lieu du parcours vers l'étagère à vins
-      quand l'Héritière parle, l'envoyer vers la **trappe à fusil du foyer**
-      (sa propre fausse piste). Pas de code à écrire pour l'instant — à
-      recalibrer en live avec Claude quand on s'y met (voir la section Roby de
-      `todo/with-claude.md`).
+- [x] **Changer la cible de Roby** vers la **trappe à fusil du foyer** — fait
+      le 8 août 2026, mais en repointant le 2ᵉ parcours (déclenché par le
+      Jardinier, ex-`spices`/rack d'épices) plutôt que le 1ᵉʳ (vin/Héritière,
+      conservé tel quel). Voir `todo/with-claude.md` § Roby pour le détail du
+      calibrage.

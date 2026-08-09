@@ -14,18 +14,26 @@ visuel/live — Eric joue et observe, Claude ajuste le code).
       `delay: 65 s` avant le `locate` (« Hi! I'm over here! »).
       Comme le trajet dure une minute, Roby est lancé via `script.turn_on`
       (non bloquant) et `reset_after_escape_roome` coupe son script au passage.
-- [x] **2ᵉ parcours (`spices`, rack d'épices)** calibré en live :
+- [x] ~~**2ᵉ parcours (`spices`, rack d'épices)** calibré en live :
       **`[26700, 31200]`** = 8,7 m arrière, 2,2 m à droite du dock.
       Atteint par paliers depuis un point intermédiaire, l'envoi direct à 9 m
-      partant dans la mauvaise direction.
-- [x] **Trajet dock → rack d'épices chronométré : ~50 s.** `travel_seconds`
-      reste à **100 s**, ce qui laisse 2× de marge sur le plancher technique.
-      Le surplus sert au gameplay : les joueurs doivent avoir eu le temps de
-      remonter de l'atelier avant le 1ᵉʳ `locate` (qui se répète ensuite 3 fois
-      à 25 s d'intervalle, soit une fenêtre d'écoute jusqu'à 175 s).
+      partant dans la mauvaise direction.~~ **Remplacé (8 août 2026)**, voir
+      ci-dessous.
+- [x] ~~**Trajet dock → rack d'épices chronométré : ~50 s.**~~ Devenu sans
+      objet avec le nouveau parcours, beaucoup plus proche du dock.
       ℹ️ C'est bien le départ **depuis le dock** qu'il fallait mesurer, pas
       depuis le vin : l'ordre d'interrogation dépend des joueurs, et le dock
       est le pire cas (~9 m contre ~3,7 m depuis le vin).
+- [x] **2ᵉ parcours repointé vers la trappe à fusil du foyer** (8 août 2026) :
+      le rack d'épices avait son propre indice ajouté sur le flux caméra, donc
+      le 2ᵉ parcours de Roby (déclenché par le Jardinier) sert maintenant à
+      attirer l'attention sur la fausse piste de l'Héritière à la place.
+      Calibré en live par petits ajustements successifs depuis le dock :
+      **`[25050, 25000]`** = 2,5 m arrière, 0,55 m à droite du dock.
+      `travel_seconds` reste à **100 s** sans avoir eu besoin d'être
+      re-chronométré : ce délai sert surtout à laisser les joueurs remonter de
+      l'atelier, pas à couvrir le trajet — la trappe est bien plus proche que
+      ne l'était le rack d'épices, donc la marge existante suffit largement.
 
 ## 🎙️ 2. Voix TTS des 3 suspects
 
