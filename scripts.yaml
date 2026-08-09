@@ -1073,8 +1073,7 @@ mystery_start:
       data:
         media_content_type: audio/mpeg
         media_content_id: "media-source://media_source/local/Car Drive Away.mp3"
-    - delay: { seconds: 12 }
-    - delay: { seconds: 8 }
+    - delay: { seconds: 20 }
     - action: media_player.volume_set
       target: { entity_id: media_player.sonos }
       data: { volume_level: 0.4 }
