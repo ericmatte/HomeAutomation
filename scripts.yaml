@@ -157,6 +157,23 @@ escape_room:
           step: 1
       default: 0
   sequence:
+  # Symétrique du turn_on de mystery_start : sans ça, une partie v2 abandonnée
+  # sans reset laisse le drapeau à « on » et les automations v1 gardées par lui
+  # (porte de l'atelier, bouton téléphone, capteur du trésor) restent muettes.
+  - alias: La v1 reprend le matériel partagé
+    action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.escape_v2_active
+  - action: homeassistant.reload_config_entry
+    data:
+      entry_id: 01KER0F189EWYCFNSKCFX1G46P  # Voice over IP (téléphone HT801V2)
+    continue_on_error: true
+  - alias: Voix du téléphone pour la v1
+    action: select.select_option
+    target:
+      entity_id: select.192_168_0_160_assistant
+    data:
+      option: 'Escape Room V1: Denise'
   - delay:
       seconds: '{{ start_delay }}'
   - alias: 'Phase 1: Game instructions'
@@ -446,11 +463,19 @@ rgb_color_loop:
       - delay: '{{ delay }}'
 reset_after_escape_roome:
   sequence:
+  - action: homeassistant.reload_config_entry
+    data:
+      entry_id: 01KER0F189EWYCFNSKCFX1G46P  # Voice over IP (téléphone HT801V2)
+    continue_on_error: true
   - action: media_player.media_stop
     metadata: {}
     target:
-      entity_id: media_player.sonos
+      entity_id:
+      - media_player.sonos
+      - media_player.workshop_echo
+      - media_player.google_home_mini
     data: {}
+    continue_on_error: true
   - action: media_player.turn_off
     metadata: {}
     target:
@@ -475,6 +500,42 @@ reset_after_escape_roome:
       - script.escape_room
       - script.flash_light_twice
     data: {}
+  # Toute la famille mystery_* d'un coup : une liste écrite à la main laisse
+  # passer des oublis, et un dénouement en cours rallume ses lumières
+  # par-dessus la scène de reset.
+  - action: script.turn_off
+    target:
+      entity_id: >-
+        {{ states.script | map(attribute='entity_id')
+           | select('search', '^script\.mystery_') | list }}
+  - action: script.mystery_reset_state
+  # La garde de cohabitation avec la v1 ne se lève qu'ici : c'est la fin de
+  # partie qui rend le matériel partagé à la v1, pas un nouveau départ.
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.escape_v2_active
+  # Les enceintes sont poussées fort pendant la partie ; sans ça elles y
+  # restent pour le reste de la semaine.
+  - action: media_player.volume_set
+    target:
+      entity_id:
+      - media_player.sonos
+      - media_player.google_home_mini
+    data:
+      volume_level: 0.35
+    continue_on_error: true
+  # Chaque escape room impose sa voix au téléphone en démarrant : on rend
+  # l'assistant par défaut à l'usage quotidien.
+  - action: select.select_option
+    target:
+      entity_id: select.192_168_0_160_assistant
+    data:
+      option: preferred
+    continue_on_error: true
+  - action: vacuum.return_to_base
+    target:
+      entity_id: vacuum.roborock_s5_7c79_robot_cleaner
+    continue_on_error: true
   - delay:
       hours: 0
       minutes: 0
@@ -486,6 +547,15 @@ reset_after_escape_roome:
       entity_id: scene.reset_after_escape_room
     data:
       transition: 2
+  # La lampe d'appoint n'est pas dans la scène, et l'automation qui la
+  # synchronise sur light.office ne se redéclenche pas ici puisque
+  # light.office reste éteint toute la partie : son effet survivrait au reset.
+  - action: light.turn_off
+    target:
+      entity_id: light.auxiliary_lamp
+    data:
+      transition: 1
+    continue_on_error: true
   - action: script.turn_off
     metadata: {}
     target:
@@ -496,3 +566,957 @@ reset_after_escape_roome:
     data: {}
   alias: Reset after escape room
   description: ''
+
+mystery_flash_alternate:
+  alias: "Mystery - Alternating light flash"
+  icon: mdi:police-badge
+  mode: restart
+  fields:
+    light_a:
+      name: First light
+      required: true
+      selector: { entity: { domain: light } }
+    light_b:
+      name: Second light
+      required: true
+      selector: { entity: { domain: light } }
+    color_a:
+      name: First color (rgb)
+      required: true
+      selector: { object: {} }
+    color_b:
+      name: Second color (rgb)
+      required: true
+      selector: { object: {} }
+    cycles:
+      name: Number of alternations
+      required: true
+      selector: { number: { min: 1, max: 100, step: 1 } }
+    interval:
+      name: Seconds per half-flash
+      selector: { number: { min: 0.1, max: 5, step: 0.05 } }
+      default: 0.25
+  variables:
+    # ⚠️ On compte en cycles, pas en durée. Les lampes du salon sont des Govee
+    # lentes à accuser réception : la durée réelle d'un cycle, c'est `interval`
+    # PLUS la latence de quatre appels de service. Régler à l'œil.
+    half_flash_ms: "{{ (interval | float * 1000) | int }}"
+  sequence:
+    - repeat:
+        count: "{{ cycles | int }}"
+        sequence:
+          - action: light.turn_on
+            target: { entity_id: "{{ light_a }}" }
+            data: { rgb_color: "{{ color_a }}", brightness_pct: 100 }
+          - action: light.turn_off
+            target: { entity_id: "{{ light_b }}" }
+          - delay: { milliseconds: "{{ half_flash_ms }}" }
+          - action: light.turn_on
+            target: { entity_id: "{{ light_b }}" }
+            data: { rgb_color: "{{ color_b }}", brightness_pct: 100 }
+          - action: light.turn_off
+            target: { entity_id: "{{ light_a }}" }
+          - delay: { milliseconds: "{{ half_flash_ms }}" }
+    - action: light.turn_off
+      target: { entity_id: ["{{ light_a }}", "{{ light_b }}"] }
+      data: { transition: 2 }
+
+mystery_sonos_glow:
+  alias: "Mystery - Sonos voice glow"
+  icon: mdi:chandelier
+  mode: queued
+  max: 3
+  # À appeler en script.turn_on : la durée n'est qu'une estimation de la
+  # réplique, elle ne doit jamais retarder l'appelant.
+  fields:
+    duration_seconds:
+      name: Duration (seconds)
+      description: Durée estimée de la réplique — le temps que les lumières restent montées.
+      required: true
+      selector: { number: { min: 1, max: 120, step: 1 } }
+  variables:
+    # Capturé avant de monter, pour redescendre exactement là où c'était :
+    # l'ambiance d'enquête les tient à 6 %, l'intro les trouve éteintes.
+    chandelier_before: "{{ state_attr('light.chandelier', 'brightness') }}"
+    kitchen_before: "{{ state_attr('light.kitchen_middle_light', 'brightness') }}"
+  sequence:
+    - action: light.turn_on
+      target: { entity_id: [light.chandelier, light.kitchen_middle_light] }
+      data: { brightness_step_pct: 15, transition: 1 }
+      continue_on_error: true
+    - delay: { seconds: "{{ duration_seconds }}" }
+    - if: "{{ chandelier_before is none }}"
+      then:
+        - action: light.turn_off
+          target: { entity_id: light.chandelier }
+          data: { transition: 1 }
+          continue_on_error: true
+      else:
+        - action: light.turn_on
+          target: { entity_id: light.chandelier }
+          data: { brightness: "{{ chandelier_before }}", transition: 1 }
+          continue_on_error: true
+    - if: "{{ kitchen_before is none }}"
+      then:
+        - action: light.turn_off
+          target: { entity_id: light.kitchen_middle_light }
+          data: { transition: 1 }
+          continue_on_error: true
+      else:
+        - action: light.turn_on
+          target: { entity_id: light.kitchen_middle_light }
+          data: { brightness: "{{ kitchen_before }}", transition: 1 }
+          continue_on_error: true
+
+mystery_reset_state:
+  alias: "Mystery - Reset game state"
+  icon: mdi:restore
+  mode: single
+  # Appelé au démarrage ET par reset_after_escape_roome. L'autopsie attend le
+  # passage d'un drapeau à « on » : sans cette remise à zéro, une partie
+  # relancée sur des témoignages déjà cochés ne la déclencherait jamais.
+  # escape_v2_active reste dehors : il tient au cycle de vie, pas à l'état.
+  sequence:
+    - action: input_select.select_option
+      target: { entity_id: input_select.mystery_phase }
+      data: { option: idle }
+    - action: input_select.select_option
+      target: { entity_id: input_select.mystery_accusation_choice }
+      data: { option: none }
+    - action: input_boolean.turn_off
+      target:
+        entity_id:
+          - input_boolean.mystery_gardener_done
+          - input_boolean.mystery_heiress_done
+          - input_boolean.mystery_butler_done
+          - input_boolean.mystery_heiress_gun_seen
+          - input_boolean.mystery_heiress_dress_seen
+          - input_boolean.mystery_evidence_saw
+          - input_boolean.mystery_evidence_gun
+          - input_boolean.mystery_evidence_poison
+          - input_boolean.mystery_terminal_unlocked
+          - input_boolean.mystery_terminal_first_touch
+    - action: input_text.set_value
+      target: { entity_id: input_text.mystery_code_input }
+      data: { value: "" }
+
+mystery_inspector_say:
+  alias: "Mystery - Inspector speaks"
+  icon: mdi:phone-in-talk
+  mode: queued
+  max: 3
+  # preannounce désactivé : le téléphone sonne déjà de lui-même à l'appel.
+  fields:
+    message:
+      name: Message
+      required: true
+      selector: { text: { multiline: true } }
+    on_sonos:
+      name: Parler sur le Sonos plutôt qu'au téléphone
+      description: >-
+        Sur place, tout le monde entend — au téléphone, une seule personne
+        tient le combiné. Le briefing passe donc par le Sonos.
+      selector: { boolean: {} }
+      default: false
+    on_terminal:
+      name: Parler sur le terminal du bureau
+      description: >-
+        Pour tout ce qui suit une action à l'écran : les joueurs sont au
+        sous-sol devant le terminal, le téléphone est au salon.
+      selector: { boolean: {} }
+      default: false
+    on_tv:
+      name: Parler sur la TV du théâtre
+      description: >-
+        Pour l'annonce juste avant le dénouement : les joueurs sont déjà au
+        théâtre, face à l'écran.
+      selector: { boolean: {} }
+      default: false
+  variables:
+    # tts.speak ne bloque pas et le prochain média couperait l'inspecteur en
+    # plein mot : on estime la durée (~2,3 mots/seconde en français) et on
+    # attend. announce, lui, bloque déjà tout seul.
+    speech_seconds: "{{ [(message.split() | count / 2.3) | round(0, 'ceil') | int, 6] | max }}"
+  sequence:
+    # Canaux mutuellement exclusifs : avec des if imbriqués, le téléphone
+    # parlerait par-dessus les deux autres.
+    - choose:
+        # Un événement plutôt qu'un helper : les messages dépassent les 255
+        # caractères d'un input_text. La carte affiche le texte et joue le TTS.
+        - conditions: "{{ on_terminal }}"
+          sequence:
+            - event: mystery_terminal_say
+              event_data:
+                message: "{{ message }}"
+            - delay: { seconds: "{{ speech_seconds }}" }
+        - conditions: "{{ on_sonos }}"
+          sequence:
+            - action: media_player.volume_set
+              target: { entity_id: media_player.sonos }
+              data: { volume_level: 0.6 }
+            - action: script.turn_on
+              target: { entity_id: script.mystery_sonos_glow }
+              data:
+                variables: { duration_seconds: "{{ speech_seconds }}" }
+              continue_on_error: true
+            # HenriNeural n'existe qu'en fr-FR, et c'est la voix du pipeline
+            # du téléphone : même personnage sur les deux canaux.
+            - action: tts.speak
+              target: { entity_id: tts.home_assistant_cloud }
+              data:
+                cache: true
+                language: fr-FR
+                media_player_entity_id: media_player.sonos
+                message: "{{ message }}"
+                options: { voice: HenriNeural }
+            - delay: { seconds: "{{ speech_seconds }}" }
+        - conditions: "{{ on_tv }}"
+          sequence:
+            - action: tts.speak
+              target: { entity_id: tts.home_assistant_cloud }
+              data:
+                cache: true
+                language: fr-FR
+                media_player_entity_id: media_player.theatre_tv
+                message: "{{ message }}"
+                options: { voice: HenriNeural }
+            - delay: { seconds: "{{ speech_seconds }}" }
+      default:
+        - action: assist_satellite.announce
+          target: { entity_id: assist_satellite.192_168_0_160 }
+          data:
+            preannounce: false
+            message: "{{ message }}"
+
+mystery_guide_path:
+  alias: "Mystery - Light trail guidance"
+  icon: mdi:map-marker-path
+  mode: restart
+  fields:
+    lights:
+      name: Lights, in walking order
+      required: true
+      selector: { object: {} }
+    trail_brightness_pct:
+      name: Brightness left behind
+      selector: { number: { min: 1, max: 100, step: 1 } }
+      default: 15
+  sequence:
+    - repeat:
+        for_each: "{{ lights }}"
+        sequence:
+          # Le repeat imbriqué masque `repeat.item` : on capture la lampe avant.
+          - variables:
+              beacon: "{{ repeat.item }}"
+          # Le motif finit allumé : terminer sur un turn_off enverrait une
+          # commande que la veilleuse défait 400 ms plus tard, l'appelant
+          # attendant pendant ce temps.
+          - repeat:
+              count: 3
+              sequence:
+                - action: light.turn_off
+                  target: { entity_id: "{{ beacon }}" }
+                - delay: { milliseconds: 400 }
+                - action: light.turn_on
+                  target: { entity_id: "{{ beacon }}" }
+                  data: { brightness_pct: 100 }
+                - delay: { milliseconds: 400 }
+          - action: light.turn_on
+            target: { entity_id: "{{ beacon }}" }
+            data: { brightness_pct: "{{ trail_brightness_pct | default(15) | int }}", transition: 1 }
+
+mystery_ambience:
+  alias: "Mystery - Investigation ambience"
+  icon: mdi:candle
+  mode: restart
+  sequence:
+    # 0,52 : en dessous, la musique se perd derrière les voix des joueurs.
+    - action: media_player.volume_set
+      target: { entity_id: media_player.sonos }
+      data: { volume_level: 0.52 }
+      continue_on_error: true
+    - action: media_player.play_media
+      target: { entity_id: media_player.sonos }
+      data:
+        media_content_type: audio/mpeg
+        media_content_id: "media-source://media_source/local/Investigation Ambience.mp3"
+      continue_on_error: true
+    # Une veilleuse tout juste suffisante pour circuler. Les couloirs sont
+    # laissés à mystery_guide_path, qui s'en sert comme balises.
+    - action: light.turn_on
+      target:
+        entity_id:
+          - light.chandelier
+          - light.dining_room_pendants
+          - light.kitchen_lights
+      data: { brightness_pct: 6, transition: 3 }
+      continue_on_error: true
+    # Aucune couleur ni luminosité ici : les envoyer avec l'effet le fait
+    # retomber aussitôt.
+    - action: light.turn_on
+      target: { entity_id: light.auxiliary_lamp }
+      data: { effect: glisten }
+      continue_on_error: true
+    # Le plafond de cycles est le filet pour une partie abandonnée sans reset :
+    # 450 × 16 s ≈ 2 h, au-delà ça ne fait qu'occuper le pont Zigbee.
+    - repeat:
+        while:
+          - condition: state
+            entity_id: input_select.mystery_phase
+            state: [investigation, autopsy_done, accusation]
+          - condition: template
+            value_template: "{{ repeat.index <= 450 }}"
+        sequence:
+          - action: light.turn_on
+            target: { entity_id: [light.left_floor_lamp, light.right_floor_lamp] }
+            data: { rgb_color: [90, 0, 130], brightness_pct: 35, transition: 6 }
+          - delay: { seconds: 8 }
+          - action: light.turn_on
+            target: { entity_id: [light.left_floor_lamp, light.right_floor_lamp] }
+            data: { rgb_color: [130, 25, 10], brightness_pct: 8, transition: 6 }
+          - delay: { seconds: 8 }
+
+mystery_roby_goto:
+  alias: "Mystery - Roby drives to a clue"
+  icon: mdi:incognito
+  # Les deux parcours partagent le même robot : en restart, le second annule
+  # le premier si les suspects sont interrogés dans le désordre.
+  mode: restart
+  fields:
+    destination:
+      name: Destination
+      selector:
+        select:
+          options: ["wine", "trap"]
+      required: true
+    lead_in_seconds:
+      name: Wait before leaving (seconds)
+      description: Laisse le suspect finir sa réplique avant que Roby démarre.
+      selector: { number: { min: 0, max: 120, step: 1 } }
+      default: 0
+  variables:
+    # Cibles calibrées en live. Repère : dock ≈ [24500, 22500], +Y = vers
+    # l'arrière (salle à manger), −X = vers la gauche, 1000 = 1 m.
+    # wine : étagère d'alcools et de vins — 9 m arrière, 1,5 m à gauche.
+    # trap : trappe à fusil du foyer — ~0,5 m arrière, ~0,5 m à droite du dock.
+    coords: >-
+      {{ {'wine': [23000, 31500],
+          'trap': [25050, 25000]}[destination] }}
+    # wine : les joueurs suivent Roby en direct, le locate ne marque que
+    # l'arrivée. trap : il part pendant qu'ils sont à l'atelier, donc le délai
+    # couvre surtout le temps qu'ils remontent, et les locate répétés leur
+    # permettent de le retrouver à l'oreille.
+    travel_seconds: "{{ 65 if destination == 'wine' else 100 }}"
+    locate_calls: "{{ 1 if destination == 'wine' else 4 }}"
+  sequence:
+    # Le suspect annonce le départ de Roby dans sa réplique : parti pendant
+    # qu'elle joue, les joueurs le rateraient.
+    - delay: { seconds: "{{ lead_in_seconds | int }}" }
+    - action: vacuum.send_command
+      target:
+        entity_id: vacuum.roborock_s5_7c79_robot_cleaner
+      data:
+        command: app_goto_target
+        params: "{{ coords }}"
+    - delay: { seconds: "{{ travel_seconds | int }}" }
+    - repeat:
+        count: "{{ locate_calls | int }}"
+        sequence:
+          - action: vacuum.locate
+            target:
+              entity_id: vacuum.roborock_s5_7c79_robot_cleaner
+            continue_on_error: true
+          - delay: { seconds: 25 }
+
+mystery_start:
+  alias: "Mystery - Start"
+  icon: mdi:incognito
+  mode: restart
+  fields:
+    player_name:
+      name: Player name
+      description: >-
+        Nom du groupe ou de l'invité d'honneur. L'inspecteur le salue en
+        arrivant. Laissé vide, il enchaîne sans la salutation.
+      selector: { text: {} }
+      default: ""
+    start_delay:
+      name: Initial delay (seconds)
+      selector:
+        number: { min: 0, max: 300, step: 1 }
+      default: 0
+  sequence:
+    - action: homeassistant.reload_config_entry
+      data:
+        entry_id: 01KER0F189EWYCFNSKCFX1G46P  # Voice over IP (téléphone HT801V2)
+      continue_on_error: true
+    - action: input_boolean.turn_on
+      target: { entity_id: input_boolean.escape_v2_active }
+    # Avant le délai d'attente : le terminal doit être vide dès l'armement,
+    # même si le reset de la partie précédente n'a pas été lancé.
+    - action: script.mystery_reset_state
+    # assist_satellite.announce n'accepte aucune option de voix : la voix de
+    # l'inspecteur vient du pipeline Assist, qu'on bascule avant de parler.
+    - alias: Voix du téléphone pour la v2
+      action: select.select_option
+      target: { entity_id: select.192_168_0_160_assistant }
+      data: { option: "Escape Room V2 - Henri" }
+    # 0,75 : au-dessus il crie, en dessous il ne porte pas depuis la cuisine.
+    - action: media_player.volume_set
+      target: { entity_id: media_player.google_home_mini }
+      data: { volume_level: 0.75 }
+      continue_on_error: true
+    - delay: { seconds: "{{ start_delay | default(0) | int }}" }
+    - action: automation.turn_off
+      data: { stop_actions: true }
+      target:
+        entity_id: "{{ label_entities('motions') }}"
+    # Le bureau garde son plafonnier éteint et sa lampe d'appoint allumée :
+    # sans couper la synchro, éteindre light.office éteindrait aussi la lampe.
+    - action: automation.turn_off
+      data: { stop_actions: true }
+      target:
+        entity_id: automation.sync_auxiliary_light_with_main_light
+    - action: light.turn_off
+      target:
+        area_id:
+          - living_room
+          - dining_room
+          - kitchen
+          - hallway
+          - entrance
+          - downstairs_hallway
+          - eric_office
+          - theatre
+      data: { transition: 2 }
+    - delay: { seconds: 2 }
+    - action: media_player.volume_set
+      target: { entity_id: media_player.sonos }
+      data: { volume_level: 0.8 }
+    - action: media_player.play_media
+      target: { entity_id: media_player.sonos }
+      data:
+        media_content_type: audio/mpeg
+        media_content_id: "media-source://media_source/local/Police Sirens.mp3"
+    # En tâche de fond : la boucle déborde largement la sirène à cause de la
+    # latence des Govee, et bloquerait tout le reste de la phase. Le son garde
+    # son propre tempo, calé sur la durée réelle des fichiers.
+    - action: script.turn_on
+      target: { entity_id: script.mystery_flash_alternate }
+      data:
+        variables:
+          light_a: light.left_floor_lamp
+          light_b: light.right_floor_lamp
+          color_a: [0, 0, 255]
+          color_b: [255, 0, 0]
+          cycles: 9
+          interval: 0.3
+    # Durée réelle de la sirène : 18,5 s.
+    - delay: { seconds: 19 }
+    # Fond de scène et non un effet : moitié moins fort que la sirène.
+    - action: media_player.volume_set
+      target: { entity_id: media_player.sonos }
+      data: { volume_level: 0.4 }
+    - action: media_player.play_media
+      target: { entity_id: media_player.sonos }
+      data:
+        media_content_type: audio/mpeg
+        media_content_id: "media-source://media_source/local/Police Radio Chatter.mp3"
+    # 6 cycles : le même rythme que la phase précédente (9 cycles / 19 s),
+    # mis à l'échelle des 12 s du brouhaha.
+    - action: script.turn_on
+      target: { entity_id: script.mystery_flash_alternate }
+      data:
+        variables:
+          light_a: light.left_floor_lamp
+          light_b: light.right_floor_lamp
+          color_a: [0, 0, 255]
+          color_b: [255, 0, 0]
+          cycles: 6
+          interval: 0.3
+    - delay: { seconds: 12 }
+    - action: media_player.media_stop
+      target: { entity_id: media_player.sonos }
+      continue_on_error: true
+    # ⚠️ Pas de mots en majuscules dans les messages TTS : ils sont épelés
+    # lettre à lettre et rendent la consigne inaudible.
+    - action: script.mystery_inspector_say
+      data:
+        on_sonos: true
+        message: >-
+          Bonsoir. Ici inspecteur Henri-Onésime de Beauchamp-Latulippe.
+          {% if player_name %}Vous devez être {{ player_name }}. Enchanté
+          de faire votre connaissance.{% endif %} Un meurtre a eu lieu ici ce
+          soir, et la maison a tout enregistré! Je vous nomme détectives.
+          Trouvez-moi le coupable parmi trois suspects : le Jardinier,
+          l'Héritière et le Majordome. Fouillez partout — ces trois-là se
+          trahissent dès qu'on touche à leurs affaires. Bon. Il faut que j'y
+          aille, j'ai un autre appel.
+    # Monté à 0,8 : la voiture qui s'éloigne doit porter par-dessus le silence
+    # retombé après le brouhaha.
+    - action: media_player.volume_set
+      target: { entity_id: media_player.sonos }
+      data: { volume_level: 0.8 }
+    - action: media_player.play_media
+      target: { entity_id: media_player.sonos }
+      data:
+        media_content_type: audio/mpeg
+        media_content_id: "media-source://media_source/local/Car Drive Away.mp3"
+    - delay: { seconds: 20 }
+    - action: media_player.volume_set
+      target: { entity_id: media_player.sonos }
+      data: { volume_level: 0.4 }
+    - action: script.mystery_inspector_say
+      data:
+        message: >-
+          Ici Inspecteur Beauchamp-Latulippe. J'oubliais ! Les caméras de
+          surveillance de la maison sont sur le terminal, dans le bureau au
+          sous-sol. J'ai fait allumer les lumières jusque-là, suivez-les. Et si
+          vous bloquez, demandez-moi un indice au téléphone.
+    - action: input_select.select_option
+      target: { entity_id: input_select.mystery_phase }
+      data: { option: investigation }
+    # Après le passage en « investigation » : la boucle d'ambiance s'arrête
+    # dès que la phase en sort.
+    - action: script.turn_on
+      target: { entity_id: script.mystery_ambience }
+    - action: script.mystery_guide_path
+      data:
+        lights:
+          - light.chandelier
+          - light.downstairs_hallway_light
+
+mystery_suspect_speak:
+  alias: "Mystery - Suspect speaks"
+  icon: mdi:incognito
+  mode: queued
+  max: 5
+  fields:
+    suspect:
+      name: Suspect
+      selector:
+        select:
+          options: ["gardener", "heiress", "butler"]
+      required: true
+    custom_line:
+      name: Custom line
+      description: >-
+        Réplique ponctuelle (porte-patio, tiroir à couteaux, marmonnements) :
+        elle emprunte la voix et l'enceinte du suspect sans compter comme un
+        témoignage.
+      selector: { text: { multiline: true } }
+      default: ""
+    variant:
+      name: Variant
+      description: >-
+        Objet qui a déclenché le suspect. Ne change que l'entrée en matière,
+        le témoignage reste le même.
+      selector: { text: {} }
+      default: ""
+  variables:
+    speaker: >-
+      {{ {'gardener': 'media_player.workshop_echo',
+          'heiress': 'media_player.sonos',
+          'butler': 'media_player.google_home_mini'}[suspect] }}
+    done_flag: >-
+      {{ {'gardener': 'input_boolean.mystery_gardener_done',
+          'heiress': 'input_boolean.mystery_heiress_done',
+          'butler': 'input_boolean.mystery_butler_done'}[suspect] }}
+    is_testimony: "{{ not custom_line }}"
+    # L'Héritière a 2 déclencheurs indépendants (trappe du fusil, porte de la
+    # buanderie) et done_flag ne dit pas lequel a été vu : sa réplique de
+    # répétition a besoin des deux drapeaux pour le savoir.
+    heiress_gun_seen: >-
+      {{ is_state('input_boolean.mystery_heiress_gun_seen', 'on')
+         or (suspect == 'heiress' and is_testimony and variant != 'laundry') }}
+    heiress_dress_seen: >-
+      {{ is_state('input_boolean.mystery_heiress_dress_seen', 'on')
+         or (suspect == 'heiress' and is_testimony and variant == 'laundry') }}
+    # L'Héritière n'a pas de lampe à elle : les deux du salon appartiennent à
+    # la boucle d'ambiance, qui les repeindrait 8 s plus tard.
+    room_light: >-
+      {{ {'gardener': 'light.downstairs_hallway_light',
+          'heiress': '',
+          'butler': 'light.dining_room_pendants'}[suspect] }}
+    # ⚠️ Le Jardinier passe par le TTS d'Amazon, qui mange les élisions
+    # familières (« ch'te », « y'arrêtait ») : ses répliques restent en mots
+    # entiers, sinon il marmonne.
+    first_line: >-
+      {% if suspect == 'gardener' %}
+      Hé, c'est quoi cette histoire de détective ? Moi, j'ai rien vu, je le
+      jure. J'ai passé la soirée icite, dans l'atelier, à aiguiser ma scie
+      rouge. Vraiment chill man. Mais si tu veux mon avis, le Majordome, lui
+      y'er louche en tabarnak: il arrêtait pas de tourner autour de la salle à
+      manger avec sa bouteille de vin, le câlice. Monte donc voir de ce
+      côté-là. Et fais attention à mon robot, il fait sa ronde.
+      {% elif suspect == 'heiress' %}
+      {% if variant == 'laundry' %}
+      Heille ! Fouillez pas dans mon linge sale, vous autres ! Ma robe de
+      soirée est là-dedans, pis oui, elle est tachée. Mais c'est du vin, ça,
+      pas du sang ! On m'en a renversé un plein verre dessus.
+      {% else %}
+      Heille, mon fusil ?! Ben voyons donc, c'est pas ce que vous pensez
+      pantoute ! OK, oui, je l'ai caché dans la trappe du foyer, mais je m'en
+      suis jamais servie, j'vous le jure ! Je suis une femme ben distinguée
+      quand même, on va pas me faire passer pour une calice de criminelle !
+      Non madame.
+      {% endif %}
+      Si vous cherchez de quoi avancer, c'est pas moi qu'il faut regarder. Moi,
+      j'irais fouiller l'étagère à vins — il doit bien se cacher quelque chose
+      là-dedans. Tenez, je pars mon robot, il s'en va justement par là.
+      Suivez-le.
+      {% else %}
+      Vous avez sonné pour le service ? À votre entière disposition. J'ai servi
+      le vin toute la soirée, comme il se doit. Un service irréprochable.
+      L'Héritière, en revanche, ne décolérait pas contre la victime : une
+      sordide histoire d'héritage. Et puisque vous fouillez, examinez donc la
+      robe de celle-ci dans la buanderie. Elle avait fait toute qu'un drama ce
+      soir au souper !
+      {% endif %}
+    repeat_line: >-
+      {% if suspect == 'gardener' %}
+      J'te l'ai déjà dit. J'étais dans l'atelier toute la soirée. Cherche
+      ailleurs. Va voir le soulon de Majordome et sa bouteille de vin.
+      {% elif suspect == 'heiress' %}
+      {% if heiress_gun_seen and heiress_dress_seen %}
+      Heille, tabarnak, lâchez mes affaires tranquilles ! Ni le fusil ni ma
+      robe ont rapport là-dedans, je vous le jure.
+      {% elif heiress_gun_seen %}
+      Girouette de St-Miséricorde! Vas-tu bien lâchez mes affaires ? Le fusil,
+      ça prouve rien pantoute, je vous le jure.
+      {% else %}
+      Câlice, lâchez mes affaires tranquilles ! Ma robe, c'est rien que du vin
+      renversé, je vous le jure.
+      {% endif %}
+      Pis arrêtez de me niaiser avec ça : mon robot est déjà parti vous
+      montrer où chercher. J'lai vu le Majordome, y'avait un sac à vin
+      contenant sa meilleur bouteille, y'a clairement laisser des traces de
+      son passage dans le sac !
+      {% else %}
+      Le service, toujours le service. Le vin était... parfait. Enfin,
+      presque. Je n'ai rien vu de suspect de mon côté. Aller donc voir
+      l'Héritière, elle a été bien plus agitée que moi ce soir. Et si vous
+      voulez mon avis, le Jardinier est un peu louche lui aussi. Il traîne
+      toujours dans son atelier, à bricoler.
+      {% endif %}
+    line: >-
+      {{ custom_line if custom_line
+         else (first_line if is_state(done_flag, 'off') else repeat_line) }}
+    # Le TTS ne bloque pas : on estime la durée (~2,3 mots/seconde en français)
+    # pour enchaîner sans couper le suspect.
+    speech_seconds: "{{ [(line.split() | count / 2.3) | round(0, 'ceil') | int, 8] | max }}"
+    # ⚠️ Il faut le voice_id de l'API (« SylvieNeural »), pas le nom affiché
+    # dans l'UI (« Sylvie ») : un nom invalide est ignoré en silence et HA
+    # retombe sur la voix par défaut de la langue.
+    # Le Jardinier reste vide, sa voix venant d'Alexa, mais la clé doit exister
+    # car le dictionnaire est évalué pour tous.
+    voice: >-
+      {{ {'gardener': '',
+          'heiress': 'SylvieNeural',
+          'butler': 'ThierryNeural'}[suspect] }}
+  sequence:
+    - if: "{{ room_light != '' }}"
+      then:
+        - action: light.turn_on
+          target: { entity_id: "{{ room_light }}" }
+          data: { brightness_pct: 60, transition: 1 }
+          continue_on_error: true
+    # notify et non tts.speak : l'intégration alexa_devices refuse toute URL
+    # média (« music is not available as a music provider »). C'est le TTS
+    # d'Alexa qui parle, sa voix se règle dans l'app Alexa, pas ici.
+    - if: "{{ suspect == 'gardener' }}"
+      then:
+        - action: notify.send_message
+          target: { entity_id: notify.echo_speak }
+          data:
+            message: "{{ line }}"
+      else:
+        # Le Sonos duck sa musique de lui-même pendant un TTS : rien à faire
+        # sur le volume.
+        - if: "{{ suspect == 'heiress' }}"
+          then:
+            - action: script.turn_on
+              target: { entity_id: script.mystery_sonos_glow }
+              data:
+                variables: { duration_seconds: "{{ speech_seconds }}" }
+              continue_on_error: true
+        - action: tts.speak
+          target: { entity_id: tts.home_assistant_cloud }
+          data:
+            cache: true
+            language: fr-CA
+            media_player_entity_id: "{{ speaker }}"
+            message: "{{ line }}"
+            options:
+              voice: "{{ voice }}"
+    # À chaque témoignage de l'Héritière et pas seulement au premier : c'est
+    # ce qui permet à repeat_line de savoir si l'autre porte a été ouverte.
+    - if: "{{ suspect == 'heiress' and is_testimony }}"
+      then:
+        - action: input_boolean.turn_on
+          target:
+            entity_id: >-
+              {{ 'input_boolean.mystery_heiress_dress_seen' if variant == 'laundry'
+                 else 'input_boolean.mystery_heiress_gun_seen' }}
+    - if: "{{ is_testimony and is_state(done_flag, 'off') }}"
+      then:
+        # Tout de suite : ce script est en mode queued, un blocage ici rendrait
+        # les autres suspects muets. C'est aussi ce drapeau qui empêche un 2e
+        # départ de Roby si on redéplace la trappe du fusil.
+        - action: input_boolean.turn_on
+          target: { entity_id: "{{ done_flag }}" }
+        # script.turn_on : le trajet plus le lead-in dépassent la minute, un
+        # appel direct bloquerait ce script.
+        - if: "{{ suspect in ['heiress', 'gardener'] }}"
+          then:
+            - action: script.turn_on
+              target: { entity_id: script.mystery_roby_goto }
+              data:
+                variables:
+                  destination: "{{ 'wine' if suspect == 'heiress' else 'trap' }}"
+                  lead_in_seconds: "{{ speech_seconds }}"
+              continue_on_error: true
+
+mystery_police_callback:
+  alias: "Mystery - Police callback (autopsy)"
+  icon: mdi:incognito
+  mode: single
+  sequence:
+    - action: media_player.media_stop
+      target: { entity_id: media_player.sonos }
+      continue_on_error: true
+    - action: input_select.select_option
+      target: { entity_id: input_select.mystery_phase }
+      data: { option: autopsy_done }
+    - action: script.mystery_inspector_say
+      data:
+        message: >-
+          Beauchamp-Latulippe à nouveau. J'ai eu le rapport de l'autopsie :
+          la victime a été empoisonnée. Avez-vous trouvé les trois pièces à
+          conviction possible ? Dès que vous les avez, tapez-les sur le
+          terminal du bureau.
+    - action: script.turn_on
+      target: { entity_id: script.mystery_ambience }
+    - action: script.mystery_guide_path
+      data:
+        lights:
+          - light.hallway_lights
+          - light.dining_room_pendants
+
+mystery_hint:
+  alias: "Mystery - Hint"
+  icon: mdi:lightbulb-question
+  mode: single
+  variables:
+    # Les deux listes s'emploient toujours après « de » : la contraction est
+    # déjà dans les libellés, sinon l'inspecteur dit « de le Jardinier ».
+    pending_testimony: >-
+      {% set ns = namespace(who=[]) %}
+      {% if is_state('input_boolean.mystery_gardener_done', 'off') %}
+        {% set ns.who = ns.who + ['du Jardinier'] %}
+      {% endif %}
+      {% if is_state('input_boolean.mystery_heiress_done', 'off') %}
+        {% set ns.who = ns.who + ["de l'Héritière"] %}
+      {% endif %}
+      {% if is_state('input_boolean.mystery_butler_done', 'off') %}
+        {% set ns.who = ns.who + ['du Majordome'] %}
+      {% endif %}
+      {% if ns.who %}{{ ns.who[:-1] | join(', ') }}{{ ' et ' if ns.who | count > 1 }}{{ ns.who | last }}{% endif %}
+    pending_evidence: >-
+      {% set ns = namespace(who=[]) %}
+      {% if is_state('input_boolean.mystery_evidence_saw', 'off') %}
+        {% set ns.who = ns.who + ['du Jardinier'] %}
+      {% endif %}
+      {% if is_state('input_boolean.mystery_evidence_gun', 'off') %}
+        {% set ns.who = ns.who + ["de l'Héritière"] %}
+      {% endif %}
+      {% if is_state('input_boolean.mystery_evidence_poison', 'off') %}
+        {% set ns.who = ns.who + ['du Majordome'] %}
+      {% endif %}
+      {% if ns.who %}{{ ns.who[:-1] | join(', ') }}{{ ' et ' if ns.who | count > 1 }}{{ ns.who | last }}{% endif %}
+    evidence_found: >-
+      {{ ['input_boolean.mystery_evidence_saw',
+          'input_boolean.mystery_evidence_gun',
+          'input_boolean.mystery_evidence_poison']
+         | map('states') | select('eq', 'on') | list | count }}
+    hint: >-
+      {% set phase = states('input_select.mystery_phase') %}
+      {% if phase == 'investigation' and pending_testimony | trim %}
+      Il me manque encore le témoignage {{ pending_testimony | trim }}.
+      Repassez donc par les caméras du bureau, elles en disent plus long que
+      moi.
+      {% elif phase == 'investigation' %}
+      Vous avez les trois témoignages. Ne bougez pas, je vous rappelle.
+      {% elif phase == 'autopsy_done' and evidence_found | int < 3 %}
+      {{ evidence_found }} pièce{{ 's' if evidence_found | int > 1 else '' }} à
+      conviction sur trois. Il me manque celle
+      {{ pending_evidence | trim }}. Les caméras du bureau montrent chacun avec
+      son arme — regardez-les encore, vous saurez quoi chercher.
+      {% elif phase == 'autopsy_done' %}
+      Les trois pièces sont au dossier. Désignez le coupable sur le terminal.
+      {% elif phase == 'accusation' %}
+      Je vous écoute : désignez le coupable sur le terminal.
+      {% else %}
+      Il n'y a pas d'enquête en cours, détective.
+      {% endif %}
+  sequence:
+    - action: script.mystery_inspector_say
+      data:
+        message: "{{ hint }}"
+        # Pendant l'accusation les joueurs sont devant le terminal ; le reste
+        # du temps ils ont demandé l'indice au combiné, il y répond.
+        on_terminal: "{{ states('input_select.mystery_phase') == 'accusation' }}"
+
+mystery_denouement:
+  alias: "Mystery - Denouement"
+  icon: mdi:incognito
+  mode: single
+  fields:
+    accused:
+      name: Accused suspect
+      description: "Id du suspect désigné : gardener, heiress ou butler."
+      selector: { text: {} }
+      default: ""
+  variables:
+    # Seul endroit du dépôt où le coupable est écrit.
+    culprit: butler
+    success: "{{ accused == culprit }}"
+  sequence:
+    - if: "{{ success }}"
+      then:
+        # Sortir de la phase d'enquête arrête aussi la boucle d'ambiance.
+        - action: input_select.select_option
+          target: { entity_id: input_select.mystery_phase }
+          data: { option: solved }
+        - action: media_player.media_stop
+          target: { entity_id: media_player.sonos }
+          continue_on_error: true
+        - action: script.mystery_inspector_say
+          data:
+            on_terminal: true
+            message: >-
+              Le Majordome. C'est exact, détective ! Appelez-moi Henri, vous
+              l'avez mérité. Descendez au théâtre, j'ai trouvé de quoi qui
+              pourrait vous intéresser : suivez les lumières, et regardez
+              l'écran.
+        - action: script.mystery_guide_path
+          data:
+            lights:
+              - light.hallway_lights
+              - light.downstairs_hallway_light
+        - action: light.turn_off
+          target:
+            entity_id:
+              - light.theatre
+              - light.wooden_lamp
+              - light.metal_lamp
+              - light.bad_light
+          data: { transition: 2 }
+          continue_on_error: true
+        - repeat:
+            for_each:
+              - cover.theatre_left_shade
+              - cover.theatre_middle_shade
+              - cover.theatre_right_shade
+            sequence:
+              - action: cover.close_cover
+                target: { entity_id: "{{ repeat.item }}" }
+                continue_on_error: true
+              - delay: { milliseconds: 1200 }
+        - action: media_player.turn_on
+          target: { entity_id: media_player.theatre_tv }
+          continue_on_error: true
+        - action: light.turn_on
+          target: { entity_id: light.theatre }
+          data: { rgb_color: [255, 0, 0], brightness_pct: 8 }
+          continue_on_error: true
+        - action: light.turn_on
+          target: { entity_id: light.theatre }
+          data: { rgb_color: [255, 0, 0], brightness_pct: 70, transition: 6 }
+          continue_on_error: true
+        - delay: { seconds: 6 }
+        - action: light.turn_on
+          target:
+            entity_id:
+              - light.bad_light
+              - light.metal_lamp
+              - light.wooden_lamp
+          data:
+            transition: 1
+            brightness_pct: 100
+            color_temp_kelvin: 4000
+          continue_on_error: true
+        - action: script.mystery_inspector_say
+          data:
+            on_tv: true
+            message: >-
+              Attention, attention, la révélation finale va commencer sous
+              peu !
+        - delay: { seconds: 2 }
+        - action: media_player.play_media
+          target: { entity_id: media_player.theatre_tv }
+          data:
+            media_content_type: video/mp4
+            media_content_id: "media-source://media_source/local/Final Reveal.mp4"
+          continue_on_error: true
+        # Le Chromecast repasse à « idle » en fin de vidéo ; le timeout est le
+        # filet si l'événement n'arrive jamais.
+        - wait_for_trigger:
+            - trigger: media_player.stopped_playing
+              target: { entity_id: media_player.theatre_tv }
+          timeout: { minutes: 5 }
+          continue_on_timeout: true
+        - action: media_player.play_media
+          target: { entity_id: media_player.theatre_tv }
+          data:
+            media_content_type: audio/mpeg
+            media_content_id: "media-source://media_source/local/Jamie Foxx - Winner ft Justin Timberlake  TI.mp3"
+          continue_on_error: true
+        - action: cover.set_cover_position
+          target: { entity_id: cover.theatre_middle_shade }
+          data: { position: 30 }
+          continue_on_error: true
+        - action: cover.set_cover_position
+          target:
+            entity_id:
+              - cover.theatre_left_shade
+              - cover.theatre_right_shade
+          data: { position: 50 }
+          continue_on_error: true
+        - action: light.turn_on
+          target:
+            entity_id:
+              - light.bad_light
+              - light.metal_lamp
+              - light.wooden_lamp
+          data:
+            effect: prism
+            transition: 1
+            brightness_pct: 100
+          continue_on_error: true
+      else:
+        - action: input_select.select_option
+          target: { entity_id: input_select.mystery_phase }
+          data: { option: autopsy_done }
+        - action: media_player.play_media
+          target: { entity_id: media_player.sonos }
+          data:
+            media_content_type: audio/mpeg
+            media_content_id: "media-source://media_source/local/Wrong Answer Sting.mp3"
+        # Le sting dure 14 s : on n'en garde que l'attaque, sinon il déborde
+        # sur la voix de l'inspecteur, qui parle au téléphone et ne coupe donc
+        # rien sur le Sonos.
+        - delay: { seconds: 3 }
+        - action: media_player.media_stop
+          target: { entity_id: media_player.sonos }
+          continue_on_error: true
+        - action: script.mystery_inspector_say
+          data:
+            on_terminal: true
+            message: >-
+              Non. Ça ne colle pas, détective. Et c'est Beauchamp-Latulippe.
+              Reprenez le vin et les alibis. Revenez me voir quand vous serez
+              sûrs.
+        # Le sting a remplacé l'ambiance sur le Sonos.
+        - action: script.turn_on
+          target: { entity_id: script.mystery_ambience }

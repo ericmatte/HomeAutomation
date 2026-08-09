@@ -1,0 +1,59 @@
+views:
+  - title: Terminal
+    path: terminal
+    type: panel
+    subview: false
+    cards:
+      - type: custom:mystery-terminal-card
+
+        sound: true
+        volume: 0.05
+
+        # Déposer les .mp4 dans www/mystery/ (servi sous /local/mystery/), un
+        # dossier gitignoré : les vidéos ne partent pas dans le dépôt.
+        cameras:
+          - id: CAM 01
+            zone: ATELIER — SOUS-SOL
+            file: /local/mystery/cam01_jardinier.mp4
+          - id: CAM 02
+            zone: SALON — REZ-DE-CHAUSSÉE
+            file: /local/mystery/cam02_heritiere.mp4
+          - id: CAM 03
+            zone: SALLE À MANGER — REZ-DE-CHAUSSÉE
+            file: /local/mystery/cam03_majordome.mp4
+
+        # ⚠️ `entity:` est documentaire : la carte lit les 3 input_boolean par
+        # leur nom en dur et n'apparie que sur `key`. Les codes des étiquettes
+        # vivent dans l'automation « Mystery - Evidence code entered ».
+        evidence:
+          - key: saw
+            entity: input_boolean.mystery_evidence_saw
+            label: SCIE À MAIN
+            detail: ATELIER · LE JARDINIER
+          - key: gun
+            entity: input_boolean.mystery_evidence_gun
+            label: FUSIL
+            detail: SALON · L'HÉRITIÈRE
+          - key: poison
+            entity: input_boolean.mystery_evidence_poison
+            label: POT D'ÉPICES « POISON »
+            detail: SALLE À MANGER · LE MAJORDOME
+
+        # `portrait` est facultatif, mais son absence laisse un cadre rayé
+        # visible par les joueurs.
+        suspects:
+          - option: gardener
+            name: LE JARDINIER
+            room: ATELIER AU SOUS-SOL
+            weapon: SCIE
+          - option: heiress
+            name: L'HÉRITIÈRE
+            room: SALON
+            weapon: FUSIL
+          - option: butler
+            name: LE MAJORDOME
+            room: SALLE À MANGER
+            weapon: POISON
+
+        # Journal du mur d'images : de vrais changements d'état de la maison,
+        # il peut donc rester figé si personne ne bouge.

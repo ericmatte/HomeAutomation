@@ -176,6 +176,85 @@ template:
               device: fan
               command: swing
 
+input_select:
+  mystery_phase:
+    name: Mystery Phase
+    icon: mdi:magnify-scan
+    options:
+      - idle
+      - investigation
+      - autopsy_done
+      - accusation
+      - solved
+    initial: idle
+  mystery_accusation_choice:
+    name: Mystery Accusation Choice
+    icon: mdi:gavel
+    options:
+      - none
+      - gardener
+      - heiress
+      - butler
+    initial: none
+
+input_text:
+  mystery_code_input:
+    name: Mystery Code Input
+    icon: mdi:dialpad
+    max: 8
+    initial: ""
+
+input_boolean:
+  mystery_gardener_done:
+    name: Mystery Gardener Done
+    icon: mdi:account-question
+  mystery_heiress_done:
+    name: Mystery Heiress Done
+    icon: mdi:account-question
+  # Suivent laquelle des 2 portes de l'Héritière a déjà été ouverte, pour que
+  # sa réplique de répétition sache si l'autre reste à découvrir.
+  mystery_heiress_gun_seen:
+    name: Mystery Heiress Gun Seen
+    icon: mdi:pistol
+  mystery_heiress_dress_seen:
+    name: Mystery Heiress Dress Seen
+    icon: mdi:tshirt-crew
+  mystery_butler_done:
+    name: Mystery Butler Done
+    icon: mdi:account-question
+  mystery_evidence_saw:
+    name: Mystery Evidence Saw
+    icon: mdi:saw-blade
+  mystery_evidence_gun:
+    name: Mystery Evidence Gun
+    icon: mdi:pistol
+  mystery_evidence_poison:
+    name: Mystery Evidence Poison
+    icon: mdi:bottle-tonic-skull
+  mystery_terminal_unlocked:
+    name: Mystery Terminal Unlocked
+    icon: mdi:folder-lock-open
+  # La carte ne la remet jamais à off elle-même : c'est mystery_reset_state.
+  mystery_terminal_first_touch:
+    name: Mystery Terminal First Touch
+    icon: mdi:cursor-default-click
+  escape_v2_active:
+    name: Escape v2 Active
+    icon: mdi:incognito
+
+# Le terminal CCTV est versionné, d'où le mode YAML. `mode: storage` garde tous
+# les autres tableaux de bord tels quels, dans .storage.
+lovelace:
+  mode: storage
+  dashboards:
+    mystery-terminal:
+      mode: yaml
+      title: Terminal CCTV
+      icon: mdi:cctv
+      show_in_sidebar: true
+      require_admin: false
+      filename: dashboards/mystery-terminal.yaml
+
 automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
