@@ -321,14 +321,6 @@ section.col{display:flex; flex-direction:column; gap:calc(10*var(--px)); min-hei
 .cell .ffbtn:hover{color:#000; background:var(--amber); border-color:var(--amber);}
 main.cctv.zoomed .cell.zoom-active .ffbtn{display:flex;}
 .cell .ffbtn.on{color:#000; background:var(--amber); border-color:var(--amber);}
-/* Un tremblement plutôt qu'un vrai flou de mouvement : coûteux et peu lisible
-   sur une vidéo déjà en object-fit:cover. */
-.cell.ff-active video{animation:ffjitter .08s steps(2) infinite;}
-@keyframes ffjitter{
-  0%{transform:translateY(0) scale(1.006);}
-  50%{transform:translateY(calc(-5*var(--px))) scale(1.014);}
-  100%{transform:translateY(0) scale(1.006);}
-}
 
 main.cctv.zoomed{grid-template-columns:1fr; grid-template-rows:1fr;}
 main.cctv.zoomed .cell{display:none;}
