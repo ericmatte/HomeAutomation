@@ -296,35 +296,38 @@ section.col{display:flex; flex-direction:column; gap:calc(10*var(--px)); min-hei
 .cell .ts{position:absolute; z-index:3; bottom:calc(12*var(--px)); right:calc(14*var(--px)); font-size:calc(17*var(--px));
   color:var(--amber); background:rgba(2,2,3,.72); padding:calc(4*var(--px)) calc(10*var(--px)); font-variant-numeric:tabular-nums;}
 
-.cell .zoomhint{position:absolute; z-index:4; left:calc(14*var(--px)); bottom:calc(12*var(--px));
+.cell .controls{position:absolute; z-index:4; left:calc(14*var(--px)); bottom:calc(12*var(--px));
   display:flex; align-items:center; gap:calc(10*var(--px));
-  padding:calc(8*var(--px)) calc(14*var(--px)); background:rgba(2,2,3,.78); border:calc(1*var(--px)) solid var(--line);
-  filter:drop-shadow(0 calc(4*var(--px)) calc(10*var(--px)) rgba(0,0,0,.65));
   opacity:0; transform:translateY(calc(6*var(--px)));
   transition:opacity .15s ease, transform .15s ease; pointer-events:none;}
-.cell:hover .zoomhint{opacity:1; transform:none;}
+.cell:hover .controls{opacity:1; transform:none;}
+
+.cell .zoomhint{display:flex; align-items:center; gap:calc(10*var(--px));
+  padding:calc(8*var(--px)) calc(14*var(--px)); background:rgba(2,2,3,.78); border:calc(1*var(--px)) solid var(--line);
+  filter:drop-shadow(0 calc(4*var(--px)) calc(10*var(--px)) rgba(0,0,0,.65));}
 .cell .zoomhint .ic{font-size:calc(26*var(--px)); line-height:1; color:var(--amber);}
 .cell .zoomhint .tx{font-size:calc(14*var(--px)); letter-spacing:calc(2*var(--px)); color:var(--amber); white-space:nowrap;}
 .cell .zoomhint .tx-out{display:none;}
 .cell.zoom-active .zoomhint .tx-in{display:none;}
 .cell.zoom-active .zoomhint .tx-out{display:block;}
 
-.cell .ffbtn{display:none; position:absolute; z-index:4; right:calc(14*var(--px)); bottom:calc(12*var(--px));
-  align-items:center; justify-content:center;
-  width:calc(46*var(--px)); height:calc(46*var(--px)); padding:0;
-  background:rgba(2,2,3,.78); border:calc(1*var(--px)) solid var(--line);
-  color:var(--amber-dim); font-size:calc(20*var(--px)); line-height:1; cursor:pointer;
+.cell .ffbtn{display:none; align-items:center; gap:calc(10*var(--px));
+  padding:calc(8*var(--px)) calc(14*var(--px)); background:rgba(2,2,3,.78); border:calc(1*var(--px)) solid var(--line);
+  color:var(--amber); font-size:calc(14*var(--px)); letter-spacing:calc(2*var(--px)); white-space:nowrap;
+  cursor:pointer; pointer-events:auto;
+  filter:drop-shadow(0 calc(4*var(--px)) calc(10*var(--px)) rgba(0,0,0,.65));
   transition:color .12s, border-color .12s, background .12s;}
+.cell .ffbtn .ic{width:calc(20*var(--px)); height:calc(20*var(--px)); flex:none; fill:currentColor;}
 .cell .ffbtn:hover{color:#000; background:var(--amber); border-color:var(--amber);}
 main.cctv.zoomed .cell.zoom-active .ffbtn{display:flex;}
 .cell .ffbtn.on{color:#000; background:var(--amber); border-color:var(--amber);}
 /* Un tremblement plutôt qu'un vrai flou de mouvement : coûteux et peu lisible
    sur une vidéo déjà en object-fit:cover. */
-.cell.ff-active video{animation:ffjitter .12s steps(2) infinite;}
+.cell.ff-active video{animation:ffjitter .08s steps(2) infinite;}
 @keyframes ffjitter{
-  0%{transform:translateY(0) scale(1.001);}
-  50%{transform:translateY(calc(-2*var(--px))) scale(1.004);}
-  100%{transform:translateY(0) scale(1.001);}
+  0%{transform:translateY(0) scale(1.006);}
+  50%{transform:translateY(calc(-5*var(--px))) scale(1.014);}
+  100%{transform:translateY(0) scale(1.006);}
 }
 
 main.cctv.zoomed{grid-template-columns:1fr; grid-template-rows:1fr;}
@@ -742,12 +745,17 @@ class MysteryTerminalCard extends HTMLElement {
         <div class="tag"><span class="id">${c.id}</span><span class="zone">${c.zone}</span></div>
         <div class="live"><span class="dot"></span>BOUCLE</div>
         <div class="ts" data-ts="${i}">--/-- --:--:--</div>
-        <div class="zoomhint">
-          <span class="ic">⛶</span>
-          <span class="tx tx-in">AGRANDIR</span>
-          <span class="tx tx-out">RÉDUIRE</span>
+        <div class="controls">
+          <div class="zoomhint">
+            <span class="ic">⛶</span>
+            <span class="tx tx-in">AGRANDIR</span>
+            <span class="tx tx-out">RÉDUIRE</span>
+          </div>
+          <button class="ffbtn" data-ff="${i}" title="Avance rapide">
+            <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 5v14l9-7z"/><path d="M12 5v14l9-7z"/></svg>
+            <span class="tx">ACCÉLÉRER</span>
+          </button>
         </div>
-        <button class="ffbtn" data-ff="${i}" title="Avance rapide">⏩</button>
       </div>`).join("");
   }
 
@@ -810,10 +818,13 @@ class MysteryTerminalCard extends HTMLElement {
 
   _setFastForward(cell, on) {
     const video = cell.querySelector("video");
-    if (video) video.playbackRate = on ? 4 : 1;
+    if (video) video.playbackRate = on ? 8 : 1;
     cell.classList.toggle("ff-active", on);
     const btn = cell.querySelector(".ffbtn");
-    if (btn) btn.classList.toggle("on", on);
+    if (btn) {
+      btn.classList.toggle("on", on);
+      btn.querySelector(".tx").textContent = on ? "VITESSE NORMALE" : "ACCÉLÉRER";
+    }
   }
 
   _cellFailed(c, host) {
