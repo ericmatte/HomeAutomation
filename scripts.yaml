@@ -1002,6 +1002,13 @@ mystery_start:
           max: 300
           step: 1
       default: 0
+    kid_friendly:
+      name: Version sans sacres
+      description: Coché, les suspects jouent leurs répliques nettoyées — aucun sacre,
+        pour une partie tout public.
+      selector:
+        boolean: {}
+      default: false
   sequence:
   - action: homeassistant.reload_config_entry
     data:
@@ -1011,6 +1018,15 @@ mystery_start:
     target:
       entity_id: input_boolean.escape_v2_active
   - action: script.mystery_reset_state
+  - if: '{{ kid_friendly | default(false) | bool }}'
+    then:
+    - action: input_boolean.turn_on
+      target:
+        entity_id: input_boolean.mystery_kid_friendly
+    else:
+    - action: input_boolean.turn_off
+      target:
+        entity_id: input_boolean.mystery_kid_friendly
   - alias: Voix du téléphone pour la v2
     action: select.select_option
     target:
@@ -1211,44 +1227,50 @@ mystery_suspect_speak:
       \  or (suspect == 'heiress' and is_testimony and variant == 'laundry') }}"
     room_light: "{{ {'gardener': 'light.downstairs_hallway_light',\n    'heiress':
       '',\n    'butler': 'light.dining_room_pendants'}[suspect] }}"
-    first_line: '{% if suspect == ''gardener'' %} Hé, c''est quoi cette histoire de
-      détective ? Moi, j''ai rien vu, je le jure. J''ai passé la soirée icite, dans
-      l''atelier, à aiguiser ma scie rouge. Vraiment chill man. Mais si tu veux mon
-      avis, le Majordome, lui y''er louche en tabarnak: il arrêtait pas de tourner
-      autour de la salle à manger avec sa bouteille de vin, le câlice. Monte donc
+    kid_friendly: "{{ is_state('input_boolean.mystery_kid_friendly', 'on') | bool }}"
+    first_line: >-
+      {% if suspect == 'gardener' %} Hé, c'est quoi cette histoire de détective ?
+      Moi, j'ai rien vu, je le jure. J'ai passé la soirée icite, dans l'atelier,
+      à aiguiser ma scie rouge. Vraiment chill man. Mais si tu veux mon avis, le
+      Majordome, lui y'er louche en {{ 'titi' if kid_friendly else 'tabarnak' }}:
+      il arrêtait pas de tourner autour de la salle à manger avec sa bouteille de
+      vin, le {{ 'drôle de moineau' if kid_friendly else 'câlice' }}. Monte donc
       voir de ce côté-là. Et fais attention à mon robot, il fait sa ronde. {% elif
-      suspect == ''heiress'' %} {% if variant == ''laundry'' %} Heille ! Fouillez
-      pas dans mon linge sale, vous autres ! Ma robe de soirée est là-dedans, pis
-      oui, elle est tachée. Mais c''est du vin, ça, pas du sang ! On m''en a renversé
-      un plein verre dessus. {% else %} Heille, mon fusil ?! Ben voyons donc, c''est
-      pas ce que vous pensez pantoute ! OK, oui, je l''ai caché dans la trappe du
-      foyer, mais je m''en suis jamais servie, j''vous le jure ! Je suis une femme
-      ben distinguée quand même, on va pas me faire passer pour une calice de criminelle
-      ! Non madame. {% endif %} Si vous cherchez de quoi avancer, c''est pas moi qu''il
-      faut regarder. Moi, j''irais fouiller l''étagère à vins — il doit bien se cacher
-      quelque chose là-dedans. Tenez, je pars mon robot, il s''en va justement par
-      là. Suivez-le. {% else %} Vous avez sonné pour le service ? À votre entière
-      disposition. J''ai servi le vin toute la soirée, comme il se doit. Un service
-      irréprochable. L''Héritière, en revanche, ne décolérait pas contre la victime
-      : une sordide histoire d''héritage. Et puisque vous fouillez, examinez donc
-      la robe de celle-ci dans la buanderie. Elle avait fait toute qu''un drama ce
-      soir au souper ! {% endif %}'
-    repeat_line: '{% if suspect == ''gardener'' %} J''te l''ai déjà dit. J''étais
-      dans l''atelier toute la soirée. Cherche ailleurs. Va voir le soulon de Majordome
-      et sa bouteille de vin. {% elif suspect == ''heiress'' %} {% if heiress_gun_seen
-      and heiress_dress_seen %} Heille, tabarnak, lâchez mes affaires tranquilles
-      ! Ni le fusil ni ma robe ont rapport là-dedans, je vous le jure. {% elif heiress_gun_seen
-      %} Girouette de St-Miséricorde! Vas-tu bien lâchez mes affaires ? Le fusil,
-      ça prouve rien pantoute, je vous le jure. {% else %} Câlice, lâchez mes affaires
-      tranquilles ! Ma robe, c''est rien que du vin renversé, je vous le jure. {%
-      endif %} Pis arrêtez de me niaiser avec ça : mon robot est déjà parti vous montrer
-      où chercher. J''lai vu le Majordome, y''avait un sac à vin contenant sa meilleur
-      bouteille, y''a clairement laisser des traces de son passage dans le sac ! {%
-      else %} Le service, toujours le service. Le vin était... parfait. Enfin, presque.
-      Je n''ai rien vu de suspect de mon côté. Aller donc voir l''Héritière, elle
-      a été bien plus agitée que moi ce soir. Et si vous voulez mon avis, le Jardinier
-      est un peu louche lui aussi. Il traîne toujours dans son atelier, à bricoler.
-      {% endif %}'
+      suspect == 'heiress' %} {% if variant == 'laundry' %} Heille ! Fouillez pas
+      dans mon linge sale, vous autres ! Ma robe de soirée est là-dedans, pis oui,
+      elle est tachée. Mais c'est du vin, ça, pas du sang ! On m'en a renversé un
+      plein verre dessus. {% else %} Heille, mon fusil ?! Ben voyons donc, c'est
+      pas ce que vous pensez pantoute ! OK, oui, je l'ai caché dans la trappe du
+      foyer, mais je m'en suis jamais servie, j'vous le jure ! Je suis une femme
+      ben distinguée quand même, on va pas me faire passer pour une {{ '' if
+      kid_friendly else 'calice de ' }}criminelle ! Non madame. {% endif %} Si vous
+      cherchez de quoi avancer, c'est pas moi qu'il faut regarder. Moi, j'irais
+      fouiller l'étagère à vins — il doit bien se cacher quelque chose là-dedans.
+      Tenez, je pars mon robot, il s'en va justement par là. Suivez-le. {% else %}
+      Vous avez sonné pour le service ? À votre entière disposition. J'ai servi le
+      vin toute la soirée, comme il se doit. Un service irréprochable. L'Héritière,
+      en revanche, ne décolérait pas contre la victime : une sordide histoire
+      d'héritage. Et puisque vous fouillez, examinez donc la robe de celle-ci dans
+      la buanderie. Elle avait fait toute qu'un drama ce soir au souper ! {% endif %}
+    repeat_line: >-
+      {% if suspect == 'gardener' %} J'te l'ai déjà dit. J'étais dans l'atelier
+      toute la soirée. Cherche ailleurs. Va voir le {{ '' if kid_friendly else
+      'soulon de ' }}Majordome et sa bouteille de vin. {% elif suspect == 'heiress'
+      %} {% if heiress_gun_seen and heiress_dress_seen %} Heille, {{ 'voyons donc'
+      if kid_friendly else 'tabarnak' }}, lâchez mes affaires tranquilles ! Ni le
+      fusil ni ma robe ont rapport là-dedans, je vous le jure. {% elif
+      heiress_gun_seen %} {{ 'Coudonc !' if kid_friendly else 'Girouette de
+      St-Miséricorde!' }} Vas-tu bien lâchez mes affaires ? Le fusil, ça prouve
+      rien pantoute, je vous le jure. {% else %} {{ 'Franchement' if kid_friendly
+      else 'Câlice' }}, lâchez mes affaires tranquilles ! Ma robe, c'est rien que
+      du vin renversé, je vous le jure. {% endif %} Pis arrêtez de me niaiser avec
+      ça : mon robot est déjà parti vous montrer où chercher. J'lai vu le Majordome,
+      y'avait un sac à vin contenant sa meilleur bouteille, y'a clairement laisser
+      des traces de son passage dans le sac ! {% else %} Le service, toujours le
+      service. Le vin était... parfait. Enfin, presque. Je n'ai rien vu de suspect
+      de mon côté. Aller donc voir l'Héritière, elle a été bien plus agitée que moi
+      ce soir. Et si vous voulez mon avis, le Jardinier est un peu louche lui aussi.
+      Il traîne toujours dans son atelier, à bricoler. {% endif %}
     line: "{{ custom_line if custom_line\n   else (first_line if is_state(done_flag,
       'off') else repeat_line) }}"
     speech_seconds: '{{ [(line.split() | count / 2.3) | round(0, ''ceil'') | int,

@@ -10,6 +10,12 @@
 **Où sort chaque voix** — 📞 téléphone (salon) · 🔊 Sonos (salon, tout le groupe
 entend) · 🖥️ terminal du bureau (sous-sol, texte affiché **et** voix).
 
+**Version sans sacres** — la case _Version sans sacres_ de `script.mystery_start`
+allume `input_boolean.mystery_kid_friendly`, et les suspects jouent alors les
+variantes 👶 signalées plus bas. Seuls les sacres changent : les indices, eux,
+sont mot pour mot les mêmes dans les deux versions. L'inspecteur, lui, n'a jamais
+sacré — il n'a pas de variante.
+
 ---
 
 ## 🕵️ L'inspecteur Henri-Onésime de Beauchamp-Latulippe
@@ -130,10 +136,22 @@ Un instant, détective, je consulte mon dossier.
 Hé, c'est quoi cette histoire de détective ? Moi, j'ai rien vu, je le jure. J'ai passé la soirée icite, dans l'atelier, à aiguiser ma scie rouge. Vraiment chill man. Mais si tu veux mon avis, le Majordome, lui y'er louche en tabarnak: il arrêtait pas de tourner autour de la salle à manger avec sa bouteille de vin, le câlice. Monte donc voir de ce côté-là. Et fais attention à mon robot, il fait sa ronde.
 ```
 
+👶 **T16 sans sacres**
+
+```
+... le Majordome, lui y'er louche en titi: il arrêtait pas de tourner autour de la salle à manger avec sa bouteille de vin, le drôle de moineau. ...
+```
+
 **T17** — Les fois suivantes.
 
 ```
 J'te l'ai déjà dit. J'étais dans l'atelier toute la soirée. Cherche ailleurs. Va voir le soulon de Majordome et sa bouteille de vin.
+```
+
+👶 **T17 sans sacres**
+
+```
+... Va voir le Majordome et sa bouteille de vin.
 ```
 
 **T18** — Marmonnements dans son atelier, pendant que le Majordome parle à la porte-patio. Sert à révéler où il se trouve.
@@ -152,6 +170,12 @@ Elle a **deux déclencheurs**. L'entrée en matière change, la suite est la mê
 
 ```
 Heille, mon fusil ?! Ben voyons donc, c'est pas ce que vous pensez pantoute ! OK, oui, je l'ai caché dans la trappe du foyer, mais je m'en suis jamais servie, j'vous le jure ! Je suis une femme ben distinguée quand même, on va pas me faire passer pour une calice de criminelle ! Non madame.
+```
+
+👶 **T19 sans sacres**
+
+```
+... on va pas me faire passer pour une criminelle ! Non madame.
 ```
 
 **T20** — Première fois, si on ouvre la porte de la buanderie (sa robe tachée).
@@ -178,16 +202,34 @@ juste après.
 Girouette de St-Miséricorde! Vas-tu bien lâchez mes affaires ? Le fusil, ça prouve rien pantoute, je vous le jure.
 ```
 
+👶 **T22-1a sans sacres**
+
+```
+Coudonc ! Vas-tu bien lâchez mes affaires ? Le fusil, ça prouve rien pantoute, je vous le jure.
+```
+
 **T22-1b** — Seule la robe a été trouvée.
 
 ```
 Câlice, lâchez mes affaires tranquilles ! Ma robe, c'est rien que du vin renversé, je vous le jure.
 ```
 
+👶 **T22-1b sans sacres**
+
+```
+Franchement, lâchez mes affaires tranquilles ! Ma robe, c'est rien que du vin renversé, je vous le jure.
+```
+
 **T22-1c** — Les deux ont été trouvées.
 
 ```
 Heille, tabarnak, lâchez mes affaires tranquilles ! Ni le fusil ni ma robe ont rapport là-dedans, je vous le jure.
+```
+
+👶 **T22-1c sans sacres**
+
+```
+Heille, voyons donc, lâchez mes affaires tranquilles ! Ni le fusil ni ma robe ont rapport là-dedans, je vous le jure.
 ```
 
 **T22-2** — Enchaînement après T22-1\*

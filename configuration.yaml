@@ -237,6 +237,11 @@ input_boolean:
   escape_v2_active:
     name: Escape v2 Active
     icon: mdi:incognito
+  # Réglage de partie, pas un état de jeu : mystery_start le pose, et
+  # mystery_reset_state le laisse tranquille.
+  mystery_kid_friendly:
+    name: Mystery Kid Friendly
+    icon: mdi:teddy-bear
 
 # Le terminal CCTV est versionné, d'où le mode YAML. `mode: storage` garde tous
 # les autres tableaux de bord tels quels, dans .storage.
