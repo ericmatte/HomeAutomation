@@ -137,6 +137,26 @@ def render_inspector(message, kid_friendly):
     return Template(message).render(is_state=is_state)
 
 
+def hardcoded_lines(node):
+    """Les répliques écrites en dur dans un script, où qu'elles soient."""
+    if isinstance(node, dict):
+        for key, value in node.items():
+            if key in ("message", "custom_line") and isinstance(value, str):
+                yield value
+            else:
+                yield from hardcoded_lines(value)
+    elif isinstance(node, list):
+        for value in node:
+            yield from hardcoded_lines(value)
+
+
+def render_kid_off(text):
+    """Rend une réplique en mode normal ; les autres templates restent bruts."""
+    if "mystery_kid_friendly" not in text:
+        return text
+    return render_inspector(text, kid_friendly=False)
+
+
 def custom_lines(kid_friendly):
     """Les répliques ponctuelles, passées en dur par les automations."""
     for automation in AUTOMATIONS.values():
@@ -206,6 +226,50 @@ class VersionOriginale(unittest.TestCase):
         ).lower()
         for marker in SWEARS + JOUAL:
             self.assertIn(marker, corpus, f"« {marker} » ne vise plus rien")
+
+
+class VersionOriginaleIntacte(unittest.TestCase):
+    """Filet de sécurité : option décochée, le jeu doit être mot pour mot celui
+    d'avant l'ajout du mode tout public.
+
+    L'instantané a été généré depuis b8d7bb0, le commit qui précède ce mode. Il
+    couvre les 32 rendus de témoignages et les 25 répliques en dur (inspecteur,
+    marmonnements, dénouement). S'il casse, c'est que la version originale a
+    bougé — soit c'est voulu et il faut régénérer le fichier, soit c'est une
+    fuite du mode tout public dans la partie normale.
+    """
+
+    @staticmethod
+    def snapshot():
+        with open(ROOT / "tests/fixtures/mystery_original_lines.txt", encoding="utf-8") as f:
+            return dict(row.rstrip("\n").split("\t", 1) for row in f if row.strip())
+
+    def test_les_temoignages_sont_inchanges(self):
+        expected = self.snapshot()
+        for key, before in expected.items():
+            kind, _, rest = key.partition("|")
+            if kind == "message":
+                continue
+            suspect, variant, gun, dress = rest.split("|")
+            now = render(
+                kind,
+                suspect,
+                kid_friendly=False,
+                variant=variant,
+                gun_seen=bool(int(gun)),
+                dress_seen=bool(int(dress)),
+            )
+            self.assertEqual(" ".join(now.split()), before, f"{key} a changé")
+
+    def test_les_repliques_en_dur_sont_inchangees(self):
+        expected = {v for k, v in self.snapshot().items() if k.startswith("message|")}
+        actual = set()
+        for name, script in SCRIPTS.items():
+            if not name.startswith("mystery_"):
+                continue
+            for text in hardcoded_lines(script):
+                actual.add(" ".join(render_kid_off(text).split()))
+        self.assertEqual(expected, actual)
 
 
 class MemeEnquete(unittest.TestCase):
