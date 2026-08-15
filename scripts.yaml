@@ -1003,9 +1003,9 @@ mystery_start:
           step: 1
       default: 0
     kid_friendly:
-      name: Version sans sacres
-      description: Coché, les suspects jouent leurs répliques nettoyées — aucun sacre,
-        pour une partie tout public.
+      name: Safe mode
+      description: Coché, les personnages jouent leurs répliques nettoyées — ni sacres
+        ni joual, pour une partie tout public. L'intrigue ne change pas.
       selector:
         boolean: {}
       default: false

@@ -10,7 +10,7 @@
 **Où sort chaque voix** — 📞 téléphone (salon) · 🔊 Sonos (salon, tout le groupe
 entend) · 🖥️ terminal du bureau (sous-sol, texte affiché **et** voix).
 
-**Version tout public** — la case _Version sans sacres_ de `script.mystery_start`
+**Version tout public** — la case _Safe mode_ de `script.mystery_start`
 allume `input_boolean.mystery_kid_friendly`, et les personnages jouent alors les
 variantes 👶 signalées plus bas : ni sacres ni joual, du français standard.
 L'intrigue ne bouge pas d'un pouce — mêmes suspects, mêmes objets, mêmes pistes,
