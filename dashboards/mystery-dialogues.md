@@ -10,11 +10,12 @@
 **Où sort chaque voix** — 📞 téléphone (salon) · 🔊 Sonos (salon, tout le groupe
 entend) · 🖥️ terminal du bureau (sous-sol, texte affiché **et** voix).
 
-**Version sans sacres** — la case _Version sans sacres_ de `script.mystery_start`
-allume `input_boolean.mystery_kid_friendly`, et les suspects jouent alors les
-variantes 👶 signalées plus bas. Seuls les sacres changent : les indices, eux,
-sont mot pour mot les mêmes dans les deux versions. L'inspecteur, lui, n'a jamais
-sacré — il n'a pas de variante.
+**Version tout public** — la case _Version sans sacres_ de `script.mystery_start`
+allume `input_boolean.mystery_kid_friendly`, et les personnages jouent alors les
+variantes 👶 signalées plus bas : ni sacres ni joual, du français standard.
+L'intrigue ne bouge pas d'un pouce — mêmes suspects, mêmes objets, mêmes pistes,
+même coupable. Seule la formulation change. Les répliques sans bloc 👶 sont déjà
+en français standard et servent telles quelles dans les deux versions.
 
 ---
 
@@ -66,6 +67,13 @@ Deux preuves sur trois. Vous y êtes presque : une dernière et le dossier s'ouv
 
 ```
 Le Majordome. C'est exact, détective ! Appelez-moi Henri, vous l'avez mérité. Descendez au théâtre, j'ai trouvé de quoi qui pourrait vous intéresser : suivez les lumières, et regardez l'écran.
+```
+
+👶 **T5 tout public** — sa seule tournure familière ; partout ailleurs
+l'inspecteur parle déjà un français soutenu.
+
+```
+... Descendez au théâtre, j'ai trouvé quelque chose qui pourrait vous intéresser : ...
 ```
 
 **T6** 🖥️ — Mauvaise réponse.
@@ -136,10 +144,10 @@ Un instant, détective, je consulte mon dossier.
 Hé, c'est quoi cette histoire de détective ? Moi, j'ai rien vu, je le jure. J'ai passé la soirée icite, dans l'atelier, à aiguiser ma scie rouge. Vraiment chill man. Mais si tu veux mon avis, le Majordome, lui y'er louche en tabarnak: il arrêtait pas de tourner autour de la salle à manger avec sa bouteille de vin, le câlice. Monte donc voir de ce côté-là. Et fais attention à mon robot, il fait sa ronde.
 ```
 
-👶 **T16 sans sacres**
+👶 **T16 tout public**
 
 ```
-... le Majordome, lui y'er louche en titi: il arrêtait pas de tourner autour de la salle à manger avec sa bouteille de vin, le drôle de moineau. ...
+Hé, c'est quoi cette histoire de détective ? Moi, je n'ai rien vu, je le jure. J'ai passé la soirée ici, dans l'atelier, à aiguiser ma scie rouge. Une soirée bien tranquille. Mais si tu veux mon avis, le Majordome, lui, il est assez louche : il n'arrêtait pas de tourner autour de la salle à manger avec sa bouteille de vin. Monte donc voir de ce côté-là. Et fais attention à mon robot, il fait sa ronde.
 ```
 
 **T17** — Les fois suivantes.
@@ -148,16 +156,24 @@ Hé, c'est quoi cette histoire de détective ? Moi, j'ai rien vu, je le jure. J'
 J'te l'ai déjà dit. J'étais dans l'atelier toute la soirée. Cherche ailleurs. Va voir le soulon de Majordome et sa bouteille de vin.
 ```
 
-👶 **T17 sans sacres**
+👶 **T17 tout public**
 
 ```
-... Va voir le Majordome et sa bouteille de vin.
+Je te l'ai déjà dit. J'étais dans l'atelier toute la soirée. Cherche ailleurs. Va voir le Majordome et sa bouteille de vin.
 ```
 
 **T18** — Marmonnements dans son atelier, pendant que le Majordome parle à la porte-patio. Sert à révéler où il se trouve.
 
 ```
 Hmm hmm... voyons voir... non, pas celle-là... mais où c'est que j'ai mis ça, donc... hmm... ah, tiens... non, non... mmmh... bon, bon, bon... Hmm hmm... voyons voir... non, pas celle-là... mais où c'est que j'ai mis ça, donc... hmm... ah, tiens... non, non... mmmh... bon, bon, bon...
+```
+
+👶 **T18 tout public** — passée par le champ `custom_line_kid` de
+`script.mystery_suspect_speak`, depuis l'automation « Mystery - Butler at patio
+door ».
+
+```
+Hmm hmm... voyons voir... non, pas celle-là... mais où est-ce que j'ai mis ça, donc... hmm... ah, tiens... non, non... mmmh... bon, bon, bon... Hmm hmm... voyons voir... non, pas celle-là... mais où est-ce que j'ai mis ça, donc... hmm... ah, tiens... non, non... mmmh... bon, bon, bon...
 ```
 
 ---
@@ -172,10 +188,10 @@ Elle a **deux déclencheurs**. L'entrée en matière change, la suite est la mê
 Heille, mon fusil ?! Ben voyons donc, c'est pas ce que vous pensez pantoute ! OK, oui, je l'ai caché dans la trappe du foyer, mais je m'en suis jamais servie, j'vous le jure ! Je suis une femme ben distinguée quand même, on va pas me faire passer pour une calice de criminelle ! Non madame.
 ```
 
-👶 **T19 sans sacres**
+👶 **T19 tout public**
 
 ```
-... on va pas me faire passer pour une criminelle ! Non madame.
+Hé, mon fusil ?! Mais non, ce n'est pas du tout ce que vous pensez ! Oui, je l'ai caché dans la trappe du foyer, mais je ne m'en suis jamais servie, je vous le jure ! Je suis une femme très distinguée, on ne va pas me faire passer pour une criminelle ! Non madame.
 ```
 
 **T20** — Première fois, si on ouvre la porte de la buanderie (sa robe tachée).
@@ -184,10 +200,22 @@ Heille, mon fusil ?! Ben voyons donc, c'est pas ce que vous pensez pantoute ! OK
 Heille ! Fouillez pas dans mon linge sale, vous autres ! Ma robe de soirée est là-dedans, pis oui, elle est tachée. Mais c'est du vin, ça, pas du sang ! On m'en a renversé un plein verre dessus.
 ```
 
+👶 **T20 tout public**
+
+```
+Hé ! Ne fouillez pas dans mon linge sale ! Ma robe de soirée est là-dedans, et oui, elle est tachée. Mais c'est du vin, ça, pas du sang ! On m'en a renversé un plein verre dessus.
+```
+
 **T21** — La suite, enchaînée après T19 **ou** T20. C'est elle qui lance le robot.
 
 ```
 Si vous cherchez de quoi avancer, c'est pas moi qu'il faut regarder. Moi, j'irais fouiller l'étagère à vins — il doit bien se cacher quelque chose là-dedans. Tenez, je pars mon robot, il s'en va justement par là. Suivez-le.
+```
+
+👶 **T21 tout public**
+
+```
+Si vous cherchez de quoi avancer, ce n'est pas moi qu'il faut regarder. Moi, j'irais fouiller l'étagère à vins — il doit bien se cacher quelque chose là-dedans. Tenez, je démarre mon robot, il s'en va justement par là. Suivez-le.
 ```
 
 **T22** — Les fois suivantes. L'entrée en matière (T22-1a/b/c) dépend de
@@ -202,10 +230,10 @@ juste après.
 Girouette de St-Miséricorde! Vas-tu bien lâchez mes affaires ? Le fusil, ça prouve rien pantoute, je vous le jure.
 ```
 
-👶 **T22-1a sans sacres**
+👶 **T22-1a tout public**
 
 ```
-Coudonc ! Vas-tu bien lâchez mes affaires ? Le fusil, ça prouve rien pantoute, je vous le jure.
+Enfin ! Voulez-vous bien lâcher mes affaires ? Le fusil, ça ne prouve rien du tout, je vous le jure.
 ```
 
 **T22-1b** — Seule la robe a été trouvée.
@@ -214,10 +242,10 @@ Coudonc ! Vas-tu bien lâchez mes affaires ? Le fusil, ça prouve rien pantoute,
 Câlice, lâchez mes affaires tranquilles ! Ma robe, c'est rien que du vin renversé, je vous le jure.
 ```
 
-👶 **T22-1b sans sacres**
+👶 **T22-1b tout public**
 
 ```
-Franchement, lâchez mes affaires tranquilles ! Ma robe, c'est rien que du vin renversé, je vous le jure.
+Franchement, laissez mes affaires tranquilles ! Ma robe, ce n'est rien que du vin renversé, je vous le jure.
 ```
 
 **T22-1c** — Les deux ont été trouvées.
@@ -226,16 +254,22 @@ Franchement, lâchez mes affaires tranquilles ! Ma robe, c'est rien que du vin r
 Heille, tabarnak, lâchez mes affaires tranquilles ! Ni le fusil ni ma robe ont rapport là-dedans, je vous le jure.
 ```
 
-👶 **T22-1c sans sacres**
+👶 **T22-1c tout public**
 
 ```
-Heille, voyons donc, lâchez mes affaires tranquilles ! Ni le fusil ni ma robe ont rapport là-dedans, je vous le jure.
+Mais enfin, laissez mes affaires tranquilles ! Ni le fusil ni ma robe n'ont de rapport là-dedans, je vous le jure.
 ```
 
 **T22-2** — Enchaînement après T22-1\*
 
 ```
 Pis arrêtez de me niaiser avec ça : mon robot est déjà parti vous montrer où chercher. J'lai vu le Majordome, y'avait un sac à vin contenant sa meilleur bouteille, y'a clairement laisser des traces de son passage dans le sac !
+```
+
+👶 **T22-2 tout public**
+
+```
+Et arrêtez de m'embêter avec ça : mon robot est déjà parti vous montrer où chercher. Je l'ai vu, le Majordome, il avait un sac à vin contenant sa meilleure bouteille, il a clairement laissé des traces de son passage dans le sac !
 ```
 
 ---
@@ -248,10 +282,23 @@ Pis arrêtez de me niaiser avec ça : mon robot est déjà parti vous montrer o�
 Vous avez sonné pour le service ? À votre entière disposition. J'ai servi le vin toute la soirée, comme il se doit. Un service irréprochable. L'Héritière, en revanche, ne décolérait pas contre la victime : une sordide histoire d'héritage. Et puisque vous fouillez, examinez donc la robe de celle-ci dans la buanderie. Elle avait fait toute qu'un drama ce soir au souper !
 ```
 
+👶 **T23 tout public** — le Majordome parle déjà un français châtié : seule sa
+chute change.
+
+```
+... Elle avait fait tout un drame ce soir au souper !
+```
+
 **T24** — Les fois suivantes.
 
 ```
 Le service, toujours le service. Le vin était... parfait. Enfin, presque. Je n'ai rien vu de suspect de mon côté. Aller donc voir l'Héritière, elle a été bien plus agitée que moi ce soir. Et si vous voulez mon avis, le Jardinier est un peu louche lui aussi. Il traîne toujours dans son atelier, à bricoler.
+```
+
+👶 **T24 tout public**
+
+```
+... Allez donc voir l'Héritière, elle a été bien plus agitée que moi ce soir. ...
 ```
 
 **T25a** — Quand on ouvre la porte-patio. Le Jardinier marmonne (T18) en même temps.

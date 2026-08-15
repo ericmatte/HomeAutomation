@@ -2767,6 +2767,10 @@
         j'ai mis ça, donc... hmm... ah, tiens... non, non... mmmh... bon, bon, bon...
         Hmm hmm... voyons voir... non, pas celle-là... mais où c'est que j'ai mis
         ça, donc... hmm... ah, tiens... non, non... mmmh... bon, bon, bon...
+      custom_line_kid: Hmm hmm... voyons voir... non, pas celle-là... mais où est-ce
+        que j'ai mis ça, donc... hmm... ah, tiens... non, non... mmmh... bon, bon,
+        bon... Hmm hmm... voyons voir... non, pas celle-là... mais où est-ce que j'ai
+        mis ça, donc... hmm... ah, tiens... non, non... mmmh... bon, bon, bon...
   - action: script.mystery_suspect_speak
     data:
       suspect: butler
