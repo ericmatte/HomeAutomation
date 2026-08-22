@@ -1051,7 +1051,7 @@ mystery_start:
       stop_actions: true
     target:
       entity_id: automation.sync_auxiliary_light_with_main_light
-  - action: light.turn_off
+  - action: light.turn_on
     target:
       area_id:
       - living_room
@@ -1063,6 +1063,7 @@ mystery_start:
       - eric_office
       - theatre
     data:
+      brightness_pct: 10
       transition: 2
   - delay:
       seconds: 2
