@@ -255,6 +255,36 @@ class EnqueteContinueApresLesTemoignages(unittest.TestCase):
         self.assertEqual(terminal_condition["state"], "off")
 
 
+class HeriereFusilUneSeuleFois(unittest.TestCase):
+    """Régression : le capteur de vibration (indice du fusil) ne doit parler
+    qu'une fois. Contrairement à la buanderie, qui peut se répéter, chaque
+    nouvelle vibration après la première ne doit plus rien déclencher.
+    """
+
+    def guard_template(self):
+        actions = AUTOMATIONS["mystery_suspect_triggers"]["actions"]
+        step = next(a for a in actions if a.get("condition") == "template")
+        return Template(step["value_template"])
+
+    def render(self, trigger_id, gun_seen):
+        def is_state(entity_id, state):
+            assert entity_id == "input_boolean.mystery_heiress_gun_seen"
+            return gun_seen == (state == "on")
+
+        trigger = type("Trigger", (), {"id": trigger_id})()
+        return self.guard_template().render(trigger=trigger, is_state=is_state) == "True"
+
+    def test_premiere_vibration_passe(self):
+        self.assertTrue(self.render("heiress", gun_seen=False))
+
+    def test_vibrations_suivantes_sont_bloquees(self):
+        self.assertFalse(self.render("heiress", gun_seen=True))
+
+    def test_la_buanderie_n_est_jamais_bloquee_par_ce_garde(self):
+        self.assertTrue(self.render("heiress_laundry", gun_seen=True))
+        self.assertTrue(self.render("heiress_laundry", gun_seen=False))
+
+
 class VersionOriginaleIntacte(unittest.TestCase):
     """Filet de sécurité : option décochée, le jeu doit être mot pour mot celui
     d'avant l'ajout du mode tout public.

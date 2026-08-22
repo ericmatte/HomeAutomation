@@ -2872,6 +2872,9 @@
   actions:
   - variables:
       parts: '{{ trigger.id.split(''_'') }}'
+  - condition: template
+    value_template: '{{ not (trigger.id == ''heiress'' and is_state(''input_boolean.mystery_heiress_gun_seen'',
+      ''on'')) }}'
   - action: script.mystery_suspect_speak
     data:
       suspect: '{{ parts[0] }}'
