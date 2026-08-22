@@ -369,8 +369,10 @@ footer .ln{white-space:nowrap;}
   transition:color .12s, border-color .12s, background .12s;}
 .regie:hover{color:#000; background:var(--amber); border-color:var(--amber);}
 .regie[hidden]{display:none;}
+.regie svg{width:calc(22*var(--px)); height:calc(22*var(--px));}
 #fsbtn{right:calc(18*var(--px));}
 #modebtn{right:calc(74*var(--px));}
+#eyebtn{right:calc(130*var(--px));}
 :host(:fullscreen){width:100vw; height:100vh;}
 :host(:-webkit-full-screen){width:100vw; height:100vh;}
 
@@ -439,8 +441,13 @@ footer .ln{white-space:nowrap;}
 .confirm .row{display:flex; gap:calc(18*var(--px)); justify-content:center;}
 `;
 
+const ICON_CAMERA = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2Z"/><circle cx="12" cy="13" r="4"/></svg>`;
+const ICON_KEYBOARD = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h12"/></svg>`;
+const ICON_EYE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>`;
+
 const REGIE = `
-  <button class="regie" id="modebtn" title="Basculer écran de saisie / mur d'images">📹</button>
+  <button class="regie" id="eyebtn" title="Cacher les boutons">${ICON_EYE}</button>
+  <button class="regie" id="modebtn" title="Basculer écran de saisie / mur d'images"></button>
   <button class="regie" id="fsbtn" title="Plein écran">⛶</button>`;
 
 const HEAD = (brand, sub, rec) => `
@@ -668,9 +675,10 @@ class MysteryTerminalCard extends HTMLElement {
     const $ = (id) => this.shadowRoot.getElementById(id);
     this.$ = $;
 
-    $("modebtn").textContent = this._mode === "cctv" ? "⌨" : "📹";
+    $("modebtn").innerHTML = this._mode === "cctv" ? ICON_KEYBOARD : ICON_CAMERA;
     $("modebtn").addEventListener("click", () => this._toggleMode());
     $("fsbtn").addEventListener("click", () => this._toggleFullscreen());
+    $("eyebtn").addEventListener("click", () => this._hideControls());
     this._syncFullscreen();
 
     if (this._mode === "cctv") this._buildWall(); else this._buildCode();
@@ -1120,12 +1128,16 @@ class MysteryTerminalCard extends HTMLElement {
     const on = (document.fullscreenElement || document.webkitFullscreenElement) === this;
     b.textContent = on ? "⤡" : "⛶";
     b.title = on ? "Quitter le plein écran" : "Plein écran";
-    // En plein écran les boutons de régie disparaissent : les joueurs ne doivent
-    // pas pouvoir basculer de vue. Échap/F11 redéclenchent fullscreenchange et
-    // les font réapparaître.
-    b.hidden = on;
-    const m = this.$ && this.$("modebtn");
-    if (m) m.hidden = on;
+  }
+
+  /* Pas de persistance voulue : un reload doit toujours redonner accès aux
+   * boutons, sans dépendre d'un état sauvegardé. */
+  _hideControls() {
+    this._sfx("close");
+    ["eyebtn", "modebtn", "fsbtn"].forEach((id) => {
+      const el = this.$ && this.$(id);
+      if (el) el.hidden = true;
+    });
   }
 
   /* Bips synthétisés à la volée : aucun fichier à déployer, et pas de blocage
