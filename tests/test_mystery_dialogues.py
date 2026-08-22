@@ -228,6 +228,33 @@ class VersionOriginale(unittest.TestCase):
             self.assertIn(marker, corpus, f"« {marker} » ne vise plus rien")
 
 
+class EnqueteContinueApresLesTemoignages(unittest.TestCase):
+    """Régression : une fois les 3 témoignages recueillis, le jeu passe en phase
+    `autopsy_done` pour la chasse aux preuves — les suspects (porte du Jardinier,
+    fusil/robe de l'Héritière, bouton du Majordome) doivent rester réactifs
+    jusqu'à ce que les 3 codes de preuve soient entrés, pas seulement pendant
+    `investigation`.
+    """
+
+    def conditions(self):
+        return AUTOMATIONS["mystery_suspect_triggers"]["conditions"]
+
+    def test_les_suspects_repondent_aussi_en_autopsy_done(self):
+        phase_condition = next(
+            c for c in self.conditions() if c["entity_id"] == "input_select.mystery_phase"
+        )
+        self.assertIn("investigation", phase_condition["state"])
+        self.assertIn("autopsy_done", phase_condition["state"])
+
+    def test_les_suspects_se_taisent_une_fois_le_terminal_debloque(self):
+        terminal_condition = next(
+            c
+            for c in self.conditions()
+            if c["entity_id"] == "input_boolean.mystery_terminal_unlocked"
+        )
+        self.assertEqual(terminal_condition["state"], "off")
+
+
 class VersionOriginaleIntacte(unittest.TestCase):
     """Filet de sécurité : option décochée, le jeu doit être mot pour mot celui
     d'avant l'ajout du mode tout public.

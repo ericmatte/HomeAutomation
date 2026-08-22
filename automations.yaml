@@ -2740,6 +2740,10 @@
     entity_id: input_select.mystery_phase
     state:
     - investigation
+    - autopsy_done
+  - condition: state
+    entity_id: input_boolean.mystery_terminal_unlocked
+    state: 'off'
   actions:
   - variables:
       parts: '{{ trigger.id.split(''_'') }}'
