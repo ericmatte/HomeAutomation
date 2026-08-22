@@ -1020,6 +1020,7 @@ mystery_hint_request:
     data:
       variables:
         destination: '{{ destination }}'
+        lead_in_seconds: 0
 mystery_start:
   alias: Mystery Clue
   icon: mdi:incognito
