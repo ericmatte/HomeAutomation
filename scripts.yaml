@@ -947,6 +947,7 @@ mystery_roby_goto:
           options:
           - wine
           - trap
+          - spices
       required: true
     lead_in_seconds:
       name: Wait before leaving (seconds)
@@ -958,8 +959,11 @@ mystery_roby_goto:
           step: 1
       default: 0
   variables:
-    coords: "{{ {'wine': [23000, 31500],\n    'trap': [25050, 25000]}[destination]
-      }}"
+    # spices : rack d'épices en salle à manger, calibré en live le 7 août 2026
+    # (8,7 m arrière, 2,2 m à droite du dock) avant d'être délaissé au profit
+    # de « trap » pour le Jardinier — réutilisé ici pour l'indice du Majordome.
+    coords: "{{ {'wine': [23000, 31500],\n    'trap': [25050, 25000],\n    'spices':
+      [26700, 31200]}[destination] }}"
     travel_seconds: '{{ 65 if destination == ''wine'' else 100 }}'
     locate_calls: '{{ 1 if destination == ''wine'' else 4 }}'
   sequence:
@@ -983,22 +987,39 @@ mystery_roby_goto:
       - delay:
           seconds: 25
 mystery_hint_request:
-  alias: Mystery - Heiress hint (Roby to fireplace)
+  alias: Mystery - Suspect hint (Roby to clue)
   icon: mdi:incognito
   mode: restart
+  fields:
+    suspect:
+      name: Suspect
+      description: 'Détermine le message de l''inspecteur et la destination de Roby :
+        héritière → trappe du foyer (fusil), majordome → rack d''épices (poison).'
+      selector:
+        select:
+          options:
+          - heiress
+          - butler
+      required: true
+  variables:
+    message: >-
+      {% if suspect == 'heiress' %} Vous ne regardez peut-être pas au bon
+      endroit. Mon fidèle acolyte pourrait peut-être vous guider vers une
+      meilleure piste ! {% else %} Hmmmm, des fois les apparences sont
+      trompeuses.. Je crois que notre ami le robot est sur une piste. {% endif
+      %}
+    destination: "{{ 'trap' if suspect == 'heiress' else 'spices' }}"
   sequence:
   - action: script.mystery_inspector_say
     data:
       on_terminal: true
-      message: >-
-        Vous ne regardez peut-être pas au bon endroit. Mon fidèle acolyte
-        pourrait peut-être vous guider vers une meilleure piste !
+      message: '{{ message }}'
   - action: script.turn_on
     target:
       entity_id: script.mystery_roby_goto
     data:
       variables:
-        destination: trap
+        destination: '{{ destination }}'
 mystery_start:
   alias: Mystery Clue
   icon: mdi:incognito

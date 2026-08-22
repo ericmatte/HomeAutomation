@@ -738,6 +738,7 @@ class MysteryTerminalCard extends HTMLElement {
   }
 
   _cellsHtml() {
+    const hintSuspect = { 1: "heiress", 2: "butler" };
     return this._cameras.slice(0, 3).map((c, i) => `
       <div class="cell" data-cell="${i}">
         <div class="vidhost" data-vid="${i}"></div>
@@ -755,7 +756,7 @@ class MysteryTerminalCard extends HTMLElement {
             <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 5v14l9-7z"/><path d="M12 5v14l9-7z"/></svg>
             <span class="tx">ACCÉLÉRER</span>
           </button>
-          ${i === 1 ? `<button class="ffbtn hintbtn" title="Indice">
+          ${hintSuspect[i] ? `<button class="ffbtn hintbtn" data-hint="${hintSuspect[i]}" title="Indice">
             <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 22h4M12 2a6 6 0 0 0-3.5 10.9c.6.44 1 .95 1.2 1.6l.1.5h4.4l.1-.5c.2-.65.6-1.16 1.2-1.6A6 6 0 0 0 12 2Z"/></svg>
             <span class="tx">INDICE</span>
           </button>` : ""}
@@ -787,8 +788,8 @@ class MysteryTerminalCard extends HTMLElement {
       cell.addEventListener("click", () => this._toggleZoom(+cell.dataset.cell)));
     this.shadowRoot.querySelectorAll("[data-ff]").forEach((btn) =>
       btn.addEventListener("click", (ev) => this._toggleFastForward(+btn.dataset.ff, ev)));
-    this.shadowRoot.querySelectorAll(".hintbtn").forEach((btn) =>
-      btn.addEventListener("click", (ev) => { ev.stopPropagation(); this._requestHint(); }));
+    this.shadowRoot.querySelectorAll("[data-hint]").forEach((btn) =>
+      btn.addEventListener("click", (ev) => { ev.stopPropagation(); this._requestHint(btn.dataset.hint); }));
     this._log("MUR D'IMAGES EN LIGNE");
     this._log("ARCHIVES EN LECTURE — BOUCLE CONTINUE");
   }
@@ -833,9 +834,12 @@ class MysteryTerminalCard extends HTMLElement {
     }
   }
 
-  _requestHint() {
+  _requestHint(suspect) {
     this._sfx("cam");
-    this._call("script", "turn_on", { entity_id: "script.mystery_hint_request" });
+    this._call("script", "turn_on", {
+      entity_id: "script.mystery_hint_request",
+      variables: { suspect },
+    });
     this._log("INDICE DEMANDÉ — TRANSMISSION EN COURS");
   }
 
