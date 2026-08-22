@@ -285,10 +285,15 @@
   - condition: state
     entity_id: light.theatre
     state: 'off'
-  - condition: state
-    entity_id: input_boolean.guest_mode
-    state:
-    - 'off'
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: input_boolean.guest_mode
+      state:
+      - 'off'
+    - condition: time
+      after: '10:00:00'
+      before: '20:00:00'
   actions:
   - action: hue.activate_scene
     metadata: {}
@@ -339,15 +344,30 @@
           entity_id: '{{ label_entities(''motions'') + label_entities(''when_at_home'')
             }}'
         enabled: true
-      - action: climate.set_temperature
-        metadata: {}
-        target:
-          entity_id:
-          - climate.bedroom_thermostat
-          - climate.eric_s_office_thermostat
-          - climate.theatre_thermostat
-        data:
-          temperature: 19
+      - if:
+        - condition: state
+          entity_id: input_boolean.climate_summer_mode
+          state: 'on'
+        then:
+        - action: climate.set_temperature
+          metadata: {}
+          target:
+            entity_id:
+            - climate.bedroom_thermostat
+            - climate.eric_s_office_thermostat
+            - climate.theatre_thermostat
+          data:
+            temperature: 16
+        else:
+        - action: climate.set_temperature
+          metadata: {}
+          target:
+            entity_id:
+            - climate.bedroom_thermostat
+            - climate.eric_s_office_thermostat
+            - climate.theatre_thermostat
+          data:
+            temperature: 19
   mode: single
 - id: '1755723366418'
   alias: Hidden 3-buttons remote + 1
@@ -1184,12 +1204,17 @@
   - condition: state
     entity_id: binary_sensor.everybody_is_sleeping
     state: 'off'
-  - condition: switch.is_off
-    target:
-      entity_id: input_boolean.guest_mode
-    options:
-      behavior: any
-      for: 00:00:00
+  - condition: or
+    conditions:
+    - condition: switch.is_off
+      target:
+        entity_id: input_boolean.guest_mode
+      options:
+        behavior: any
+        for: 00:00:00
+    - condition: time
+      after: '10:00:00'
+      before: '20:00:00'
   actions:
   - if:
     - condition: sun
@@ -1331,12 +1356,17 @@
   - condition: state
     entity_id: binary_sensor.everybody_is_sleeping
     state: 'off'
-  - condition: switch.is_off
-    target:
-      entity_id: input_boolean.guest_mode
-    options:
-      behavior: any
-      for: 00:00:00
+  - condition: or
+    conditions:
+    - condition: switch.is_off
+      target:
+        entity_id: input_boolean.guest_mode
+      options:
+        behavior: any
+        for: 00:00:00
+    - condition: time
+      after: '10:00:00'
+      before: '20:00:00'
   actions:
   - action: light.turn_on
     metadata: {}
@@ -2528,12 +2558,17 @@
       hours: 0
       minutes: 0
       seconds: 15
-  - condition: switch.is_off
-    target:
-      entity_id: input_boolean.guest_mode
-    options:
-      behavior: any
-      for: 00:00:00
+  - condition: or
+    conditions:
+    - condition: switch.is_off
+      target:
+        entity_id: input_boolean.guest_mode
+      options:
+        behavior: any
+        for: 00:00:00
+    - condition: time
+      after: '10:00:00'
+      before: '20:00:00'
   actions:
   - action: light.turn_on
     metadata: {}
@@ -2543,7 +2578,7 @@
       entity_id: light.office
   mode: restart
 - id: '1776202142206'
-  alias: Toggle covers
+  alias: Toggle heat pump
   description: ''
   triggers:
   - domain: mqtt
@@ -2551,25 +2586,108 @@
     type: action
     subtype: single
     trigger: device
+    id: Single click
   - domain: mqtt
-    device_id: 0342a9d7194bbed06bb7b85d9e19d8e1
+    device_id: 20d3d5c9e9d088bf2f09ac2168357efe
     type: action
     subtype: hold
     trigger: device
-    enabled: false
+    enabled: true
+    id: Hold
   - domain: mqtt
-    device_id: 0342a9d7194bbed06bb7b85d9e19d8e1
+    device_id: 20d3d5c9e9d088bf2f09ac2168357efe
     type: action
     subtype: double
     trigger: device
-    enabled: false
+    id: Double click
   conditions: []
   actions:
-  - action: cover.toggle
-    metadata: {}
-    data: {}
-    target:
-      entity_id: cover.office_curtain
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - Single click
+      sequence:
+      - if:
+        - condition: climate.is_on
+          target:
+            entity_id: climate.heat_pump
+          options:
+            behavior: any
+            for: 00:00:00
+        then:
+        - action: climate.turn_off
+          metadata: {}
+          target:
+            entity_id: climate.heat_pump
+          data: {}
+        - action: tts.speak
+          metadata: {}
+          data:
+            cache: false
+            message: Thermopompe éteinte
+            language: fr-CA
+            media_player_entity_id: media_player.sonos
+          target:
+            entity_id: tts.home_assistant_cloud
+        else:
+        - action: climate.turn_on
+          metadata: {}
+          target:
+            entity_id: climate.heat_pump
+          data: {}
+        - action: tts.speak
+          metadata: {}
+          target:
+            entity_id: tts.home_assistant_cloud
+          data:
+            cache: true
+            media_player_entity_id: media_player.sonos
+            message: Allumage de la thermopompe
+            language: fr-CA
+    - conditions:
+      - condition: trigger
+        id:
+        - Double click
+      sequence:
+      - if:
+        - condition: state
+          entity_id: climate.heat_pump
+          state:
+          - high
+          attribute: fan_mode
+        then:
+        - action: climate.set_fan_mode
+          metadata: {}
+          target:
+            entity_id: climate.heat_pump
+          data:
+            fan_mode: auto
+        - action: tts.speak
+          metadata: {}
+          target:
+            entity_id: tts.home_assistant_cloud
+          data:
+            cache: true
+            media_player_entity_id: media_player.sonos
+            language: fr-CA
+            message: Thermopompe en mode auto
+        else:
+        - action: climate.set_fan_mode
+          metadata: {}
+          target:
+            entity_id: climate.heat_pump
+          data:
+            fan_mode: high
+        - action: tts.speak
+          metadata: {}
+          target:
+            entity_id: tts.home_assistant_cloud
+          data:
+            cache: true
+            media_player_entity_id: media_player.sonos
+            message: Thermopompe en mode intense
+            language: fr-CA
   mode: single
 - id: '1777033425146'
   alias: Sync entrance with living room
@@ -2583,15 +2701,22 @@
       - light.chandelier
       extra_conditions: []
 - id: '1779247445330'
-  alias: New automation
+  alias: Soil moisture alert
   description: ''
-  use_blueprint:
-    path: ericmatte/soil_moisture_low_alert.yaml
-    input:
-      moisture_sensor: sensor.soil_moisture_soil_moisture
-      notify_device: 8ee3772d771cbe4afa821d73874df182
-      notification_message: "\U0001F4A7 {{ sensor_name }} is at {{ moisture }}% —
-        time to water it!"
+  triggers:
+  - trigger: numeric_state
+    entity_id: sensor.soil_moisture_soil_moisture
+    below: 20
+  conditions: []
+  actions:
+  - action: notify.send_message
+    target:
+      device_id:
+      - 8ee3772d771cbe4afa821d73874df182
+    data:
+      message: "\U0001F4A7 {{ trigger.to_state.name }} est à {{ trigger.to_state.state
+        }} % — il faut l'arroser !"
+  mode: single
 - id: '1782615430347'
   alias: Toggle christmas lights
   description: ''
