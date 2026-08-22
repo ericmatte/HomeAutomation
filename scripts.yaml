@@ -982,6 +982,23 @@ mystery_roby_goto:
         continue_on_error: true
       - delay:
           seconds: 25
+mystery_hint_request:
+  alias: Mystery - Heiress hint (Roby to fireplace)
+  icon: mdi:incognito
+  mode: restart
+  sequence:
+  - action: script.mystery_inspector_say
+    data:
+      on_terminal: true
+      message: >-
+        Vous ne regardez peut-être pas au bon endroit. Mon fidèle acolyte
+        pourrait peut-être vous guider vers une meilleure piste !
+  - action: script.turn_on
+    target:
+      entity_id: script.mystery_roby_goto
+    data:
+      variables:
+        destination: trap
 mystery_start:
   alias: Mystery Clue
   icon: mdi:incognito

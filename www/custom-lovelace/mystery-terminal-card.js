@@ -755,6 +755,10 @@ class MysteryTerminalCard extends HTMLElement {
             <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 5v14l9-7z"/><path d="M12 5v14l9-7z"/></svg>
             <span class="tx">ACCÉLÉRER</span>
           </button>
+          ${i === 1 ? `<button class="ffbtn hintbtn" title="Indice">
+            <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 22h4M12 2a6 6 0 0 0-3.5 10.9c.6.44 1 .95 1.2 1.6l.1.5h4.4l.1-.5c.2-.65.6-1.16 1.2-1.6A6 6 0 0 0 12 2Z"/></svg>
+            <span class="tx">INDICE</span>
+          </button>` : ""}
         </div>
       </div>`).join("");
   }
@@ -781,8 +785,10 @@ class MysteryTerminalCard extends HTMLElement {
     });
     this.shadowRoot.querySelectorAll(".cell").forEach((cell) =>
       cell.addEventListener("click", () => this._toggleZoom(+cell.dataset.cell)));
-    this.shadowRoot.querySelectorAll(".ffbtn").forEach((btn) =>
+    this.shadowRoot.querySelectorAll("[data-ff]").forEach((btn) =>
       btn.addEventListener("click", (ev) => this._toggleFastForward(+btn.dataset.ff, ev)));
+    this.shadowRoot.querySelectorAll(".hintbtn").forEach((btn) =>
+      btn.addEventListener("click", (ev) => { ev.stopPropagation(); this._requestHint(); }));
     this._log("MUR D'IMAGES EN LIGNE");
     this._log("ARCHIVES EN LECTURE — BOUCLE CONTINUE");
   }
@@ -820,11 +826,17 @@ class MysteryTerminalCard extends HTMLElement {
     const video = cell.querySelector("video");
     if (video) video.playbackRate = on ? 8 : 1;
     cell.classList.toggle("ff-active", on);
-    const btn = cell.querySelector(".ffbtn");
+    const btn = cell.querySelector("[data-ff]");
     if (btn) {
       btn.classList.toggle("on", on);
       btn.querySelector(".tx").textContent = on ? "VITESSE NORMALE" : "ACCÉLÉRER";
     }
+  }
+
+  _requestHint() {
+    this._sfx("cam");
+    this._call("script", "turn_on", { entity_id: "script.mystery_hint_request" });
+    this._log("INDICE DEMANDÉ — TRANSMISSION EN COURS");
   }
 
   _cellFailed(c, host) {
