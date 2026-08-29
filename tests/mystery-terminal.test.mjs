@@ -422,3 +422,77 @@ test("le tactile déclenche aussi, faute de mouvement de souris", () => {
   listeners.pointerdown();
   assert.equal(calls.length, 1);
 });
+
+/* Le dossier confidentiel et l'accusation se jouent désormais sur le mur
+ * d'images : l'écran de saisie n'affiche plus que du noir pendant ce temps
+ * (ovBlackout, sans z-index dédié — donc le rang de base de .ov), toujours
+ * sous le message de l'inspecteur. */
+test("l'écran de saisie masqué par le dossier reste sous les messages de l'inspecteur", () => {
+  assert.ok(zIndexOf(".ov#ovSay") > zIndexOf(".ov"),
+    "le fond noir du dossier avalerait le message de l'inspecteur");
+});
+
+test("transmettre l'accusation referme la confirmation et le dossier", () => {
+  const els = { ovConfirm: fakeEl() };
+  const card = Object.create(Card.prototype);
+  card.$ = (id) => els[id];
+  card._sfx = () => {};
+  card._log = () => {};
+  const calls = [];
+  card._call = (...a) => calls.push(a);
+  card._choice = { option: "butler", name: "LE MAJORDOME" };
+  card._sendAccusation();
+  assert.equal(els.ovConfirm.hidden, true);
+  assert.deepEqual(calls, [
+    ["input_select", "select_option", { entity_id: "input_select.mystery_accusation_choice", option: "butler" }],
+    ["input_boolean", "turn_off", { entity_id: "input_boolean.mystery_dossier_open" }],
+  ]);
+});
+
+test("la musique de victoire joue sur l'écran, résolue via media_source", async (t) => {
+  const card = Object.create(Card.prototype);
+  card._log = () => {};
+  const resolved = [];
+  card._resolveMedia = async (id) => { resolved.push(id); return "http://x/victory.mp3"; };
+  const audios = [];
+  const RealAudio = globalThis.Audio;
+  globalThis.Audio = class {
+    constructor(url) { this.url = url; this.playing = false; audios.push(this); }
+    play() { this.playing = true; return Promise.resolve(); }
+    pause() { this.playing = false; }
+  };
+  t.after(() => { globalThis.Audio = RealAudio; });
+
+  await card._playVictoryMusic();
+  assert.equal(resolved[0], "media-source://media_source/local/Jamie Foxx - Winner ft Justin Timberlake  TI.mp3");
+  assert.equal(audios.length, 1);
+  assert.equal(audios[0].playing, true);
+
+  card._stopVictoryMusic();
+  assert.equal(audios[0].playing, false);
+  assert.equal(card._victoryAudio, null);
+});
+
+test("une résolution de média ratée n'empêche pas le tour d'honneur de continuer", async (t) => {
+  const card = Object.create(Card.prototype);
+  card._log = () => {};
+  card._resolveMedia = async () => { throw new Error("introuvable"); };
+  const warn = console.warn;
+  console.warn = () => {};
+  t.after(() => { console.warn = warn; });
+  await assert.doesNotReject(card._playVictoryMusic());
+  assert.equal(card._victoryAudio, undefined);
+});
+
+test("le bouton Fermer de l'écran final arrête la musique et relance le reset", () => {
+  const card = Object.create(Card.prototype);
+  card._sfx = () => {};
+  const calls = [];
+  card._call = (...a) => calls.push(a);
+  let paused = false;
+  card._victoryAudio = { pause: () => { paused = true; } };
+  card._closeGame();
+  assert.equal(paused, true);
+  assert.equal(card._victoryAudio, null);
+  assert.deepEqual(calls, [["script", "turn_on", { entity_id: "script.reset_after_escape_roome" }]]);
+});

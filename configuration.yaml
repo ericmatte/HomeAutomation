@@ -237,6 +237,12 @@ input_boolean:
   mystery_terminal_unlocked:
     name: Mystery Terminal Unlocked
     icon: mdi:folder-lock-open
+  # Synchronise l'écran de saisie et le mur d'images : le dossier et
+  # l'accusation se jouent sur le mur, l'écran de saisie n'a qu'à passer noir
+  # pendant ce temps-là.
+  mystery_dossier_open:
+    name: Mystery Dossier Open
+    icon: mdi:folder-open
   # La carte ne la remet jamais à off elle-même : c'est mystery_reset_state.
   mystery_terminal_first_touch:
     name: Mystery Terminal First Touch

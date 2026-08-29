@@ -720,6 +720,7 @@ mystery_reset_state:
       - input_boolean.mystery_evidence_poison
       - input_boolean.mystery_terminal_unlocked
       - input_boolean.mystery_terminal_first_touch
+      - input_boolean.mystery_dossier_open
   - action: input_text.set_value
     target:
       entity_id: input_text.mystery_code_input
@@ -1554,7 +1555,8 @@ mystery_denouement:
           Le Majordome. C'est exact, détective ! Appelez-moi Henri, vous l'avez
           mérité. J'ai trouvé {{ 'quelque chose' if
           is_state('input_boolean.mystery_kid_friendly', 'on') else 'de quoi' }}
-          qui pourrait vous intéresser : retournez au mur d'images.
+          qui pourrait vous intéresser : cliquez sur le bouton lorsque vous
+          serez prêt.
     - alias: Le helper survit à un rechargement de page ; l'événement, lui, ne
         sert qu'à réveiller tout de suite un terminal déjà ouvert
       action: input_text.set_value
@@ -1595,15 +1597,10 @@ mystery_victory_lap:
   alias: Mystery - Victory lap
   icon: mdi:party-popper
   mode: single
+  # La musique elle-même joue côté navigateur, sur l'écran CCTV — comme la
+  # voix de l'inspecteur — plutôt que sur le Sonos : voir _playVictoryMusic
+  # dans mystery-terminal-card.js. Ce script ne garde que les lumières.
   sequence:
-  - action: media_player.play_media
-    target:
-      entity_id: media_player.sonos
-    data:
-      media_content_type: audio/mpeg
-      media_content_id: media-source://media_source/local/Jamie Foxx - Winner ft Justin
-        Timberlake  TI.mp3
-    continue_on_error: true
   - action: light.turn_on
     target:
       entity_id:

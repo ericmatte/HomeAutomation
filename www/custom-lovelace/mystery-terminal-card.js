@@ -9,6 +9,7 @@ const ENT = {
   gun: "input_boolean.mystery_evidence_gun",
   poison: "input_boolean.mystery_evidence_poison",
   unlocked: "input_boolean.mystery_terminal_unlocked",
+  dossierOpen: "input_boolean.mystery_dossier_open",
   firstTouch: "input_boolean.mystery_terminal_first_touch",
   accusation: "input_select.mystery_accusation_choice",
   phase: "input_select.mystery_phase",
@@ -26,6 +27,11 @@ const PHASE_LABEL = {
 // Doit suivre la transition de .vaultDoor : tout ce qui se joue derrière les
 // portes du coffre ne se voit pas, il faut attendre qu'elles aient fini.
 const VAULT_DOOR_MS = 700;
+
+// Même fichier qu'avant, mais joué côté navigateur sur l'écran CCTV — comme
+// la voix de l'inspecteur — plutôt que sur le Sonos (script.mystery_victory_lap
+// ne garde que les lumières).
+const VICTORY_MUSIC_ID = "media-source://media_source/local/Jamie Foxx - Winner ft Justin Timberlake  TI.mp3";
 
 // Avant « investigation », l'inspecteur n'a pas encore passé son deuxième appel
 // — celui qui annonce les caméras du sous-sol. Accueillir les joueurs sur le
@@ -524,10 +530,12 @@ footer .ln{white-space:nowrap;}
 .revealFade{position:absolute; inset:0; background:#000; opacity:0; pointer-events:none; transition:opacity 3s ease-in;}
 .revealFade.show{opacity:1;}
 .theEnd{position:absolute; inset:0; display:grid; place-items:center; opacity:0;
-  font-size:calc(90*var(--px)); letter-spacing:calc(16*var(--px)); color:var(--amber);
-  text-shadow:0 0 calc(24*var(--px)) rgba(255,178,0,.5); transition:opacity 2s ease-in;}
+  transition:opacity 2s ease-in;}
 .theEnd[hidden]{display:none;}
 .theEnd.show{opacity:1;}
+.theEndInner{display:flex; flex-direction:column; align-items:center; gap:calc(28*var(--px));}
+.theEndTitle{font-size:calc(90*var(--px)); letter-spacing:calc(16*var(--px)); color:var(--amber);
+  text-shadow:0 0 calc(24*var(--px)) rgba(255,178,0,.5);}
 
 /* Composant « coffre-fort » réutilisé à deux endroits : l'accueil du terminal
    de code (vert, pour entrer) et l'annonce du visionnement final sur le mur
@@ -632,27 +640,10 @@ const HTML_CODE = `
     </div>
   </div>
 
-  <div class="ov" id="ovDossier" hidden>
-    <div class="dosswrap">
-      <div class="dosshead">
-        <h2>DOSSIER CONFIDENTIEL — DÉVERROUILLÉ</h2>
-        <p>DÉSIGNEZ LE SUSPECT. LA DÉSIGNATION EST DÉFINITIVE ET TRANSMISE À L'INSPECTEUR.</p>
-      </div>
-      <div class="suspects" id="suspects"></div>
-      <div class="dossfoot"><button class="bigbtn" id="dossClose">RETOUR AU TERMINAL</button></div>
-    </div>
-  </div>
-
-  <div class="ov" id="ovConfirm" hidden>
-    <div class="confirm">
-      <h3>CONFIRMER L'ACCUSATION</h3>
-      <p id="confirmText"></p>
-      <div class="row">
-        <button class="bigbtn" id="confirmNo">ANNULER</button>
-        <button class="bigbtn r" id="confirmYes">TRANSMETTRE L'ACCUSATION</button>
-      </div>
-    </div>
-  </div>
+  <!-- Le dossier confidentiel et l'accusation se jouent sur le mur d'images
+       (voir HTML_CCTV) : cet écran n'a plus qu'à passer noir pendant ce
+       temps-là, piloté depuis _applyHass via input_boolean.mystery_dossier_open. -->
+  <div class="ov" id="ovBlackout" hidden></div>
 
   <div class="ov vault" id="ovLock">
     <div class="vaultDoor l"></div>
@@ -727,7 +718,37 @@ const HTML_CCTV = (cells) => `
       <div class="bustedWord">BUSTED</div>
     </div>
     <div class="revealFade" id="revealFade" hidden></div>
-    <div class="theEnd" id="revealEnd" hidden>THE END</div>
+    <div class="theEnd" id="revealEnd" hidden>
+      <div class="theEndInner">
+        <div class="theEndTitle">THE END</div>
+        <button class="bigbtn xl" id="revealCloseBtn">FERMER</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dossier confidentiel et accusation : c'est ici, sur le mur d'images,
+       que se joue tout le reste du flot une fois le dossier ouvert depuis
+       l'écran de saisie (input_boolean.mystery_dossier_open). -->
+  <div class="ov" id="ovDossier" hidden>
+    <div class="dosswrap">
+      <div class="dosshead">
+        <h2>DOSSIER CONFIDENTIEL — DÉVERROUILLÉ</h2>
+        <p>DÉSIGNEZ LE SUSPECT. LA DÉSIGNATION EST DÉFINITIVE ET TRANSMISE À L'INSPECTEUR.</p>
+      </div>
+      <div class="suspects" id="suspects"></div>
+      <div class="dossfoot"><button class="bigbtn" id="dossClose">RETOUR AU MUR D'IMAGES</button></div>
+    </div>
+  </div>
+
+  <div class="ov" id="ovConfirm" hidden>
+    <div class="confirm">
+      <h3>CONFIRMER L'ACCUSATION</h3>
+      <p id="confirmText"></p>
+      <div class="row">
+        <button class="bigbtn" id="confirmNo">ANNULER</button>
+        <button class="bigbtn r" id="confirmYes">TRANSMETTRE L'ACCUSATION</button>
+      </div>
+    </div>
   </div>
 </div>`;
 
@@ -877,27 +898,13 @@ class MysteryTerminalCard extends HTMLElement {
         </div>
       </div>`).join("");
 
-    $("suspects").innerHTML = this._suspects.map((s, i) => `
-      <button class="sus" data-sus="${i}">
-        <div class="ph">${s.portrait
-          ? `<img src="${s.portrait}" alt="">`
-          : `<div class="stub">[ PORTRAIT ${s.name} ]<br>portrait: /local/mystery/…jpg</div>`}</div>
-        <div class="body">
-          <div class="n">${s.name}</div>
-          <div class="d">PIÈCE — ${s.room}</div>
-          <div class="d">ARME — ${s.weapon}</div>
-        </div>
-      </button>`).join("");
-    $("suspects").querySelectorAll("[data-sus]").forEach((b) =>
-      b.addEventListener("click", () => this._askConfirm(+b.dataset.sus)));
-
+    // Le dossier s'ouvre sur le mur d'images (ovDossier y vit désormais) :
+    // ici, on ne fait que le déverrouiller via le helper — _applyHass se
+    // charge de faire passer cet écran au noir pendant ce temps.
     $("dossier").addEventListener("click", () => {
       this._sfx(this._unlocked ? "cam" : "err");
-      if (this._unlocked) this._show("ovDossier");
+      if (this._unlocked) this._call("input_boolean", "turn_on", { entity_id: ENT.dossierOpen });
     });
-    $("dossClose").addEventListener("click", () => { this._sfx("close"); this._hide("ovDossier"); });
-    $("confirmNo").addEventListener("click", () => { this._sfx("close"); this._hide("ovConfirm"); });
-    $("confirmYes").addEventListener("click", () => this._sendAccusation());
     $("lockBtn").addEventListener("click", () => this._openLock());
 
     this._renderDigits();
@@ -981,7 +988,30 @@ class MysteryTerminalCard extends HTMLElement {
     this.shadowRoot.querySelectorAll("[data-hint]").forEach((btn) =>
       btn.addEventListener("click", (ev) => { ev.stopPropagation(); this._requestHint(btn.dataset.hint); }));
     this.$("revealStartBtn").addEventListener("click", () => this._beginReveal());
+    this.$("revealCloseBtn").addEventListener("click", () => this._closeGame());
     this._syncReveal();
+
+    // Dossier confidentiel et accusation : voir la note dans HTML_CCTV.
+    this.$("suspects").innerHTML = this._suspects.map((s, i) => `
+      <button class="sus" data-sus="${i}">
+        <div class="ph">${s.portrait
+          ? `<img src="${s.portrait}" alt="">`
+          : `<div class="stub">[ PORTRAIT ${s.name} ]<br>portrait: /local/mystery/…jpg</div>`}</div>
+        <div class="body">
+          <div class="n">${s.name}</div>
+          <div class="d">PIÈCE — ${s.room}</div>
+          <div class="d">ARME — ${s.weapon}</div>
+        </div>
+      </button>`).join("");
+    this.$("suspects").querySelectorAll("[data-sus]").forEach((b) =>
+      b.addEventListener("click", () => this._askConfirm(+b.dataset.sus)));
+    this.$("dossClose").addEventListener("click", () => {
+      this._sfx("close");
+      this._call("input_boolean", "turn_off", { entity_id: ENT.dossierOpen });
+    });
+    this.$("confirmNo").addEventListener("click", () => { this._sfx("close"); this._hide("ovConfirm"); });
+    this.$("confirmYes").addEventListener("click", () => this._sendAccusation());
+
     this._log("MUR D'IMAGES EN LIGNE");
     this._log("ARCHIVES EN LECTURE — BOUCLE CONTINUE");
   }
@@ -1100,7 +1130,7 @@ class MysteryTerminalCard extends HTMLElement {
     const cur = {
       saw: g(ENT.saw) === "on", gun: g(ENT.gun) === "on", poison: g(ENT.poison) === "on",
       unlocked: g(ENT.unlocked) === "on", code: g(ENT.code), phase: g(ENT.phase),
-      revealMedia: g(ENT.revealMedia),
+      revealMedia: g(ENT.revealMedia), dossierOpen: g(ENT.dossierOpen) === "on",
     };
     // Après une reconstruction, on repose l'état sans rejouer les animations.
     const prev = this._rebuilt ? null : this._prev;
@@ -1143,6 +1173,15 @@ class MysteryTerminalCard extends HTMLElement {
 
     if (prev && !prev.unlocked && cur.unlocked) this._unlockSequence();
 
+    // Le dossier et l'accusation se jouent sur le mur d'images : l'écran de
+    // saisie n'a qu'à passer noir pendant ce temps (message de l'inspecteur
+    // toujours par-dessus, ovSay a un z-index plus élevé que ovBlackout).
+    if (this.$("ovBlackout")) this.$("ovBlackout").hidden = !cur.dossierOpen;
+    if (this.$("ovDossier")) {
+      this.$("ovDossier").hidden = !cur.dossierOpen;
+      if (!cur.dossierOpen) this._hide("ovConfirm");
+    }
+
     // Une nouvelle partie peut démarrer sans recharger la page : sans ça, le
     // mur d'images rouvrirait direct sur le « THE END » de la partie d'avant.
     if (prev && prev.phase !== "investigation" && cur.phase === "investigation") {
@@ -1150,6 +1189,7 @@ class MysteryTerminalCard extends HTMLElement {
       this._revealStage = null;
       this._touchSent = false;
       if (this.$("ovReveal")) this._hide("ovReveal");
+      this._stopVictoryMusic();
     }
 
     // Repli quand l'événement `mystery_terminal_reveal` a été manqué : page
@@ -1294,7 +1334,10 @@ class MysteryTerminalCard extends HTMLElement {
     this._sfx("accuse");
     this._call("input_select", "select_option", { entity_id: ENT.accusation, option: this._choice.option });
     this._log(`ACCUSATION TRANSMISE — ${this._choice.name}`);
-    this._hide("ovConfirm"); this._hide("ovDossier");
+    this._hide("ovConfirm");
+    // ovDossier suit le helper (_applyHass) plutôt qu'un hide local, pour
+    // rester en phase avec l'écran de saisie qui doit repasser du noir.
+    this._call("input_boolean", "turn_off", { entity_id: ENT.dossierOpen });
   }
 
   /* Le texte s'affiche en même temps que la voix : si le navigateur refuse de
@@ -1428,9 +1471,10 @@ class MysteryTerminalCard extends HTMLElement {
 
   _finishReveal() {
     this._revealStage = "end";
-    // Le tour d'honneur (musique + lumières) est resté côté HA : la carte ne
-    // pilote que l'écran, et elle seule sait quand la vidéo se termine.
+    // Les lumières de fête sont restées côté HA ; la musique, elle, joue ici
+    // même — comme la voix de l'inspecteur — pour ne plus dépendre du Sonos.
     this._call("script", "turn_on", { entity_id: "script.mystery_victory_lap" });
+    this._playVictoryMusic();
     if (!this.$ || !this.$("ovReveal")) return;
     const fade = this.$("revealFade");
     fade.hidden = false;
@@ -1441,6 +1485,33 @@ class MysteryTerminalCard extends HTMLElement {
       end.hidden = false;
       requestAnimationFrame(() => end.classList.add("show"));
     }, 3000);
+  }
+
+  async _playVictoryMusic() {
+    try {
+      const url = await this._resolveMedia(VICTORY_MUSIC_ID);
+      this._victoryAudio = new Audio(url);
+      this._victoryAudio.volume = 1;
+      await this._victoryAudio.play();
+    } catch (e) {
+      // Autoplay bloqué, fichier introuvable, hors ligne… le tour d'honneur
+      // continue quand même côté lumières.
+      this._log("MUSIQUE DE VICTOIRE — LECTURE IMPOSSIBLE");
+      console.warn("[mystery-terminal] musique de victoire injouable", e);
+    }
+  }
+  _stopVictoryMusic() {
+    if (!this._victoryAudio) return;
+    this._victoryAudio.pause();
+    this._victoryAudio = null;
+  }
+
+  /* Le seul moyen de vraiment remettre la partie à zéro depuis l'écran lui-même
+   * — jusqu'ici il fallait passer par le panneau de contrôle. */
+  _closeGame() {
+    this._sfx("close");
+    this._stopVictoryMusic();
+    this._call("script", "turn_on", { entity_id: "script.reset_after_escape_roome" });
   }
 
   async _resolveMedia(mediaContentId) {

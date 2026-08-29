@@ -581,29 +581,92 @@ class LaRevelationSurvitAUnRechargement(unittest.TestCase):
 
 
 class TourDHonneurApresLaVideo(unittest.TestCase):
-    """Le théâtre est hors-jeu, mais la musique de victoire et les lumières de
-    fête restent — déclenchées par la carte quand la vidéo se termine.
+    """Le théâtre est hors-jeu. Les lumières de fête restent déclenchées par
+    script.mystery_victory_lap quand la vidéo se termine ; la musique, elle,
+    joue désormais côté navigateur sur l'écran CCTV — comme la voix de
+    l'inspecteur — pour ne plus dépendre du Sonos.
     """
 
     def test_le_script_existe(self):
         self.assertIn("mystery_victory_lap", SCRIPTS)
 
-    def test_il_joue_la_musique_et_allume_les_lampes(self):
+    def test_il_allume_les_lampes(self):
         sequence = yaml.dump(SCRIPTS["mystery_victory_lap"]["sequence"], allow_unicode=True)
-        self.assertIn("Jamie Foxx", sequence)
-        self.assertIn("media_player.sonos", sequence)
         self.assertIn("prism", sequence)
+
+    def test_il_ne_joue_plus_sur_le_sonos(self):
+        sequence = yaml.dump(SCRIPTS["mystery_victory_lap"]["sequence"], allow_unicode=True)
+        self.assertNotIn("Jamie Foxx", sequence)
+        self.assertNotIn("media_player.sonos", sequence)
 
     def test_il_ne_touche_plus_a_la_tv_du_theatre(self):
         sequence = yaml.dump(SCRIPTS["mystery_victory_lap"]["sequence"], allow_unicode=True)
         self.assertNotIn("theatre", sequence)
 
-    def test_la_carte_le_declenche_a_la_fin_de_la_video(self):
+    def test_la_carte_declenche_les_lampes_et_la_musique_a_la_fin_de_la_video(self):
         card = (ROOT / "www/custom-lovelace/mystery-terminal-card.js").read_text(
             encoding="utf-8"
         )
         finish = card.split("_finishReveal() {", 1)[1].split("\n  }", 1)[0]
         self.assertIn("script.mystery_victory_lap", finish)
+        self.assertIn("_playVictoryMusic", finish)
+
+    def test_la_musique_reste_le_meme_fichier_qu_avant(self):
+        card = (ROOT / "www/custom-lovelace/mystery-terminal-card.js").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn(
+            "media-source://media_source/local/Jamie Foxx - Winner ft Justin Timberlake  TI.mp3",
+            card,
+        )
+
+
+class DossierEtAccusationSurLeMurDImages(unittest.TestCase):
+    """Régression : le dossier confidentiel et toute la procédure d'accusation
+    se jouent sur le mur d'images (CCTV), pas sur l'écran de saisie. Celui-ci
+    passe au noir pendant ce temps, synchronisé via un helper partagé — les
+    messages de l'inspecteur restent le seul contenu qui continue d'y
+    apparaître.
+    """
+
+    def test_le_helper_de_synchronisation_existe(self):
+        self.assertIn("mystery_dossier_open", CONFIG["input_boolean"])
+
+    def test_le_reset_remet_le_helper_a_off(self):
+        sequence = yaml.dump(SCRIPTS["mystery_reset_state"]["sequence"], allow_unicode=True)
+        self.assertIn("input_boolean.mystery_dossier_open", sequence)
+
+    def test_la_carte_ouvre_le_dossier_via_le_helper_plutot_que_localement(self):
+        card = (ROOT / "www/custom-lovelace/mystery-terminal-card.js").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn('dossierOpen: "input_boolean.mystery_dossier_open"', card)
+
+    def test_le_dossier_et_la_confirmation_vivent_sur_le_mur_d_images(self):
+        card = (ROOT / "www/custom-lovelace/mystery-terminal-card.js").read_text(
+            encoding="utf-8"
+        )
+        html_cctv, html_code = card.split("const HTML_CCTV", 1)[1], card.split(
+            "const HTML_CODE", 1
+        )[1].split("const HTML_CCTV", 1)[0]
+        self.assertIn('id="ovDossier"', html_cctv)
+        self.assertIn('id="ovConfirm"', html_cctv)
+        self.assertNotIn('id="ovDossier"', html_code)
+        self.assertNotIn('id="ovConfirm"', html_code)
+
+    def test_l_ecran_de_saisie_a_un_fond_noir_pour_le_dossier(self):
+        card = (ROOT / "www/custom-lovelace/mystery-terminal-card.js").read_text(
+            encoding="utf-8"
+        )
+        html_code = card.split("const HTML_CODE", 1)[1].split("const HTML_CCTV", 1)[0]
+        self.assertIn('id="ovBlackout"', html_code)
+
+    def test_le_bouton_fermer_relance_le_reset_de_la_partie(self):
+        card = (ROOT / "www/custom-lovelace/mystery-terminal-card.js").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn('id="revealCloseBtn"', card)
+        self.assertIn("script.reset_after_escape_roome", card)
 
 
 class LeRobotNeSertQuAuxIndices(unittest.TestCase):
