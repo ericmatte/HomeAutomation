@@ -1065,9 +1065,9 @@ mystery_start:
       name: Mise en place
       description: |-
         ✓ Bouton dans le sac à vin
-        ✓ Fusil dans la trappe, avec le capteur de vibration
+        ✓ Fusil dans la trappe + capteur
         ✓ Robe dans la buanderie
-        ✓ Écrans allumés sur le tableau de bord CCTV
+        ✓ Écrans CCTV allumés
         ✓ Walkies-talkies à côté des écrans
         ✓ Costumes prêts à enfiler
       selector:
