@@ -337,3 +337,32 @@ test("le bouton éteint refuse au lieu d'appeler quoi que ce soit", () => {
   assert.deepEqual(sons, ["err"]);
   assert.equal(calls.length, 0);
 });
+
+/* L'empilement des overlays s'est déjà retourné contre nous : le message de
+ * l'inspecteur passait derrière l'écran-verrou et personne ne le voyait. */
+const cardSource = await import("node:fs/promises")
+  .then((fs) => fs.readFile(new URL("../www/custom-lovelace/mystery-terminal-card.js", import.meta.url), "utf8"));
+
+const zIndexOf = (selector) => {
+  const rule = cardSource.match(
+    new RegExp(`${selector.replace(/[.#*]/g, "\\$&")}\\{[^}]*z-index:(\\d+)`));
+  assert.ok(rule, `pas de z-index trouvé pour ${selector}`);
+  return Number(rule[1]);
+};
+
+test("le message de l'inspecteur passe au-dessus de l'écran-verrou", () => {
+  assert.ok(zIndexOf(".ov#ovSay") > zIndexOf(".ov#ovLock"),
+    "l'écran-verrou avale le message de l'inspecteur");
+});
+
+test("le dossier et l'accusation restent au-dessus du message", () => {
+  const say = zIndexOf(".ov#ovSay");
+  assert.ok(zIndexOf(".ov#ovDossier, .ov#ovConfirm") > say);
+});
+
+test("les boutons plein écran et bascule de vue dominent tous les overlays", () => {
+  const regie = zIndexOf(".regie");
+  for (const sel of [".ov", ".ov#ovLock", ".ov#ovSay", ".ov#ovDossier, .ov#ovConfirm"]) {
+    assert.ok(regie > zIndexOf(sel), `${sel} passe devant les boutons de régie`);
+  }
+});

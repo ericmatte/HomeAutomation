@@ -409,6 +409,12 @@ footer .ln{white-space:nowrap;}
 
 .ov{position:absolute; inset:0; z-index:70; background:rgba(2,2,3,.94); display:grid; place-items:center; padding:calc(40*var(--px));}
 .ov[hidden]{display:none;}
+/* L'inspecteur passe au-dessus de l'écran-verrou (72) : il parle avant même
+   qu'on ait ouvert le coffre, et son message ne doit jamais être avalé. Le
+   dossier et l'accusation restent par-dessus lui, comme avant — les joueurs y
+   sont en train de cliquer. */
+.ov#ovSay{z-index:74;}
+.ov#ovDossier, .ov#ovConfirm{z-index:76;}
 .bigbtn{border:calc(2*var(--px)) solid var(--amber); padding:calc(14*var(--px)) calc(34*var(--px));
   font-size:calc(22*var(--px)); letter-spacing:calc(3*var(--px));}
 .bigbtn:hover{background:var(--amber); color:#000;}
