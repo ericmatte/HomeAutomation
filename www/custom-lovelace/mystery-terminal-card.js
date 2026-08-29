@@ -827,6 +827,9 @@ class MysteryTerminalCard extends HTMLElement {
     clearInterval(this._timer); this._timer = null;
     clearTimeout(this._sayHide);
     this._clearCamBails();
+    // La carte part avec son bouton FERMER : sans ça, changer de vue pendant
+    // le tour d'honneur laisse la musique jouer sans plus rien pour l'arrêter.
+    this._stopVictoryMusic();
     if (this._unsubSay) { this._unsubSay(); this._unsubSay = null; this._evSub = false; }
     if (this._unsubReveal) { this._unsubReveal(); this._unsubReveal = null; this._evSubReveal = false; }
     if (this._unsubJournal) { this._unsubJournal(); this._unsubJournal = null; this._journalSub = false; }
@@ -1182,9 +1185,13 @@ class MysteryTerminalCard extends HTMLElement {
       if (!cur.dossierOpen) this._hide("ovConfirm");
     }
 
-    // Une nouvelle partie peut démarrer sans recharger la page : sans ça, le
-    // mur d'images rouvrirait direct sur le « THE END » de la partie d'avant.
-    if (prev && prev.phase !== "investigation" && cur.phase === "investigation") {
+    // Le mur repart vierge dans les deux cas : une partie qui démarre sans
+    // recharger la page — sinon il rouvrirait sur le « THE END » de la
+    // précédente — et le bouton FERMER, qui remet tout à zéro sans en relancer
+    // une autre et fait donc repasser la phase à `idle`.
+    const nouvellePartie = prev && prev.phase !== "investigation" && cur.phase === "investigation";
+    const partieFermee = prev && prev.phase !== "idle" && cur.phase === "idle";
+    if (nouvellePartie || partieFermee) {
       this._revealMedia = null;
       this._revealStage = null;
       this._touchSent = false;
@@ -1488,6 +1495,9 @@ class MysteryTerminalCard extends HTMLElement {
   }
 
   async _playVictoryMusic() {
+    // Sans ça, une deuxième révélation empilerait une piste par-dessus l'autre
+    // et seule la dernière resterait joignable par `_stopVictoryMusic`.
+    this._stopVictoryMusic();
     try {
       const url = await this._resolveMedia(VICTORY_MUSIC_ID);
       this._victoryAudio = new Audio(url);

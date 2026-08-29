@@ -496,3 +496,101 @@ test("le bouton Fermer de l'écran final arrête la musique et relance le reset"
   assert.equal(card._victoryAudio, null);
   assert.deepEqual(calls, [["script", "turn_on", { entity_id: "script.reset_after_escape_roome" }]]);
 });
+
+/* Le mur d'images doit repartir vierge dans les deux cas : une nouvelle partie
+ * qui démarre, et le bouton FERMER qui remet tout à zéro sans en relancer une. */
+const hassHarness = () => {
+  const els = {};
+  const card = Object.create(Card.prototype);
+  const stopped = { music: 0 };
+  card.$ = (id) => {
+    if (id === "slots") return null;
+    if (!els[id]) {
+      const el = fakeEl();
+      el.classList.toggle = (c, on) => (on ? el.classList.add(c) : el.classList.remove(c));
+      els[id] = Object.assign(el, {
+        textContent: "", querySelector: () => null, querySelectorAll: () => [],
+      });
+    }
+    return els[id];
+  };
+  card._hide = (id) => { card.$(id).hidden = true; };
+  card._show = (id) => { card.$(id).hidden = false; };
+  card._log = () => {};
+  card._call = () => {};
+  card._slotsCfg = [];
+  card._stopVictoryMusic = () => { stopped.music += 1; };
+  card._revealMedia = "media-source://media_source/local/Final Reveal.mp4";
+  card._revealStage = "end";
+  card._touchSent = true;
+  card.$("ovReveal").hidden = false;
+  return { card, els, stopped };
+};
+
+const etat = (phase, revealMedia = "") => ({
+  states: {
+    "input_boolean.mystery_evidence_saw": { state: "off" },
+    "input_boolean.mystery_evidence_gun": { state: "off" },
+    "input_boolean.mystery_evidence_poison": { state: "off" },
+    "input_boolean.mystery_terminal_unlocked": { state: "on" },
+    "input_boolean.mystery_dossier_open": { state: "off" },
+    "input_text.mystery_code_input": { state: "" },
+    "input_text.mystery_reveal_media": { state: revealMedia },
+    "input_select.mystery_phase": { state: phase },
+  },
+});
+
+test("FERMER fait disparaître le THE END du mur d'images", () => {
+  const { card, els, stopped } = hassHarness();
+  card._prev = { phase: "solved", count: 0, unlocked: true };
+  card._applyHass(etat("idle"));
+  assert.equal(els.ovReveal.hidden, true, "le THE END reste affiché après FERMER");
+  assert.equal(card._revealStage, null);
+  assert.equal(card._revealMedia, null);
+  assert.equal(stopped.music, 1, "la musique de victoire continue");
+});
+
+test("une nouvelle partie repart aussi d'un mur vierge", () => {
+  const { card, els, stopped } = hassHarness();
+  card._prev = { phase: "idle", count: 0, unlocked: true };
+  card._applyHass(etat("investigation"));
+  assert.equal(els.ovReveal.hidden, true);
+  assert.equal(stopped.music, 1);
+});
+
+test("une phase qui avance en cours de partie ne balaie rien", () => {
+  const { card, els, stopped } = hassHarness();
+  card._prev = { phase: "investigation", count: 0, unlocked: true };
+  card._applyHass(etat("autopsy_done"));
+  assert.equal(els.ovReveal.hidden, false, "le mur a été effacé en pleine partie");
+  assert.equal(stopped.music, 0);
+});
+
+test("quitter la vue coupe la musique de victoire", () => {
+  const card = Object.create(Card.prototype);
+  let paused = 0;
+  card._clearCamBails = () => {};
+  card._victoryAudio = { pause: () => { paused += 1; } };
+  card.disconnectedCallback();
+  assert.equal(paused, 1, "la musique continue alors que le bouton FERMER est parti");
+  assert.equal(card._victoryAudio, null);
+});
+
+test("relancer le tour d'honneur coupe la piste précédente", async (t) => {
+  const vraiAudio = globalThis.Audio;
+  t.after(() => { globalThis.Audio = vraiAudio; });
+  let paused = 0;
+  const jouees = [];
+  globalThis.Audio = class {
+    constructor(url) { jouees.push(url); }
+    pause() { paused += 1; }
+    play() { return Promise.resolve(); }
+  };
+  const card = Object.create(Card.prototype);
+  card._log = () => {};
+  card._resolveMedia = async () => "http://manoir/win.mp3";
+  await card._playVictoryMusic();
+  await card._playVictoryMusic();
+  assert.equal(jouees.length, 2);
+  assert.equal(paused, 1, "les deux pistes jouent l'une par-dessus l'autre");
+});
