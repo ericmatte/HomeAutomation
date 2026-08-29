@@ -426,6 +426,22 @@ class ScriptWiring(unittest.TestCase):
         )
         self.assertNotIn("mystery_real_actors", sequence)
 
+    def test_la_replique_ponctuelle_retombe_sur_l_originale(self):
+        """Sans variante fournie, `custom_line` sert dans les deux versions."""
+        template = Template(VARIABLES["spoken_custom_line"])
+        self.assertEqual(
+            template.render(kid_friendly=True, custom_line="A", custom_line_kid=""),
+            "A",
+        )
+        self.assertEqual(
+            template.render(kid_friendly=True, custom_line="A", custom_line_kid="B"),
+            "B",
+        )
+        self.assertEqual(
+            template.render(kid_friendly=False, custom_line="A", custom_line_kid="B"),
+            "A",
+        )
+
 
 class VraisActeursCoupentLaVoixSaufMajordome(unittest.TestCase):
     """Régression : le toggle "Real actors" ne doit museler que le Jardinier et
@@ -451,21 +467,14 @@ class VraisActeursCoupentLaVoixSaufMajordome(unittest.TestCase):
     def test_avec_vrais_acteurs_le_majordome_parle_quand_meme(self):
         self.assertTrue(self.voice_enabled("butler", real_actors=True))
 
-    def test_la_replique_ponctuelle_retombe_sur_l_originale(self):
-        """Sans variante fournie, `custom_line` sert dans les deux versions."""
-        template = Template(VARIABLES["spoken_custom_line"])
-        self.assertEqual(
-            template.render(kid_friendly=True, custom_line="A", custom_line_kid=""),
-            "A",
-        )
-        self.assertEqual(
-            template.render(kid_friendly=True, custom_line="A", custom_line_kid="B"),
-            "B",
-        )
-        self.assertEqual(
-            template.render(kid_friendly=False, custom_line="A", custom_line_kid="B"),
-            "A",
-        )
+    def test_le_halo_de_l_heritiere_ne_depend_pas_de_la_voix(self):
+        """Vrais acteurs ou pas, le lustre monte pendant qu'elle parle : le halo
+        est de la mise en scène, pas de la sortie audio."""
+        steps = SCRIPTS["mystery_suspect_speak"]["sequence"]
+        glow = [s for s in steps if "mystery_sonos_glow" in yaml.dump(s)]
+        self.assertEqual(len(glow), 1, "le halo devrait apparaître une seule fois")
+        self.assertNotIn("voice_enabled", yaml.dump(glow[0]))
+        self.assertIn("heiress", glow[0]["if"])
 
 
 class DenouementSurLeMurDImages(unittest.TestCase):
@@ -502,3 +511,63 @@ class DenouementSurLeMurDImages(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class LaRevelationSurvitAUnRechargement(unittest.TestCase):
+    """Régression : l'événement `mystery_terminal_reveal` se perd si le terminal
+    n'est pas ouvert. Un helper garde la vidéo pour que la carte la retrouve.
+    """
+
+    MEDIA = "media-source://media_source/local/Final Reveal.mp4"
+
+    def test_le_helper_existe(self):
+        self.assertIn("mystery_reveal_media", CONFIG["input_text"])
+
+    def test_le_denouement_ecrit_la_video_dans_le_helper(self):
+        success_steps = SCRIPTS["mystery_denouement"]["sequence"][0]["then"]
+        setter = next(
+            s for s in success_steps
+            if s.get("target", {}).get("entity_id") == "input_text.mystery_reveal_media"
+        )
+        self.assertEqual(setter["action"], "input_text.set_value")
+        self.assertEqual(setter["data"]["value"], self.MEDIA)
+
+    def test_le_reset_vide_le_helper(self):
+        """Sinon la partie suivante rouvrirait sur la révélation de la précédente."""
+        setter = next(
+            s for s in SCRIPTS["mystery_reset_state"]["sequence"]
+            if s.get("target", {}).get("entity_id") == "input_text.mystery_reveal_media"
+        )
+        self.assertEqual(setter["data"]["value"], "")
+
+    def test_la_carte_lit_le_helper(self):
+        card = (ROOT / "www/custom-lovelace/mystery-terminal-card.js").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn('revealMedia: "input_text.mystery_reveal_media"', card)
+
+
+class TourDHonneurApresLaVideo(unittest.TestCase):
+    """Le théâtre est hors-jeu, mais la musique de victoire et les lumières de
+    fête restent — déclenchées par la carte quand la vidéo se termine.
+    """
+
+    def test_le_script_existe(self):
+        self.assertIn("mystery_victory_lap", SCRIPTS)
+
+    def test_il_joue_la_musique_et_allume_les_lampes(self):
+        sequence = yaml.dump(SCRIPTS["mystery_victory_lap"]["sequence"], allow_unicode=True)
+        self.assertIn("Jamie Foxx", sequence)
+        self.assertIn("media_player.sonos", sequence)
+        self.assertIn("prism", sequence)
+
+    def test_il_ne_touche_plus_a_la_tv_du_theatre(self):
+        sequence = yaml.dump(SCRIPTS["mystery_victory_lap"]["sequence"], allow_unicode=True)
+        self.assertNotIn("theatre", sequence)
+
+    def test_la_carte_le_declenche_a_la_fin_de_la_video(self):
+        card = (ROOT / "www/custom-lovelace/mystery-terminal-card.js").read_text(
+            encoding="utf-8"
+        )
+        finish = card.split("_finishReveal() {", 1)[1].split("\n  }", 1)[0]
+        self.assertIn("script.mystery_victory_lap", finish)

@@ -199,6 +199,13 @@ input_text:
     icon: mdi:dialpad
     max: 8
     initial: ""
+  # La révélation finale se joue dans le navigateur : sans état côté serveur,
+  # un simple rechargement de page perdrait le final de la partie.
+  mystery_reveal_media:
+    name: Mystery Reveal Media
+    icon: mdi:filmstrip
+    max: 255
+    initial: ""
 
 input_boolean:
   mystery_gardener_done:

@@ -725,6 +725,11 @@ mystery_reset_state:
       entity_id: input_text.mystery_code_input
     data:
       value: ''
+  - action: input_text.set_value
+    target:
+      entity_id: input_text.mystery_reveal_media
+    data:
+      value: ''
 mystery_inspector_say:
   alias: Mystery - Inspector speaks
   icon: mdi:phone-in-talk
@@ -1029,7 +1034,7 @@ mystery_start:
     player_name:
       name: Player name
       description: Nom du groupe ou de l'invité d'honneur. L'inspecteur le salue en
-        arrivant. Laissé vide, il enchaîne sans la salutation.
+        arrivant. Le champ est obligatoire, il faut toujours en fournir un.
       selector:
         text: {}
       required: true
@@ -1396,6 +1401,17 @@ mystery_suspect_speak:
         brightness_pct: 60
         transition: 1
       continue_on_error: true
+  - alias: Halo de lumière pendant que l'Héritière parle — voix synthétique ou
+      vrai acteur, l'ambiance reste la même
+    if: '{{ suspect == ''heiress'' }}'
+    then:
+    - action: script.turn_on
+      target:
+        entity_id: script.mystery_sonos_glow
+      data:
+        variables:
+          duration_seconds: '{{ speech_seconds }}'
+      continue_on_error: true
   - if: '{{ voice_enabled }}'
     then:
     - if: '{{ suspect == ''gardener'' }}'
@@ -1406,15 +1422,6 @@ mystery_suspect_speak:
         data:
           message: '{{ line }}'
       else:
-      - if: '{{ suspect == ''heiress'' }}'
-        then:
-        - action: script.turn_on
-          target:
-            entity_id: script.mystery_sonos_glow
-          data:
-            variables:
-              duration_seconds: '{{ speech_seconds }}'
-          continue_on_error: true
       - action: tts.speak
         target:
           entity_id: tts.home_assistant_cloud
@@ -1546,6 +1553,13 @@ mystery_denouement:
           mérité. J'ai trouvé {{ 'quelque chose' if
           is_state('input_boolean.mystery_kid_friendly', 'on') else 'de quoi' }}
           qui pourrait vous intéresser : retournez au mur d'images.
+    - alias: Le helper survit à un rechargement de page ; l'événement, lui, ne
+        sert qu'à réveiller tout de suite un terminal déjà ouvert
+      action: input_text.set_value
+      target:
+        entity_id: input_text.mystery_reveal_media
+      data:
+        value: media-source://media_source/local/Final Reveal.mp4
     - event: mystery_terminal_reveal
       event_data:
         media_content_id: media-source://media_source/local/Final Reveal.mp4
@@ -1575,3 +1589,27 @@ mystery_denouement:
     - action: script.turn_on
       target:
         entity_id: script.mystery_ambience
+mystery_victory_lap:
+  alias: Mystery - Victory lap
+  icon: mdi:party-popper
+  mode: single
+  sequence:
+  - action: media_player.play_media
+    target:
+      entity_id: media_player.sonos
+    data:
+      media_content_type: audio/mpeg
+      media_content_id: media-source://media_source/local/Jamie Foxx - Winner ft Justin
+        Timberlake  TI.mp3
+    continue_on_error: true
+  - action: light.turn_on
+    target:
+      entity_id:
+      - light.bad_light
+      - light.metal_lamp
+      - light.wooden_lamp
+    data:
+      effect: prism
+      transition: 1
+      brightness_pct: 100
+    continue_on_error: true

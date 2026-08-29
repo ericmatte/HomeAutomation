@@ -12,6 +12,7 @@ const ENT = {
   firstTouch: "input_boolean.mystery_terminal_first_touch",
   accusation: "input_select.mystery_accusation_choice",
   phase: "input_select.mystery_phase",
+  revealMedia: "input_text.mystery_reveal_media",
 };
 
 const PHASE_LABEL = {
@@ -222,7 +223,9 @@ main{display:grid; gap:calc(12*var(--px)); min-height:0; z-index:5;}
    Celui du code est ce que les joueurs regardent le plus — il mérite d'être
    repérable du coin de l'œil, pas juste au premier plan. */
 main.code{grid-template-columns:1fr 1.15fr;}
-.crt.code::before{content:''; position:absolute; inset:0; pointer-events:none;
+/* z-index 6 : header/main/footer sont à 5 avec des panneaux opaques — sans ça
+   la lueur se retrouve derrière eux et ne se voit plus que dans les joints. */
+.crt.code::before{content:''; position:absolute; inset:0; pointer-events:none; z-index:6;
   background:radial-gradient(ellipse at 35% 10%, rgba(255,178,0,.16), transparent 65%);}
 main.cctv{grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr;}
 section.col{display:flex; flex-direction:column; gap:calc(10*var(--px)); min-height:0;}
@@ -1019,6 +1022,7 @@ class MysteryTerminalCard extends HTMLElement {
     const cur = {
       saw: g(ENT.saw) === "on", gun: g(ENT.gun) === "on", poison: g(ENT.poison) === "on",
       unlocked: g(ENT.unlocked) === "on", code: g(ENT.code), phase: g(ENT.phase),
+      revealMedia: g(ENT.revealMedia),
     };
     // Après une reconstruction, on repose l'état sans rejouer les animations.
     const prev = this._rebuilt ? null : this._prev;
@@ -1067,6 +1071,14 @@ class MysteryTerminalCard extends HTMLElement {
       this._revealMedia = null;
       this._revealStage = null;
       if (this.$("ovReveal")) this._hide("ovReveal");
+    }
+
+    // Repli quand l'événement `mystery_terminal_reveal` a été manqué : page
+    // rechargée, terminal fermé au moment du dénouement, HA redémarré. Le
+    // helper, lui, garde la vidéo jusqu'à la partie suivante.
+    const stored = cur.revealMedia;
+    if (stored && !["unknown", "unavailable"].includes(stored) && stored !== this._revealMedia) {
+      this._revealReady({ media_content_id: stored });
     }
 
     if (this._pending && cur.code === "") {
@@ -1288,10 +1300,12 @@ class MysteryTerminalCard extends HTMLElement {
   }
 
   async _beginReveal() {
-    if (!this._revealMedia) return;
+    const start = this.$("revealStart");
+    // Les portes mettent 700 ms à s'écarter avant que le bouton disparaisse :
+    // sans ce garde, un second clic relancerait la vidéo par-dessus la première.
+    if (!this._revealMedia || start.classList.contains("opening")) return;
     this._sfx("vault");
     this._revealStage = "playing";
-    const start = this.$("revealStart");
     start.classList.add("opening");
     // Même minutage que le coffre du terminal de code (.vault) — les portes
     // s'écartent avant de laisser place à la vidéo.
@@ -1332,6 +1346,9 @@ class MysteryTerminalCard extends HTMLElement {
 
   _finishReveal() {
     this._revealStage = "end";
+    // Le tour d'honneur (musique + lumières) est resté côté HA : la carte ne
+    // pilote que l'écran, et elle seule sait quand la vidéo se termine.
+    this._call("script", "turn_on", { entity_id: "script.mystery_victory_lap" });
     if (!this.$ || !this.$("ovReveal")) return;
     const fade = this.$("revealFade");
     fade.hidden = false;

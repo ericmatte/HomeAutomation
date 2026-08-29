@@ -17,16 +17,21 @@ L'intrigue ne bouge pas d'un pouce — mêmes suspects, mêmes objets, mêmes pi
 même coupable. Seule la formulation change. Les répliques sans bloc 👶 sont déjà
 en français standard et servent telles quelles dans les deux versions.
 
+**Vrais acteurs** — la case _Real actors_ de `script.mystery_start` allume
+`input_boolean.mystery_real_actors`. Le Jardinier et l'Héritière ne sont alors
+plus joués par une voix synthétique : de vraies personnes disent leurs répliques,
+qui restent mot pour mot celles d'ici. Le Majordome, lui, garde toujours sa voix.
+Le reste de la mise en scène ne bouge pas.
+
 ---
 
 ## 🕵️ L'inspecteur Henri-Onésime de Beauchamp-Latulippe
 
 **T1** 🔊 — Au début, sur le Sonos. Il coupe ses hommes et s'adresse au groupe.
-_(`{nom}` = le champ **Player name** de `script.mystery_start`. Laissé vide, la
-salutation saute et il enchaîne directement.)_
+_(`{nom}` = le champ **Player name** de `script.mystery_start`, obligatoire.)_
 
 ```
-Bonsoir. Ici inspecteur Henri-Onésime de Beauchamp-Latulippe. Vous devez être {nom}. Enchanté de faire votre connaissance. Un meurtre a eu lieu ici ce soir, et la maison a tout enregistré! Je vous nomme détectives. Trouvez-moi le coupable parmi trois suspects : le Jardinier, l'Héritière et le Majordome. Fouillez partout — ces trois-là se trahissent dès qu'on touche à leurs affaires. Bon. Il faut que j'y aille, j'ai un autre appel.
+Bonsoir. Ici inspecteur Henri-Onésime de Beauchamp-Latulippe. Vous devez être {nom}. Enchanté de faire votre connaissance. Un meurtre a eu lieu ici ce soir, et la maison a tout enregistré! Je vous nomme détectives. Trouvez-moi le coupable parmi trois suspects : le Jardinier, l'Héritière et le Majordome. Fouillez partout — ces trois-là se trahissent dès qu'on touche à leurs affaires. Bon. Il faut que j'y aille, j'ai un autre appel. Bonne journée !
 ```
 
 **T2** 📞 — 8 secondes après son départ.
@@ -66,14 +71,14 @@ Deux preuves sur trois. Vous y êtes presque : une dernière et le dossier s'ouv
 **T5** 🖥️ — Bonne réponse.
 
 ```
-Le Majordome. C'est exact, détective ! Appelez-moi Henri, vous l'avez mérité. Descendez au théâtre, j'ai trouvé de quoi qui pourrait vous intéresser : suivez les lumières, et regardez l'écran.
+Le Majordome. C'est exact, détective ! Appelez-moi Henri, vous l'avez mérité. J'ai trouvé de quoi qui pourrait vous intéresser : retournez au mur d'images.
 ```
 
 👶 **T5 tout public** — sa seule tournure familière ; partout ailleurs
 l'inspecteur parle déjà un français soutenu.
 
 ```
-... Descendez au théâtre, j'ai trouvé quelque chose qui pourrait vous intéresser : ...
+... J'ai trouvé quelque chose qui pourrait vous intéresser : ...
 ```
 
 **T6** 🖥️ — Mauvaise réponse.

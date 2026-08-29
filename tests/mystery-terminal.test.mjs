@@ -188,3 +188,56 @@ test("échappe le texte venu du registre HA", () => {
   assert.equal(escapeHtml(`<img src=x onerror="a">`), "&lt;img src=x onerror=&quot;a&quot;&gt;");
   assert.equal(escapeHtml("Salon & cave"), "Salon &amp; cave");
 });
+
+/* La carte elle-même n'est pas exportée : on la récupère par le registre des
+ * custom elements, et on construit une instance nue (sans passer par le
+ * constructeur, qui réclame un vrai shadow DOM) pour tester une méthode. */
+const Card = customElements.get("mystery-terminal-card");
+
+const fakeEl = () => {
+  const classes = new Set();
+  return {
+    hidden: false,
+    classList: {
+      add: (c) => classes.add(c),
+      remove: (c) => classes.delete(c),
+      contains: (c) => classes.has(c),
+    },
+  };
+};
+
+const revealHarness = () => {
+  const els = { revealStart: fakeEl(), revealVideo: fakeEl() };
+  const card = Object.create(Card.prototype);
+  card.plays = 0;
+  card.$ = (id) => els[id];
+  card._sfx = () => {};
+  card._log = () => {};
+  card._revealMedia = "media-source://media_source/local/Final Reveal.mp4";
+  card._resolveMedia = async () => "http://x/final.mp4";
+  els.revealVideo.play = async () => { card.plays += 1; };
+  return { card, els };
+};
+
+test("un second clic pendant l'ouverture des portes ne relance pas la vidéo", async () => {
+  const { card, els } = revealHarness();
+  const first = card._beginReveal();
+  await card._beginReveal();
+  assert.equal(els.revealStart.hidden, false, "les portes s'écartent encore");
+  await first;
+  assert.equal(card.plays, 1);
+});
+
+test("la vidéo introuvable rearme le bouton de révélation", async (t) => {
+  const { card, els } = revealHarness();
+  const warn = console.warn;
+  console.warn = () => {};
+  t.after(() => { console.warn = warn; });
+  card._resolveMedia = async () => { throw new Error("introuvable"); };
+  await card._beginReveal();
+  assert.equal(els.revealStart.hidden, false);
+  assert.equal(els.revealStart.classList.contains("opening"), false);
+  assert.equal(card._revealStage, "ready");
+  await card._beginReveal();
+  assert.equal(card._revealStage, "ready", "un nouveau clic reste possible");
+});
