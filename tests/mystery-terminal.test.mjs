@@ -279,3 +279,61 @@ test("un second clic pendant l'ouverture ne rejoue pas le coffre", async () => {
   await new Promise((r) => setTimeout(r, 800));
   assert.equal(crt.classList.contains("revealing"), true);
 });
+
+/* Le bouton Indice a déjà semblé manquer sur la caméra du Majordome : ces tests
+ * verrouillent qui en a un, qui l'a éteint, et ce que fait chaque clic. */
+const wallHarness = () => {
+  const card = Object.create(Card.prototype);
+  card._cameras = [
+    { id: "CAM 01", zone: "ATELIER", file: "a.mp4" },
+    { id: "CAM 02", zone: "SALON", file: "b.mp4" },
+    { id: "CAM 03", zone: "SALLE À MANGER", file: "c.mp4" },
+  ];
+  return card;
+};
+
+const hintButtons = (html) =>
+  [...html.matchAll(/class="ffbtn hintbtn([^"]*)"[\s\S]*?data-hint="([^"]*)"/g)]
+    .map(([, cls, suspect]) => ({ off: cls.includes("off"), suspect }));
+
+test("chaque caméra porte un bouton indice, éteint seulement chez le Jardinier", () => {
+  const buttons = hintButtons(wallHarness()._cellsHtml());
+  assert.deepEqual(buttons, [
+    { off: true, suspect: "" },
+    { off: false, suspect: "heiress" },
+    { off: false, suspect: "butler" },
+  ]);
+});
+
+test("le bouton du Majordome n'est jamais rendu disabled — le clic doit passer", () => {
+  const html = wallHarness()._cellsHtml();
+  assert.equal(/<button[^>]*\sdisabled/.test(html), false);
+  assert.match(html, /data-hint="butler"/);
+});
+
+test("un indice réel appelle le script Home Assistant", () => {
+  const card = wallHarness();
+  const calls = [];
+  card._sfx = () => {};
+  card._log = () => {};
+  card._call = (domain, service, data) => calls.push([domain, service, data]);
+  card._requestHint("butler");
+  assert.equal(calls.length, 1);
+  const [domain, service, data] = calls[0];
+  assert.equal(domain, "script");
+  assert.equal(service, "turn_on");
+  assert.equal(data.entity_id, "script.mystery_hint_request");
+  assert.deepEqual(data.variables, { suspect: "butler" });
+});
+
+test("le bouton éteint refuse au lieu d'appeler quoi que ce soit", () => {
+  const card = wallHarness();
+  const sons = [];
+  const calls = [];
+  card._sfx = (n) => sons.push(n);
+  card._log = () => {};
+  card._call = (...a) => calls.push(a);
+  card._requestHint("");
+  assert.deepEqual(sons, ["err"]);
+  assert.equal(calls.length, 0);
+});

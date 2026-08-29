@@ -965,8 +965,10 @@ mystery_roby_goto:
       default: 0
   variables:
     # spices : rack d'épices en salle à manger, calibré en live le 7 août 2026
-    # (8,7 m arrière, 2,2 m à droite du dock). Plus utilisé par aucun indice —
-    # gardé parce que la calibration coûte une soirée à refaire.
+    # (8,7 m arrière, 2,2 m à droite du dock). Aucun indice ne s'en sert pour
+    # l'instant — gardé exprès : pour rebasculer l'indice du Majordome du vin
+    # vers les épices, il suffit de remettre 'spices' dans `destination` de
+    # mystery_hint_request. La calibration, elle, coûte une soirée à refaire.
     coords: "{{ {'wine': [23000, 31500],\n    'trap': [25050, 25000],\n    'spices':
       [26700, 31200]}[destination] }}"
     travel_seconds: '{{ 65 if destination == ''wine'' else 100 }}'

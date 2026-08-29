@@ -331,6 +331,10 @@ section.col{display:flex; flex-direction:column; gap:calc(10*var(--px)); min-hei
   transition:color .12s, border-color .12s, background .12s;}
 .cell .ffbtn .ic{width:calc(20*var(--px)); height:calc(20*var(--px)); flex:none; fill:currentColor;}
 .cell .ffbtn:hover{color:#000; background:var(--amber); border-color:var(--amber);}
+/* Éteint mais bien présent : une caméra sans bouton du tout se lit comme une
+   panne, alors qu'un bouton grisé se lit comme « rien à trouver ici ». */
+.cell .hintbtn.off{color:var(--amber-deep); border-color:var(--amber-deep); cursor:not-allowed; opacity:.55;}
+.cell .hintbtn.off:hover{color:var(--amber-deep); background:rgba(2,2,3,.78); border-color:var(--amber-deep);}
 main.cctv.zoomed .cell.zoom-active .ffbtn{display:flex;}
 .cell .ffbtn.on{color:#000; background:var(--amber); border-color:var(--amber);}
 
@@ -474,16 +478,38 @@ footer .ln{white-space:nowrap;}
    chaque fois, pour que masquer l'élément fonctionne vraiment. */
 .revealStart{position:absolute; inset:0; display:grid; place-items:center;}
 .revealStart[hidden]{display:none;}
-#revealVideo{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; background:#000;}
-.bustedStamp{position:absolute; inset:0; display:grid; place-items:center; pointer-events:none;
-  font-size:calc(130*var(--px)); font-weight:700; letter-spacing:calc(8*var(--px)); color:var(--red);
-  text-shadow:0 0 calc(30*var(--px)) rgba(255,59,48,.9), 0 0 calc(90*var(--px)) rgba(255,59,48,.55);
-  -webkit-text-stroke:calc(2*var(--px)) #1a0000; opacity:0;}
-.bustedStamp[hidden]{display:none;}
-.bustedStamp.show{animation:bustedIn .5s cubic-bezier(.2,1.6,.4,1) forwards;}
-@keyframes bustedIn{0%{opacity:0; transform:scale(2.6) rotate(-12deg);}
-  60%{opacity:1; transform:scale(.92) rotate(3deg);}
-  100%{opacity:1; transform:scale(1) rotate(-4deg);}}
+#revealVideo{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; background:#000;
+  transition:filter 1.4s ease;}
+/* La vidéo se vide de ses couleurs au moment du verdict, comme la mort d'un
+   personnage dans GTA — c'est ce qui fait lire la bande comme un écran de fin. */
+#revealVideo.dimmed{filter:grayscale(.9) saturate(.3) contrast(1.1) brightness(.5);}
+
+/* Écran « BUSTED » repris du WASTED de GTA : une bande sombre à peine inclinée
+   barre l'écran, et le mot y grossit lentement plutôt que de claquer d'un coup.
+   Pas de z-index ici : l'ordre du DOM suffit, et en poser un ferait passer la
+   bande AU-DESSUS du fondu au noir qui la suit. */
+.busted{position:absolute; inset:0; pointer-events:none;}
+.busted[hidden]{display:none;}
+
+.bustedBand{position:absolute; left:calc(-40*var(--px)); right:calc(-40*var(--px));
+  top:50%; height:calc(250*var(--px)); margin-top:calc(-125*var(--px));
+  background:rgba(0,0,0,.82); opacity:0; transform:rotate(-.6deg) scaleY(.15);}
+.busted.show .bustedBand{animation:bustedBand .55s cubic-bezier(.2,.8,.3,1) forwards;}
+@keyframes bustedBand{0%{opacity:0; transform:rotate(-.6deg) scaleY(.15);}
+  100%{opacity:1; transform:rotate(-.6deg) scaleY(1);}}
+
+/* Pricedown, la police de GTA, n'est sur aucune tablette : la pile part des
+   grasses très étroites et retombe sur la sans-serif du système. */
+.bustedWord{position:absolute; inset:0; display:grid; place-items:center; opacity:0;
+  font-family:Impact,Haettenschweiler,'Arial Narrow Bold','Roboto Condensed','Arial Black',sans-serif;
+  font-weight:900; font-size:calc(190*var(--px)); letter-spacing:calc(4*var(--px));
+  color:#ff1f3d; -webkit-text-stroke:calc(2*var(--px)) rgba(0,0,0,.6);
+  text-shadow:calc(5*var(--px)) calc(7*var(--px)) 0 rgba(0,0,0,.85),
+    0 0 calc(46*var(--px)) rgba(255,31,61,.3);}
+.busted.show .bustedWord{animation:bustedWord 1.9s cubic-bezier(.1,.72,.18,1) .28s forwards;}
+@keyframes bustedWord{0%{opacity:0; transform:scale(.62);}
+  40%{opacity:1;}
+  100%{opacity:1; transform:scale(1);}}
 .revealFade{position:absolute; inset:0; background:#000; opacity:0; pointer-events:none; transition:opacity 3s ease-in;}
 .revealFade.show{opacity:1;}
 .theEnd{position:absolute; inset:0; display:grid; place-items:center; opacity:0;
@@ -685,7 +711,10 @@ const HTML_CCTV = (cells) => `
       </div>
     </div>
     <video id="revealVideo" hidden playsinline></video>
-    <div class="bustedStamp" id="revealBusted" hidden>BUSTED</div>
+    <div class="busted" id="revealBusted" hidden>
+      <div class="bustedBand"></div>
+      <div class="bustedWord">BUSTED</div>
+    </div>
     <div class="revealFade" id="revealFade" hidden></div>
     <div class="theEnd" id="revealEnd" hidden>THE END</div>
   </div>
@@ -895,10 +924,12 @@ class MysteryTerminalCard extends HTMLElement {
             <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 5v14l9-7z"/><path d="M12 5v14l9-7z"/></svg>
             <span class="tx">ACCÉLÉRER</span>
           </button>
-          ${hintSuspect[i] ? `<button class="ffbtn hintbtn" data-hint="${hintSuspect[i]}" title="Indice">
+          <button class="ffbtn hintbtn${hintSuspect[i] ? "" : " off"}" data-hint="${hintSuspect[i] || ""}"
+                  aria-disabled="${hintSuspect[i] ? "false" : "true"}"
+                  title="${hintSuspect[i] ? "Indice" : "Aucun indice sur ce secteur"}">
             <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 22h4M12 2a6 6 0 0 0-3.5 10.9c.6.44 1 .95 1.2 1.6l.1.5h4.4l.1-.5c.2-.65.6-1.16 1.2-1.6A6 6 0 0 0 12 2Z"/></svg>
             <span class="tx">INDICE</span>
-          </button>` : ""}
+          </button>
         </div>
       </div>`).join("");
   }
@@ -976,6 +1007,11 @@ class MysteryTerminalCard extends HTMLElement {
   }
 
   _requestHint(suspect) {
+    if (!suspect) {
+      this._sfx("err");
+      this._log("AUCUN INDICE DISPONIBLE — SECTEUR NON COUVERT");
+      return;
+    }
     this._sfx("cam");
     this._call("script", "turn_on", {
       entity_id: "script.mystery_hint_request",
@@ -1313,6 +1349,7 @@ class MysteryTerminalCard extends HTMLElement {
     this.$("revealStart").hidden = ending;
     this.$("revealStart").classList.remove("opening");
     this.$("revealVideo").hidden = true;
+    this.$("revealVideo").classList.remove("dimmed");
     this.$("revealBusted").hidden = !ending;
     this.$("revealBusted").classList.toggle("show", ending);
     this.$("revealFade").hidden = !ending;
@@ -1333,6 +1370,7 @@ class MysteryTerminalCard extends HTMLElement {
     start.hidden = true;
     const video = this.$("revealVideo");
     video.hidden = false;
+    video.classList.remove("dimmed");
     try {
       video.src = await this._resolveMedia(this._revealMedia);
     } catch (e) {
@@ -1353,6 +1391,9 @@ class MysteryTerminalCard extends HTMLElement {
       this._sfx("accuse");
       const busted = this.$("revealBusted");
       busted.hidden = false;
+      // La désaturation dure plus longtemps que le mot : elle démarre au même
+      // instant pour que l'image ait fini de virer au gris quand il se pose.
+      video.classList.add("dimmed");
       requestAnimationFrame(() => busted.classList.add("show"));
     };
     video.onended = () => this._finishReveal();
