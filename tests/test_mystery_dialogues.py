@@ -674,10 +674,10 @@ class ListeDeMiseEnPlaceInerte(unittest.TestCase):
         self.assertFalse(field.get("required"), "la liste est obligatoire")
         self.assertNotIn("default", field, "la liste a un défaut")
 
-    def test_un_element_par_ligne(self):
-        lignes = self.field()["name"].split("\n")
-        self.assertEqual(lignes[0], "Mise en place")
-        elements = lignes[1:]
+    def test_un_element_par_ligne_sous_le_titre(self):
+        field = self.field()
+        self.assertEqual(field["name"], "Mise en place")
+        elements = field["description"].split("\n")
         self.assertEqual(len(elements), 6)
         for ligne in elements:
             self.assertTrue(ligne.startswith("✓ "), f"« {ligne} » n'est pas un item")
@@ -689,7 +689,9 @@ class ListeDeMiseEnPlaceInerte(unittest.TestCase):
             f"{MISE_EN_PLACE} apparaît ailleurs que dans sa déclaration",
         )
 
-    def test_seuls_les_deux_modes_de_jeu_sont_decrits(self):
+    def test_seuls_les_modes_de_jeu_et_la_liste_sont_decrits(self):
         fields = SCRIPTS["mystery_start"]["fields"]
-        decrits = {n: f["description"] for n, f in fields.items() if f.get("description")}
-        self.assertEqual(decrits, DESCRIPTIONS_ATTENDUES)
+        decrits = {n for n, f in fields.items() if f.get("description")}
+        self.assertEqual(decrits, set(DESCRIPTIONS_ATTENDUES) | {MISE_EN_PLACE})
+        for name, attendue in DESCRIPTIONS_ATTENDUES.items():
+            self.assertEqual(fields[name]["description"], attendue)

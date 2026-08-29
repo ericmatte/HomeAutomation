@@ -1061,8 +1061,8 @@ mystery_start:
     # Pense-bête, rien de plus : rien ne le lit, rien ne le vérifie, et il ne
     # bloque aucun départ. On le coche soi-même une fois la maison repassée.
     checklist:
-      name: |-
-        Mise en place
+      name: Mise en place
+      description: |-
         ✓ Bouton dans le sac à vin
         ✓ Fusil dans la trappe, avec le capteur de vibration
         ✓ Robe dans la buanderie
