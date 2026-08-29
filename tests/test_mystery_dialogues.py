@@ -379,6 +379,11 @@ class MemeEnquete(unittest.TestCase):
 
 REGLAGES_DE_DEPART = ("player_name", "start_delay", "kid_friendly", "real_actors")
 
+# Seul réglage à garder un défaut : partir tout de suite est le cas courant, et
+# se tromper ne coûte qu'une attente. Les trois autres décrivent la partie — les
+# laisser filer en silence donnerait la mauvaise version du jeu.
+DEFAUTS_DE_DEPART = {"start_delay": 0}
+
 MISE_EN_PLACE = "checklist"
 
 DESCRIPTIONS_ATTENDUES = {
@@ -405,8 +410,11 @@ class ScriptWiring(unittest.TestCase):
         """Aucun défaut : chaque appel doit fournir explicitement ses réglages."""
         for name in REGLAGES_DE_DEPART:
             field = SCRIPTS["mystery_start"]["fields"][name]
-            self.assertNotIn("default", field, f"{name} a encore un défaut")
             self.assertTrue(field["required"], f"{name} devrait être obligatoire")
+            if name in DEFAUTS_DE_DEPART:
+                self.assertEqual(field["default"], DEFAUTS_DE_DEPART[name])
+            else:
+                self.assertNotIn("default", field, f"{name} a un défaut silencieux")
 
     def test_le_script_de_depart_n_expose_rien_d_autre(self):
         self.assertEqual(

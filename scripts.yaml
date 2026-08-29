@@ -1046,6 +1046,7 @@ mystery_start:
           max: 300
           step: 1
       required: true
+      default: 0
     kid_friendly:
       name: Safe mode
       description: Mode sans sacres.
