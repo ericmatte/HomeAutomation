@@ -760,7 +760,10 @@
     entity_id:
     - binary_sensor.laundry_door_open
     to:
-  conditions: []
+  conditions:
+  - condition: state
+    entity_id: input_select.mystery_phase
+    state: idle
   actions:
   - if:
     - condition: state
@@ -3057,10 +3060,6 @@
     - action: input_boolean.turn_on
       target:
         entity_id: input_boolean.mystery_terminal_unlocked
-    - action: media_player.turn_on
-      target:
-        entity_id: media_player.theatre_tv
-      continue_on_error: true
   - variables:
       evidence_found: "{{ ['input_boolean.mystery_evidence_saw',\n    'input_boolean.mystery_evidence_gun',\n
         \   'input_boolean.mystery_evidence_poison']\n   | map('states') | select('eq',

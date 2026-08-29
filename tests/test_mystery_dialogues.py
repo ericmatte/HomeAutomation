@@ -803,3 +803,74 @@ class ExplicitModeInverseLeHelper(unittest.TestCase):
         )
         self.assertEqual(step["then"][0]["action"], "input_boolean.turn_on")
         self.assertEqual(step["else"][0]["action"], "input_boolean.turn_off")
+
+
+class LesTroisPreuvesNAllumentPlusLaTele(unittest.TestCase):
+    """Régression : entrer le 3e code de preuve ne doit plus allumer
+    media_player.theatre_tv. La doc (T4.2) est claire : « Rien à 3/3 : la
+    séquence de déverrouillage à l'écran suffit déjà. »
+    """
+
+    EVIDENCE = [
+        "input_boolean.mystery_evidence_saw",
+        "input_boolean.mystery_evidence_gun",
+        "input_boolean.mystery_evidence_poison",
+    ]
+
+    def actions_a_trois_preuves(self):
+        actions = AUTOMATIONS["mystery_evidence_code"]["actions"]
+        step = next(
+            a
+            for a in actions
+            if "then" in a
+            and any(
+                isinstance(c, dict) and c.get("entity_id") == self.EVIDENCE
+                for c in a.get("if", [])
+            )
+        )
+        return step["then"]
+
+    def test_le_terminal_se_debloque_toujours(self):
+        actions = self.actions_a_trois_preuves()
+        self.assertTrue(
+            any(
+                a.get("action") == "input_boolean.turn_on"
+                and a.get("target", {}).get("entity_id") == "input_boolean.mystery_terminal_unlocked"
+                for a in actions
+            )
+        )
+
+    def test_la_tele_ne_s_allume_plus(self):
+        actions = self.actions_a_trois_preuves()
+        self.assertFalse(
+            any(
+                a.get("action") == "media_player.turn_on"
+                and a.get("target", {}).get("entity_id") == "media_player.theatre_tv"
+                for a in actions
+            )
+        )
+
+
+class LumiereBuanderieIgnoreePendantLeJeu(unittest.TestCase):
+    """Régression : la buanderie sert d'indice dans l'escape room v2 (porte de
+    l'Héritière). L'automation domestique qui allume/éteint light.laundry sur
+    cette même porte ne doit pas s'en mêler tant qu'une partie est en cours —
+    aucune lumière réelle ne doit bouger pendant le jeu.
+    """
+
+    def automation(self):
+        return AUTOMATIONS["1759028691915"]
+
+    def test_alias_est_bien_celui_attendu(self):
+        self.assertEqual(self.automation()["alias"], "Laundry light on when door opens")
+
+    def test_l_automation_est_desactivee_pendant_une_partie(self):
+        conditions = self.automation()["conditions"]
+        phase_condition = next(
+            (c for c in conditions if c.get("entity_id") == "input_select.mystery_phase"),
+            None,
+        )
+        self.assertIsNotNone(
+            phase_condition, "aucune condition sur input_select.mystery_phase"
+        )
+        self.assertEqual(phase_condition["state"], "idle")
