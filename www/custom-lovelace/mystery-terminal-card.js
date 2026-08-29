@@ -27,6 +27,11 @@ const PHASE_LABEL = {
 // portes du coffre ne se voit pas, il faut attendre qu'elles aient fini.
 const VAULT_DOOR_MS = 700;
 
+// Avant « investigation », l'inspecteur n'a pas encore passé son deuxième appel
+// — celui qui annonce les caméras du sous-sol. Accueillir les joueurs sur le
+// terminal avant qu'il en ait parlé vendrait la mèche.
+const PHASES_AVANT_ENQUETE = ["idle", "unknown", "unavailable"];
+
 const MODE_KEY = "mystery-terminal-mode";
 const MODES = ["code", "cctv"];
 
@@ -775,15 +780,24 @@ class MysteryTerminalCard extends HTMLElement {
       document.addEventListener("fullscreenchange", this._onFs);
       document.addEventListener("webkitfullscreenchange", this._onFs);
     }
+    // Un simple mouvement de souris suffit : sur les écrans du bureau, il veut
+    // dire que quelqu'un vient d'arriver devant. `pointerdown` reste pour les
+    // écrans tactiles, où rien ne bouge tant qu'on ne touche pas.
     // On lit l'état HA plutôt qu'un drapeau JS, pour rester correct après un
-    // reset sans recharger la page.
+    // reset sans recharger la page ; `_touchSent` n'est qu'un garde-fou contre
+    // la rafale de `pointermove` en attendant que l'état revienne.
     if (!this._onTouch) {
       this._onTouch = () => {
-        if (this._mode !== "cctv" || !this._hass) return;
+        if (this._touchSent || !this._hass) return;
+        const phase = this._hass.states[ENT.phase];
+        if (!phase || PHASES_AVANT_ENQUETE.includes(phase.state)) return;
         const s = this._hass.states[ENT.firstTouch];
-        if (s && s.state !== "on") this._call("input_boolean", "turn_on", { entity_id: ENT.firstTouch });
+        if (!s || s.state === "on") return;
+        this._touchSent = true;
+        this._call("input_boolean", "turn_on", { entity_id: ENT.firstTouch });
       };
       this.addEventListener("pointerdown", this._onTouch);
+      this.addEventListener("pointermove", this._onTouch);
     }
     if (this._timer) return;
     this._timer = setInterval(() => this._tick(), 1000);
@@ -1134,6 +1148,7 @@ class MysteryTerminalCard extends HTMLElement {
     if (prev && prev.phase !== "investigation" && cur.phase === "investigation") {
       this._revealMedia = null;
       this._revealStage = null;
+      this._touchSent = false;
       if (this.$("ovReveal")) this._hide("ovReveal");
     }
 

@@ -366,3 +366,59 @@ test("les boutons plein écran et bascule de vue dominent tous les overlays", ()
     assert.ok(regie > zIndexOf(sel), `${sel} passe devant les boutons de régie`);
   }
 });
+
+/* Le message d'accueil du terminal part au premier signe de vie devant les
+ * écrans — mais jamais avant que l'inspecteur ait annoncé les caméras. */
+globalThis.document = globalThis.document || { addEventListener() {}, removeEventListener() {} };
+
+const touchHarness = (phase, firstTouch = "off") => {
+  const card = Object.create(Card.prototype);
+  const calls = [];
+  card._mode = "cctv";
+  // Court-circuite l'horloge : connectedCallback la démarre en dernier.
+  card._timer = 1;
+  card._call = (...a) => calls.push(a);
+  card._hass = {
+    states: {
+      "input_select.mystery_phase": { state: phase },
+      "input_boolean.mystery_terminal_first_touch": { state: firstTouch },
+    },
+  };
+  const listeners = {};
+  card.addEventListener = (type, fn) => { listeners[type] = fn; };
+  Card.prototype.connectedCallback.call(card);
+  return { card, calls, listeners };
+};
+
+test("un mouvement de souris déclenche l'accueil du terminal", () => {
+  const { calls, listeners } = touchHarness("investigation");
+  listeners.pointermove();
+  assert.deepEqual(calls, [
+    ["input_boolean", "turn_on", { entity_id: "input_boolean.mystery_terminal_first_touch" }],
+  ]);
+});
+
+test("rien ne part avant l'appel qui annonce les caméras", () => {
+  const { calls, listeners } = touchHarness("idle");
+  listeners.pointermove();
+  listeners.pointerdown();
+  assert.equal(calls.length, 0);
+});
+
+test("la rafale de pointermove n'envoie qu'un seul appel", () => {
+  const { calls, listeners } = touchHarness("investigation");
+  for (let i = 0; i < 50; i += 1) listeners.pointermove();
+  assert.equal(calls.length, 1);
+});
+
+test("l'accueil ne rejoue pas si Home Assistant l'a déjà enregistré", () => {
+  const { calls, listeners } = touchHarness("investigation", "on");
+  listeners.pointermove();
+  assert.equal(calls.length, 0);
+});
+
+test("le tactile déclenche aussi, faute de mouvement de souris", () => {
+  const { calls, listeners } = touchHarness("autopsy_done");
+  listeners.pointerdown();
+  assert.equal(calls.length, 1);
+});

@@ -1231,7 +1231,7 @@ mystery_start:
         media_content_type: audio/mpeg
         metadata: {}
   - delay:
-      seconds: 20
+      seconds: 18
   - action: media_player.volume_set
     target:
       entity_id: media_player.sonos

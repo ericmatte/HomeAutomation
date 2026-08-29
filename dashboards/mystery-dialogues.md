@@ -34,7 +34,9 @@ _(`{nom}` = le champ **Player name** de `script.mystery_start`, obligatoire.)_
 Bonsoir. Ici inspecteur Henri-Onésime de Beauchamp-Latulippe. Vous devez être {nom}. Enchanté de faire votre connaissance. Un meurtre a eu lieu ici ce soir, et la maison a tout enregistré! Je vous nomme détectives. Trouvez-moi le coupable parmi trois suspects : le Jardinier, l'Héritière et le Majordome. Fouillez partout — ces trois-là se trahissent dès qu'on touche à leurs affaires. Bon. Il faut que j'y aille, j'ai un autre appel. Bonne journée !
 ```
 
-**T2** 📞 — 8 secondes après son départ.
+**T2** 📞 — 18 secondes après le bruit de voiture qui démarre. C'est cet
+appel qui fait passer la partie en `investigation` : à partir de là, le
+moindre mouvement devant les écrans déclenche T4.1.
 
 ```
 Ici Inspecteur Beauchamp-Latulippe. J'oubliais ! Les caméras de surveillance de la maison sont sur le terminal, dans le bureau au sous-sol. J'ai fait allumer les lumières jusque-là, suivez-les. Et si vous bloquez, demandez-moi un indice au téléphone.
@@ -48,10 +50,13 @@ Le rapport d'autopsie.
 Beauchamp-Latulippe à nouveau. J'ai eu le rapport de l'autopsie : la victime a été empoisonnée. Avez-vous trouvé les trois pièces à conviction possible ? Dès que vous les avez, tapez-les sur le terminal du bureau.
 ```
 
-**T4.1** 🖥️ — Premier toucher du **mur d'images CCTV** (mode 📹) depuis le début
-de l'enquête — **jamais** sur l'écran de saisie
+**T4.1** 🖥️ — Premier signe de vie devant les écrans du bureau : un simple
+mouvement de souris suffit, un toucher aussi. Rien ne part tant que l'inspecteur
+n'a pas annoncé les caméras en T2 — c'est cet appel qui fait passer la partie en
+`investigation`. Une seule fois par partie
 (`input_boolean.mystery_terminal_first_touch`, basculé par la carte elle-même —
-voir `mystery-terminal-card.js`, gestionnaire de pointeur du mode `cctv`).
+voir `mystery-terminal-card.js`, `_onTouch`). Le texte sort toujours sur l'écran
+de saisie, quel que soit l'écran qui a bougé.
 
 ```
 Vous y êtes, détectives. Ce terminal, c'est le poste de commandement de toute l'enquête : caméras, registre des preuves, dossier confidentiel — tout passe par ici.
