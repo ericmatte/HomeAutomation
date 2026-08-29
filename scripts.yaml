@@ -1478,7 +1478,6 @@ mystery_police_callback:
   - action: script.mystery_guide_path
     data:
       lights:
-      - light.hallway_lights
       - light.dining_room_pendants
 mystery_hint:
   alias: Mystery - Hint

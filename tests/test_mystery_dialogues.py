@@ -703,3 +703,63 @@ class ListeDeMiseEnPlaceInerte(unittest.TestCase):
         self.assertEqual(decrits, set(DESCRIPTIONS_ATTENDUES) | {MISE_EN_PLACE})
         for name, attendue in DESCRIPTIONS_ATTENDUES.items():
             self.assertEqual(fields[name]["description"], attendue)
+
+
+class LeCouloirNeClignotePlusDansLaV2(unittest.TestCase):
+    """`light.hallway_lights` éclaire un couloir de passage. `mystery_guide_path`
+    fait clignoter chaque lumière trois fois avant de la laisser en veilleuse :
+    sur ce couloir-là, ça dérange toute la maison. La v1 « TEA » y a toujours
+    droit — les deux jeux coexistent, on ne touche pas au premier.
+    """
+
+    COULOIR = "light.hallway_lights"
+
+    def test_aucun_script_de_la_v2_ne_le_touche(self):
+        for name, script in SCRIPTS.items():
+            if not name.startswith("mystery_"):
+                continue
+            self.assertNotIn(
+                self.COULOIR, yaml.dump(script, allow_unicode=True),
+                f"le script {name} fait encore clignoter le couloir",
+            )
+
+    def test_aucune_automation_de_la_v2_ne_le_touche(self):
+        for name, automation in AUTOMATIONS.items():
+            if not str(name).startswith("mystery"):
+                continue
+            self.assertNotIn(
+                self.COULOIR, yaml.dump(automation, allow_unicode=True),
+                f"l'automation {name} fait encore clignoter le couloir",
+            )
+
+    def test_les_parcours_de_la_v2_gardent_au_moins_une_lumiere(self):
+        """Retirer le couloir ne doit pas laisser un guidage sans balise."""
+        sources = [s for n, s in SCRIPTS.items() if n.startswith("mystery_")]
+        sources += [a for n, a in AUTOMATIONS.items() if str(n).startswith("mystery")]
+        parcours = [
+            step["data"]["lights"]
+            for source in sources
+            for step in self.etapes(source)
+            if step.get("action") == "script.mystery_guide_path"
+        ]
+        self.assertTrue(parcours, "plus aucun guidage lumineux dans la v2")
+        for lights in parcours:
+            self.assertTrue(lights, "un guidage sans aucune lumière")
+
+    def etapes(self, node):
+        if isinstance(node, dict):
+            if "action" in node:
+                yield node
+            for value in node.values():
+                yield from self.etapes(value)
+        elif isinstance(node, list):
+            for value in node:
+                yield from self.etapes(value)
+
+    def test_la_v1_garde_son_clignotement_de_couloir(self):
+        """Les deux salles coexistent : nettoyer la v2 ne doit pas amputer la v1."""
+        self.assertIn(self.COULOIR, yaml.dump(SCRIPTS["escape_room"], allow_unicode=True))
+        self.assertIn(
+            self.COULOIR, yaml.dump(AUTOMATIONS["1768618057000"], allow_unicode=True)
+        )
+

@@ -2941,7 +2941,6 @@
   - action: script.mystery_guide_path
     data:
       lights:
-      - light.hallway_lights
       - light.downstairs_hallway_light
 - id: mystery_auto_autopsy
   alias: Mystery - Auto autopsy
