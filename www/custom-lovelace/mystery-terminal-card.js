@@ -23,6 +23,10 @@ const PHASE_LABEL = {
   solved: "AFFAIRE CLASSÉE",
 };
 
+// Doit suivre la transition de .vaultDoor : tout ce qui se joue derrière les
+// portes du coffre ne se voit pas, il faut attendre qu'elles aient fini.
+const VAULT_DOOR_MS = 700;
+
 const MODE_KEY = "mystery-terminal-mode";
 const MODES = ["code", "cctv"];
 
@@ -849,9 +853,15 @@ class MysteryTerminalCard extends HTMLElement {
     if (!ov || ov.classList.contains("opening")) return;
     this._sfx("vault");
     ov.classList.add("opening");
-    const crt = this.shadowRoot.querySelector(".crt");
-    if (crt) crt.classList.add("revealing");
-    setTimeout(() => { if (this.$ && this.$("ovLock")) this._hide("ovLock"); }, 750);
+    // Le fondu du terminal ne peut pas jouer pendant que les portes le cachent :
+    // on l'amorce à la seconde où elles ont fini de s'écarter, sinon les joueurs
+    // ne voient que le panneau déjà en place.
+    setTimeout(() => {
+      if (!this.$ || !this.$("ovLock")) return;
+      this._hide("ovLock");
+      const crt = this.shadowRoot.querySelector(".crt");
+      if (crt) crt.classList.add("revealing");
+    }, VAULT_DOOR_MS);
   }
 
   _cellsHtml() {
@@ -1307,9 +1317,7 @@ class MysteryTerminalCard extends HTMLElement {
     this._sfx("vault");
     this._revealStage = "playing";
     start.classList.add("opening");
-    // Même minutage que le coffre du terminal de code (.vault) — les portes
-    // s'écartent avant de laisser place à la vidéo.
-    await new Promise((r) => setTimeout(r, 700));
+    await new Promise((r) => setTimeout(r, VAULT_DOOR_MS));
     start.hidden = true;
     const video = this.$("revealVideo");
     video.hidden = false;

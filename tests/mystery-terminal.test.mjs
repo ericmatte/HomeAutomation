@@ -241,3 +241,41 @@ test("la vidéo introuvable rearme le bouton de révélation", async (t) => {
   await card._beginReveal();
   assert.equal(card._revealStage, "ready", "un nouveau clic reste possible");
 });
+
+const lockHarness = () => {
+  const els = { ovLock: fakeEl() };
+  const crt = fakeEl();
+  const card = Object.create(Card.prototype);
+  card.$ = (id) => els[id];
+  card._sfx = () => {};
+  card._hide = (id) => { els[id].hidden = true; };
+  card.shadowRoot = { querySelector: (sel) => (sel === ".crt" ? crt : null) };
+  return { card, els, crt };
+};
+
+test("le fondu du terminal attend que les portes du coffre soient ouvertes", async () => {
+  const { card, els, crt } = lockHarness();
+  card._openLock();
+
+  assert.equal(els.ovLock.classList.contains("opening"), true, "les portes partent");
+  assert.equal(
+    crt.classList.contains("revealing"), false,
+    "le fondu jouerait derrière les portes fermées",
+  );
+  assert.equal(els.ovLock.hidden, false);
+
+  await new Promise((r) => setTimeout(r, 800));
+  assert.equal(els.ovLock.hidden, true);
+  assert.equal(crt.classList.contains("revealing"), true);
+});
+
+test("un second clic pendant l'ouverture ne rejoue pas le coffre", async () => {
+  const { card, crt } = lockHarness();
+  let sons = 0;
+  card._sfx = () => { sons += 1; };
+  card._openLock();
+  card._openLock();
+  assert.equal(sons, 1);
+  await new Promise((r) => setTimeout(r, 800));
+  assert.equal(crt.classList.contains("revealing"), true);
+});
