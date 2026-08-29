@@ -1035,8 +1035,6 @@ mystery_start:
   fields:
     player_name:
       name: Player name
-      description: Nom du groupe ou de l'invité d'honneur. L'inspecteur le salue en
-        arrivant. Le champ est obligatoire, il faut toujours en fournir un.
       selector:
         text: {}
       required: true
@@ -1050,18 +1048,50 @@ mystery_start:
       required: true
     kid_friendly:
       name: Safe mode
-      description: Coché, les personnages jouent leurs répliques nettoyées — ni sacres
-        ni joual, pour une partie tout public. L'intrigue ne change pas.
+      description: Mode sans sacres.
       selector:
         boolean: {}
       required: true
     real_actors:
       name: Real actors
-      description: Coché, coupe les voix synthétiques du Jardinier et de l'Héritière
-        — ce sont de vrais acteurs qui jouent ces rôles. Le Majordome garde sa voix.
       selector:
         boolean: {}
       required: true
+    # Les 6 cases qui suivent ne font RIEN : rien ne les lit, rien ne les
+    # vérifie, elles ne bloquent aucun départ. C'est une liste de mise en place
+    # à cocher soi-même avant de lancer, pour ne rien oublier dans la maison.
+    # Sans « required » exprès : une case oubliée ne doit jamais empêcher de
+    # commencer une partie.
+    check_wine_bag:
+      name: ✓ Bouton dans le sac à vin
+      selector:
+        boolean: {}
+      default: false
+    check_gun_trap:
+      name: ✓ Fusil dans la trappe, avec le capteur de vibration
+      selector:
+        boolean: {}
+      default: false
+    check_dress:
+      name: ✓ Robe dans la buanderie
+      selector:
+        boolean: {}
+      default: false
+    check_cctv_screens:
+      name: ✓ Écrans allumés sur le tableau de bord CCTV
+      selector:
+        boolean: {}
+      default: false
+    check_walkies:
+      name: ✓ Walkies-talkies à côté des écrans
+      selector:
+        boolean: {}
+      default: false
+    check_costumes:
+      name: ✓ Costumes prêts à enfiler
+      selector:
+        boolean: {}
+      default: false
   sequence:
   - action: homeassistant.reload_config_entry
     data:

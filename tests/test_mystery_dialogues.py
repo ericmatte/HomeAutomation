@@ -377,6 +377,18 @@ class MemeEnquete(unittest.TestCase):
                             )
 
 
+REGLAGES_DE_DEPART = ("player_name", "start_delay", "kid_friendly", "real_actors")
+
+CASES_DE_MISE_EN_PLACE = (
+    "check_wine_bag",
+    "check_gun_trap",
+    "check_dress",
+    "check_cctv_screens",
+    "check_walkies",
+    "check_costumes",
+)
+
+
 class ScriptWiring(unittest.TestCase):
     def test_le_helper_existe(self):
         self.assertIn("mystery_kid_friendly", CONFIG["input_boolean"])
@@ -391,11 +403,18 @@ class ScriptWiring(unittest.TestCase):
         self.assertIn("input_boolean.mystery_kid_friendly", sequence)
         self.assertIn("kid_friendly | bool", sequence)
 
-    def test_les_champs_du_script_de_depart_sont_obligatoires(self):
-        """Aucun défaut : chaque appel doit fournir explicitement les 3 valeurs."""
-        for name, field in SCRIPTS["mystery_start"]["fields"].items():
+    def test_les_reglages_du_script_de_depart_sont_obligatoires(self):
+        """Aucun défaut : chaque appel doit fournir explicitement ses réglages."""
+        for name in REGLAGES_DE_DEPART:
+            field = SCRIPTS["mystery_start"]["fields"][name]
             self.assertNotIn("default", field, f"{name} a encore un défaut")
             self.assertTrue(field["required"], f"{name} devrait être obligatoire")
+
+    def test_le_script_de_depart_n_expose_rien_d_autre(self):
+        self.assertEqual(
+            set(SCRIPTS["mystery_start"]["fields"]),
+            set(REGLAGES_DE_DEPART) | set(CASES_DE_MISE_EN_PLACE),
+        )
 
     def test_le_mode_est_lu_depuis_le_helper(self):
         self.assertIn(
@@ -638,3 +657,41 @@ class LesDeuxIndicesDuMurDImages(unittest.TestCase):
             encoding="utf-8"
         )
         self.assertIn('{ 1: "heiress", 2: "butler" }', card)
+
+
+class CasesDeMiseEnPlaceInertes(unittest.TestCase):
+    """Une liste de mise en place à cocher soi-même, rien de plus. Si l'une de
+    ces cases finissait par piloter quoi que ce soit, une case oubliée pourrait
+    saboter une partie — c'est exactement ce qu'on refuse.
+    """
+
+    def field(self, name):
+        return SCRIPTS["mystery_start"]["fields"][name]
+
+    def test_ce_sont_des_cases_a_cocher(self):
+        for name in CASES_DE_MISE_EN_PLACE:
+            self.assertIn("boolean", self.field(name)["selector"], name)
+
+    def test_aucune_case_ne_peut_bloquer_un_depart(self):
+        for name in CASES_DE_MISE_EN_PLACE:
+            field = self.field(name)
+            self.assertFalse(field.get("required"), f"{name} est obligatoire")
+            self.assertFalse(field["default"], f"{name} démarre cochée")
+
+    def test_aucune_case_n_est_lue_par_la_sequence(self):
+        sequence = yaml.dump(SCRIPTS["mystery_start"]["sequence"], allow_unicode=True)
+        for name in CASES_DE_MISE_EN_PLACE:
+            self.assertNotIn(name, sequence, f"{name} pilote quelque chose")
+
+    def test_aucune_case_n_est_lue_ailleurs_dans_la_maison(self):
+        partout = yaml.dump([SCRIPTS, AUTOMATIONS, CONFIG], allow_unicode=True)
+        for name in CASES_DE_MISE_EN_PLACE:
+            self.assertEqual(
+                partout.count(name), 1, f"{name} apparaît ailleurs que dans sa déclaration"
+            )
+
+    def test_seul_le_safe_mode_garde_une_description(self):
+        fields = SCRIPTS["mystery_start"]["fields"]
+        decrits = {n for n, f in fields.items() if f.get("description")}
+        self.assertEqual(decrits, {"kid_friendly"})
+        self.assertEqual(fields["kid_friendly"]["description"], "Mode sans sacres.")
