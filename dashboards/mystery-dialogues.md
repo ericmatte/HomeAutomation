@@ -10,9 +10,12 @@
 **Où sort chaque voix** — 📞 téléphone (salon) · 🔊 Sonos (salon, tout le groupe
 entend) · 🖥️ terminal du bureau (sous-sol, texte affiché **et** voix).
 
-**Version tout public** — la case _Safe mode_ de `script.mystery_start`
-allume `input_boolean.mystery_kid_friendly`, et les personnages jouent alors les
-variantes 👶 signalées plus bas : ni sacres ni joual, du français standard.
+**Version tout public — c'est celle par défaut.** Laissée décochée, la case
+_Explicit mode_ de `script.mystery_start` allume
+`input_boolean.mystery_kid_friendly`, et les personnages jouent les variantes 👶
+signalées plus bas : ni sacres ni joual, du français standard. Il faut cocher
+_Explicit mode_ pour obtenir la version originale.
+
 L'intrigue ne bouge pas d'un pouce — mêmes suspects, mêmes objets, mêmes pistes,
 même coupable. Seule la formulation change. Les répliques sans bloc 👶 sont déjà
 en français standard et servent telles quelles dans les deux versions.

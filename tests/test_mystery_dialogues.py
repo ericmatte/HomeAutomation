@@ -10,7 +10,11 @@ import unittest
 from pathlib import Path
 
 import yaml
-from jinja2 import Template
+from jinja2 import Environment, Template
+
+# `bool` est un filtre ajouté par Home Assistant, absent de Jinja2 tout court.
+HA_ENV = Environment()
+HA_ENV.filters["bool"] = bool
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -377,17 +381,19 @@ class MemeEnquete(unittest.TestCase):
                             )
 
 
-REGLAGES_DE_DEPART = ("player_name", "start_delay", "kid_friendly", "real_actors")
+REGLAGES_DE_DEPART = ("player_name", "start_delay", "explicit_mode", "real_actors")
 
-# Seul réglage à garder un défaut : partir tout de suite est le cas courant, et
-# se tromper ne coûte qu'une attente. Les trois autres décrivent la partie — les
-# laisser filer en silence donnerait la mauvaise version du jeu.
-DEFAUTS_DE_DEPART = {"start_delay": 0}
+# Les deux réglages qui gardent un défaut, et pourquoi : partir tout de suite
+# est le cas courant, et se tromper ne coûte qu'une attente ; la version sans
+# sacres est celle qu'on veut si personne ne choisit, parce que la lâcher devant
+# le mauvais public ne se rattrape pas. Les deux autres décrivent la partie et
+# doivent être posés explicitement.
+DEFAUTS_DE_DEPART = {"start_delay": 0, "explicit_mode": False}
 
 MISE_EN_PLACE = "checklist"
 
 DESCRIPTIONS_ATTENDUES = {
-    "kid_friendly": "Mode sans sacres.",
+    "explicit_mode": "Sacres et joual.",
     "real_actors": "Coupe les voix de l'Héritière et du Jardinier.",
 }
 
@@ -397,14 +403,14 @@ class ScriptWiring(unittest.TestCase):
         self.assertIn("mystery_kid_friendly", CONFIG["input_boolean"])
 
     def test_le_script_de_depart_expose_la_case_a_cocher(self):
-        field = SCRIPTS["mystery_start"]["fields"]["kid_friendly"]
+        field = SCRIPTS["mystery_start"]["fields"]["explicit_mode"]
         self.assertIn("boolean", field["selector"])
         self.assertTrue(field["required"])
 
     def test_le_script_de_depart_pose_le_helper(self):
         sequence = yaml.dump(SCRIPTS["mystery_start"]["sequence"], allow_unicode=True)
         self.assertIn("input_boolean.mystery_kid_friendly", sequence)
-        self.assertIn("kid_friendly | bool", sequence)
+        self.assertIn("not (explicit_mode | bool)", sequence)
 
     def test_les_reglages_du_script_de_depart_sont_obligatoires(self):
         """Aucun défaut : chaque appel doit fournir explicitement ses réglages."""
@@ -763,3 +769,37 @@ class LeCouloirNeClignotePlusDansLaV2(unittest.TestCase):
             self.COULOIR, yaml.dump(AUTOMATIONS["1768618057000"], allow_unicode=True)
         )
 
+
+class ExplicitModeInverseLeHelper(unittest.TestCase):
+    """Le champ du script est inversé, le helper ne l'est pas : décocher
+    « Explicit mode » doit allumer mystery_kid_friendly, que tout le jeu lit
+    comme « version nettoyée ». Se tromper de sens sortirait les sacres devant
+    le mauvais public — et ça ne se rattrape pas en cours de partie.
+    """
+
+    def version_nettoyee(self, explicit_mode):
+        step = next(
+            s for s in SCRIPTS["mystery_start"]["sequence"]
+            if "mystery_kid_friendly" in yaml.dump(s, allow_unicode=True)
+        )
+        return HA_ENV.from_string(step["if"]).render(explicit_mode=explicit_mode) == "True"
+
+    def test_decoche_le_jeu_est_nettoye(self):
+        self.assertTrue(self.version_nettoyee(False))
+
+    def test_coche_le_jeu_sacre(self):
+        self.assertFalse(self.version_nettoyee(True))
+
+    def test_le_defaut_est_la_version_nettoyee(self):
+        """Un appel qui omet le champ ne doit jamais tomber sur les sacres."""
+        field = SCRIPTS["mystery_start"]["fields"]["explicit_mode"]
+        self.assertFalse(field["default"])
+        self.assertTrue(self.version_nettoyee(field["default"]))
+
+    def test_la_branche_allume_puis_eteint_le_bon_helper(self):
+        step = next(
+            s for s in SCRIPTS["mystery_start"]["sequence"]
+            if "mystery_kid_friendly" in yaml.dump(s, allow_unicode=True)
+        )
+        self.assertEqual(step["then"][0]["action"], "input_boolean.turn_on")
+        self.assertEqual(step["else"][0]["action"], "input_boolean.turn_off")

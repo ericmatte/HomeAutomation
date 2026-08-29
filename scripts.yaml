@@ -1047,12 +1047,13 @@ mystery_start:
           step: 1
       required: true
       default: 0
-    kid_friendly:
-      name: Safe mode
-      description: Mode sans sacres.
+    explicit_mode:
+      name: Explicit mode
+      description: Sacres et joual.
       selector:
         boolean: {}
       required: true
+      default: false
     real_actors:
       name: Real actors
       description: Coupe les voix de l'Héritière et du Jardinier.
@@ -1081,7 +1082,9 @@ mystery_start:
     target:
       entity_id: input_boolean.escape_v2_active
   - action: script.mystery_reset_state
-  - if: '{{ kid_friendly | bool }}'
+  - alias: Le champ est inversé, pas le helper — mystery_kid_friendly veut
+      toujours dire « version nettoyée active », et tout le jeu le lit ainsi
+    if: '{{ not (explicit_mode | bool) }}'
     then:
     - action: input_boolean.turn_on
       target:
