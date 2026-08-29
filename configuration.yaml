@@ -242,6 +242,9 @@ input_boolean:
   mystery_kid_friendly:
     name: Mystery Kid Friendly
     icon: mdi:teddy-bear
+  mystery_real_actors:
+    name: Mystery Real Actors
+    icon: mdi:drama-masks
 
 # Le terminal CCTV est versionné, d'où le mode YAML. `mode: storage` garde tous
 # les autres tableaux de bord tels quels, dans .storage.

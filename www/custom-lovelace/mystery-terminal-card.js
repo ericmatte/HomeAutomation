@@ -218,14 +218,19 @@ header{display:flex; align-items:stretch; gap:calc(10*var(--px)); z-index:5;}
   background:repeating-linear-gradient(45deg, rgba(53,255,106,.10) 0 calc(8*var(--px)), transparent calc(8*var(--px)) calc(16*var(--px)));}
 
 main{display:grid; gap:calc(12*var(--px)); min-height:0; z-index:5;}
-main.code{grid-template-columns:1fr 1.15fr;}
+/* Écran des caméras à part : sombre exprès, c'est de la surveillance nocturne.
+   Celui du code est ce que les joueurs regardent le plus — il mérite d'être
+   repérable du coin de l'œil, pas juste au premier plan. */
+main.code{grid-template-columns:1fr 1.15fr; position:relative;}
+main.code::before{content:''; position:absolute; inset:calc(-30*var(--px)); pointer-events:none;
+  background:radial-gradient(ellipse at 35% 15%, rgba(255,178,0,.16), transparent 62%);}
 main.cctv{grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr;}
 section.col{display:flex; flex-direction:column; gap:calc(10*var(--px)); min-height:0;}
 .title{font-size:calc(17*var(--px)); letter-spacing:calc(4*var(--px)); color:var(--amber-dim);
   border-bottom:calc(1*var(--px)) solid var(--line); padding-bottom:calc(6*var(--px)); display:flex; justify-content:space-between;}
 
-.display{border:calc(2*var(--px)) solid var(--amber-deep); background:#0a0800; padding:calc(14*var(--px));
-  text-align:center;}
+.display{border:calc(2*var(--px)) solid var(--amber-deep); background:#171100; padding:calc(14*var(--px));
+  text-align:center; box-shadow:0 0 calc(40*var(--px)) rgba(255,178,0,.12);}
 .display .lab{font-size:calc(15*var(--px)); color:var(--amber-dim); letter-spacing:calc(3*var(--px));}
 .digits{font-size:calc(104*var(--px)); letter-spacing:calc(20*var(--px)); line-height:1.1; font-weight:700;
   text-shadow:0 0 calc(22*var(--px)) rgba(255,178,0,.55); font-variant-numeric:tabular-nums;}
@@ -439,6 +444,46 @@ footer .ln{white-space:nowrap;}
 .confirm h3{font-size:calc(34*var(--px)); letter-spacing:calc(4*var(--px)); color:var(--red);}
 .confirm p{font-size:calc(20*var(--px)); color:var(--amber); margin:calc(18*var(--px)) 0 calc(28*var(--px)); line-height:1.6;}
 .confirm .row{display:flex; gap:calc(18*var(--px)); justify-content:center;}
+
+.ov#ovReveal{background:#000; padding:0; display:block;}
+.revealStart{position:absolute; inset:0; display:grid; place-items:center;}
+#revealVideo{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; background:#000;}
+.bustedStamp{position:absolute; inset:0; display:grid; place-items:center; pointer-events:none;
+  font-size:calc(130*var(--px)); font-weight:700; letter-spacing:calc(8*var(--px)); color:var(--red);
+  text-shadow:0 0 calc(30*var(--px)) rgba(255,59,48,.9), 0 0 calc(90*var(--px)) rgba(255,59,48,.55);
+  -webkit-text-stroke:calc(2*var(--px)) #1a0000; opacity:0;}
+.bustedStamp.show{animation:bustedIn .5s cubic-bezier(.2,1.6,.4,1) forwards;}
+@keyframes bustedIn{0%{opacity:0; transform:scale(2.6) rotate(-12deg);}
+  60%{opacity:1; transform:scale(.92) rotate(3deg);}
+  100%{opacity:1; transform:scale(1) rotate(-4deg);}}
+.revealFade{position:absolute; inset:0; background:#000; opacity:0; pointer-events:none; transition:opacity 3s ease-in;}
+.revealFade.show{opacity:1;}
+.theEnd{position:absolute; inset:0; display:grid; place-items:center; opacity:0;
+  font-size:calc(90*var(--px)); letter-spacing:calc(16*var(--px)); color:var(--amber);
+  text-shadow:0 0 calc(24*var(--px)) rgba(255,178,0,.5); transition:opacity 2s ease-in;}
+.theEnd.show{opacity:1;}
+
+/* Écran d'accueil du terminal de code : un cadenas bien visible plutôt que le
+   clavier tout de suite, pour attraper l'œil à côté du mur de caméras qui,
+   lui, bouge tout seul. Les deux portes s'écartent au clic, comme un coffre. */
+.ov#ovLock{background:#000; padding:0; display:block; z-index:72;}
+.lockDoor{position:absolute; top:0; bottom:0; width:50%; background:#050506;
+  transition:transform .7s cubic-bezier(.7,0,.3,1);}
+.lockDoor.l{left:0; border-right:calc(2*var(--px)) solid var(--green-dim);}
+.lockDoor.r{right:0; border-left:calc(2*var(--px)) solid var(--green-dim);}
+.ov#ovLock.opening .lockDoor.l{transform:translateX(-100%);}
+.ov#ovLock.opening .lockDoor.r{transform:translateX(100%);}
+.lockWrap{position:absolute; inset:0; display:grid; place-items:center; gap:calc(22*var(--px));
+  text-align:center; transition:opacity .3s ease-out;}
+.ov#ovLock.opening .lockWrap{opacity:0; pointer-events:none;}
+.lockIcon{width:calc(150*var(--px)); height:calc(150*var(--px)); color:var(--green);
+  filter:drop-shadow(0 0 calc(24*var(--px)) rgba(53,255,106,.65));
+  animation:lockFlash 1.3s steps(2) infinite;}
+@keyframes lockFlash{50%{opacity:.3}}
+.lockTitle{font-size:calc(22*var(--px)); letter-spacing:calc(6*var(--px)); color:var(--green);}
+
+@keyframes revealIn{0%{opacity:0; transform:scale(.94);} 100%{opacity:1; transform:none;}}
+.crt.revealing header, .crt.revealing main, .crt.revealing footer{animation:revealIn .5s ease-out both;}
 `;
 
 const ICON_CAMERA = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2Z"/><circle cx="12" cy="13" r="4"/></svg>`;
@@ -529,6 +574,18 @@ const HTML_CODE = `
       </div>
     </div>
   </div>
+
+  <div class="ov" id="ovLock">
+    <div class="lockDoor l"></div>
+    <div class="lockDoor r"></div>
+    <div class="lockWrap">
+      <svg class="lockIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+      </svg>
+      <div class="lockTitle">ACCÈS RESTREINT</div>
+      <button class="bigbtn g" id="lockBtn">ACCÉDER AU PANNEAU DE CONTRÔLE</button>
+    </div>
+  </div>
 </div>`;
 
 const HTML_CCTV = (cells) => `
@@ -572,6 +629,16 @@ const HTML_CCTV = (cells) => `
 
   <footer id="log"></footer>
   ${REGIE}
+
+  <div class="ov" id="ovReveal" hidden>
+    <div class="revealStart" id="revealStart">
+      <button class="bigbtn r" id="revealStartBtn">COMMENCER LE VISIONNEMENT FINAL</button>
+    </div>
+    <video id="revealVideo" hidden playsinline></video>
+    <div class="bustedStamp" id="revealBusted" hidden>BUSTED</div>
+    <div class="revealFade" id="revealFade" hidden></div>
+    <div class="theEnd" id="revealEnd" hidden>THE END</div>
+  </div>
 </div>`;
 
 class MysteryTerminalCard extends HTMLElement {
@@ -641,6 +708,7 @@ class MysteryTerminalCard extends HTMLElement {
     clearTimeout(this._sayHide);
     this._clearCamBails();
     if (this._unsubSay) { this._unsubSay(); this._unsubSay = null; this._evSub = false; }
+    if (this._unsubReveal) { this._unsubReveal(); this._unsubReveal = null; this._evSubReveal = false; }
     if (this._unsubJournal) { this._unsubJournal(); this._unsubJournal = null; this._journalSub = false; }
     if (this._onFs) {
       document.removeEventListener("fullscreenchange", this._onFs);
@@ -731,10 +799,25 @@ class MysteryTerminalCard extends HTMLElement {
     $("dossClose").addEventListener("click", () => { this._sfx("close"); this._hide("ovDossier"); });
     $("confirmNo").addEventListener("click", () => { this._sfx("close"); this._hide("ovConfirm"); });
     $("confirmYes").addEventListener("click", () => this._sendAccusation());
+    $("lockBtn").addEventListener("click", () => this._openLock());
 
     this._renderDigits();
     this._setMsg("", "");
     this._log("TERMINAL DE SAISIE EN LIGNE");
+  }
+
+  /* Un cadenas plutôt que le clavier direct : sur le second écran, à côté du
+   * mur de caméras qui bouge tout seul, un panneau statique passe inaperçu.
+   * Rejoue à chaque retour sur cet écran (bascule de mode) — tant mieux, ça
+   * fait un rappel visuel de plus. */
+  _openLock() {
+    const ov = this.$("ovLock");
+    if (!ov || ov.classList.contains("opening")) return;
+    this._sfx("vault");
+    ov.classList.add("opening");
+    const crt = this.shadowRoot.querySelector(".crt");
+    if (crt) crt.classList.add("revealing");
+    setTimeout(() => { if (this.$ && this.$("ovLock")) this._hide("ovLock"); }, 750);
   }
 
   _cellsHtml() {
@@ -790,6 +873,8 @@ class MysteryTerminalCard extends HTMLElement {
       btn.addEventListener("click", (ev) => this._toggleFastForward(+btn.dataset.ff, ev)));
     this.shadowRoot.querySelectorAll("[data-hint]").forEach((btn) =>
       btn.addEventListener("click", (ev) => { ev.stopPropagation(); this._requestHint(btn.dataset.hint); }));
+    this.$("revealStartBtn").addEventListener("click", () => this._beginReveal());
+    this._syncReveal();
     this._log("MUR D'IMAGES EN LIGNE");
     this._log("ARCHIVES EN LECTURE — BOUCLE CONTINUE");
   }
@@ -884,6 +969,15 @@ class MysteryTerminalCard extends HTMLElement {
         .then((unsub) => { this._unsubSay = unsub; })
         .catch(() => { this._evSub = false; });
     }
+    // Le dénouement l'envoie une fois : le mur d'images se noircit et propose
+    // de démarrer la vidéo, l'écran de saisie garde son propre message.
+    if (!this._evSubReveal && hass.connection) {
+      this._evSubReveal = true;
+      hass.connection
+        .subscribeEvents((ev) => this._revealReady(ev.data), "mystery_terminal_reveal")
+        .then((unsub) => { this._unsubReveal = unsub; })
+        .catch(() => { this._evSubReveal = false; });
+    }
     this._startJournal(hass);
     this._applyHass(hass);
   }
@@ -935,6 +1029,14 @@ class MysteryTerminalCard extends HTMLElement {
     this.$("phase").textContent = PHASE_LABEL[cur.phase] || String(cur.phase || "").toUpperCase();
 
     if (prev && !prev.unlocked && cur.unlocked) this._unlockSequence();
+
+    // Une nouvelle partie peut démarrer sans recharger la page : sans ça, le
+    // mur d'images rouvrirait direct sur le « THE END » de la partie d'avant.
+    if (prev && prev.phase !== "investigation" && cur.phase === "investigation") {
+      this._revealMedia = null;
+      this._revealStage = null;
+      if (this.$("ovReveal")) this._hide("ovReveal");
+    }
 
     if (this._pending && cur.code === "") {
       const gained = count > this._pending.count;
@@ -1122,6 +1224,96 @@ class MysteryTerminalCard extends HTMLElement {
     }
   }
 
+  /* Uniquement sur le mur d'images — c'est l'écran qui affichait les caméras,
+   * celui vers qui l'inspecteur renvoie les joueurs. Un bouton plutôt qu'une
+   * lecture automatique : ça sert aussi de geste utilisateur pour l'audio. */
+  _revealReady(data) {
+    if (!data || !data.media_content_id) return;
+    this._revealMedia = data.media_content_id;
+    if (this._revealStage !== "end") this._revealStage = "ready";
+    if (this._mode !== "cctv" || !this.$ || !this.$("ovReveal")) {
+      this._log("RÉVÉLATION FINALE PRÊTE — VOIR LE MUR D'IMAGES");
+      return;
+    }
+    this._syncReveal();
+  }
+
+  /* Rejoue l'état courant après une reconstruction (bascule de mode) : la
+   * vidéo elle-même ne survit jamais à un changement d'onglet, seul le stade
+   * "end" reste affiché tel quel. */
+  _syncReveal() {
+    if (!this._revealMedia || !this.$("ovReveal")) return;
+    this._show("ovReveal");
+    const ending = this._revealStage === "end";
+    this.$("revealStart").hidden = ending;
+    this.$("revealVideo").hidden = true;
+    this.$("revealBusted").hidden = !ending;
+    this.$("revealBusted").classList.toggle("show", ending);
+    this.$("revealFade").hidden = !ending;
+    this.$("revealFade").classList.toggle("show", ending);
+    this.$("revealEnd").hidden = !ending;
+    this.$("revealEnd").classList.toggle("show", ending);
+  }
+
+  async _beginReveal() {
+    if (!this._revealMedia) return;
+    this._sfx("unlock");
+    this._revealStage = "playing";
+    this.$("revealStart").hidden = true;
+    const video = this.$("revealVideo");
+    video.hidden = false;
+    try {
+      video.src = await this._resolveMedia(this._revealMedia);
+    } catch (e) {
+      this._log("RÉVÉLATION — VIDÉO INTROUVABLE");
+      console.warn("[mystery-terminal] vidéo de révélation introuvable", e);
+      this._revealStage = "ready";
+      this.$("revealStart").hidden = false;
+      video.hidden = true;
+      return;
+    }
+    // Le stamp claque juste avant la fin, façon GTA — pas un minutage fixe :
+    // la vidéo peut changer de durée sans casser l'effet.
+    const bustedLeadSeconds = 2.5;
+    video.ontimeupdate = () => {
+      if (!video.duration || video.currentTime < video.duration - bustedLeadSeconds) return;
+      video.ontimeupdate = null;
+      this._sfx("accuse");
+      const busted = this.$("revealBusted");
+      busted.hidden = false;
+      requestAnimationFrame(() => busted.classList.add("show"));
+    };
+    video.onended = () => this._finishReveal();
+    try {
+      await video.play();
+    } catch (e) {
+      this._log("RÉVÉLATION — LECTURE VIDÉO BLOQUÉE PAR LE NAVIGATEUR");
+      console.warn("[mystery-terminal] lecture de la révélation bloquée", e);
+    }
+  }
+
+  _finishReveal() {
+    this._revealStage = "end";
+    if (!this.$ || !this.$("ovReveal")) return;
+    const fade = this.$("revealFade");
+    fade.hidden = false;
+    requestAnimationFrame(() => fade.classList.add("show"));
+    setTimeout(() => {
+      if (!this.$ || !this.$("revealEnd")) return;
+      const end = this.$("revealEnd");
+      end.hidden = false;
+      requestAnimationFrame(() => end.classList.add("show"));
+    }, 3000);
+  }
+
+  async _resolveMedia(mediaContentId) {
+    const r = await this._hass.callWS({
+      type: "media_source/resolve_media",
+      media_content_id: mediaContentId,
+    });
+    return r.url;
+  }
+
   /* On met la carte elle-même en plein écran, pas la page : ça masque aussi la
    * barre latérale et l'en-tête de Home Assistant. */
   _toggleFullscreen() {
@@ -1209,6 +1401,9 @@ class MysteryTerminalCard extends HTMLElement {
       case "warn":   this._beep(240, 200, { type: "sawtooth", gain: 1.1 }); break;
       case "accuse": this._seq([[160, 300, { type: "sawtooth", gain: 1.4 }, 0],
                                 [110, 520, { type: "sawtooth", gain: 1.4 }, 220]]); break;
+      case "vault":  this._seq([[90, 140, { type: "square", gain: 1.2 }, 0],
+                                [65, 220, { type: "sawtooth", sweep: 50, gain: 1.1 }, 90],
+                                [880, 180, { type: "triangle", gain: 1.0 }, 340]]); break;
     }
   }
 

@@ -382,12 +382,18 @@ class ScriptWiring(unittest.TestCase):
     def test_le_script_de_depart_expose_la_case_a_cocher(self):
         field = SCRIPTS["mystery_start"]["fields"]["kid_friendly"]
         self.assertIn("boolean", field["selector"])
-        self.assertFalse(field["default"])
+        self.assertTrue(field["required"])
 
     def test_le_script_de_depart_pose_le_helper(self):
         sequence = yaml.dump(SCRIPTS["mystery_start"]["sequence"], allow_unicode=True)
         self.assertIn("input_boolean.mystery_kid_friendly", sequence)
-        self.assertIn("kid_friendly | default(false) | bool", sequence)
+        self.assertIn("kid_friendly | bool", sequence)
+
+    def test_les_champs_du_script_de_depart_sont_obligatoires(self):
+        """Aucun défaut : chaque appel doit fournir explicitement les 3 valeurs."""
+        for name, field in SCRIPTS["mystery_start"]["fields"].items():
+            self.assertNotIn("default", field, f"{name} a encore un défaut")
+            self.assertTrue(field["required"], f"{name} devrait être obligatoire")
 
     def test_le_mode_est_lu_depuis_le_helper(self):
         self.assertIn(
@@ -400,6 +406,50 @@ class ScriptWiring(unittest.TestCase):
             SCRIPTS["mystery_reset_state"]["sequence"], allow_unicode=True
         )
         self.assertNotIn("mystery_kid_friendly", sequence)
+
+    def test_le_helper_vrais_acteurs_existe(self):
+        self.assertIn("mystery_real_actors", CONFIG["input_boolean"])
+
+    def test_le_script_de_depart_expose_le_toggle_vrais_acteurs(self):
+        field = SCRIPTS["mystery_start"]["fields"]["real_actors"]
+        self.assertIn("boolean", field["selector"])
+        self.assertTrue(field["required"])
+
+    def test_le_script_de_depart_pose_le_helper_vrais_acteurs(self):
+        sequence = yaml.dump(SCRIPTS["mystery_start"]["sequence"], allow_unicode=True)
+        self.assertIn("input_boolean.mystery_real_actors", sequence)
+        self.assertIn("real_actors | bool", sequence)
+
+    def test_le_reset_ne_touche_pas_au_reglage_vrais_acteurs(self):
+        sequence = yaml.dump(
+            SCRIPTS["mystery_reset_state"]["sequence"], allow_unicode=True
+        )
+        self.assertNotIn("mystery_real_actors", sequence)
+
+
+class VraisActeursCoupentLaVoixSaufMajordome(unittest.TestCase):
+    """Régression : le toggle "Real actors" ne doit museler que le Jardinier et
+    l'Héritière — le Majordome, sans acteur, garde toujours sa voix synthétique.
+    """
+
+    def voice_enabled(self, suspect, real_actors):
+        def is_state(entity_id, state):
+            assert entity_id == "input_boolean.mystery_real_actors"
+            return real_actors == (state == "on")
+
+        template = Template(VARIABLES["voice_enabled"])
+        return template.render(suspect=suspect, is_state=is_state) == "True"
+
+    def test_sans_vrais_acteurs_tout_le_monde_parle(self):
+        for suspect in SUSPECTS:
+            self.assertTrue(self.voice_enabled(suspect, real_actors=False))
+
+    def test_avec_vrais_acteurs_le_jardinier_et_l_heritiere_se_taisent(self):
+        self.assertFalse(self.voice_enabled("gardener", real_actors=True))
+        self.assertFalse(self.voice_enabled("heiress", real_actors=True))
+
+    def test_avec_vrais_acteurs_le_majordome_parle_quand_meme(self):
+        self.assertTrue(self.voice_enabled("butler", real_actors=True))
 
     def test_la_replique_ponctuelle_retombe_sur_l_originale(self):
         """Sans variante fournie, `custom_line` sert dans les deux versions."""
@@ -415,6 +465,38 @@ class ScriptWiring(unittest.TestCase):
         self.assertEqual(
             template.render(kid_friendly=False, custom_line="A", custom_line_kid="B"),
             "A",
+        )
+
+
+class DenouementSurLeMurDImages(unittest.TestCase):
+    """Régression : la révélation finale se joue sur l'écran du terminal, plus
+    au théâtre — aucune animation de lumière/rideau ni la TV du théâtre.
+    """
+
+    def sequence_text(self):
+        return yaml.dump(SCRIPTS["mystery_denouement"]["sequence"], allow_unicode=True)
+
+    def test_aucune_reference_au_theatre(self):
+        sequence = self.sequence_text()
+        for entity in (
+            "media_player.theatre_tv",
+            "light.theatre",
+            "cover.theatre_left_shade",
+            "cover.theatre_middle_shade",
+            "cover.theatre_right_shade",
+            "light.wooden_lamp",
+            "light.metal_lamp",
+            "light.bad_light",
+        ):
+            self.assertNotIn(entity, sequence, f"{entity} encore référencé dans le dénouement")
+
+    def test_la_video_est_envoyee_par_evenement(self):
+        success_steps = SCRIPTS["mystery_denouement"]["sequence"][0]["then"]
+        reveal = next(s for s in success_steps if "event" in s)
+        self.assertEqual(reveal["event"], "mystery_terminal_reveal")
+        self.assertEqual(
+            reveal["event_data"]["media_content_id"],
+            "media-source://media_source/local/Final Reveal.mp4",
         )
 
 
