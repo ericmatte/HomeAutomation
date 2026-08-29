@@ -379,14 +379,12 @@ class MemeEnquete(unittest.TestCase):
 
 REGLAGES_DE_DEPART = ("player_name", "start_delay", "kid_friendly", "real_actors")
 
-CASES_DE_MISE_EN_PLACE = (
-    "check_wine_bag",
-    "check_gun_trap",
-    "check_dress",
-    "check_cctv_screens",
-    "check_walkies",
-    "check_costumes",
-)
+MISE_EN_PLACE = "checklist"
+
+DESCRIPTIONS_ATTENDUES = {
+    "kid_friendly": "Mode sans sacres.",
+    "real_actors": "Coupe les voix de l'Héritière et du Jardinier.",
+}
 
 
 class ScriptWiring(unittest.TestCase):
@@ -413,7 +411,7 @@ class ScriptWiring(unittest.TestCase):
     def test_le_script_de_depart_n_expose_rien_d_autre(self):
         self.assertEqual(
             set(SCRIPTS["mystery_start"]["fields"]),
-            set(REGLAGES_DE_DEPART) | set(CASES_DE_MISE_EN_PLACE),
+            set(REGLAGES_DE_DEPART) | {MISE_EN_PLACE},
         )
 
     def test_le_mode_est_lu_depuis_le_helper(self):
@@ -659,39 +657,39 @@ class LesDeuxIndicesDuMurDImages(unittest.TestCase):
         self.assertIn('{ 1: "heiress", 2: "butler" }', card)
 
 
-class CasesDeMiseEnPlaceInertes(unittest.TestCase):
-    """Une liste de mise en place à cocher soi-même, rien de plus. Si l'une de
-    ces cases finissait par piloter quoi que ce soit, une case oubliée pourrait
-    saboter une partie — c'est exactement ce qu'on refuse.
+class ListeDeMiseEnPlaceInerte(unittest.TestCase):
+    """Une liste à cocher soi-même, rien de plus. Si elle finissait par piloter
+    quoi que ce soit, l'oublier pourrait saboter une partie — c'est exactement
+    ce qu'on refuse.
     """
 
-    def field(self, name):
-        return SCRIPTS["mystery_start"]["fields"][name]
+    def field(self):
+        return SCRIPTS["mystery_start"]["fields"][MISE_EN_PLACE]
 
-    def test_ce_sont_des_cases_a_cocher(self):
-        for name in CASES_DE_MISE_EN_PLACE:
-            self.assertIn("boolean", self.field(name)["selector"], name)
+    def test_c_est_une_seule_case_a_cocher(self):
+        self.assertIn("boolean", self.field()["selector"])
 
-    def test_aucune_case_ne_peut_bloquer_un_depart(self):
-        for name in CASES_DE_MISE_EN_PLACE:
-            field = self.field(name)
-            self.assertFalse(field.get("required"), f"{name} est obligatoire")
-            self.assertFalse(field["default"], f"{name} démarre cochée")
+    def test_elle_ne_peut_pas_bloquer_un_depart(self):
+        field = self.field()
+        self.assertFalse(field.get("required"), "la liste est obligatoire")
+        self.assertNotIn("default", field, "la liste a un défaut")
 
-    def test_aucune_case_n_est_lue_par_la_sequence(self):
-        sequence = yaml.dump(SCRIPTS["mystery_start"]["sequence"], allow_unicode=True)
-        for name in CASES_DE_MISE_EN_PLACE:
-            self.assertNotIn(name, sequence, f"{name} pilote quelque chose")
+    def test_un_element_par_ligne(self):
+        lignes = self.field()["name"].split("\n")
+        self.assertEqual(lignes[0], "Mise en place")
+        elements = lignes[1:]
+        self.assertEqual(len(elements), 6)
+        for ligne in elements:
+            self.assertTrue(ligne.startswith("✓ "), f"« {ligne} » n'est pas un item")
 
-    def test_aucune_case_n_est_lue_ailleurs_dans_la_maison(self):
+    def test_elle_n_est_lue_nulle_part(self):
         partout = yaml.dump([SCRIPTS, AUTOMATIONS, CONFIG], allow_unicode=True)
-        for name in CASES_DE_MISE_EN_PLACE:
-            self.assertEqual(
-                partout.count(name), 1, f"{name} apparaît ailleurs que dans sa déclaration"
-            )
+        self.assertEqual(
+            partout.count(MISE_EN_PLACE), 1,
+            f"{MISE_EN_PLACE} apparaît ailleurs que dans sa déclaration",
+        )
 
-    def test_seul_le_safe_mode_garde_une_description(self):
+    def test_seuls_les_deux_modes_de_jeu_sont_decrits(self):
         fields = SCRIPTS["mystery_start"]["fields"]
-        decrits = {n for n, f in fields.items() if f.get("description")}
-        self.assertEqual(decrits, {"kid_friendly"})
-        self.assertEqual(fields["kid_friendly"]["description"], "Mode sans sacres.")
+        decrits = {n: f["description"] for n, f in fields.items() if f.get("description")}
+        self.assertEqual(decrits, DESCRIPTIONS_ATTENDUES)

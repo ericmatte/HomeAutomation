@@ -1054,44 +1054,23 @@ mystery_start:
       required: true
     real_actors:
       name: Real actors
+      description: Coupe les voix de l'Héritière et du Jardinier.
       selector:
         boolean: {}
       required: true
-    # Les 6 cases qui suivent ne font RIEN : rien ne les lit, rien ne les
-    # vérifie, elles ne bloquent aucun départ. C'est une liste de mise en place
-    # à cocher soi-même avant de lancer, pour ne rien oublier dans la maison.
-    # Sans « required » exprès : une case oubliée ne doit jamais empêcher de
-    # commencer une partie.
-    check_wine_bag:
-      name: ✓ Bouton dans le sac à vin
+    # Pense-bête, rien de plus : rien ne le lit, rien ne le vérifie, et il ne
+    # bloque aucun départ. On le coche soi-même une fois la maison repassée.
+    checklist:
+      name: |-
+        Mise en place
+        ✓ Bouton dans le sac à vin
+        ✓ Fusil dans la trappe, avec le capteur de vibration
+        ✓ Robe dans la buanderie
+        ✓ Écrans allumés sur le tableau de bord CCTV
+        ✓ Walkies-talkies à côté des écrans
+        ✓ Costumes prêts à enfiler
       selector:
         boolean: {}
-      default: false
-    check_gun_trap:
-      name: ✓ Fusil dans la trappe, avec le capteur de vibration
-      selector:
-        boolean: {}
-      default: false
-    check_dress:
-      name: ✓ Robe dans la buanderie
-      selector:
-        boolean: {}
-      default: false
-    check_cctv_screens:
-      name: ✓ Écrans allumés sur le tableau de bord CCTV
-      selector:
-        boolean: {}
-      default: false
-    check_walkies:
-      name: ✓ Walkies-talkies à côté des écrans
-      selector:
-        boolean: {}
-      default: false
-    check_costumes:
-      name: ✓ Costumes prêts à enfiler
-      selector:
-        boolean: {}
-      default: false
   sequence:
   - action: homeassistant.reload_config_entry
     data:
