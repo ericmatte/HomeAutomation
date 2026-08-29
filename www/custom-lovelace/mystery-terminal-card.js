@@ -223,13 +223,12 @@ header{display:flex; align-items:stretch; gap:calc(10*var(--px)); z-index:5;}
   background:repeating-linear-gradient(45deg, rgba(53,255,106,.10) 0 calc(8*var(--px)), transparent calc(8*var(--px)) calc(16*var(--px)));}
 
 main{display:grid; gap:calc(12*var(--px)); min-height:0; z-index:5;}
-/* Écran des caméras à part : sombre exprès, c'est de la surveillance nocturne.
-   Celui du code est ce que les joueurs regardent le plus — il mérite d'être
-   repérable du coin de l'œil, pas juste au premier plan. */
 main.code{grid-template-columns:1fr 1.15fr;}
-/* z-index 6 : header/main/footer sont à 5 avec des panneaux opaques — sans ça
-   la lueur se retrouve derrière eux et ne se voit plus que dans les joints. */
-.crt.code::before{content:''; position:absolute; inset:0; pointer-events:none; z-index:6;
+/* Lueur d'ambiance commune aux deux écrans : elle les rend repérables du coin
+   de l'œil et donne le halo d'un vieux moniteur.
+   z-index 6 : header/main/footer sont à 5 avec des fonds opaques — en dessous,
+   la lueur ne se verrait plus que dans les joints. */
+.crt::before{content:''; position:absolute; inset:0; pointer-events:none; z-index:6;
   background:radial-gradient(ellipse at 35% 10%, rgba(255,178,0,.16), transparent 65%);}
 main.cctv{grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr;}
 section.col{display:flex; flex-direction:column; gap:calc(10*var(--px)); min-height:0;}
@@ -308,11 +307,12 @@ section.col{display:flex; flex-direction:column; gap:calc(10*var(--px)); min-hei
 .cell .ts{position:absolute; z-index:3; bottom:calc(12*var(--px)); right:calc(14*var(--px)); font-size:calc(17*var(--px));
   color:var(--amber); background:rgba(2,2,3,.72); padding:calc(4*var(--px)) calc(10*var(--px)); font-variant-numeric:tabular-nums;}
 
+/* Toujours à l'écran, mais en retrait : un bouton qui n'apparaît qu'au survol
+   ne se découvre pas sur une tablette, où il n'y a pas de survol du tout. */
 .cell .controls{position:absolute; z-index:4; left:calc(14*var(--px)); bottom:calc(12*var(--px));
   display:flex; align-items:center; gap:calc(10*var(--px));
-  opacity:0; transform:translateY(calc(6*var(--px)));
-  transition:opacity .15s ease, transform .15s ease; pointer-events:none;}
-.cell:hover .controls{opacity:1; transform:none;}
+  opacity:.45; transition:opacity .15s ease; pointer-events:none;}
+.cell:hover .controls{opacity:1;}
 
 .cell .zoomhint{display:flex; align-items:center; gap:calc(10*var(--px));
   padding:calc(8*var(--px)) calc(14*var(--px)); background:rgba(2,2,3,.78); border:calc(1*var(--px)) solid var(--line);
@@ -333,6 +333,18 @@ section.col{display:flex; flex-direction:column; gap:calc(10*var(--px)); min-hei
 .cell .ffbtn:hover{color:#000; background:var(--amber); border-color:var(--amber);}
 main.cctv.zoomed .cell.zoom-active .ffbtn{display:flex;}
 .cell .ffbtn.on{color:#000; background:var(--amber); border-color:var(--amber);}
+
+/* Caméra plein écran : les commandes deviennent une barre centrée en bas, et
+   grossissent — c'est le seul moment où l'écran a la place pour ça, et le seul
+   où « réduire » est la sortie à trouver. */
+main.cctv.zoomed .cell.zoom-active .controls{left:0; right:0; bottom:calc(30*var(--px));
+  justify-content:center; gap:calc(18*var(--px)); opacity:1;}
+main.cctv.zoomed .cell.zoom-active .zoomhint,
+main.cctv.zoomed .cell.zoom-active .ffbtn{padding:calc(14*var(--px)) calc(26*var(--px));
+  gap:calc(14*var(--px)); font-size:calc(21*var(--px));}
+main.cctv.zoomed .cell.zoom-active .zoomhint .ic{font-size:calc(36*var(--px));}
+main.cctv.zoomed .cell.zoom-active .ffbtn .ic{width:calc(28*var(--px)); height:calc(28*var(--px));}
+main.cctv.zoomed .cell.zoom-active .tx{font-size:calc(21*var(--px));}
 
 main.cctv.zoomed{grid-template-columns:1fr; grid-template-rows:1fr;}
 main.cctv.zoomed .cell{display:none;}
@@ -542,7 +554,7 @@ const HEAD = (brand, sub, rec) => `
   </header>`;
 
 const HTML_CODE = `
-<div class="crt code">
+<div class="crt">
   <div class="noise"></div><div class="vig"></div>
   ${HEAD("MANOIR — POSTE DE SÉCURITÉ", "TERMINAL DE SAISIE · UNITÉ B-02 · SOUS-SOL", "ENREGISTREMENT")}
 

@@ -128,6 +128,25 @@ Je vous écoute : désignez le coupable sur le terminal.
 Il n'y a pas d'enquête en cours, détective.
 ```
 
+### Ses indices sur le mur d'images
+
+Le bouton **Indice** sous une caméra agrandie. Il envoie le robot aspirateur
+vers la cachette, et les joueurs n'ont qu'à le suivre. Deux caméras en ont un.
+
+**T27** 🖥️ — CAM 02, le salon (l'Héritière). Le robot part vers la trappe
+du foyer, où se cache le fusil.
+
+```
+Vous ne regardez peut-être pas au bon endroit. Mon fidèle acolyte pourrait peut-être vous guider vers une meilleure piste !
+```
+
+**T28** 🖥️ — CAM 03, la salle à manger (le Majordome). Le robot part vers
+l'étagère à vins, où se cache le poison.
+
+```
+Hmmmm, des fois les apparences sont trompeuses.. Je crois que notre ami le robot est sur une piste.
+```
+
 ### Sa réponse courte au téléphone
 
 **T13** 📞 — Quand on demande un indice, avant qu'il rappelle.
@@ -146,13 +165,13 @@ Un instant, détective, je consulte mon dossier.
 **T16** — Première fois qu'on ouvre la porte de l'atelier.
 
 ```
-Hé, c'est quoi cette histoire de détective ? Moi, j'ai rien vu, je le jure. J'ai passé la soirée icite, dans l'atelier, à aiguiser ma scie rouge. Vraiment chill man. Mais si tu veux mon avis, le Majordome, lui y'er louche en tabarnak: il arrêtait pas de tourner autour de la salle à manger avec sa bouteille de vin, le câlice. Monte donc voir de ce côté-là. Et fais attention à mon robot, il fait sa ronde.
+Hé, c'est quoi cette histoire de détective ? Moi, j'ai rien vu, je le jure. J'ai passé la soirée icite, dans l'atelier, à aiguiser ma scie rouge. Vraiment chill man. Mais si tu veux mon avis, le Majordome, lui y'er louche en tabarnak: il arrêtait pas de tourner autour de la salle à manger avec sa bouteille de vin, le câlice. Monte donc voir de ce côté-là.
 ```
 
 👶 **T16 tout public**
 
 ```
-Hé, c'est quoi cette histoire de détective ? Moi, je n'ai rien vu, je le jure. J'ai passé la soirée ici, dans l'atelier, à aiguiser ma scie rouge. Une soirée bien tranquille. Mais si tu veux mon avis, le Majordome, lui, il est assez louche : il n'arrêtait pas de tourner autour de la salle à manger avec sa bouteille de vin. Monte donc voir de ce côté-là. Et fais attention à mon robot, il fait sa ronde.
+Hé, c'est quoi cette histoire de détective ? Moi, je n'ai rien vu, je le jure. J'ai passé la soirée ici, dans l'atelier, à aiguiser ma scie rouge. Une soirée bien tranquille. Mais si tu veux mon avis, le Majordome, lui, il est assez louche : il n'arrêtait pas de tourner autour de la salle à manger avec sa bouteille de vin. Monte donc voir de ce côté-là.
 ```
 
 **T17** — Les fois suivantes.
@@ -211,16 +230,16 @@ Heille ! Fouillez pas dans mon linge sale, vous autres ! Ma robe de soirée est 
 Hé ! Ne fouillez pas dans mon linge sale ! Ma robe de soirée est là-dedans, et oui, elle est tachée. Mais c'est du vin, ça, pas du sang ! On m'en a renversé un plein verre dessus.
 ```
 
-**T21** — La suite, enchaînée après T19 **ou** T20. C'est elle qui lance le robot.
+**T21** — La suite, enchaînée après T19 **ou** T20.
 
 ```
-Si vous cherchez de quoi avancer, c'est pas moi qu'il faut regarder. Moi, j'irais fouiller l'étagère à vins — il doit bien se cacher quelque chose là-dedans. Tenez, je pars mon robot, il s'en va justement par là. Suivez-le.
+Si vous cherchez de quoi avancer, c'est pas moi qu'il faut regarder. Moi, j'irais fouiller l'étagère à vins — il doit bien se cacher quelque chose là-dedans.
 ```
 
 👶 **T21 tout public**
 
 ```
-Si vous cherchez de quoi avancer, ce n'est pas moi qu'il faut regarder. Moi, j'irais fouiller l'étagère à vins — il doit bien se cacher quelque chose là-dedans. Tenez, je démarre mon robot, il s'en va justement par là. Suivez-le.
+Si vous cherchez de quoi avancer, ce n'est pas moi qu'il faut regarder. Moi, j'irais fouiller l'étagère à vins — il doit bien se cacher quelque chose là-dedans.
 ```
 
 **T22** — Les fois suivantes. L'entrée en matière (T22-1a/b/c) dépend de
@@ -268,13 +287,13 @@ Mais enfin, laissez mes affaires tranquilles ! Ni le fusil ni ma robe n'ont de r
 **T22-2** — Enchaînement après T22-1\*
 
 ```
-Pis arrêtez de me niaiser avec ça : mon robot est déjà parti vous montrer où chercher. J'lai vu le Majordome, y'avait un sac à vin contenant sa meilleur bouteille, y'a clairement laisser des traces de son passage dans le sac !
+Pis arrêtez de me niaiser avec ça. J'lai vu le Majordome, y'avait un sac à vin contenant sa meilleur bouteille, y'a clairement laisser des traces de son passage dans le sac !
 ```
 
 👶 **T22-2 tout public**
 
 ```
-Et arrêtez de m'embêter avec ça : mon robot est déjà parti vous montrer où chercher. Je l'ai vu, le Majordome, il avait un sac à vin contenant sa meilleure bouteille, il a clairement laissé des traces de son passage dans le sac !
+Et arrêtez de m'embêter avec ça. Je l'ai vu, le Majordome, il avait un sac à vin contenant sa meilleure bouteille, il a clairement laissé des traces de son passage dans le sac !
 ```
 
 ---

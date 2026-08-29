@@ -289,11 +289,13 @@ class VersionOriginaleIntacte(unittest.TestCase):
     """Filet de sécurité : option décochée, le jeu doit être mot pour mot celui
     d'avant l'ajout du mode tout public.
 
-    L'instantané a été généré depuis b8d7bb0, le commit qui précède ce mode. Il
-    couvre les 32 rendus de témoignages et les 25 répliques en dur (inspecteur,
-    marmonnements, dénouement). S'il casse, c'est que la version originale a
-    bougé — soit c'est voulu et il faut régénérer le fichier, soit c'est une
+    L'instantané couvre les 48 rendus de témoignages et les 9 répliques en dur
+    (inspecteur, indices, dénouement). S'il casse, c'est que la version originale
+    a bougé — soit c'est voulu et il faut régénérer le fichier, soit c'est une
     fuite du mode tout public dans la partie normale.
+
+    Régénéré le 2026-08-29, quand le robot est sorti des témoignages pour ne
+    plus servir que d'indice sur le mur d'images.
     """
 
     @staticmethod
@@ -333,8 +335,8 @@ class MemeEnquete(unittest.TestCase):
     """Seule la formulation change : l'intrigue est la même des deux côtés."""
 
     INDICES = {
-        "gardener": ["scie", "Majordome", "atelier", "robot"],
-        "heiress": ["fusil", "trappe", "vin", "robot"],
+        "gardener": ["scie", "Majordome", "atelier"],
+        "heiress": ["fusil", "trappe", "vin"],
         "butler": ["vin", "Héritière", "buanderie", "héritage"],
     }
 
@@ -571,3 +573,68 @@ class TourDHonneurApresLaVideo(unittest.TestCase):
         )
         finish = card.split("_finishReveal() {", 1)[1].split("\n  }", 1)[0]
         self.assertIn("script.mystery_victory_lap", finish)
+
+
+class LeRobotNeSertQuAuxIndices(unittest.TestCase):
+    """Le robot est sorti du jeu de dialogue : il ne bouge plus que sur demande
+    d'indice depuis le mur d'images, jamais en réaction à un témoignage.
+    """
+
+    def test_aucun_temoignage_ne_parle_du_robot(self):
+        for kid_friendly in (True, False):
+            for line in every_line(kid_friendly):
+                self.assertNotIn("robot", line.lower(), f"« {line[:70]}… »")
+
+    def test_aucune_replique_ponctuelle_ne_parle_du_robot(self):
+        for kid_friendly in (True, False):
+            for line in custom_lines(kid_friendly):
+                self.assertNotIn("robot", line.lower(), f"« {line[:70]}… »")
+
+    def test_un_temoignage_ne_deplace_plus_le_robot(self):
+        sequence = yaml.dump(
+            SCRIPTS["mystery_suspect_speak"]["sequence"], allow_unicode=True
+        )
+        self.assertNotIn("mystery_roby_goto", sequence)
+
+    def test_seul_le_bouton_indice_deplace_le_robot(self):
+        appelants = {
+            name for name, script in SCRIPTS.items()
+            if "mystery_roby_goto" in yaml.dump(script, allow_unicode=True)
+            and name != "mystery_roby_goto"
+        }
+        self.assertEqual(appelants, {"mystery_hint_request"})
+
+    def test_aucune_automation_ne_deplace_le_robot(self):
+        for name, automation in AUTOMATIONS.items():
+            self.assertNotIn(
+                "mystery_roby_goto",
+                yaml.dump(automation, allow_unicode=True),
+                f"{name} déplace encore le robot",
+            )
+
+
+class LesDeuxIndicesDuMurDImages(unittest.TestCase):
+    """Un indice par suspect fouillable : l'Héritière mène à la trappe du foyer
+    (le fusil), le Majordome à l'étagère à vins (le poison).
+    """
+
+    def destination(self, suspect):
+        template = Template(SCRIPTS["mystery_hint_request"]["variables"]["destination"])
+        return template.render(suspect=suspect)
+
+    def test_l_heritiere_envoie_le_robot_a_la_trappe(self):
+        self.assertEqual(self.destination("heiress"), "trap")
+
+    def test_le_majordome_envoie_le_robot_a_l_etagere_a_vins(self):
+        self.assertEqual(self.destination("butler"), "wine")
+
+    def test_les_deux_destinations_sont_connues_du_script_de_trajet(self):
+        options = SCRIPTS["mystery_roby_goto"]["fields"]["destination"]["selector"]["select"]["options"]
+        for suspect in ("heiress", "butler"):
+            self.assertIn(self.destination(suspect), options)
+
+    def test_le_bouton_indice_du_mur_couvre_les_deux_suspects(self):
+        card = (ROOT / "www/custom-lovelace/mystery-terminal-card.js").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn('{ 1: "heiress", 2: "butler" }', card)

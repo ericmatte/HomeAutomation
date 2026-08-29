@@ -965,8 +965,8 @@ mystery_roby_goto:
       default: 0
   variables:
     # spices : rack d'épices en salle à manger, calibré en live le 7 août 2026
-    # (8,7 m arrière, 2,2 m à droite du dock) avant d'être délaissé au profit
-    # de « trap » pour le Jardinier — réutilisé ici pour l'indice du Majordome.
+    # (8,7 m arrière, 2,2 m à droite du dock). Plus utilisé par aucun indice —
+    # gardé parce que la calibration coûte une soirée à refaire.
     coords: "{{ {'wine': [23000, 31500],\n    'trap': [25050, 25000],\n    'spices':
       [26700, 31200]}[destination] }}"
     travel_seconds: '{{ 65 if destination == ''wine'' else 100 }}'
@@ -999,7 +999,7 @@ mystery_hint_request:
     suspect:
       name: Suspect
       description: 'Détermine le message de l''inspecteur et la destination de Roby :
-        héritière → trappe du foyer (fusil), majordome → rack d''épices (poison).'
+        héritière → trappe du foyer (fusil), majordome → étagère à vins (poison).'
       selector:
         select:
           options:
@@ -1013,7 +1013,7 @@ mystery_hint_request:
       meilleure piste ! {% else %} Hmmmm, des fois les apparences sont
       trompeuses.. Je crois que notre ami le robot est sur une piste. {% endif
       %}
-    destination: "{{ 'trap' if suspect == 'heiress' else 'spices' }}"
+    destination: "{{ 'trap' if suspect == 'heiress' else 'wine' }}"
   sequence:
   - action: script.mystery_inspector_say
     data:
@@ -1310,7 +1310,7 @@ mystery_suspect_speak:
       à aiguiser ma scie rouge. Vraiment chill man. Mais si tu veux mon avis, le
       Majordome, lui y'er louche en tabarnak: il arrêtait pas de tourner autour de
       la salle à manger avec sa bouteille de vin, le câlice. Monte donc voir de ce
-      côté-là. Et fais attention à mon robot, il fait sa ronde. {% elif suspect ==
+      côté-là. {% elif suspect ==
       'heiress' %} {% if variant == 'laundry' %} Heille ! Fouillez pas dans mon
       linge sale, vous autres ! Ma robe de soirée est là-dedans, pis oui, elle est
       tachée. Mais c'est du vin, ça, pas du sang ! On m'en a renversé un plein
@@ -1320,8 +1320,7 @@ mystery_suspect_speak:
       distinguée quand même, on va pas me faire passer pour une calice de
       criminelle ! Non madame. {% endif %} Si vous cherchez de quoi avancer, c'est
       pas moi qu'il faut regarder. Moi, j'irais fouiller l'étagère à vins — il
-      doit bien se cacher quelque chose là-dedans. Tenez, je pars mon robot, il
-      s'en va justement par là. Suivez-le. {% else %} Vous avez sonné pour le
+      doit bien se cacher quelque chose là-dedans. {% else %} Vous avez sonné pour le
       service ? À votre entière disposition. J'ai servi le vin toute la soirée,
       comme il se doit. Un service irréprochable. L'Héritière, en revanche, ne
       décolérait pas contre la victime : une sordide histoire d'héritage. Et
@@ -1333,7 +1332,7 @@ mystery_suspect_speak:
       à aiguiser ma scie rouge. Une soirée bien tranquille. Mais si tu veux mon
       avis, le Majordome, lui, il est assez louche : il n'arrêtait pas de tourner
       autour de la salle à manger avec sa bouteille de vin. Monte donc voir de ce
-      côté-là. Et fais attention à mon robot, il fait sa ronde. {% elif suspect ==
+      côté-là. {% elif suspect ==
       'heiress' %} {% if variant == 'laundry' %} Hé ! Ne fouillez pas dans mon
       linge sale ! Ma robe de soirée est là-dedans, et oui, elle est tachée. Mais
       c'est du vin, ça, pas du sang ! On m'en a renversé un plein verre dessus. {%
@@ -1342,8 +1341,7 @@ mystery_suspect_speak:
       servie, je vous le jure ! Je suis une femme très distinguée, on ne va pas me
       faire passer pour une criminelle ! Non madame. {% endif %} Si vous cherchez
       de quoi avancer, ce n'est pas moi qu'il faut regarder. Moi, j'irais fouiller
-      l'étagère à vins — il doit bien se cacher quelque chose là-dedans. Tenez, je
-      démarre mon robot, il s'en va justement par là. Suivez-le. {% else %} Vous
+      l'étagère à vins — il doit bien se cacher quelque chose là-dedans. {% else %} Vous
       avez sonné pour le service ? À votre entière disposition. J'ai servi le vin
       toute la soirée, comme il se doit. Un service irréprochable. L'Héritière, en
       revanche, ne décolérait pas contre la victime : une sordide histoire
@@ -1359,8 +1357,8 @@ mystery_suspect_speak:
       heiress_gun_seen %} Girouette de St-Miséricorde! Vas-tu bien lâchez mes
       affaires ? Le fusil, ça prouve rien pantoute, je vous le jure. {% else %}
       Câlice, lâchez mes affaires tranquilles ! Ma robe, c'est rien que du vin
-      renversé, je vous le jure. {% endif %} Pis arrêtez de me niaiser avec ça :
-      mon robot est déjà parti vous montrer où chercher. J'lai vu le Majordome,
+      renversé, je vous le jure. {% endif %} Pis arrêtez de me niaiser avec ça.
+      J'lai vu le Majordome,
       y'avait un sac à vin contenant sa meilleur bouteille, y'a clairement laisser
       des traces de son passage dans le sac ! {% else %} Le service, toujours le
       service. Le vin était... parfait. Enfin, presque. Je n'ai rien vu de suspect
@@ -1376,8 +1374,8 @@ mystery_suspect_speak:
       heiress_gun_seen %} Enfin ! Voulez-vous bien lâcher mes affaires ? Le fusil,
       ça ne prouve rien du tout, je vous le jure. {% else %} Franchement, laissez
       mes affaires tranquilles ! Ma robe, ce n'est rien que du vin renversé, je
-      vous le jure. {% endif %} Et arrêtez de m'embêter avec ça : mon robot est
-      déjà parti vous montrer où chercher. Je l'ai vu, le Majordome, il avait un
+      vous le jure. {% endif %} Et arrêtez de m'embêter avec ça.
+      Je l'ai vu, le Majordome, il avait un
       sac à vin contenant sa meilleure bouteille, il a clairement laissé des
       traces de son passage dans le sac ! {% else %} Le service, toujours le
       service. Le vin était... parfait. Enfin, presque. Je n'ai rien vu de suspect
@@ -1443,16 +1441,6 @@ mystery_suspect_speak:
     - action: input_boolean.turn_on
       target:
         entity_id: '{{ done_flag }}'
-    - if: '{{ suspect in [''heiress'', ''gardener''] }}'
-      then:
-      - action: script.turn_on
-        target:
-          entity_id: script.mystery_roby_goto
-        data:
-          variables:
-            destination: '{{ ''wine'' if suspect == ''heiress'' else ''trap'' }}'
-            lead_in_seconds: '{{ speech_seconds }}'
-        continue_on_error: true
 mystery_police_callback:
   alias: Mystery - Police callback (autopsy)
   icon: mdi:incognito
