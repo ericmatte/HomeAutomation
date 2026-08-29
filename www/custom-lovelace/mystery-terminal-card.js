@@ -221,9 +221,9 @@ main{display:grid; gap:calc(12*var(--px)); min-height:0; z-index:5;}
 /* Écran des caméras à part : sombre exprès, c'est de la surveillance nocturne.
    Celui du code est ce que les joueurs regardent le plus — il mérite d'être
    repérable du coin de l'œil, pas juste au premier plan. */
-main.code{grid-template-columns:1fr 1.15fr; position:relative;}
-main.code::before{content:''; position:absolute; inset:calc(-30*var(--px)); pointer-events:none;
-  background:radial-gradient(ellipse at 35% 15%, rgba(255,178,0,.16), transparent 62%);}
+main.code{grid-template-columns:1fr 1.15fr;}
+.crt.code::before{content:''; position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(ellipse at 35% 10%, rgba(255,178,0,.16), transparent 65%);}
 main.cctv{grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr;}
 section.col{display:flex; flex-direction:column; gap:calc(10*var(--px)); min-height:0;}
 .title{font-size:calc(17*var(--px)); letter-spacing:calc(4*var(--px)); color:var(--amber-dim);
@@ -367,7 +367,10 @@ footer{border:calc(1*var(--px)) solid var(--line); background:var(--panel);
   font-size:calc(15*var(--px)); color:var(--amber-dim); display:flex; gap:calc(28*var(--px)); overflow:hidden; z-index:5;}
 footer .ln{white-space:nowrap;}
 
-.regie{position:absolute; z-index:65; bottom:calc(16*var(--px));
+/* Au-dessus de tous les overlays (.ov va jusqu'à 72) : plein écran et
+   bascule de vue doivent rester utilisables même écran verrouillé, en
+   pleine révélation ou n'importe quel autre overlay ouvert. */
+.regie{position:absolute; z-index:90; bottom:calc(16*var(--px));
   width:calc(46*var(--px)); height:calc(46*var(--px)); display:grid; place-items:center;
   border:calc(1*var(--px)) solid var(--amber-deep); background:rgba(5,5,6,.9);
   color:var(--amber-dim); font-size:calc(22*var(--px)); line-height:1;
@@ -445,13 +448,19 @@ footer .ln{white-space:nowrap;}
 .confirm p{font-size:calc(20*var(--px)); color:var(--amber); margin:calc(18*var(--px)) 0 calc(28*var(--px)); line-height:1.6;}
 .confirm .row{display:flex; gap:calc(18*var(--px)); justify-content:center;}
 
-.ov#ovReveal{background:#000; padding:0; display:block;}
+.ov#ovReveal{background:#000; padding:0;}
+/* Chacun de ces "display:grid" est un rappel de l'erreur du dessus, en pire :
+   une règle auteur sans condition bat TOUJOURS le [hidden] par défaut du
+   navigateur, peu importe la spécificité — d'où le [hidden] explicite à
+   chaque fois, pour que masquer l'élément fonctionne vraiment. */
 .revealStart{position:absolute; inset:0; display:grid; place-items:center;}
+.revealStart[hidden]{display:none;}
 #revealVideo{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; background:#000;}
 .bustedStamp{position:absolute; inset:0; display:grid; place-items:center; pointer-events:none;
   font-size:calc(130*var(--px)); font-weight:700; letter-spacing:calc(8*var(--px)); color:var(--red);
   text-shadow:0 0 calc(30*var(--px)) rgba(255,59,48,.9), 0 0 calc(90*var(--px)) rgba(255,59,48,.55);
   -webkit-text-stroke:calc(2*var(--px)) #1a0000; opacity:0;}
+.bustedStamp[hidden]{display:none;}
 .bustedStamp.show{animation:bustedIn .5s cubic-bezier(.2,1.6,.4,1) forwards;}
 @keyframes bustedIn{0%{opacity:0; transform:scale(2.6) rotate(-12deg);}
   60%{opacity:1; transform:scale(.92) rotate(3deg);}
@@ -461,26 +470,40 @@ footer .ln{white-space:nowrap;}
 .theEnd{position:absolute; inset:0; display:grid; place-items:center; opacity:0;
   font-size:calc(90*var(--px)); letter-spacing:calc(16*var(--px)); color:var(--amber);
   text-shadow:0 0 calc(24*var(--px)) rgba(255,178,0,.5); transition:opacity 2s ease-in;}
+.theEnd[hidden]{display:none;}
 .theEnd.show{opacity:1;}
 
-/* Écran d'accueil du terminal de code : un cadenas bien visible plutôt que le
-   clavier tout de suite, pour attraper l'œil à côté du mur de caméras qui,
-   lui, bouge tout seul. Les deux portes s'écartent au clic, comme un coffre. */
-.ov#ovLock{background:#000; padding:0; display:block; z-index:72;}
-.lockDoor{position:absolute; top:0; bottom:0; width:50%; background:#050506;
+/* Composant « coffre-fort » réutilisé à deux endroits : l'accueil du terminal
+   de code (vert, pour entrer) et l'annonce du visionnement final sur le mur
+   d'images (rouge, avec .red) — même gabarit, seuls la couleur et le texte
+   changent. Les deux portes s'écartent au clic. */
+.vault{position:absolute; inset:0;}
+.vaultDoor{position:absolute; top:0; bottom:0; width:50%; background:#050506;
   transition:transform .7s cubic-bezier(.7,0,.3,1);}
-.lockDoor.l{left:0; border-right:calc(2*var(--px)) solid var(--green-dim);}
-.lockDoor.r{right:0; border-left:calc(2*var(--px)) solid var(--green-dim);}
-.ov#ovLock.opening .lockDoor.l{transform:translateX(-100%);}
-.ov#ovLock.opening .lockDoor.r{transform:translateX(100%);}
-.lockWrap{position:absolute; inset:0; display:grid; place-items:center; gap:calc(22*var(--px));
+.vaultDoor.l{left:0; border-right:calc(2*var(--px)) solid var(--green-dim);}
+.vaultDoor.r{right:0; border-left:calc(2*var(--px)) solid var(--green-dim);}
+.vault.red .vaultDoor.l{border-right-color:#5c1410;}
+.vault.red .vaultDoor.r{border-left-color:#5c1410;}
+.vault.opening .vaultDoor.l{transform:translateX(-100%);}
+.vault.opening .vaultDoor.r{transform:translateX(100%);}
+.vaultWrap{position:absolute; inset:0; display:grid; place-items:center; gap:calc(22*var(--px));
   text-align:center; transition:opacity .3s ease-out;}
-.ov#ovLock.opening .lockWrap{opacity:0; pointer-events:none;}
-.lockIcon{width:calc(150*var(--px)); height:calc(150*var(--px)); color:var(--green);
+.vault.opening .vaultWrap{opacity:0; pointer-events:none;}
+.vaultIcon{width:calc(150*var(--px)); height:calc(150*var(--px)); color:var(--green);
   filter:drop-shadow(0 0 calc(24*var(--px)) rgba(53,255,106,.65));
   animation:lockFlash 1.3s steps(2) infinite;}
+.vault.red .vaultIcon{color:var(--red); filter:drop-shadow(0 0 calc(24*var(--px)) rgba(255,59,48,.65));}
 @keyframes lockFlash{50%{opacity:.3}}
-.lockTitle{font-size:calc(22*var(--px)); letter-spacing:calc(6*var(--px)); color:var(--green);}
+.vaultTitle{font-size:calc(22*var(--px)); letter-spacing:calc(6*var(--px)); color:var(--green);}
+.vault.red .vaultTitle{color:var(--red);}
+.bigbtn.xl{font-size:calc(30*var(--px)); padding:calc(20*var(--px)) calc(44*var(--px));}
+
+/* Pas de "display" ici : un ID a plus de poids que .ov[hidden], alors
+   forcer "display:block" sur #ovLock/#ovReveal gagnerait toujours contre le
+   masquage et l'écran resterait affiché même une fois [hidden] posé. .ov
+   est déjà en position:absolute, donc son display:grid n'empêche en rien
+   les enfants position:absolute (portes, vaultWrap) de se placer. */
+.ov#ovLock{background:#000; padding:0; z-index:72;}
 
 @keyframes revealIn{0%{opacity:0; transform:scale(.94);} 100%{opacity:1; transform:none;}}
 .crt.revealing header, .crt.revealing main, .crt.revealing footer{animation:revealIn .5s ease-out both;}
@@ -512,7 +535,7 @@ const HEAD = (brand, sub, rec) => `
   </header>`;
 
 const HTML_CODE = `
-<div class="crt">
+<div class="crt code">
   <div class="noise"></div><div class="vig"></div>
   ${HEAD("MANOIR — POSTE DE SÉCURITÉ", "TERMINAL DE SAISIE · UNITÉ B-02 · SOUS-SOL", "ENREGISTREMENT")}
 
@@ -575,14 +598,14 @@ const HTML_CODE = `
     </div>
   </div>
 
-  <div class="ov" id="ovLock">
-    <div class="lockDoor l"></div>
-    <div class="lockDoor r"></div>
-    <div class="lockWrap">
-      <svg class="lockIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <div class="ov vault" id="ovLock">
+    <div class="vaultDoor l"></div>
+    <div class="vaultDoor r"></div>
+    <div class="vaultWrap">
+      <svg class="vaultIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>
       </svg>
-      <div class="lockTitle">ACCÈS RESTREINT</div>
+      <div class="vaultTitle">ACCÈS RESTREINT</div>
       <button class="bigbtn g" id="lockBtn">ACCÉDER AU PANNEAU DE CONTRÔLE</button>
     </div>
   </div>
@@ -631,8 +654,16 @@ const HTML_CCTV = (cells) => `
   ${REGIE}
 
   <div class="ov" id="ovReveal" hidden>
-    <div class="revealStart" id="revealStart">
-      <button class="bigbtn r" id="revealStartBtn">COMMENCER LE VISIONNEMENT FINAL</button>
+    <div class="revealStart vault red" id="revealStart" hidden>
+      <div class="vaultDoor l"></div>
+      <div class="vaultDoor r"></div>
+      <div class="vaultWrap">
+        <svg class="vaultIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+        </svg>
+        <div class="vaultTitle">AFFAIRE CLASSÉE</div>
+        <button class="bigbtn r xl" id="revealStartBtn">COMMENCER LE VISIONNEMENT FINAL</button>
+      </div>
     </div>
     <video id="revealVideo" hidden playsinline></video>
     <div class="bustedStamp" id="revealBusted" hidden>BUSTED</div>
@@ -1246,6 +1277,7 @@ class MysteryTerminalCard extends HTMLElement {
     this._show("ovReveal");
     const ending = this._revealStage === "end";
     this.$("revealStart").hidden = ending;
+    this.$("revealStart").classList.remove("opening");
     this.$("revealVideo").hidden = true;
     this.$("revealBusted").hidden = !ending;
     this.$("revealBusted").classList.toggle("show", ending);
@@ -1257,9 +1289,14 @@ class MysteryTerminalCard extends HTMLElement {
 
   async _beginReveal() {
     if (!this._revealMedia) return;
-    this._sfx("unlock");
+    this._sfx("vault");
     this._revealStage = "playing";
-    this.$("revealStart").hidden = true;
+    const start = this.$("revealStart");
+    start.classList.add("opening");
+    // Même minutage que le coffre du terminal de code (.vault) — les portes
+    // s'écartent avant de laisser place à la vidéo.
+    await new Promise((r) => setTimeout(r, 700));
+    start.hidden = true;
     const video = this.$("revealVideo");
     video.hidden = false;
     try {
@@ -1268,7 +1305,8 @@ class MysteryTerminalCard extends HTMLElement {
       this._log("RÉVÉLATION — VIDÉO INTROUVABLE");
       console.warn("[mystery-terminal] vidéo de révélation introuvable", e);
       this._revealStage = "ready";
-      this.$("revealStart").hidden = false;
+      start.classList.remove("opening");
+      start.hidden = false;
       video.hidden = true;
       return;
     }
